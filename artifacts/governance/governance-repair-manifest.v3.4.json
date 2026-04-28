@@ -1,0 +1,41 @@
+{
+  "schema_version": "governance-repair-manifest/v1",
+  "plan_version": "v3.4",
+  "supersedes": {
+    "plan_version": "v3.3",
+    "plan_path_in_repo": null,
+    "source_cache_path": "C:\\Users\\arcobaleno\\Downloads\\consilium-fabri-governance-repair-plan-v3.3.md",
+    "v3_3_artifact_status": "not_persisted_in_repo",
+    "decision_ref": "artifacts/decisions/TASK-1020.decision.md"
+  },
+  "reserved_task_range": {
+    "start": "TASK-1005",
+    "end": "TASK-1022"
+  },
+  "task_id_remapping": {
+    "applied": false,
+    "reason": "Preflight on 2026-04-28T15:50+08:00 confirmed all task IDs TASK-1005 through TASK-1022 are unused. No remapping required."
+  },
+  "execution_order": [
+    {"prompt": "-1", "task_id": "TASK-1020", "title": "Governance repair plan v3.4 patch lifecycle", "depends_on": []},
+    {"prompt": "0", "task_id": "TASK-1005", "title": "Governance reconciliation stub", "depends_on": ["TASK-1020"]},
+    {"prompt": "0a", "task_id": "TASK-1021", "title": "Context hygiene and memory poisoning mitigation", "depends_on": ["TASK-1005"]},
+    {"prompt": "1", "task_id": "TASK-1006", "title": "P0 baseline repair", "depends_on": ["TASK-1021"]},
+    {"prompt": "2", "task_id": "TASK-1007", "title": "RACI Auditor v2 and canonical identity registry", "depends_on": ["TASK-1006"]},
+    {"prompt": "2a", "task_id": "TASK-1022", "title": "Red Team adversarial case design", "depends_on": ["TASK-1007"]},
+    {"prompt": "3", "task_id": "TASK-1008", "title": "Assurance strict/legacy plus schema clarification", "depends_on": ["TASK-1022"]},
+    {"prompt": "6a", "task_id": "TASK-1009", "title": "Verify evidence floor policy + baseline manifest + targeted enforcement", "depends_on": ["TASK-1008"]},
+    {"prompt": "4", "task_id": "TASK-1010", "title": "TASK-964 historical evidence correction + production canonical drill", "depends_on": ["TASK-1009"]},
+    {"prompt": "5", "task_id": "TASK-1011", "title": "TASK-1001 reconciliation", "depends_on": ["TASK-1010"]},
+    {"prompt": "6b", "task_id": "TASK-1013", "title": "validate_context_stack import side-effect fix", "depends_on": ["TASK-1011"]},
+    {"prompt": "6c", "task_id": "TASK-1014", "title": "run_red_team_suite timeout hardening", "depends_on": ["TASK-1013"]},
+    {"prompt": "6d", "task_id": "TASK-1015", "title": "Verify floor full repo enforcement", "depends_on": ["TASK-1014"]},
+    {"prompt": "6e", "task_id": "TASK-1019", "title": "Red Team execution / regression promotion", "depends_on": ["TASK-1015"]},
+    {"prompt": "6f", "task_id": "TASK-1012", "title": "Final threat model rebuild", "depends_on": ["TASK-1019"]},
+    {"prompt": "7", "task_id": "TASK-1016", "title": "End-to-end smoke test", "depends_on": ["TASK-1012"]}
+  ],
+  "non_authorization": "TASK-1020 only authorizes creation of the v3.4 patch plan and its own lifecycle artifacts. It does not authorize executing Prompt 0 or any later prompt.",
+  "preflight_evidence_ref": "artifacts/verify/TASK-1020.verify.md#preflight-evidence",
+  "created_at": "2026-04-28T16:20:00+08:00",
+  "created_by": "TASK-1020"
+}

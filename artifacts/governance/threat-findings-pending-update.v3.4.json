@@ -27,6 +27,17 @@
       ],
       "rationale": "Governance policy established in Prompt 0a: source-ref-required authority policy (Rule-2/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-MEMORY-001/002 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts.",
       "finalized_by": null
+    },
+    {
+      "finding_id": "FIND-18",
+      "title": "Source/template contract drift",
+      "source_task_id": "TASK-1006",
+      "proposed_status": "In-Progress",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1006.verify.md"
+      ],
+      "rationale": "Source/template drift for artifacts/scripts/run_red_team_suite.py resolved by removing case_live_964() and RT-LIVE-964 CaseDefinition (TASK-964 legacy evidence is right-answer-for-wrong-reason, not canonical; not eligible for template sync). guard_contract_validator passes after repair. Remaining requirements for Mitigated: (1) CI exact-sync guard for root<->template pairs, (2) drift regression case in test corpus, (3) decision path evidence for drift resolution, (4) clean guard_contract_validator run. Items 1 and 2 are deferred to TASK-1007+. FIND-18 remains In-Progress.",
+      "finalized_by": null
     }
   ]
 }

@@ -1346,20 +1346,6 @@ def case_live_951() -> CaseResult:
     )
 
 
-def case_live_964() -> CaseResult:
-    result = run_command([sys.executable, str(STATUS_GUARD), "--task-id", "TASK-964", "--artifacts-root", str(REPO_ROOT / "artifacts")])
-    return build_case_result(
-        case_id="RT-LIVE-964",
-        phase="live",
-        title="RACI Circuit Breaker live drill",
-        expected="pass",
-        expected_exit_code=0,
-        expected_output_fragment="[OK] Validation passed",
-        result=result,
-        notes="TASK-964 live drill should prove RACI violation caught",
-    )
-
-
 def run_prompt_case(case_id: str, title: str, notes: str) -> CaseResult:
     result = run_command([sys.executable, str(PROMPT_REGRESSION), "--root", str(REPO_ROOT), "--case-id", case_id])
     return build_case_result(
@@ -1610,7 +1596,6 @@ STATIC_CASES: List[CaseDefinition] = [
 LIVE_CASES: List[CaseDefinition] = [
     CaseDefinition("RT-LIVE-950", "live", "Role boundary live drill", "pass", 0, "[OK] Validation passed", case_live_950),
     CaseDefinition("RT-LIVE-951", "live", "Blocked / PDCA / resume live drill", "pass", 0, "[OK] Validation passed", case_live_951),
-    CaseDefinition("RT-LIVE-964", "live", "RACI Circuit Breaker live drill", "pass", 0, "[OK] Validation passed", case_live_964),
 ]
 
 PROMPT_CASES: List[CaseDefinition] = [

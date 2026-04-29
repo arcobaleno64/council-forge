@@ -7,81 +7,340 @@
     "output_folder": "threat-model-20260417-124620"
   },
   "findings": [
-    {"id": "FIND-01", "severity": "High", "status": "Open", "title": "Mutable artifact contracts drive high-trust workflow decisions"},
-    {"id": "FIND-02", "severity": "High", "status": "Open", "title": "Artifact ingestion lacks schema and size ceilings"},
-    {"id": "FIND-03", "severity": "High", "status": "Open", "title": "Agent dispatch sends untrusted task context to external CLIs"},
-    {"id": "FIND-04", "severity": "High", "status": "Open", "title": "GitHub PR replay path accepts arbitrary API base URLs"},
-    {"id": "FIND-05", "severity": "High", "status": "Open", "title": "Override and waiver flow lacks separation of duties"},
-    {"id": "FIND-06", "severity": "High", "status": "Open", "title": "Red-team suite dynamically executes repo Python modules"},
-    {"id": "FIND-07", "severity": "Medium", "status": "Open", "title": "GitHub credentials persist in local process context"},
-    {"id": "FIND-08", "severity": "High", "status": "Open", "title": "Publish automation trusts local remotes and credentials too broadly"},
-    {"id": "FIND-09", "severity": "Medium", "status": "Open", "title": "No sandboxing for subprocess and CLI execution"},
-    {"id": "FIND-10", "severity": "Medium", "status": "Open", "title": "Generated artifacts can retain sensitive operational context"},
-    {"id": "FIND-11", "severity": "Medium", "status": "Mitigated", "title": "Repo-local secrets regression scan closes a prior blind spot"},
-    {"id": "FIND-12", "severity": "Medium", "status": "Mitigated", "title": "Focused static regression scan closes a prior workflow/script blind spot"}
+    {
+      "id": "FIND-01",
+      "severity": "High",
+      "status": "Open",
+      "title": "Mutable artifact contracts drive high-trust workflow decisions"
+    },
+    {
+      "id": "FIND-02",
+      "severity": "High",
+      "status": "Open",
+      "title": "Artifact ingestion lacks schema and size ceilings"
+    },
+    {
+      "id": "FIND-03",
+      "severity": "High",
+      "status": "Open",
+      "title": "Agent dispatch sends untrusted task context to external CLIs"
+    },
+    {
+      "id": "FIND-04",
+      "severity": "High",
+      "status": "Open",
+      "title": "GitHub PR replay path accepts arbitrary API base URLs"
+    },
+    {
+      "id": "FIND-05",
+      "severity": "High",
+      "status": "Open",
+      "title": "Override and waiver flow lacks separation of duties"
+    },
+    {
+      "id": "FIND-06",
+      "severity": "High",
+      "status": "Open",
+      "title": "Red-team suite dynamically executes repo Python modules"
+    },
+    {
+      "id": "FIND-07",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "GitHub credentials persist in local process context"
+    },
+    {
+      "id": "FIND-08",
+      "severity": "High",
+      "status": "Open",
+      "title": "Publish automation trusts local remotes and credentials too broadly"
+    },
+    {
+      "id": "FIND-09",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "No sandboxing for subprocess and CLI execution"
+    },
+    {
+      "id": "FIND-10",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "Generated artifacts can retain sensitive operational context"
+    },
+    {
+      "id": "FIND-11",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Repo-local secrets regression scan closes a prior blind spot"
+    },
+    {
+      "id": "FIND-12",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Focused static regression scan closes a prior workflow/script blind spot"
+    }
   ],
   "threats": [
-    {"id": "HM-T2-01", "component": "Human Maintainer", "tier": "Tier 2", "category": "Abuse", "prerequisites": "Privileged User", "status": "Open", "finding_id": "FIND-05"},
-    {"id": "HM-T2-02", "component": "Human Maintainer", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Local Process Access", "status": "Open", "finding_id": "FIND-07"},
-    {"id": "WC-T2-01", "component": "Workflow Controller", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-01"},
-    {"id": "WC-T2-02", "component": "Workflow Controller", "tier": "Tier 2", "category": "Denial of Service", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-02"},
-    {"id": "WC-T2-03", "component": "Workflow Controller", "tier": "Tier 2", "category": "Abuse", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-01"},
-    {"id": "AD-T2-01", "component": "Agent Dispatch", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-03"},
-    {"id": "AD-T2-02", "component": "Agent Dispatch", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-03"},
-    {"id": "AD-T3-01", "component": "Agent Dispatch", "tier": "Tier 3", "category": "Abuse", "prerequisites": "Local Process Access + Authenticated User", "status": "Open", "finding_id": "FIND-09"},
-    {"id": "GV-T2-01", "component": "Guard Validators", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GV-T2-02", "component": "Guard Validators", "tier": "Tier 2", "category": "Denial of Service", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-02"},
-    {"id": "GV-T2-03", "component": "Guard Validators", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GV-T2-04", "component": "Guard Validators", "tier": "Tier 2", "category": "Abuse", "prerequisites": "Privileged User", "status": "Open", "finding_id": "FIND-05"},
-    {"id": "GV-T3-01", "component": "Guard Validators", "tier": "Tier 3", "category": "Repudiation", "prerequisites": "Host/OS Access", "status": "Open", "finding_id": "FIND-05"},
-    {"id": "RTR-T2-01", "component": "Red Team Runner", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-06"},
-    {"id": "RTR-T2-02", "component": "Red Team Runner", "tier": "Tier 2", "category": "Denial of Service", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-09"},
-    {"id": "RTR-T3-01", "component": "Red Team Runner", "tier": "Tier 3", "category": "Elevation of Privilege", "prerequisites": "Git Worktree Compromise", "status": "Open", "finding_id": "FIND-06"},
-    {"id": "PA-T2-01", "component": "Publish Automation", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Local Process Access", "status": "Open", "finding_id": "FIND-07"},
-    {"id": "PA-T2-02", "component": "Publish Automation", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Local Process Access", "status": "Open", "finding_id": "FIND-08"},
-    {"id": "PA-T2-03", "component": "Publish Automation", "tier": "Tier 2", "category": "Abuse", "prerequisites": "Privileged User", "status": "Open", "finding_id": "FIND-05"},
-    {"id": "PA-T3-01", "component": "Publish Automation", "tier": "Tier 3", "category": "Abuse", "prerequisites": "Host/OS Access", "status": "Open", "finding_id": "FIND-08"},
-    {"id": "AS-T2-01", "component": "Artifact Store", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-01"},
-    {"id": "AS-T2-02", "component": "Artifact Store", "tier": "Tier 2", "category": "Repudiation", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-05"},
-    {"id": "AS-T2-03", "component": "Artifact Store", "tier": "Tier 2", "category": "Denial of Service", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-02"},
-    {"id": "AS-T3-01", "component": "Artifact Store", "tier": "Tier 3", "category": "Abuse", "prerequisites": "Git Worktree Compromise", "status": "Open", "finding_id": "FIND-01"},
-    {"id": "GWT-T2-01", "component": "Git Worktree", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Authenticated User", "status": "Mitigated", "finding_id": "FIND-11"},
-    {"id": "GWT-T2-02", "component": "Git Worktree", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Mitigated", "finding_id": "FIND-12"},
-    {"id": "GWT-T3-01", "component": "Git Worktree", "tier": "Tier 3", "category": "Information Disclosure", "prerequisites": "Host/OS Access", "status": "Open", "finding_id": "FIND-10"},
-    {"id": "GHP-T2-01", "component": "GitHub Platform", "tier": "Tier 2", "category": "Tampering", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GHP-T2-02", "component": "GitHub Platform", "tier": "Tier 2", "category": "Information Disclosure", "prerequisites": "Authenticated User", "status": "Open", "finding_id": "FIND-08"}
-  ]
-}{
-  "metadata": {
-    "repository": "arcobaleno64/consilium-fabri",
-    "branch": "master",
-    "commit": "4090bce",
-    "generated_at_utc": "2026-04-17 12:46:20",
-    "output_folder": "threat-model-20260417-124620"
-  },
-  "threats": [
-    {"id": "HM-T2-01", "component": "Human Maintainer", "category": "Abuse", "prerequisites": "Privileged User", "affected_flows": ["DF01", "DF13"], "status": "Open", "finding_id": "FIND-05"},
-    {"id": "HM-T2-02", "component": "Human Maintainer", "category": "Information Disclosure", "prerequisites": "Local Process Access", "affected_flows": ["DF13"], "status": "Open", "finding_id": "FIND-07"},
-    {"id": "WC-T2-01", "component": "Workflow Controller", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF01", "DF02"], "status": "Open", "finding_id": "FIND-01"},
-    {"id": "WC-T2-02", "component": "Workflow Controller", "category": "Denial of Service", "prerequisites": "Authenticated User", "affected_flows": ["DF01", "DF02", "DF04"], "status": "Open", "finding_id": "FIND-02"},
-    {"id": "AD-T2-01", "component": "Agent Dispatch", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF02", "DF03"], "status": "Open", "finding_id": "FIND-03"},
-    {"id": "AD-T2-02", "component": "Agent Dispatch", "category": "Information Disclosure", "prerequisites": "Authenticated User", "affected_flows": ["DF02", "DF03"], "status": "Open", "finding_id": "FIND-03"},
-    {"id": "GV-T2-01", "component": "Guard Validators", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF11"], "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GV-T2-02", "component": "Guard Validators", "category": "Information Disclosure", "prerequisites": "Authenticated User", "affected_flows": ["DF11"], "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GV-T2-03", "component": "Guard Validators", "category": "Denial of Service", "prerequisites": "Authenticated User", "affected_flows": ["DF05", "DF06"], "status": "Open", "finding_id": "FIND-02"},
-    {"id": "GV-T2-04", "component": "Guard Validators", "category": "Abuse", "prerequisites": "Privileged User", "affected_flows": ["DF05", "DF06"], "status": "Open", "finding_id": "FIND-05"},
-    {"id": "GV-T3-01", "component": "Guard Validators", "category": "Repudiation", "prerequisites": "Privileged User + Host/OS Access", "affected_flows": ["DF05", "DF06"], "status": "Open", "finding_id": "FIND-05"},
-    {"id": "RTR-T2-01", "component": "Red Team Runner", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF08"], "status": "Open", "finding_id": "FIND-06"},
-    {"id": "RTR-T2-02", "component": "Red Team Runner", "category": "Denial of Service", "prerequisites": "Authenticated User", "affected_flows": ["DF07", "DF08"], "status": "Open", "finding_id": "FIND-09"},
-    {"id": "PA-T2-01", "component": "Publish Automation", "category": "Information Disclosure", "prerequisites": "Local Process Access", "affected_flows": ["DF12", "DF13"], "status": "Open", "finding_id": "FIND-07"},
-    {"id": "PA-T2-02", "component": "Publish Automation", "category": "Tampering", "prerequisites": "Local Process Access", "affected_flows": ["DF10", "DF12"], "status": "Open", "finding_id": "FIND-08"},
-    {"id": "PA-T2-03", "component": "Publish Automation", "category": "Abuse", "prerequisites": "Privileged User", "affected_flows": ["DF13"], "status": "Open", "finding_id": "FIND-08"},
-    {"id": "AS-T2-01", "component": "Artifact Store", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF03", "DF04", "DF05"], "status": "Open", "finding_id": "FIND-01"},
-    {"id": "AS-T2-02", "component": "Artifact Store", "category": "Denial of Service", "prerequisites": "Authenticated User", "affected_flows": ["DF03", "DF05", "DF07", "DF09"], "status": "Open", "finding_id": "FIND-02"},
-    {"id": "GW-T2-01", "component": "Git Worktree", "category": "Information Disclosure", "prerequisites": "Authenticated User", "affected_flows": ["DF06", "DF10"], "status": "Mitigated", "finding_id": "FIND-11"},
-    {"id": "GW-T2-02", "component": "Git Worktree", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF06", "DF08", "DF10"], "status": "Mitigated", "finding_id": "FIND-12"},
-    {"id": "GW-T3-01", "component": "Git Worktree", "category": "Abuse", "prerequisites": "Host/OS Access", "affected_flows": ["DF06", "DF08", "DF10"], "status": "Open", "finding_id": "FIND-10"},
-    {"id": "GHP-T2-01", "component": "GitHub Platform", "category": "Tampering", "prerequisites": "Authenticated User", "affected_flows": ["DF11"], "status": "Open", "finding_id": "FIND-04"},
-    {"id": "GHP-T2-02", "component": "GitHub Platform", "category": "Information Disclosure", "prerequisites": "Local Process Access", "affected_flows": ["DF11", "DF12"], "status": "Open", "finding_id": "FIND-08"}
+    {
+      "id": "HM-T2-01",
+      "component": "Human Maintainer",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "HM-T2-02",
+      "component": "Human Maintainer",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-07"
+    },
+    {
+      "id": "WC-T2-01",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "WC-T2-02",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "WC-T2-03",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "AD-T2-01",
+      "component": "Agent Dispatch",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-03"
+    },
+    {
+      "id": "AD-T2-02",
+      "component": "Agent Dispatch",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-03"
+    },
+    {
+      "id": "AD-T3-01",
+      "component": "Agent Dispatch",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Local Process Access + Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-09"
+    },
+    {
+      "id": "GV-T2-01",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GV-T2-02",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "GV-T2-03",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GV-T2-04",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "GV-T3-01",
+      "component": "Guard Validators",
+      "tier": "Tier 3",
+      "category": "Repudiation",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "RTR-T2-01",
+      "component": "Red Team Runner",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-06"
+    },
+    {
+      "id": "RTR-T2-02",
+      "component": "Red Team Runner",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-09"
+    },
+    {
+      "id": "RTR-T3-01",
+      "component": "Red Team Runner",
+      "tier": "Tier 3",
+      "category": "Elevation of Privilege",
+      "prerequisites": "Git Worktree Compromise",
+      "status": "Open",
+      "finding_id": "FIND-06"
+    },
+    {
+      "id": "PA-T2-01",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-07"
+    },
+    {
+      "id": "PA-T2-02",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    },
+    {
+      "id": "PA-T2-03",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "PA-T3-01",
+      "component": "Publish Automation",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    },
+    {
+      "id": "AS-T2-01",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "AS-T2-02",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Repudiation",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "AS-T2-03",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "AS-T3-01",
+      "component": "Artifact Store",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Git Worktree Compromise",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "GWT-T2-01",
+      "component": "Git Worktree",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Mitigated",
+      "finding_id": "FIND-11"
+    },
+    {
+      "id": "GWT-T2-02",
+      "component": "Git Worktree",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Mitigated",
+      "finding_id": "FIND-12"
+    },
+    {
+      "id": "GWT-T3-01",
+      "component": "Git Worktree",
+      "tier": "Tier 3",
+      "category": "Information Disclosure",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-10"
+    },
+    {
+      "id": "GHP-T2-01",
+      "component": "GitHub Platform",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GHP-T2-02",
+      "component": "GitHub Platform",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    }
   ]
 }

@@ -514,3 +514,75 @@ def validate_workflow_rule_tables() -> List[str]:
                     f"Resolved policy for {assurance_level}/{adapter_name} has invalid readiness '{readiness}'"
                 )
     return errors
+
+
+# ---------------------------------------------------------------------------
+# RACI Auditor v2 — path classification and canonical RACI matrix (TASK-1007)
+# ---------------------------------------------------------------------------
+
+THREAT_MODEL_PATH_RE = re.compile(r"^threat-model-[^/]+/")
+
+_PATH_PREFIX_RULES: list[tuple[str, str]] = [
+    ("artifacts/tasks/", "task"),
+    ("artifacts/research/", "research"),
+    ("artifacts/plans/", "plan"),
+    ("artifacts/code/", "code"),
+    ("artifacts/test/", "test"),
+    ("artifacts/verify/", "verify"),
+    ("artifacts/decisions/", "decision"),
+    ("artifacts/status/", "status"),
+    ("artifacts/improvement/", "improvement"),
+    ("artifacts/scripts/", "scripts"),
+    ("docs/", "workflow_contract_docs"),
+    (".github/memory-bank/", "memory_bank"),
+    (".github/workflows/", "ci_workflows"),
+    (".github/agents/", "agent_definitions"),
+    (".github/skills/", "skills"),
+    (".github/prompts/", "prompts"),
+    ("template/", "template_mirror"),
+    ("external/", "external_dependency"),
+]
+
+_WORKFLOW_ENTRY_FILES: frozenset[str] = frozenset({
+    "README.md", "README.zh-TW.md", "OBSIDIAN.md", "START_HERE.md",
+})
+
+_AGENT_PROMPT_FILES: frozenset[str] = frozenset({
+    "AGENTS.md", "CLAUDE.md", "GEMINI.md", "CODEX.md", "BOOTSTRAP_PROMPT.md",
+})
+
+
+def classify_path(path_str: str) -> str:
+    """
+    Classify a repo-relative file path into a RACI v2 path category.
+    Returns 'unknown' (fail-closed) for unrecognized paths.
+    """
+    normalized = path_str.replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+
+    filename = normalized.rsplit("/", 1)[-1] if "/" in normalized else normalized
+
+    if filename in _WORKFLOW_ENTRY_FILES:
+        return "workflow_entry"
+    if filename in _AGENT_PROMPT_FILES:
+        return "agent_prompt"
+    if THREAT_MODEL_PATH_RE.match(normalized):
+        return "threat_model"
+
+    for prefix, category in _PATH_PREFIX_RULES:
+        if normalized.startswith(prefix):
+            return category
+
+    return "unknown"
+
+
+RACI_MATRIX_V2: dict[str, frozenset[str]] = {
+    "Claude Code": frozenset({"task", "plan", "decision", "status"}),
+    "Gemini CLI":  frozenset({"research", "memory_bank"}),
+    "Codex CLI":   frozenset({"code"}),
+    "Implementer": frozenset({"code"}),
+    "Tester":      frozenset({"test"}),
+    "Verifier":    frozenset({"verify"}),
+    "Reviewer":    frozenset({"verify"}),
+}

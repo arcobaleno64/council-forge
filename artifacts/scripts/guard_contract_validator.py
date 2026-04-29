@@ -22,6 +22,7 @@ EXACT_SYNC_FILES = [
     "GEMINI.md",
     "START_HERE.md",
     "requirements-dev.txt",
+    "artifacts/scripts/agent_identity.py",
     "artifacts/scripts/build_decision_registry.py",
     "artifacts/scripts/guard_contract_validator.py",
     "artifacts/scripts/prompt_regression_validator.py",
@@ -771,58 +772,172 @@ def apply_raci_waivers(violations: List[RaciViolation], decisions: List[dict]) -
     return waived
 
 
+def _run_raci_audit_v2(
+    root: Path,
+    file_path_str: str,
+    agent_str: str,
+    fix: bool,
+    dry_run: bool,
+    compatibility_mode: bool,
+) -> int:
+    """RACI Auditor v2: JSON output, fail-closed paths, alias rejection, --fix rejection."""
+    import agent_identity as ai
+    import workflow_constants as wc
+
+    # --fix is unconditionally rejected for RACI audits (exit 2)
+    if fix:
+        print(json.dumps({
+            "schema_version": "raci-audit/v2",
+            "error": "RACI_FIX_REJECTED",
+            "message": (
+                "--fix is not allowed for --audit-raci. "
+                "RACI violations require decision / waiver / correction evidence, not auto-fix."
+            ),
+        }, indent=2))
+        return 2
+
+    # Resolve agent identity; alias in strict mode → exit 2, unknown → exit 2
+    try:
+        canonical_agent, was_aliased = ai.resolve_identity(
+            agent_str, strict=True, compatibility_mode=compatibility_mode
+        )
+    except ai.AliasRejectedError as exc:
+        print(json.dumps({
+            "schema_version": "raci-audit/v2",
+            "error": "ALIAS_REJECTED",
+            "alias": agent_str,
+            "canonical": exc.canonical,
+            "message": str(exc),
+        }, indent=2))
+        return 2
+    except ai.UnknownIdentityError as exc:
+        print(json.dumps({
+            "schema_version": "raci-audit/v2",
+            "error": "UNKNOWN_IDENTITY",
+            "agent": agent_str,
+            "message": str(exc),
+        }, indent=2))
+        return 2
+
+    if was_aliased:
+        import sys as _sys
+        print(
+            f"[WARN] Alias '{agent_str}' resolved to '{canonical_agent}' (migration debt). "
+            "Update to canonical name.",
+            file=_sys.stderr,
+        )
+
+    # Compute repo-relative path for classification
+    fp = Path(file_path_str)
+    if fp.is_absolute():
+        try:
+            rel_path_str = fp.relative_to(root).as_posix()
+        except ValueError:
+            rel_path_str = file_path_str.replace("\\", "/")
+    else:
+        rel_path_str = file_path_str.replace("\\", "/")
+        if rel_path_str.startswith("./"):
+            rel_path_str = rel_path_str[2:]
+
+    path_category = wc.classify_path(rel_path_str)
+    allowed: frozenset[str] = wc.RACI_MATRIX_V2.get(canonical_agent, frozenset())
+
+    # Build raw_violations: unknown path or path not in allowed set
+    raw_violations: list[dict] = []
+    if path_category == "unknown" or path_category not in allowed:
+        raw_violations.append({
+            "agent": canonical_agent,
+            "file_path": rel_path_str,
+            "path_category": path_category,
+        })
+
+    # Load ex-ante waivers from decision artifacts
+    decisions: list[dict] = []
+    decision_dir = root / "artifacts" / "decisions"
+    if decision_dir.exists():
+        for p in sorted(decision_dir.glob("TASK-*.decision.md")):
+            text = p.read_text(encoding="utf-8")
+            d: dict[str, str] = {}
+            for line in text.splitlines():
+                if line.startswith("- Waiver Type:"):
+                    d["Waiver Type"] = line.split(":", 1)[1].strip()
+                elif line.startswith("- Waived Agent:"):
+                    d["Waived Agent"] = line.split(":", 1)[1].strip()
+                elif line.startswith("- Waived Artifact Type:"):
+                    d["Waived Artifact Type"] = line.split(":", 1)[1].strip()
+            if d:
+                decisions.append(d)
+
+    ex_ante = [d for d in decisions if d.get("Waiver Type") == "ex-ante"]
+    waivers_applied: list[dict] = []
+    post_waiver_violations: list[dict] = []
+    for v in raw_violations:
+        is_waived = any(
+            d.get("Waived Agent") == canonical_agent
+            and d.get("Waived Artifact Type") == v["path_category"]
+            for d in ex_ante
+        )
+        if is_waived:
+            waivers_applied.append({
+                "agent": canonical_agent,
+                "path_category": v["path_category"],
+                "waiver_type": "ex-ante",
+            })
+        else:
+            post_waiver_violations.append(v)
+
+    result_str = "VIOLATION" if post_waiver_violations else "PASS"
+    audit_output = {
+        "schema_version": "raci-audit/v2",
+        "agent": canonical_agent,
+        "file_path": rel_path_str,
+        "path_category": path_category,
+        "allowed_categories": sorted(allowed),
+        "raw_violations": raw_violations,
+        "waivers_applied": waivers_applied,
+        "post_waiver_violations": post_waiver_violations,
+        "result": result_str,
+    }
+    print(json.dumps(audit_output, indent=2))
+
+    # Append to violations log unless dry-run
+    if post_waiver_violations and not dry_run:
+        import datetime
+        log_path = root / ".github" / "memory-bank" / "raci-violations-log.md"
+        if log_path.exists():
+            ts = datetime.datetime.now(
+                datetime.timezone(datetime.timedelta(hours=8))
+            ).strftime("%Y-%m-%dT%H:%M:%S+08:00")
+            with log_path.open("a", encoding="utf-8") as f:
+                f.write(
+                    f"- {ts} | Agent: {canonical_agent} | "
+                    f"File: {rel_path_str} | Category: {path_category}\n"
+                )
+
+    return 1 if post_waiver_violations else 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate workflow sync contracts across README, Obsidian, root, and template docs.")
     parser.add_argument("--root", default=".", help="Repository root. Default: current directory")
     parser.add_argument("--check-readme", action="store_true", help="Validate README section contract plus bilingual H2 structure consistency")
-    parser.add_argument("--audit-raci", nargs=2, metavar=("FILE", "AGENT"), help="Run RACI auditor on a specific file against an agent")
-    parser.add_argument("--dry-run", action="store_true", help="Run without applying fixes (default)")
-    parser.add_argument("--fix", action="store_true", help="Automatically fix obvious state drifts (requires manual approval for RACI)")
+    parser.add_argument("--audit-raci", nargs=2, metavar=("FILE", "AGENT"), help="Run RACI auditor v2 on a specific file against an agent (JSON output)")
+    parser.add_argument("--dry-run", action="store_true", help="Run without writing violations log (default for audit)")
+    parser.add_argument("--fix", action="store_true", help="Automatically fix obvious state drifts; rejected for --audit-raci (exit 2)")
+    parser.add_argument("--compatibility-mode", action="store_true", help="Allow alias resolution for --audit-raci (migration debt; emits deprecation warning)")
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
-    
+
     if args.audit_raci:
-        file_path_str, agent = args.audit_raci
-        file_path = Path(file_path_str).resolve()
-        
-        import workflow_constants as wc
-        decisions = []
-        decision_dir = root / "artifacts" / "decisions"
-        if decision_dir.exists():
-            for p in decision_dir.glob("TASK-*.decision.md"):
-                text = p.read_text(encoding="utf-8")
-                decision = {}
-                for line in text.splitlines():
-                    if line.startswith("- Waiver Type:"):
-                        decision["Waiver Type"] = line.split(":", 1)[1].strip()
-                    elif line.startswith("- Waived Agent:"):
-                        decision["Waived Agent"] = line.split(":", 1)[1].strip()
-                    elif line.startswith("- Waived Artifact Type:"):
-                        decision["Waived Artifact Type"] = line.split(":", 1)[1].strip()
-                if decision:
-                    decisions.append(decision)
-                    
-        violations = detect_raci_violations(file_path, agent, wc.RACI_MATRIX)
-        post_waiver = apply_raci_waivers(violations, decisions)
-        
-        if post_waiver:
-            print("[ERROR] RACI Violation detected!")
-            for v in post_waiver:
-                print(f"[FAIL] Agent '{v.agent}' is not allowed to modify '{v.actual_type}' (required: {v.required_type})")
-            
-            log_path = root / ".github" / "memory-bank" / "raci-violations-log.md"
-            if log_path.exists() and not args.dry_run:
-                import datetime
-                timestamp = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%Y-%m-%dT%H:%M:%S+08:00")
-                append_line = f"- {timestamp} | Agent: {agent} | File: {file_path.relative_to(root).as_posix() if file_path.is_relative_to(root) else file_path.name} | Violation: {post_waiver[0].actual_type} vs {post_waiver[0].required_type}\n"
-                with log_path.open("a", encoding="utf-8") as f:
-                    f.write(append_line)
-                    
-            return 1
-            
-        print(f"[OK] RACI check passed for {agent} on {file_path.name}")
-        return 0
+        return _run_raci_audit_v2(
+            root,
+            file_path_str=args.audit_raci[0],
+            agent_str=args.audit_raci[1],
+            fix=args.fix,
+            dry_run=args.dry_run,
+            compatibility_mode=args.compatibility_mode,
+        )
 
     errors = validate_exact_sync(root)
     errors.extend(validate_required_phrases(root))

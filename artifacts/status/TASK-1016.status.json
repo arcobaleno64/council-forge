@@ -1,0 +1,49 @@
+{
+  "task_id": "TASK-1016",
+  "state": "done",
+  "assurance_level": "mvp",
+  "project_adapter": "docs-spec",
+  "current_owner": "Claude",
+  "next_agent": "None",
+  "last_updated": "2026-05-03T23:00:00+08:00",
+  "verification_readiness": "mvp",
+  "open_verification_debts": [],
+  "required_artifacts": [
+    "task",
+    "plan",
+    "code",
+    "decision",
+    "verify",
+    "status"
+  ],
+  "available_artifacts": [
+    "task",
+    "plan",
+    "code",
+    "decision",
+    "verify",
+    "status"
+  ],
+  "missing_artifacts": [],
+  "blocked_reason": "",
+  "historical_limited_evidence": false,
+  "smoke_test_result": "pass",
+  "smoke_test_evidence": {
+    "guard_status_validator_TASK_1016": "[OK] Validation passed",
+    "guard_contract_validator": "[OK] Contract validation passed",
+    "verify_floor_enforce": "[OK] Verify floor enforcement passed",
+    "manifest_entries_parsed": 16,
+    "red_team_cases_valid": true,
+    "threat_inventory_plan_version": "v3.4",
+    "threat_inventory_finding_count": 34,
+    "FIND_18_not_mitigated": true,
+    "FIND_23_24_evidence_ok": true,
+    "FIND_25_28_backlog": true,
+    "RT_gaps_preserved": true,
+    "TASK_964_historical_preserved": true,
+    "TASK_1001_blocked_preserved": true,
+    "model_diff_tabular": true
+  },
+  "chain_sealed_at": "2026-05-03T23:00:00+08:00",
+  "chain_sealed_by": "TASK-1016"
+}

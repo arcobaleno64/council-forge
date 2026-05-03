@@ -933,7 +933,15 @@ Repaired future evidence MUST NOT retroactively upgrade TASK-964's historical ma
 
 ### 5.12.1 Purpose
 
-`artifacts/governance/verify-floor-baseline.v3.4.json` snapshots all verify artifacts at a point in time and classifies each by floor policy. It enables split enforcement: historical artifacts remain advisory, while new and modified artifacts are immediately strict.
+`artifacts/governance/verify-floor-baseline.v3.4.json` is an **immutable snapshot** of all verify artifacts that existed **before** the TASK-1009 baseline was created. It classifies each entry by floor policy and enables split enforcement: historical artifacts remain advisory, while new and modified artifacts are immediately strict.
+
+**Baseline semantics (critical)**:
+
+- `baseline_verify_files` covers only verify artifacts that existed at baseline creation time.
+- Verify artifacts created or modified **after** the baseline snapshot are **not** included in `baseline_verify_files`.
+- `artifacts/verify/TASK-1009.verify.md` is intentionally absent from the baseline because it was created as part of TASK-1009 itself — after the baseline snapshot. It is classified as `strict` by `classify_verify_floor_policy`.
+- Adding a post-baseline artifact to `baseline_verify_files` would incorrectly downgrade it from `strict` to `advisory_until_6d` — this MUST NOT be done.
+- The baseline entry count (32) and the current total artifact count (33+) will diverge as new verify artifacts are created. This divergence is correct and expected.
 
 ### 5.12.2 Top-Level Fields
 

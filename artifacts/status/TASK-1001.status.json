@@ -1,15 +1,25 @@
 {
   "task_id": "TASK-1001",
-  "state": "drafted",
+  "state": "blocked",
   "current_owner": "Claude",
-  "next_agent": "Claude",
+  "next_agent": "User",
   "required_artifacts": ["task", "status"],
-  "available_artifacts": ["task", "status"],
+  "available_artifacts": ["task", "status", "decision", "verify"],
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
-  "open_verification_debts": [],
-  "blocked_reason": "",
-  "last_updated": "2026-04-25T15:00:00+08:00",
-  "verification_readiness": "mvp"
+  "open_verification_debts": ["deferred: GEMINI.md 含 Architecture Synthesizer dispatch 模式段落"],
+  "blocked_reason": "AC-5b GEMINI.md Architecture Synthesizer dispatch mode open and unimplemented; no successor task assigned in v3.4 scope. See artifacts/decisions/TASK-1001.decision.md §Decision 2.",
+  "last_updated": "2026-05-03T19:00:00+08:00",
+  "verification_readiness": "mvp",
+  "superseded_by": {
+    "successor_task_id": "TASK-1011",
+    "decision_ref": "artifacts/decisions/TASK-1001.decision.md",
+    "superseded_at": "2026-05-03T19:00:00+08:00",
+    "scope": "partial",
+    "remaining_obligations": [
+      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode (deferred, not in v3.4 scope)"
+    ]
+  },
+  "reconciliation_ref": "artifacts/verify/TASK-1011.verify.md"
 }

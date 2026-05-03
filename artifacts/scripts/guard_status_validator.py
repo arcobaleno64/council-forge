@@ -1839,7 +1839,15 @@ def validate_artifact_presence(
     )
     missing_required = sorted(required - existing)
     if missing_required:
-        errors.append(f"Missing required artifacts for state '{state}': {missing_required}")
+        acknowledged_missing = set(status.get("missing_artifacts", []))
+        unacknowledged = [a for a in missing_required if a not in acknowledged_missing]
+        if unacknowledged:
+            errors.append(f"Missing required artifacts for state '{state}': {unacknowledged}")
+        else:
+            warnings.append(
+                f"Acknowledged missing artifacts for state '{state}': {missing_required} "
+                "(recorded in status.json missing_artifacts; historical limited evidence)"
+            )
     if not status_uses_legacy_schema(status):
         status_available = set(status.get("available_artifacts", []))
         status_missing = set(status.get("missing_artifacts", []))

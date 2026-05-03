@@ -8,10 +8,19 @@
 - Last Updated: 2026-04-26T19:48:00+08:00
 
 ## Assurance Level
-poc
+mvp
 
 ## Project Adapter
 generic
+
+## Historical Evidence Note
+
+此任務為歷史演練（historical drill），屬 mvp + limited evidence。
+- 結論可能正確，但產出時的 evidence floor 不符合 production 標準（無 structured checklist、無 deterministic timestamp、無 reviewer attestation）。
+- 此演練為 right-answer-for-wrong-reason artifact。
+- Production-grade canonical drill 不屬於本任務，保留給 TASK-1010 或 manifest 指定的對應任務。
+- 本任務的 evidence 不得被回溯升級為 production maturity。
+- Reclassification basis: v3.4 §4.3 + TASK-1008 review correction（2026-05-03）。
 
 ## Objective
 [Live Drill] 實兵演練：測試 Validator 斷路器是否能正確攔截越權操作。

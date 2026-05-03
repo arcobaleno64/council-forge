@@ -1,16 +1,19 @@
 {
   "task_id": "TASK-964",
   "state": "done",
-  "assurance_level": "poc",
+  "assurance_level": "mvp",
   "project_adapter": "generic",
   "current_owner": "Codex",
   "next_agent": "None",
-  "last_updated": "2026-04-26T19:48:00+08:00",
-  "verification_readiness": "poc",
-  "open_verification_debts": [],
-  "required_artifacts": ["task", "code", "verify", "status"],
-  "available_artifacts": ["task", "code", "verify", "status", "decision"],
-  "missing_artifacts": [],
+  "last_updated": "2026-05-03T12:30:00+08:00",
+  "verification_readiness": "mvp",
+  "open_verification_debts": [
+    "plan artifact missing (historical limited evidence)",
+    "test artifact missing (historical limited evidence)"
+  ],
+  "required_artifacts": ["code", "plan", "status", "task", "test", "verify"],
+  "available_artifacts": ["code", "decision", "status", "task", "verify"],
+  "missing_artifacts": ["plan", "test"],
   "blocked_reason": "",
   "decision_waivers": [
     {

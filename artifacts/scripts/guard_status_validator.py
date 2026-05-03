@@ -1896,6 +1896,25 @@ _STRICT_FLOOR_CMD_RE = re.compile(r"`[^`\n]+`")
 _STRICT_FLOOR_STATUS_RE = re.compile(r"\[(?:OK|PASS|FAIL)\]", re.IGNORECASE)
 _STRICT_FLOOR_FILEPATH_RE = re.compile(r"artifacts/[^\s,;\"']+\.[a-z]{2,6}")
 _STRICT_FLOOR_VALID_RESULTS = frozenset({"verified", "deferred", "unverifiable"})
+_STRICT_FLOOR_CONCRETE_ER_RE = re.compile(
+    r"(?:"
+    r"(?:artifacts|\.github)/[^\s,;\"'<>()\n]+"
+    r"|`[^`\n]+`"
+    r"|command:\s*\S+"
+    r"|\b[0-9a-f]{7,40}\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def has_concrete_evidence_ref(er_text: str) -> bool:
+    """Return True if the Evidence Refs section contains at least one concrete reference token.
+
+    Concrete tokens: repo file path (artifacts/ or .github/), backtick-quoted command,
+    command: prefix, or commit hash (7-40 hex chars).
+    Narrative-only text such as 'Reviewed by governance process.' returns False.
+    """
+    return bool(_STRICT_FLOOR_CONCRETE_ER_RE.search(er_text))
 
 
 def _check_strict_verify_floor(verify_path: Path, task_id: str) -> List[str]:
@@ -1925,6 +1944,11 @@ def _check_strict_verify_floor(verify_path: Path, task_id: str) -> List[str]:
         errors.append("missing ## Evidence Refs section")
     elif er.strip().lower() in {"none", "n/a", "none.", "-", "—"}:
         errors.append("Evidence Refs: None is not acceptable for strict floor")
+    elif not has_concrete_evidence_ref(er):
+        errors.append(
+            "Evidence Refs is narrative-only: must contain at least one concrete reference "
+            "(repo file path, backtick command, commit hash)"
+        )
     checklist_section = extract_section(text, "Acceptance Criteria Checklist")
     if checklist_section:
         items = parse_verify_checklist_items(checklist_section)

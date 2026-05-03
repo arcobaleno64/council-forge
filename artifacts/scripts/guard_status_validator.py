@@ -1890,6 +1890,132 @@ def is_historical_limited_evidence_exception(
     return all(phrase in verify_text for phrase in _HISTORICAL_VERIFY_REQUIRED_PHRASES)
 
 
+_STRICT_FLOOR_COMMIT_RE = re.compile(r"\b[0-9a-f]{7,40}\b", re.IGNORECASE)
+_STRICT_FLOOR_URL_RE = re.compile(r"https?://\S+")
+_STRICT_FLOOR_CMD_RE = re.compile(r"`[^`\n]+`")
+_STRICT_FLOOR_STATUS_RE = re.compile(r"\[(?:OK|PASS|FAIL)\]", re.IGNORECASE)
+_STRICT_FLOOR_FILEPATH_RE = re.compile(r"artifacts/[^\s,;\"']+\.[a-z]{2,6}")
+_STRICT_FLOOR_VALID_RESULTS = frozenset({"verified", "deferred", "unverifiable"})
+
+
+def _check_strict_verify_floor(verify_path: Path, task_id: str) -> List[str]:
+    """Strict floor checks for a post-baseline verify artifact (TASK-1015 enforcement)."""
+    errors: List[str] = []
+    try:
+        text = verify_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"cannot read verify artifact: {exc}"]
+    bg = extract_section(text, "Build Guarantee")
+    if not bg:
+        errors.append("missing or empty ## Build Guarantee section")
+    else:
+        has_concrete = (
+            bool(_STRICT_FLOOR_COMMIT_RE.search(bg))
+            or bool(_STRICT_FLOOR_URL_RE.search(bg))
+            or bool(_STRICT_FLOOR_CMD_RE.search(bg))
+            or bool(_STRICT_FLOOR_STATUS_RE.search(bg))
+            or bool(_STRICT_FLOOR_FILEPATH_RE.search(bg))
+        )
+        if not has_concrete:
+            errors.append(
+                "## Build Guarantee is narrative-only (no commit hash, CI URL, or command evidence)"
+            )
+    er = extract_section(text, "Evidence Refs")
+    if not er:
+        errors.append("missing ## Evidence Refs section")
+    elif er.strip().lower() in {"none", "n/a", "none.", "-", "—"}:
+        errors.append("Evidence Refs: None is not acceptable for strict floor")
+    checklist_section = extract_section(text, "Acceptance Criteria Checklist")
+    if checklist_section:
+        items = parse_verify_checklist_items(checklist_section)
+        for fields in items:
+            result_val = str(fields.get("result", "")).strip().lower()
+            item_label = str(fields.get("criterion") or fields.get("method") or "<unnamed>")[:60]
+            if not result_val:
+                errors.append(f"checklist item missing 'result:' field: {item_label}")
+            elif result_val not in _STRICT_FLOOR_VALID_RESULTS:
+                errors.append(
+                    f"checklist item result '{result_val}' not in "
+                    f"{{verified, deferred, unverifiable}}: {item_label}"
+                )
+    return errors
+
+
+def run_verify_floor_enforce(repo_root: Path) -> int:
+    """Full repo verify floor enforcement — Prompt 6d / TASK-1015."""
+    baseline_path = repo_root / VERIFY_FLOOR_BASELINE_PATH
+    baseline = load_verify_floor_baseline(baseline_path)
+    if baseline is None:
+        print(f"[FAIL] verify-floor-baseline not found at {baseline_path}", file=sys.stderr)
+        return 1
+    verify_dir = repo_root / "artifacts" / "verify"
+    all_verify_files = sorted(verify_dir.glob("TASK-*.verify.md"))
+    baseline_entries = baseline.get("baseline_verify_files", [])
+    baseline_map: Dict[str, dict] = {}
+    for entry in baseline_entries:
+        basename = entry.get("path", "").rsplit("/", 1)[-1]
+        baseline_map[basename] = entry
+    baseline_unchanged: List[Tuple[Path, str]] = []
+    historical_exception: List[Tuple[Path, str]] = []
+    post_baseline_new: List[Tuple[Path, str]] = []
+    post_baseline_modified: List[Tuple[Path, str]] = []
+    for p in all_verify_files:
+        task_id = p.name.replace(".verify.md", "")
+        entry = baseline_map.get(p.name)
+        if entry is None:
+            post_baseline_new.append((p, task_id))
+        else:
+            raw = read_bounded_file(p, missing_label=None, too_large_label="TOO_LARGE")
+            actual_sha = hashlib.sha256(raw).hexdigest() if raw is not None else ""
+            if actual_sha == entry.get("sha256", ""):
+                if entry.get("baseline_known_debt") == "limited_evidence":
+                    historical_exception.append((p, task_id))
+                else:
+                    baseline_unchanged.append((p, task_id))
+            else:
+                post_baseline_modified.append((p, task_id))
+    print("[INFO] Full repo verify floor enforcement (Prompt 6d / TASK-1015)")
+    print(f"[INFO] Baseline: {VERIFY_FLOOR_BASELINE_PATH} ({len(baseline_entries)} entries)")
+    print(f"\n[INFO] === Baseline entries — advisory_until_6d ({len(baseline_unchanged)}) ===")
+    for _, tid in baseline_unchanged:
+        print(f"[INFO]   {tid}: baseline unchanged (advisory)")
+    print(f"\n[INFO] === Historical limited evidence exceptions ({len(historical_exception)}) ===")
+    for _, tid in historical_exception:
+        print(f"[INFO]   {tid}: baseline_known_debt=limited_evidence — advisory, not production evidence")
+    print(f"\n[INFO] === Post-baseline new — strict ({len(post_baseline_new)}) ===")
+    for _, tid in post_baseline_new:
+        print(f"[INFO]   {tid}: POST-BASELINE-NEW -> strict enforcement applies")
+    print(f"\n[INFO] === Post-baseline modified — strict ({len(post_baseline_modified)}) ===")
+    if not post_baseline_modified:
+        print("[INFO]   (none)")
+    else:
+        for _, tid in post_baseline_modified:
+            print(f"[INFO]   {tid}: POST-BASELINE-MODIFIED -> strict enforcement applies")
+    strict_targets = post_baseline_new + post_baseline_modified
+    print(f"\n[INFO] === Strict enforcement results ({len(strict_targets)} artifacts) ===")
+    failures: List[Tuple[str, List[str]]] = []
+    for p, task_id in strict_targets:
+        check_errors = _check_strict_verify_floor(p, task_id)
+        if check_errors:
+            failures.append((task_id, check_errors))
+            for err in check_errors:
+                print(f"[FAIL] {task_id}: {err}")
+        else:
+            print(f"[OK]   {task_id}: strict floor PASSED")
+    print(f"\n[INFO] === Summary ===")
+    print(f"[INFO] Total verify artifacts scanned: {len(all_verify_files)}")
+    print(f"[INFO] Baseline unchanged (advisory): {len(baseline_unchanged)}")
+    print(f"[INFO] Historical limited evidence exceptions: {len(historical_exception)} ({[t for _, t in historical_exception]})")
+    print(f"[INFO] Post-baseline new (strict): {len(post_baseline_new)} ({[t for _, t in post_baseline_new]})")
+    print(f"[INFO] Post-baseline modified (strict): {len(post_baseline_modified)}")
+    print(f"[INFO] Strict failures: {len(failures)}")
+    if failures:
+        print(f"\n[FAIL] Verify floor enforcement FAILED — {len(failures)} artifact(s) did not meet strict floor")
+        return 1
+    print(f"\n[OK] Verify floor enforcement passed — all post-baseline verify artifacts meet strict floor")
+    return 0
+
+
 def validate_artifact_presence(
     artifacts_root: Path,
     task_id: str,
@@ -2365,7 +2491,7 @@ def check_tao_trace(artifacts_root: Path, task_id: str) -> List[str]:
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate artifact workflow status and transitions.")
-    parser.add_argument("--task-id", "--task", dest="task_id", required=True, help="Task id, for example TASK-001")
+    parser.add_argument("--task-id", "--task", dest="task_id", required=False, default=None, help="Task id, for example TASK-001")
     parser.add_argument("--artifacts-root", default="./artifacts", help="Artifacts root directory. Default: ./artifacts")
     parser.add_argument("--from-state", help="Validate a proposed transition from this state")
     parser.add_argument("--to-state", help="Validate a proposed transition to this state")
@@ -2403,12 +2529,35 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
             "Full enforcement is deferred to Prompt 6d / TASK-1015."
         ),
     )
+    parser.add_argument(
+        "--verify-floor-enforce",
+        action="store_true",
+        help=(
+            "Full repo verify floor enforcement (Prompt 6d / TASK-1015). "
+            "Scans all artifacts/verify/TASK-*.verify.md, classifies each artifact "
+            "by its baseline relationship, and applies strict floor checks to all "
+            "post-baseline new/modified verify artifacts. Does not require --task-id. "
+            "Use --root to specify the project root (default: parent of --artifacts-root)."
+        ),
+    )
+    parser.add_argument(
+        "--root",
+        dest="repo_root",
+        default=None,
+        help="Project root directory for --verify-floor-enforce. Default: parent of --artifacts-root.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv)
     artifacts_root = Path(args.artifacts_root).resolve()
+    if args.verify_floor_enforce:
+        repo_root = Path(args.repo_root).resolve() if args.repo_root else artifacts_root.parent
+        return run_verify_floor_enforce(repo_root)
+    if args.task_id is None:
+        print("[FAIL] --task-id is required", file=sys.stderr)
+        return 2
     if args.strict_scope and args.allow_scope_drift:
         print("[FAIL] --strict-scope and --allow-scope-drift cannot be used together", file=sys.stderr)
         return 2

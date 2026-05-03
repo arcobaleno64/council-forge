@@ -22,6 +22,8 @@ mvp
 
 ## Historical Evidence Qualification
 
+This task is classified as historical limited evidence per v3.4 §4.4. The narrow exception in guard_status_validator applies to this task only.
+
 - **Evidence Floor**: limited（產出時無 structured checklist、無 deterministic timestamp、無 reviewer attestation）
 - **Maturity Classification**: right-answer-for-wrong-reason — 結論可能正確，但 evidence 不符合 production-grade 標準
 - **Not canonical proof**: 本 verify 不構成 Codex CLI production canonical drill 的有效證據

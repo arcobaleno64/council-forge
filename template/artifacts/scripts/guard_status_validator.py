@@ -1815,6 +1815,48 @@ def reconcile_status(artifacts_root: Path, task_id: str) -> ValidationResult:
     return reconcile_status_file(artifacts_root, task_id, apply=True)
 
 
+_HISTORICAL_EXCEPTION_ALLOWLIST: frozenset[str] = frozenset({"TASK-964"})
+_HISTORICAL_ACCEPTED_MISSING: frozenset[str] = frozenset({"plan", "test"})
+_HISTORICAL_VERIFY_REQUIRED_PHRASES: tuple[str, ...] = (
+    "historical limited evidence",
+    "right-answer-for-wrong-reason",
+    "production canonical drill",
+    "task-1010",
+)
+
+
+def is_historical_limited_evidence_exception(
+    task_id: str,
+    status: dict,
+    missing_required: List[str],
+    verify_path: Path,
+) -> bool:
+    """
+    Narrow exception for historical limited-evidence tasks only.
+    All conditions must hold; failure of any condition returns False (strict by default).
+    Must NOT be used to bypass missing-artifact checks for ordinary mvp/production tasks.
+    """
+    if task_id not in _HISTORICAL_EXCEPTION_ALLOWLIST:
+        return False
+    if str(status.get("assurance_level", "")).strip().lower() != "mvp":
+        return False
+    if str(status.get("verification_readiness", "")).strip().lower() != "mvp":
+        return False
+    if not status.get("historical_limited_evidence"):
+        return False
+    if status.get("missing_artifacts_policy") != "historical_limited_evidence_exception":
+        return False
+    if not set(missing_required).issubset(_HISTORICAL_ACCEPTED_MISSING):
+        return False
+    if not verify_path.exists():
+        return False
+    try:
+        verify_text = verify_path.read_text(encoding="utf-8").lower()
+    except OSError:
+        return False
+    return all(phrase in verify_text for phrase in _HISTORICAL_VERIFY_REQUIRED_PHRASES)
+
+
 def validate_artifact_presence(
     artifacts_root: Path,
     task_id: str,
@@ -1839,15 +1881,14 @@ def validate_artifact_presence(
     )
     missing_required = sorted(required - existing)
     if missing_required:
-        acknowledged_missing = set(status.get("missing_artifacts", []))
-        unacknowledged = [a for a in missing_required if a not in acknowledged_missing]
-        if unacknowledged:
-            errors.append(f"Missing required artifacts for state '{state}': {unacknowledged}")
-        else:
+        verify_path = artifact_path(artifacts_root, task_id, "verify")
+        if is_historical_limited_evidence_exception(task_id, status, missing_required, verify_path):
             warnings.append(
-                f"Acknowledged missing artifacts for state '{state}': {missing_required} "
-                "(recorded in status.json missing_artifacts; historical limited evidence)"
+                f"Historical limited evidence exception (narrow): missing artifacts {missing_required} "
+                f"acknowledged for task_id='{task_id}' only; this exception does not apply to other tasks"
             )
+        else:
+            errors.append(f"Missing required artifacts for state '{state}': {missing_required}")
     if not status_uses_legacy_schema(status):
         status_available = set(status.get("available_artifacts", []))
         status_missing = set(status.get("missing_artifacts", []))

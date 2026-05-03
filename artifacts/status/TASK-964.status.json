@@ -15,6 +15,9 @@
   "available_artifacts": ["code", "decision", "status", "task", "verify"],
   "missing_artifacts": ["plan", "test"],
   "blocked_reason": "",
+  "historical_limited_evidence": true,
+  "missing_artifacts_policy": "historical_limited_evidence_exception",
+  "historical_limited_evidence_reason": "TASK-964 is a historical drill with right-answer-for-wrong-reason evidence; production canonical drill is deferred to TASK-1010.",
   "decision_waivers": [
     {
       "task_id": "TASK-964",

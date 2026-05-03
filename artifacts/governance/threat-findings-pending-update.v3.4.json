@@ -3,6 +3,8 @@
   "plan_version": "v3.4",
   "created_at": "2026-04-29T14:00:00+08:00",
   "created_by": "TASK-1021",
+  "last_updated_by": "TASK-1019",
+  "last_updated_at": "2026-05-03T23:55:00+08:00",
   "entries": [
     {
       "finding_id": "FIND-23",
@@ -11,10 +13,12 @@
       "proposed_status": "In-Progress",
       "evidence_refs": [
         "artifacts/verify/TASK-1021.verify.md",
-        "artifacts/code/TASK-1021.code.md"
+        "artifacts/code/TASK-1021.code.md",
+        "artifacts/verify/TASK-1019.verify.md"
       ],
-      "rationale": "Governance policy established in Prompt 0a: untrusted-by-default trust policy (Rule-1/3/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-INJECTION-001/002/003 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts.",
-      "finalized_by": null
+      "rationale": "Governance policy established in Prompt 0a: untrusted-by-default trust policy (Rule-1/3/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-INJECTION-001/002/003 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts. RT-INJECTION-004 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 blocks research-injected governance overrides; guard_contract_validator --audit-raci exits 1 VIOLATION regardless of research artifact content.",
+      "finalized_by": null,
+      "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-INJECTION-004"
     },
     {
       "finding_id": "FIND-24",
@@ -23,10 +27,12 @@
       "proposed_status": "In-Progress",
       "evidence_refs": [
         "artifacts/verify/TASK-1021.verify.md",
-        "artifacts/code/TASK-1021.code.md"
+        "artifacts/code/TASK-1021.code.md",
+        "artifacts/verify/TASK-1019.verify.md"
       ],
-      "rationale": "Governance policy established in Prompt 0a: source-ref-required authority policy (Rule-2/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-MEMORY-001/002 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts.",
-      "finalized_by": null
+      "rationale": "Governance policy established in Prompt 0a: source-ref-required authority policy (Rule-2/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-MEMORY-001/002 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts. RT-MEMORY-POISON-001 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 is the sole authoritative source; .github/memory-bank/ files are not read by the validator; narrative authority claims have no effect.",
+      "finalized_by": null,
+      "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-MEMORY-POISON-001"
     },
     {
       "finding_id": "FIND-18",
@@ -34,10 +40,12 @@
       "source_task_id": "TASK-1006",
       "proposed_status": "In-Progress",
       "evidence_refs": [
-        "artifacts/verify/TASK-1006.verify.md"
+        "artifacts/verify/TASK-1006.verify.md",
+        "artifacts/verify/TASK-1019.verify.md"
       ],
-      "rationale": "Source/template drift for artifacts/scripts/run_red_team_suite.py resolved by removing case_live_964() and RT-LIVE-964 CaseDefinition (TASK-964 legacy evidence is right-answer-for-wrong-reason, not canonical; not eligible for template sync). guard_contract_validator passes after repair. Remaining requirements for Mitigated: (1) CI exact-sync guard for root<->template pairs, (2) drift regression case in test corpus, (3) decision path evidence for drift resolution, (4) clean guard_contract_validator run. Items 1 and 2 are deferred to TASK-1007+. FIND-18 remains In-Progress.",
-      "finalized_by": null
+      "rationale": "Source/template drift for artifacts/scripts/run_red_team_suite.py resolved by removing case_live_964() and RT-LIVE-964 CaseDefinition (TASK-964 legacy evidence is right-answer-for-wrong-reason, not canonical; not eligible for template sync). guard_contract_validator passes after repair. Remaining requirements for Mitigated: (1) CI exact-sync guard for root<->template pairs, (2) drift regression case in test corpus, (3) decision path evidence for drift resolution, (4) clean guard_contract_validator run. Items 1 and 2 are deferred to TASK-1007+. FIND-18 remains In-Progress. RT-SOURCE-TEMPLATE-001 (TASK-1019 Prompt 6e) confirmed: EXACT_SYNC_FILES contract enforced; guard_contract_validator detects checksum mismatch; drift laundering via verify narrative is correctly blocked.",
+      "finalized_by": null,
+      "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-SOURCE-TEMPLATE-001"
     }
   ]
 }

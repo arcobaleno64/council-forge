@@ -14,11 +14,23 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
-# Ensure UTF-8 output on Windows
-if sys.stdout.encoding != "utf-8":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-if sys.stderr.encoding != "utf-8":
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+# ---------------------------------------------------------------------------
+# Stream init (CLI entrypoint only — do NOT call at import time)
+# ---------------------------------------------------------------------------
+
+def init_streams(stdout=None, stderr=None) -> None:
+    """Apply UTF-8 encoding wrapper to output streams if needed.
+
+    Must be called from the CLI entrypoint (main) only.
+    Accepts optional stream arguments for testability; defaults to sys.stdout/sys.stderr.
+    """
+    out = stdout if stdout is not None else sys.stdout
+    err = stderr if stderr is not None else sys.stderr
+    if hasattr(out, "buffer") and getattr(out, "encoding", "utf-8") != "utf-8":
+        sys.stdout = io.TextIOWrapper(out.buffer, encoding="utf-8", errors="replace")
+    if hasattr(err, "buffer") and getattr(err, "encoding", "utf-8") != "utf-8":
+        sys.stderr = io.TextIOWrapper(err.buffer, encoding="utf-8", errors="replace")
+
 
 # ---------------------------------------------------------------------------
 # Config
@@ -315,6 +327,7 @@ def check_memory_bank_quality(root: Path) -> List[str]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
+    init_streams()
     parser = argparse.ArgumentParser(description="Context Stack Validator")
     parser.add_argument("--root", default=".", help="Repository root")
     args = parser.parse_args()

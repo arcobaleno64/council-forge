@@ -1,0 +1,60 @@
+{
+  "schema_version": "threat-finding-backlog/v1",
+  "plan_version": "v3.4",
+  "created_at": "2026-05-03T22:00:00+08:00",
+  "created_by": "TASK-1012",
+  "findings": [
+    {
+      "finding_id": "FIND-25",
+      "title": "Threat inventory semantic corruption via duplicate finding IDs (no semantic validator)",
+      "status": "Backlog",
+      "priority": "medium",
+      "estimated_complexity": "medium",
+      "prerequisite_tasks": ["TASK-1012"],
+      "next_task_id": "TBD-allocated-on-execution",
+      "rationale": "RT-THREAT-SEMANTIC-001 (TASK-1019) ESCALATED_BY_DESIGN: json.loads() accepts duplicate finding_id entries without error; no semantic validator for finding_id uniqueness, required fields, or status/evidence consistency exists. Implementation requires a new validator function that asserts finding_id uniqueness, required field completeness, and Mitigated requires non-null evidence_ref. regression_candidate=false per design (validator not yet implemented as of TASK-1019). Deferred because no v3.4 prompt is scoped to implement a standalone threat-findings semantic validator.",
+      "related_red_team_case": "RT-THREAT-SEMANTIC-001",
+      "related_finding_in_threat_model": "FIND-25",
+      "accepted_risk_decision_ref": null
+    },
+    {
+      "finding_id": "FIND-26",
+      "title": "Path dotdot normalization absent in classify_path() prefix matching",
+      "status": "Backlog",
+      "priority": "medium",
+      "estimated_complexity": "low",
+      "prerequisite_tasks": ["TASK-1012"],
+      "next_task_id": "TBD-allocated-on-execution",
+      "rationale": "RT-PATH-002 (TASK-1019) FAIL: classify_path() in workflow_constants.py does not normalize dotdot segments via os.path.normpath(). Path 'artifacts/code/../docs/orchestration.md' matches 'artifacts/code/' prefix literally and returns category 'code'; Codex CLI passes RACI check for a docs file (exit 0). Fix: add `normalized = os.path.normpath(normalized).replace('\\\\', '/')` to classify_path() before prefix matching. Deferred per TASK-1019 hardening_note; fix is small but requires regression test coverage and template sync before promotion.",
+      "related_red_team_case": "RT-PATH-002",
+      "related_finding_in_threat_model": "FIND-15",
+      "accepted_risk_decision_ref": null
+    },
+    {
+      "finding_id": "FIND-27",
+      "title": "Symlink and realpath resolution absent in RACI path classification",
+      "status": "Backlog",
+      "priority": "medium",
+      "estimated_complexity": "high",
+      "prerequisite_tasks": ["TASK-1012"],
+      "next_task_id": "TBD-allocated-on-execution",
+      "rationale": "RT-SYMLINK-001 (TASK-1019) ESCALATED by design: classify_path() uses lexical prefix matching only; no os.path.realpath() resolution exists. A symlink or mirror path lexically under 'artifacts/code/' is classified as 'code' regardless of actual filesystem target, allowing category confusion. Fix requires realpath-aware audit policy at the filesystem boundary. Estimated complexity high because realpath resolution has platform-specific behavior and may require sandbox policy changes. Deferred to post-v3.4 scope.",
+      "related_red_team_case": "RT-SYMLINK-001",
+      "related_finding_in_threat_model": "FIND-15",
+      "accepted_risk_decision_ref": null
+    },
+    {
+      "finding_id": "FIND-28",
+      "title": "HITL attestation validator contract not implemented",
+      "status": "Backlog",
+      "priority": "high",
+      "estimated_complexity": "medium",
+      "prerequisite_tasks": ["TASK-1012"],
+      "next_task_id": "TBD-allocated-on-execution",
+      "rationale": "RT-HITL-ATTESTATION-001 (TASK-1019) FAIL: guard_status_validator.py does not parse or validate evidence_timestamp_source field in decision artifacts; reviewer_id presence alone passes nominal check; exit 1 observed only due to unrelated schema failures (missing '## Reasoning'), not HITL rejection. Implementation: guard_status_validator should (1) parse evidence_timestamp_source from decision artifact front matter, (2) reject values matching AI-authored narrative patterns (plain markdown text, Claude session output descriptions), (3) require timestamp source in allowed_sources: validator_json, command_stdout, file_mtime, git_commit, external_attestation, github_pr_review, issue_timestamp. Deferred because no v3.4 prompt is scoped to implement HITL attestation validation in guard_status_validator.",
+      "related_red_team_case": "RT-HITL-ATTESTATION-001",
+      "related_finding_in_threat_model": "FIND-22",
+      "accepted_risk_decision_ref": null
+    }
+  ]
+}

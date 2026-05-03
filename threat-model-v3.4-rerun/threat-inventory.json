@@ -1,0 +1,775 @@
+{
+  "metadata": {
+    "schema_version": "threat-inventory/v2",
+    "plan_version": "v3.4",
+    "repository": "arcobaleno64/consilium-fabri",
+    "source_snapshot": "threat-model-20260417-124620",
+    "source_snapshot_commit": "4090bce",
+    "rerun_commit": "ad99a980888a4b6fc40f856c60373cd3ae79fe64",
+    "rerun_task": "TASK-1012",
+    "rerun_prompt": "6f",
+    "generated_at": "2026-05-03T22:00:00+08:00",
+    "output_folder": "threat-model-v3.4-rerun",
+    "finding_id_range": "FIND-01..FIND-34",
+    "finding_count": 34,
+    "notes": "Final threat model rebuild consuming v3.4 repair chain output. Source snapshot (4090bce) is preserved unchanged at threat-model-20260417-124620/. Findings FIND-01..FIND-12 retained from source; FIND-13..FIND-34 introduced by v3.4 repair chain."
+  },
+  "findings": [
+    {
+      "finding_id": "FIND-01",
+      "severity": "High",
+      "status": "Open",
+      "title": "Mutable artifact contracts drive high-trust workflow decisions",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce. No mitigation evidence in v3.4 repair chain scope."
+    },
+    {
+      "finding_id": "FIND-02",
+      "severity": "High",
+      "status": "Open",
+      "title": "Artifact ingestion lacks schema and size ceilings",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-03",
+      "severity": "High",
+      "status": "Open",
+      "title": "Agent dispatch sends untrusted task context to external CLIs",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-04",
+      "severity": "High",
+      "status": "Open",
+      "title": "GitHub PR replay path accepts arbitrary API base URLs",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-05",
+      "severity": "High",
+      "status": "Open",
+      "title": "Override and waiver flow lacks separation of duties",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-06",
+      "severity": "High",
+      "status": "Open",
+      "title": "Red-team suite dynamically executes repo Python modules",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-07",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "GitHub credentials persist in local process context",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-08",
+      "severity": "High",
+      "status": "Open",
+      "title": "Publish automation trusts local remotes and credentials too broadly",
+      "evidence_refs": [
+        "threat-model-20260417-124620/threat-inventory.json",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-ALIAS-CHAIN-001"
+      ],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce. RT-ALIAS-CHAIN-001 (TASK-1019) confirmed alias rejection guard active; underlying credential trust scope remains Open."
+    },
+    {
+      "finding_id": "FIND-09",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "No sandboxing for subprocess and CLI execution",
+      "evidence_refs": [
+        "threat-model-20260417-124620/threat-inventory.json",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-WAIVER-CHAIN-001"
+      ],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce. RT-WAIVER-CHAIN-001 confirmed waiver chain non-transitivity; sandbox gap remains Open."
+    },
+    {
+      "finding_id": "FIND-10",
+      "severity": "Medium",
+      "status": "Open",
+      "title": "Generated artifacts can retain sensitive operational context",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce."
+    },
+    {
+      "finding_id": "FIND-11",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Repo-local secrets regression scan closes a prior blind spot",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce. Status was Mitigated at original snapshot time."
+    },
+    {
+      "finding_id": "FIND-12",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Focused static regression scan closes a prior workflow/script blind spot",
+      "evidence_refs": ["threat-model-20260417-124620/threat-inventory.json"],
+      "last_review_decision_ref": null,
+      "source_snapshot": true,
+      "notes": "Retained from source snapshot 4090bce. Status was Mitigated at original snapshot time."
+    },
+    {
+      "finding_id": "FIND-13",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "RACI Auditor path classification fails open for unrecognized paths",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1007.verify.md",
+        "artifacts/code/TASK-1007.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1007.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1007). classify_path() now returns 'unknown' for unrecognized paths; RACI_MATRIX_V2 has no 'unknown' category → fail-closed VIOLATION. Mitigated by TASK-1007."
+    },
+    {
+      "finding_id": "FIND-14",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Non-canonical agent identity aliases accepted without rejection in RACI audit",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1007.verify.md",
+        "artifacts/code/TASK-1007.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1007.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1007). resolve_identity() in agent_identity.py raises AliasRejectedError for non-canonical aliases in strict mode (exit 2). Mitigated by TASK-1007. RT-ALIAS-CHAIN-001 confirmed."
+    },
+    {
+      "finding_id": "FIND-15",
+      "severity": "Medium",
+      "status": "In-Progress",
+      "title": "Path normalization bypass via Unicode homoglyph and dotdot traversal in classify_path()",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1007.verify.md",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-PATH-001",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-PATH-002",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-SYMLINK-001"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain. Unicode homoglyph (RT-PATH-001): BLOCKED — classify_path() returns 'unknown' for non-ASCII path separator, fail-closed. Dotdot traversal (RT-PATH-002): FAIL — classify_path() lacks os.path.normpath(); dotdot path 'artifacts/code/../docs/orchestration.md' classified as 'code' instead of 'workflow_contract_docs'. Symlink confusion (RT-SYMLINK-001): ESCALATED by design — realpath resolution absent. Dotdot and symlink gaps deferred to backlog (FIND-26, FIND-27). Status In-Progress until all sub-gaps resolved."
+    },
+    {
+      "finding_id": "FIND-16",
+      "severity": "Low",
+      "status": "Mitigated",
+      "title": "Assurance level 'high' in artifact schema vocabulary allows silent misclassification",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1008.verify.md",
+        "artifacts/code/TASK-1008.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1008.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1008). validate_assurance_level_strict() now rejects 'high' with explicit error. Historical TASK-964 artifact corrected to 'mvp'. Mitigated by TASK-1008."
+    },
+    {
+      "finding_id": "FIND-17",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Assurance level mismatch between task.md and status.json silently permitted",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1008.verify.md",
+        "artifacts/code/TASK-1008.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1008.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1008). guard_status_validator.py now performs mismatch check between task.md assurance_level and companion status.json. Mitigated by TASK-1008."
+    },
+    {
+      "finding_id": "FIND-18",
+      "severity": "Medium",
+      "status": "In-Progress",
+      "title": "Source/template contract drift in governance scripts",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1006.verify.md",
+        "artifacts/verify/TASK-1019.verify.md",
+        "artifacts/governance/threat-findings-pending-update.v3.4.json#FIND-18",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-SOURCE-TEMPLATE-001",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-RACI-COLLISION-001"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1006). guard_contract_validator detects checksum mismatch for EXACT_SYNC_FILES (RT-SOURCE-TEMPLATE-001 PASS). Template mirror path classification correct (RT-RACI-COLLISION-001 PASS). Remaining for Mitigated: (1) CI exact-sync guard not implemented, (2) drift regression case not in test corpus. Both deferred. FIND-18 = In-Progress per v3.4 plan §4.1. finalized_by=TASK-1012."
+    },
+    {
+      "finding_id": "FIND-19",
+      "severity": "High",
+      "status": "In-Progress",
+      "title": "Verify evidence floor accepts narrative/keyword-stuffed assertions as structured evidence",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1009.verify.md",
+        "artifacts/verify/TASK-1015.verify.md",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-VERIFY-STUFFING-001"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1009/TASK-1015). _check_strict_verify_floor() rejects narrative-only Build Guarantee and Evidence Refs sections (RT-VERIFY-STUFFING-001 PASS, TASK-1019). Strict enforcement applies to post-baseline new/modified verify artifacts. Historical unchanged artifacts remain advisory-only. Semantic completeness gap (FIND-25) and HITL validator gap (FIND-28) remain In-Progress. Status In-Progress until semantic validator and HITL validator are implemented."
+    },
+    {
+      "finding_id": "FIND-20",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Historical limited-evidence artifact misclassified as production-grade evidence",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1010.verify.md",
+        "artifacts/verify/TASK-1008.verify.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1010.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1008/TASK-1010). TASK-964 reclassified as mvp + limited evidence (historical limited evidence exception). is_historical_limited_evidence_exception() guard prevents retroactive upgrade. TASK-1010 production canonical drill created as separate artifact. Mitigated by TASK-1010."
+    },
+    {
+      "finding_id": "FIND-21",
+      "severity": "Low",
+      "status": "Mitigated",
+      "title": "Task supersession uses informal free-text without validated schema",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1011.verify.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1011.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1011). v3.4 plan §5.0 formalizes superseded_by schema with successor_task_id, decision_ref, superseded_at, scope, remaining_obligations. TASK-1001 reconciliation uses formal schema. Mitigated by TASK-1011."
+    },
+    {
+      "finding_id": "FIND-22",
+      "severity": "High",
+      "status": "In-Progress",
+      "title": "HITL structured attestation bypass via AI-authored narrative timestamp",
+      "evidence_refs": [
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-HITL-ATTESTATION-001",
+        "artifacts/governance/red-team-adversarial-cases.v3.4.json#RT-HITL-ATTESTATION-001"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1022 design, TASK-1019 execution). RT-HITL-ATTESTATION-001 FAIL: guard_status_validator does not parse evidence_timestamp_source field; reviewer_id presence alone passes nominal check; exit 1 observed only due to unrelated schema failures. HITL attestation validator not implemented. Implementation deferred to backlog (FIND-28). Status In-Progress; full mitigation requires HITL validator implementing evidence_timestamp_source determinism check."
+    },
+    {
+      "finding_id": "FIND-23",
+      "severity": "High",
+      "status": "In-Progress",
+      "title": "Indirect injection through research snippets into governance workflow",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1021.verify.md",
+        "artifacts/code/TASK-1021.code.md",
+        "artifacts/verify/TASK-1019.verify.md",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-INJECTION-004",
+        "artifacts/governance/threat-findings-pending-update.v3.4.json#FIND-23"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by TASK-1021 (Prompt 0a). Policy layer: untrusted-by-default rule (Rule-1/3/4) in artifacts/code/TASK-1021.code.md. RT-INJECTION-004 (TASK-1019) PASS: RACI_MATRIX_V2 reads only workflow_constants.py; research artifact content cannot override governance authority. Runtime enforcement (structural guard at intake boundary) deferred to Prompt 1+ prompts; not implemented. Status In-Progress until runtime guard implemented. finalized_by=TASK-1012."
+    },
+    {
+      "finding_id": "FIND-24",
+      "severity": "High",
+      "status": "In-Progress",
+      "title": "Memory-bank cumulative authority poisoning",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1021.verify.md",
+        "artifacts/code/TASK-1021.code.md",
+        "artifacts/verify/TASK-1019.verify.md",
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-MEMORY-POISON-001",
+        "artifacts/governance/threat-findings-pending-update.v3.4.json#FIND-24"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by TASK-1021 (Prompt 0a). Policy layer: source-ref-required authority rule (Rule-2/4). RT-MEMORY-POISON-001 (TASK-1019) PASS: .github/memory-bank/ files not read by RACI_MATRIX_V2 validator; narrative authority claims have no effect. Runtime enforcement deferred. Status In-Progress until runtime guard at memory-bank intake boundary implemented. finalized_by=TASK-1012."
+    },
+    {
+      "finding_id": "FIND-25",
+      "severity": "Medium",
+      "status": "Backlog",
+      "title": "Threat inventory semantic corruption via duplicate finding IDs (no semantic validator)",
+      "evidence_refs": [
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-THREAT-SEMANTIC-001",
+        "artifacts/governance/threat-finding-backlog.v3.4.json#FIND-25"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "RT-THREAT-SEMANTIC-001 ESCALATED_BY_DESIGN: no semantic validator for threat-findings JSON; json.loads() succeeds on duplicate finding_id entries; gap documented per design. Semantic validator not yet implemented. Deferred to backlog. next_task_id=TBD-allocated-on-execution."
+    },
+    {
+      "finding_id": "FIND-26",
+      "severity": "Medium",
+      "status": "Backlog",
+      "title": "Path dotdot normalization absent in classify_path() prefix matching",
+      "evidence_refs": [
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-PATH-002",
+        "artifacts/governance/threat-finding-backlog.v3.4.json#FIND-26"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "RT-PATH-002 FAIL: classify_path() does not call os.path.normpath(); 'artifacts/code/../docs/orchestration.md' classified as 'code' instead of 'workflow_contract_docs'; Codex CLI passes RACI check for a docs file. Fix: add os.path.normpath() before prefix matching. Deferred to backlog per TASK-1019 hardening_note. next_task_id=TBD-allocated-on-execution."
+    },
+    {
+      "finding_id": "FIND-27",
+      "severity": "Medium",
+      "status": "Backlog",
+      "title": "Symlink and realpath resolution absent in RACI path classification",
+      "evidence_refs": [
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-SYMLINK-001",
+        "artifacts/governance/threat-finding-backlog.v3.4.json#FIND-27"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "RT-SYMLINK-001 ESCALATED by design: classify_path() uses lexical prefix matching only; no realpath resolution; symlink-like path 'artifacts/code/orchestration.md' classified as 'code' regardless of actual filesystem target. Architectural gap requiring realpath-aware audit policy. Deferred to backlog. next_task_id=TBD-allocated-on-execution."
+    },
+    {
+      "finding_id": "FIND-28",
+      "severity": "High",
+      "status": "Backlog",
+      "title": "HITL attestation validator contract not implemented",
+      "evidence_refs": [
+        "artifacts/governance/red-team-execution-results.v3.4.json#RT-HITL-ATTESTATION-001",
+        "artifacts/governance/threat-finding-backlog.v3.4.json#FIND-28"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1012.decision.md",
+      "source_snapshot": false,
+      "notes": "RT-HITL-ATTESTATION-001 FAIL: guard_status_validator does not validate evidence_timestamp_source; AI-authored narrative timestamps pass nominal check. Implementation required: reject evidence_timestamp_source values matching AI-authored narrative patterns; require git-based or CI-based timestamp sources. Deferred to backlog. next_task_id=TBD-allocated-on-execution."
+    },
+    {
+      "finding_id": "FIND-29",
+      "severity": "Low",
+      "status": "Mitigated",
+      "title": "validate_context_stack module emits stdout/stderr at import time",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1013.verify.md",
+        "artifacts/code/TASK-1013.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1013.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1013). Import-time side-effects removed; explicit init function added with stream injection; unit test confirms clean import. Mitigated by TASK-1013."
+    },
+    {
+      "finding_id": "FIND-30",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "run_red_team_suite lacks per-case and per-suite timeout protection",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1014.verify.md",
+        "artifacts/code/TASK-1014.code.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1014.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1014). Per-case timeout (default 60s) and per-suite timeout (default 600s) implemented. TIMEOUT case marking and CI failure on any TIMEOUT in strict run implemented. Mitigated by TASK-1014."
+    },
+    {
+      "finding_id": "FIND-31",
+      "severity": "High",
+      "status": "Mitigated",
+      "title": "Verify floor enforcement absent across historical verify corpus",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1015.verify.md",
+        "artifacts/governance/verify-floor-baseline.v3.4.json"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1015.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1015). verify-floor-baseline.v3.4.json snapshots 32 historical artifacts (advisory-only). Post-baseline new/modified artifacts enforced strict. --verify-floor-enforce passes with 0 strict failures as of TASK-1019. Mitigated by TASK-1015."
+    },
+    {
+      "finding_id": "FIND-32",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Red-team adversarial case corpus lacked formal regression promotion pipeline",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1019.verify.md",
+        "artifacts/governance/red-team-execution-results.v3.4.json"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1019.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1019). 9 of 12 cases promoted to regression corpus (regression_promoted=true). Execution results JSON serves as regression evidence corpus. Mitigated by TASK-1019."
+    },
+    {
+      "finding_id": "FIND-33",
+      "severity": "Medium",
+      "status": "Mitigated",
+      "title": "Governance repair plan version assertion drift enabling plan confusion",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1020.verify.md",
+        "consilium-fabri-governance-repair-plan-v3.4.md"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1020.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1020). v3.3 plan had self-assertion drift (plan claimed v3.3 but contained v3.2-era assertions). v3.4 plan enforces consistent self-assertion; governance-repair-manifest.v3.4.json as authoritative task ID registry. Mitigated by TASK-1020."
+    },
+    {
+      "finding_id": "FIND-34",
+      "severity": "Low",
+      "status": "Mitigated",
+      "title": "Governance manifest task ID allocation policy absent enabling silent ID collision",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1020.verify.md",
+        "artifacts/governance/governance-repair-manifest.v3.4.json"
+      ],
+      "last_review_decision_ref": "artifacts/decisions/TASK-1020.decision.md",
+      "source_snapshot": false,
+      "notes": "Introduced by v3.4 repair chain (TASK-1020). governance-repair-manifest.v3.4.json defines reserved_task_range (TASK-1005..TASK-1022), task_id_remapping policy, and execution_order as authoritative. Preflight confirmed all IDs unused before mutation. Hard-coded task ID checks replaced by manifest reads. Mitigated by TASK-1020."
+    }
+  ],
+  "threats": [
+    {
+      "id": "HM-T2-01",
+      "component": "Human Maintainer",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "HM-T2-02",
+      "component": "Human Maintainer",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-07"
+    },
+    {
+      "id": "WC-T2-01",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "WC-T2-02",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "WC-T2-03",
+      "component": "Workflow Controller",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "AD-T2-01",
+      "component": "Agent Dispatch",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-03"
+    },
+    {
+      "id": "AD-T2-02",
+      "component": "Agent Dispatch",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-03"
+    },
+    {
+      "id": "AD-T3-01",
+      "component": "Agent Dispatch",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Local Process Access + Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-09"
+    },
+    {
+      "id": "GV-T2-01",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GV-T2-02",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "GV-T2-03",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GV-T2-04",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "GV-T2-05",
+      "component": "Guard Validators",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "In-Progress",
+      "finding_id": "FIND-15"
+    },
+    {
+      "id": "GV-T3-01",
+      "component": "Guard Validators",
+      "tier": "Tier 3",
+      "category": "Repudiation",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "RTR-T2-01",
+      "component": "Red Team Runner",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-06"
+    },
+    {
+      "id": "RTR-T2-02",
+      "component": "Red Team Runner",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Mitigated",
+      "finding_id": "FIND-30"
+    },
+    {
+      "id": "RTR-T3-01",
+      "component": "Red Team Runner",
+      "tier": "Tier 3",
+      "category": "Elevation of Privilege",
+      "prerequisites": "Git Worktree Compromise",
+      "status": "Open",
+      "finding_id": "FIND-06"
+    },
+    {
+      "id": "PA-T2-01",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-07"
+    },
+    {
+      "id": "PA-T2-02",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Local Process Access",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    },
+    {
+      "id": "PA-T2-03",
+      "component": "Publish Automation",
+      "tier": "Tier 2",
+      "category": "Abuse",
+      "prerequisites": "Privileged User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "PA-T3-01",
+      "component": "Publish Automation",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    },
+    {
+      "id": "AS-T2-01",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "AS-T2-02",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Repudiation",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-05"
+    },
+    {
+      "id": "AS-T2-03",
+      "component": "Artifact Store",
+      "tier": "Tier 2",
+      "category": "Denial of Service",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-02"
+    },
+    {
+      "id": "AS-T3-01",
+      "component": "Artifact Store",
+      "tier": "Tier 3",
+      "category": "Abuse",
+      "prerequisites": "Git Worktree Compromise",
+      "status": "Open",
+      "finding_id": "FIND-01"
+    },
+    {
+      "id": "GWT-T2-01",
+      "component": "Git Worktree",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Mitigated",
+      "finding_id": "FIND-11"
+    },
+    {
+      "id": "GWT-T2-02",
+      "component": "Git Worktree",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Mitigated",
+      "finding_id": "FIND-12"
+    },
+    {
+      "id": "GWT-T3-01",
+      "component": "Git Worktree",
+      "tier": "Tier 3",
+      "category": "Information Disclosure",
+      "prerequisites": "Host/OS Access",
+      "status": "Open",
+      "finding_id": "FIND-10"
+    },
+    {
+      "id": "GHP-T2-01",
+      "component": "GitHub Platform",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-04"
+    },
+    {
+      "id": "GHP-T2-02",
+      "component": "GitHub Platform",
+      "tier": "Tier 2",
+      "category": "Information Disclosure",
+      "prerequisites": "Authenticated User",
+      "status": "Open",
+      "finding_id": "FIND-08"
+    },
+    {
+      "id": "GC-T2-01",
+      "component": "Governance Controller",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "In-Progress",
+      "finding_id": "FIND-23"
+    },
+    {
+      "id": "GC-T2-02",
+      "component": "Governance Controller",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "In-Progress",
+      "finding_id": "FIND-24"
+    },
+    {
+      "id": "GC-T2-03",
+      "component": "Governance Controller",
+      "tier": "Tier 2",
+      "category": "Repudiation",
+      "prerequisites": "Authenticated User",
+      "status": "In-Progress",
+      "finding_id": "FIND-22"
+    },
+    {
+      "id": "GC-T2-04",
+      "component": "Governance Controller",
+      "tier": "Tier 2",
+      "category": "Tampering",
+      "prerequisites": "Authenticated User",
+      "status": "In-Progress",
+      "finding_id": "FIND-18"
+    },
+    {
+      "id": "GC-T3-01",
+      "component": "Governance Controller",
+      "tier": "Tier 3",
+      "category": "Repudiation",
+      "prerequisites": "Authenticated User",
+      "status": "Backlog",
+      "finding_id": "FIND-25"
+    }
+  ],
+  "summary": {
+    "total_findings": 34,
+    "by_status": {
+      "Open": 12,
+      "Mitigated": 12,
+      "In-Progress": 6,
+      "Backlog": 4
+    },
+    "by_severity": {
+      "High": 14,
+      "Medium": 15,
+      "Low": 5
+    },
+    "source_snapshot_retained": 12,
+    "new_findings_v3_4_repair": 22
+  }
+}

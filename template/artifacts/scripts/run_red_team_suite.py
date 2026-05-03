@@ -84,9 +84,21 @@ def load_module(path: Path, module_name: str):
 MAX_ARTIFACT_FILE_BYTES = 512 * 1024
 MAX_DIFF_EVIDENCE_REPLAY_BYTES = 128 * 1024
 ALLOWED_ENV_OVERRIDES = {GITHUB_API_ALLOWED_HOSTS_ENV}
+SUBPROCESS_DEFAULT_TIMEOUT = 60
+SUBPROCESS_GIT_TIMEOUT = 30
+MAX_SUBPROCESS_OUTPUT_BYTES = 1 * 1024 * 1024
+TIMEOUT_RETURNCODE = -9999
+EXCEPTION_RETURNCODE = -9998
 
 
-def run_command(args: Sequence[str], cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None) -> subprocess.CompletedProcess[str]:
+def _cap_output(text: str, max_bytes: int = MAX_SUBPROCESS_OUTPUT_BYTES) -> str:
+    encoded = text.encode("utf-8", errors="replace")
+    if len(encoded) <= max_bytes:
+        return text
+    return encoded[:max_bytes].decode("utf-8", errors="replace") + f"\n[OUTPUT TRUNCATED at {max_bytes} bytes]"
+
+
+def run_command(args: Sequence[str], cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None, timeout: int = SUBPROCESS_DEFAULT_TIMEOUT) -> subprocess.CompletedProcess[str]:
     merged_env = None
     if env:
         invalid_keys = sorted(set(env) - ALLOWED_ENV_OVERRIDES)
@@ -97,11 +109,45 @@ def run_command(args: Sequence[str], cwd: Optional[Path] = None, env: Optional[D
                 raise RuntimeError(f"Environment override '{key}' must be a string")
         merged_env = os.environ.copy()
         merged_env.update(env)
-    return subprocess.run(args, cwd=cwd or REPO_ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", env=merged_env)
+    try:
+        with subprocess.Popen(
+            args,
+            cwd=cwd or REPO_ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=merged_env,
+        ) as proc:
+            try:
+                stdout, stderr = proc.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                stdout, stderr = proc.communicate()
+                return subprocess.CompletedProcess(
+                    args=list(args),
+                    returncode=TIMEOUT_RETURNCODE,
+                    stdout=f"[TIMEOUT after {timeout}s]\n{_cap_output(stdout)}",
+                    stderr=_cap_output(stderr),
+                )
+            return subprocess.CompletedProcess(
+                args=list(args),
+                returncode=proc.returncode,
+                stdout=_cap_output(stdout),
+                stderr=_cap_output(stderr),
+            )
+    except Exception as exc:
+        return subprocess.CompletedProcess(
+            args=list(args),
+            returncode=EXCEPTION_RETURNCODE,
+            stdout="",
+            stderr=f"[ERROR] Unexpected subprocess exception: {exc}",
+        )
 
 
 def run_git_command(repo_root: Path, args: Sequence[str]) -> subprocess.CompletedProcess[str]:
-    return run_command(["git", "-C", str(repo_root), *args], cwd=REPO_ROOT)
+    return run_command(["git", "-C", str(repo_root), *args], cwd=REPO_ROOT, timeout=SUBPROCESS_GIT_TIMEOUT)
 
 
 def ensure_command_ok(result: subprocess.CompletedProcess[str], description: str) -> None:

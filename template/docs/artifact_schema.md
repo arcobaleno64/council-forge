@@ -927,6 +927,71 @@ The historical TASK-964 governance drill is permanently classified as:
 
 Repaired future evidence MUST NOT retroactively upgrade TASK-964's historical maturity. Production-grade canonical drill ownership belongs to TASK-1010 (Prompt 4) or the manifest-designated equivalent.
 
+## 5.12 Verify Floor Baseline Schema（TASK-1009 schema clarification）
+
+> Authoritative since: 2026-05-03 (TASK-1009). Decision ref: artifacts/decisions/TASK-1009.decision.md
+
+### 5.12.1 Purpose
+
+`artifacts/governance/verify-floor-baseline.v3.4.json` snapshots all verify artifacts at a point in time and classifies each by floor policy. It enables split enforcement: historical artifacts remain advisory, while new and modified artifacts are immediately strict.
+
+### 5.12.2 Top-Level Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `schema_version` | string | yes | Must be `"verify-floor-baseline/v1"` |
+| `plan_version` | string | yes | Must be `"v3.4"` |
+| `created_at` | string | yes | Taipei timestamp; MUST come from a deterministic source |
+| `created_at_source` | string | yes | Identifies the deterministic source (e.g. `"git:<sha>"`) |
+| `created_by` | string | yes | Task ID that created this baseline |
+| `sha256_method` | string | yes | Describes how sha256 was computed |
+| `baseline_task_count` | integer | yes | Count of entries in `baseline_verify_files` |
+| `policy` | object | yes | Policy constants (see §5.12.3) |
+| `baseline_verify_files` | array | yes | One entry per baseline verify artifact |
+
+### 5.12.3 Policy Object
+
+| Field | Type | Description |
+|---|---|---|
+| `historical_unchanged` | string | Value: `"advisory_until_6d"` — baseline files with matching sha256 are advisory |
+| `new_or_modified_after_baseline` | string | Value: `"strict"` — absent or sha256-changed files are strict |
+| `full_enforcement_task` | string | Task ID for full repo enforcement (TASK-1015) |
+| `full_enforcement_prompt` | string | Prompt label for full enforcement (`"6d"`) |
+
+### 5.12.4 Baseline Entry Fields
+
+Each object in `baseline_verify_files`:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `path` | string | yes | Posix-style relative path from repo root |
+| `sha256` | string | yes | SHA256 hex digest of raw file bytes at baseline time |
+| `floor_status` | string | yes | One of: `"advisory_until_6d"`, `"strict"` |
+| `baseline_known_debt` | string | no | Present when baseline entry carries known debt (e.g. `"limited_evidence"`) |
+| `baseline_known_debt_ref` | string | no | Reference to artifact section documenting the debt |
+| `baseline_known_debt_note` | string | no | Human-readable explanation of the debt |
+
+### 5.12.5 Classification Logic
+
+Implemented in `guard_status_validator.py` → `classify_verify_floor_policy(verify_path, baseline)`:
+
+1. Search `baseline_verify_files` for entry whose `path` matches the verify artifact's posix path.
+2. If not found → `strict` (new artifact after baseline).
+3. If found, compute `sha256` of current file bytes.
+4. If sha256 matches → `advisory_until_6d` (historical unchanged).
+5. If sha256 differs → `strict` (modified after baseline).
+
+Dry-run support: `guard_status_validator.py --verify-floor-dry-run` classifies and prints the policy without failing. Full enforcement is deferred to Prompt 6d / TASK-1015.
+
+### 5.12.6 TASK-964 Baseline-Known-Debt Pattern
+
+TASK-964 is the canonical example of a `baseline_known_debt` entry:
+
+- `floor_status` remains `"advisory_until_6d"` (it is a historical unchanged artifact).
+- `baseline_known_debt = "limited_evidence"` records the known evidence debt for traceability.
+- This annotation does NOT modify TASK-964.verify.md or upgrade its maturity.
+- Production canonical drill for TASK-964 scope belongs to TASK-1010 (Prompt 4).
+
 ---
 
 ## 6. 合法性檢查規則

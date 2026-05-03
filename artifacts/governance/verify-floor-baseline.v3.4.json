@@ -1,0 +1,181 @@
+{
+  "schema_version": "verify-floor-baseline/v1",
+  "plan_version": "v3.4",
+  "created_at": "2026-05-03T16:55:45+08:00",
+  "created_at_source": "git:70bdd0e07125ebdb83ad3eb9adefd5e109eeaa29",
+  "created_by": "TASK-1009",
+  "sha256_method": "hashlib.sha256(file_bytes).hexdigest() where file_bytes = path.read_bytes()",
+  "baseline_task_count": 32,
+  "policy": {
+    "historical_unchanged": "advisory_until_6d",
+    "new_or_modified_after_baseline": "strict",
+    "full_enforcement_task": "TASK-1015",
+    "full_enforcement_prompt": "6d",
+    "note": "historical_unchanged applies to all 32 entries in baseline_verify_files. Any verify artifact not present in this list, or whose sha256 differs from the recorded value, is classified as strict."
+  },
+  "baseline_verify_files": [
+    {
+      "path": "artifacts/verify/TASK-1000.verify.md",
+      "sha256": "91696a876e4fae6f859e2bf508da0258b2434ee11052bb6822571fa3237b35b0",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1002.verify.md",
+      "sha256": "d518f070801f1995813b4aba79bdc80279bfc6a8e847fff12ea04ab2aa837edd",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1003.verify.md",
+      "sha256": "0df3c50950f9afcff062a208b8bacbb77adb82045b8f8fcf611dce9519d2e481",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1004.verify.md",
+      "sha256": "777fae93fa20c9a8a2e6a751f70ff0bd5c9ae6396a21fea07c79823cb2d37890",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1005.verify.md",
+      "sha256": "a484a8dfaff81d68ff08b9758a80bcbeff682f4c55f2577816d145f3f8888dc3",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1006.verify.md",
+      "sha256": "28a19939e45c9a6751ab8112a66a3eba6245bde159df225989f0f4ec65f55c57",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1007.verify.md",
+      "sha256": "1686356881a17a4f34dee969305c5e5fe22dfb1f3366cefd6036202602edd675",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1008.verify.md",
+      "sha256": "a63dccd9fba054c23c19d358737102735b7ffc026fecde4c46710e85c2f2acd5",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1020.verify.md",
+      "sha256": "669a46a2a1917d3ff2d6a418ff513f2413ec1b8d0f222e72c35a80721a01ab51",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1021.verify.md",
+      "sha256": "7babf90b2bd7cef620dd601eadff31161bc0f8083b46a618571cacb5ecf2654c",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-1022.verify.md",
+      "sha256": "ae9776a3699cbcbe65a15a21663cf6123e5ac78b15703cff4120575c270ea7f9",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-900.verify.md",
+      "sha256": "00e1ea789df72641ac96f56a6221ad577cb67c00bd0ad17fb7285c40d35c7fda",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-902.verify.md",
+      "sha256": "021acb2270349382ac397bb668404f50674890ac9dd0b7e9c46e6aca5bb8ac3f",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-950.verify.md",
+      "sha256": "75e9960edb33b4896afcb6d08c8652fa383b7bbdd8e78f56dfb8608ec9f3e104",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-951.verify.md",
+      "sha256": "7a65f0b64205976aef1ed430722d19280e592d5e9251bff917f9826c386bda34",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-952.verify.md",
+      "sha256": "14bd17e61eceb58678a5b3ca95394b707408450908727c610e3d096b8dfab04b",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-953.verify.md",
+      "sha256": "2eae3f571facadade1c270bd097edaf63f2c8f3869d875cc801349b0f1f7560d",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-954.verify.md",
+      "sha256": "0111644f0e4b174daba321df537bc7c473309f3fac3ce25378d3ec2d6ee307a8",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-955.verify.md",
+      "sha256": "c01de4a9ee8235de37d5140c47f913ec6a74ba5e01eddb67c3445e4ce8171949",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-956.verify.md",
+      "sha256": "4e31e80d5273df945074ce9593f8beb3e18e83b45ef0ebff16c8104e76c499ea",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-957.verify.md",
+      "sha256": "b88528fec5a893d88d6f495ed2678e6d85be97f964dea483b9e214d58d333e64",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-958.verify.md",
+      "sha256": "e90e9b32393bb0acc8ff7efb8c71ec421ecb37f055f68f45f34023187088fb66",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-960.verify.md",
+      "sha256": "84e05ef28058f69acc5b31b8e169e008ed89115acd7c3099140337e89f906fc9",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-961.verify.md",
+      "sha256": "89621f2e0d4150f749a49189394cb1dcd6ab087fff67e12dd3def4dfc7a15ed2",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-963.verify.md",
+      "sha256": "15d46a73404a0a9dec6793d86cd04a7663b0bc489a4ecc8fcaee18da89710fc0",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-964.verify.md",
+      "sha256": "82a195cc331b46a51fe5575ce95a1a7a8c968e1ba0516bfdbbae4ad4ec8a1474",
+      "floor_status": "advisory_until_6d",
+      "baseline_known_debt": "limited_evidence",
+      "baseline_known_debt_ref": "artifacts/verify/TASK-964.verify.md#historical-evidence-qualification",
+      "baseline_known_debt_note": "TASK-964 is permanently classified as mvp + limited evidence per v3.4 §4.4. This debt is recorded here for traceability only; it does not change TASK-964.verify.md content and must not be interpreted as production evidence."
+    },
+    {
+      "path": "artifacts/verify/TASK-980.verify.md",
+      "sha256": "0cd81422784e855e1c2414f494e6a9d6a004337bceefdd69b66919decc0e30b1",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-981.verify.md",
+      "sha256": "e2a8dd0f2f22fb8566fbe32b0a2fc8de3d37bfbd5e6e981ba4646b7136f560d0",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-982.verify.md",
+      "sha256": "c961d2e5425165ee0d52896935b89ebdb341d21b6b41e3476940dc35dfd11946",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-983.verify.md",
+      "sha256": "7cf5e72435995a9ace5484494f92e6341a2df899d7aa7decaf39630df8c1b6db",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-984.verify.md",
+      "sha256": "5d9c19411f862f34f3bb1496189860f6b5193022bcdcbe064eee0caf9af68a09",
+      "floor_status": "advisory_until_6d"
+    },
+    {
+      "path": "artifacts/verify/TASK-985.verify.md",
+      "sha256": "00d5e0d38fea9f6d3ad00cb64758394d14661c7bea87705a9aa78fafcbe8239b",
+      "floor_status": "advisory_until_6d"
+    }
+  ]
+}

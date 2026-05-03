@@ -281,6 +281,13 @@ PROJECT_ADAPTER_RULES = {
 }
 
 
+# Verify Floor Baseline constants (TASK-1009)
+VERIFY_FLOOR_BASELINE_PATH = "artifacts/governance/verify-floor-baseline.v3.4.json"
+VERIFY_FLOOR_POLICY_HISTORICAL = "advisory_until_6d"
+VERIFY_FLOOR_POLICY_STRICT = "strict"
+VERIFY_FLOOR_SCHEMA_VERSION = "verify-floor-baseline/v1"
+
+
 def normalize_assurance_level(value: str) -> str:
     normalized = str(value or "").strip().lower()
     return normalized if normalized in ASSURANCE_LEVELS else DEFAULT_ASSURANCE_LEVEL

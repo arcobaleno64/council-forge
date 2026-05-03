@@ -32,6 +32,9 @@ from workflow_constants import (
     VERIFICATION_ITEM_RESULTS,
     VERIFICATION_REASON_CODES,
     VERIFICATION_READINESS_STATES,
+    VERIFY_FLOOR_BASELINE_PATH,
+    VERIFY_FLOOR_POLICY_HISTORICAL,
+    VERIFY_FLOOR_POLICY_STRICT,
     WORKFLOW_STATES,
 )
 
@@ -1817,6 +1820,36 @@ def reconcile_status(artifacts_root: Path, task_id: str) -> ValidationResult:
 
 _HISTORICAL_EXCEPTION_ALLOWLIST: frozenset[str] = frozenset({"TASK-964"})
 _HISTORICAL_ACCEPTED_MISSING: frozenset[str] = frozenset({"plan", "test"})
+def load_verify_floor_baseline(baseline_path: Path) -> Optional[dict]:
+    """Load verify-floor-baseline.v3.4.json. Returns None if file not found."""
+    if not baseline_path.exists():
+        return None
+    return load_json(baseline_path)
+
+
+def classify_verify_floor_policy(verify_path: Path, baseline: dict) -> str:
+    """Classify verify artifact floor policy against the baseline.
+
+    Returns VERIFY_FLOOR_POLICY_HISTORICAL ('advisory_until_6d') when the file
+    is in the baseline with a matching sha256.  Returns VERIFY_FLOOR_POLICY_STRICT
+    ('strict') when the file is absent from the baseline (new) or its sha256
+    differs from the recorded value (modified after baseline).
+    """
+    posix = verify_path.as_posix()
+    for entry in baseline.get("baseline_verify_files", []):
+        entry_path = entry.get("path", "")
+        if posix == entry_path or posix.endswith("/" + entry_path):
+            content = read_bounded_file(verify_path, missing_label=None, too_large_label="Verify file too large")
+            if content is None:
+                return VERIFY_FLOOR_POLICY_STRICT
+            return (
+                VERIFY_FLOOR_POLICY_HISTORICAL
+                if hashlib.sha256(content).hexdigest() == entry.get("sha256")
+                else VERIFY_FLOOR_POLICY_STRICT
+            )
+    return VERIFY_FLOOR_POLICY_STRICT
+
+
 _HISTORICAL_VERIFY_REQUIRED_PHRASES: tuple[str, ...] = (
     "historical limited evidence",
     "right-answer-for-wrong-reason",
@@ -2360,6 +2393,16 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Check whether high-risk tasks (per risk_classification.csv) contain ## TAO Trace in code/verify artifacts. Warning-only, does not affect exit code.",
     )
+    parser.add_argument(
+        "--verify-floor-dry-run",
+        action="store_true",
+        help=(
+            "Dry-run verify floor policy classification for the task's verify artifact. "
+            "Reports whether the verify is 'advisory_until_6d' (historical baseline, unchanged) "
+            "or 'strict' (new or modified after baseline). Never fails; always exits 0. "
+            "Full enforcement is deferred to Prompt 6d / TASK-1015."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -2385,6 +2428,26 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(f"[WARN] {w}")
         if not tao_warnings:
             print("[OK] TAO Trace check passed (no missing traces)")
+        return 0
+    if args.verify_floor_dry_run:
+        baseline_path = artifacts_root.parent / VERIFY_FLOOR_BASELINE_PATH
+        baseline = load_verify_floor_baseline(baseline_path)
+        if baseline is None:
+            print(f"[WARN] verify-floor-baseline not found at {baseline_path}; cannot classify", file=sys.stderr)
+            return 0
+        verify_path = artifact_path(artifacts_root, args.task_id, "verify")
+        policy = classify_verify_floor_policy(verify_path, baseline)
+        print(f"[INFO] verify-floor policy for {args.task_id}: {policy}")
+        if policy == VERIFY_FLOOR_POLICY_STRICT:
+            print(
+                f"[INFO] {args.task_id}: verify artifact is NEW or MODIFIED after baseline "
+                f"-> strict enforcement applies (full enforcement via Prompt 6d / TASK-1015)"
+            )
+        else:
+            print(
+                f"[INFO] {args.task_id}: verify artifact is in baseline (historical unchanged) "
+                f"-> advisory_until_6d; strict enforcement deferred to Prompt 6d / TASK-1015"
+            )
         return 0
     try:
         auto_classification = resolve_validation_mode(artifacts_root, args.task_id, args.auto_classify)

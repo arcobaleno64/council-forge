@@ -27,6 +27,8 @@ from workflow_constants import (
     PROJECT_ADAPTERS,
     resolve_verification_policy,
     STRUCTURED_CHECKLIST_FIELDS as POLICY_STRUCTURED_CHECKLIST_FIELDS,
+    validate_assurance_level_strict,
+    warn_and_default_assurance_level,
     VERIFICATION_ITEM_RESULTS,
     VERIFICATION_REASON_CODES,
     VERIFICATION_READINESS_STATES,
@@ -1136,12 +1138,18 @@ def validate_status_schema(status: dict, expected_task_id: str) -> ValidationRes
 
         assurance_raw = status.get("assurance_level", "")
         if assurance_raw in {"", None}:
-            warnings.append(f"status.json missing 'assurance_level'; defaulting to '{DEFAULT_ASSURANCE_LEVEL}' until reconcile")
+            errors.append(
+                f"status.json field 'assurance_level' is required but missing or empty. "
+                f"Allowed values: {list(ASSURANCE_LEVELS)}."
+            )
         else:
             assurance_level = str(assurance_raw).strip().lower()
             if assurance_level not in ASSURANCE_LEVELS:
                 errors.append(
-                    f"status.json field 'assurance_level' must be one of {list(ASSURANCE_LEVELS)}, got '{status.get('assurance_level')}'"
+                    f"status.json field 'assurance_level' must be one of {list(ASSURANCE_LEVELS)}, "
+                    f"got '{status.get('assurance_level')}'. "
+                    "Unknown assurance_level is a schema error. "
+                    "Use legacy compatibility mode only if explicitly authorized."
                 )
 
         project_adapter_raw = status.get("project_adapter", "")
@@ -1510,6 +1518,11 @@ def validate_markdown_artifact(path: Path, artifact_type: str, task_id: str) -> 
     elif artifact_type == "task":
         assurance_level = resolve_assurance_level(text)
         project_adapter = resolve_project_adapter(text)
+        _task_flags_for_assurance = extract_task_inline_flags(text)
+        _raw_task_assurance = (
+            _task_flags_for_assurance.get("assurance_level")
+            or extract_single_line_section(text, "Assurance Level")
+        )
     missing_markers = [marker for marker in MARKERS[artifact_type] if marker not in text]
     if missing_markers:
         errors.append(f"{path.name} missing required markers: {missing_markers}")
@@ -1536,13 +1549,29 @@ def validate_markdown_artifact(path: Path, artifact_type: str, task_id: str) -> 
         errors.append(f"{path.name} does not clearly declare Pass Fail Result as pass/fail")
     if artifact_type == "task":
         if "## Assurance Level" not in text:
-            warnings.append(f"{path.name}: missing ## Assurance Level; defaulting to '{assurance_level}'")
+            errors.append(f"{path.name}: missing ## Assurance Level section; assurance_level must be declared explicitly.")
+        elif _raw_task_assurance and str(_raw_task_assurance).strip().lower() not in ASSURANCE_LEVELS:
+            errors.append(
+                f"{path.name}: Assurance Level '{_raw_task_assurance}' is not a valid assurance level. "
+                f"Allowed values: {list(ASSURANCE_LEVELS)}."
+            )
         if "## Project Adapter" not in text:
             warnings.append(f"{path.name}: missing ## Project Adapter; defaulting to '{project_adapter}'")
-        if assurance_level not in ASSURANCE_LEVELS:
-            errors.append(f"{path.name}: invalid Assurance Level '{assurance_level}'")
         if project_adapter not in PROJECT_ADAPTERS:
             errors.append(f"{path.name}: invalid Project Adapter '{project_adapter}'")
+        _status_path_for_mismatch = companion_artifact_path(path, "status", task_id)
+        if _status_path_for_mismatch.exists():
+            try:
+                _status_data_for_mismatch = load_json(_status_path_for_mismatch)
+                _status_assurance_val = str(_status_data_for_mismatch.get("assurance_level", "")).strip().lower()
+                _task_assurance_val = str(_raw_task_assurance or "").strip().lower()
+                if _status_assurance_val and _task_assurance_val and _status_assurance_val != _task_assurance_val:
+                    errors.append(
+                        f"{path.name}: assurance_level mismatch: task.md declares '{_task_assurance_val}' "
+                        f"but status.json declares '{_status_assurance_val}'. Both must match."
+                    )
+            except GuardError:
+                pass
     if artifact_type == "plan" and assurance_level in {"mvp", "production"} and "## Verification Obligations" not in text:
         errors.append(f"{path.name}: missing ## Verification Obligations for assurance level '{assurance_level}'")
     if artifact_type == "research":

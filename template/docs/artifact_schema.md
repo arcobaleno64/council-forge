@@ -864,6 +864,71 @@ lineage_entry:
 
 ---
 
+## 5.11 Assurance Resolver Pipeline（TASK-1008 schema clarification）
+
+> Authoritative since: 2026-04-29 (TASK-1008). Decision ref: artifacts/decisions/TASK-1008.decision.md
+
+### 5.11.1 Allowed Assurance Levels
+
+Exactly three values are valid:
+
+| Level | Meaning |
+|---|---|
+| `poc` | Proof-of-concept; minimal artifact requirements |
+| `mvp` | Minimum viable product; standard governance gates |
+| `production` | Full governance; requires manual review, build guarantee, and reviewer attestation |
+
+`high` is **not** a valid assurance level and must be rejected by validators.
+
+### 5.11.2 Resolver Pipeline
+
+The assurance resolution follows this pipeline:
+
+```
+assurance baseline (task.md ## Assurance Level)
+  → adapter override (PROJECT_ADAPTER_RULES artifact_overrides_by_state)
+  → resolved policy (resolve_verification_policy)
+```
+
+Validators MUST read the **resolved policy** returned by `resolve_verification_policy(assurance_level, project_adapter)`, not re-derive requirements from artifact heuristics.
+
+### 5.11.3 Strict Mode (root default)
+
+Root strict mode applies to all new and modified artifacts after TASK-1008 baseline:
+
+- **Missing assurance_level**: error (not warning). No silent default.
+- **Unknown assurance_level**: explicit schema error. `high` and any value outside `{poc, mvp, production}` are schema violations.
+- **task.md and status.json mismatch**: error. Both must declare the same value.
+- **Forbidden**: silently defaulting unknown values to `poc`.
+
+Implemented in:
+- `guard_status_validator.py` → `validate_status_schema`: missing or invalid → error
+- `guard_status_validator.py` → `validate_markdown_artifact` (task type): missing section → error; invalid raw value → error; mismatch with status.json → error
+- `workflow_constants.py` → `validate_assurance_level_strict(value)`: raises `ValueError` on unknown or empty
+
+### 5.11.4 Legacy Compatibility Mode (explicit invocation only)
+
+Legacy mode exists only for historical or downstream artifacts that predate strict enforcement:
+
+- **Invocation**: must call `workflow_constants.warn_and_default_assurance_level(value)` explicitly.
+- **Silent default is forbidden**: code must never call this implicitly as a fallback.
+- **Warning structure** (returned dict when defaulting occurs):
+  - `defaulted_from`: the original invalid value
+  - `selected_default`: the level that was substituted (`poc`)
+  - `migration_debt`: human-readable message describing the required correction
+- If the value is already valid, returns `(value, {})` with empty warning dict.
+
+### 5.11.5 TASK-964 Policy Clarification
+
+The historical TASK-964 governance drill is permanently classified as:
+
+- **maturity**: `mvp + limited evidence`
+- **reason**: the drill was correct in conclusion but was produced under a lower evidence floor than production-grade attestation requires.
+
+Repaired future evidence MUST NOT retroactively upgrade TASK-964's historical maturity. Production-grade canonical drill ownership belongs to TASK-1010 (Prompt 4) or the manifest-designated equivalent.
+
+---
+
 ## 6. 合法性檢查規則
 
 artifact 合法需同時符合：

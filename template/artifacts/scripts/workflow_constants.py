@@ -286,6 +286,47 @@ def normalize_assurance_level(value: str) -> str:
     return normalized if normalized in ASSURANCE_LEVELS else DEFAULT_ASSURANCE_LEVEL
 
 
+def validate_assurance_level_strict(value: str) -> str:
+    """Strict mode: raises ValueError for unknown or empty assurance level."""
+    normalized = str(value or "").strip().lower()
+    if not normalized:
+        raise ValueError(
+            f"assurance_level is required but missing or empty. "
+            f"Allowed values: {list(ASSURANCE_LEVELS)}."
+        )
+    if normalized not in ASSURANCE_LEVELS:
+        raise ValueError(
+            f"Unknown assurance_level '{normalized}'. "
+            f"Allowed values: {list(ASSURANCE_LEVELS)}. "
+            "Use legacy compatibility mode only if explicitly authorized."
+        )
+    return normalized
+
+
+def warn_and_default_assurance_level(value: str) -> tuple:
+    """
+    Legacy compatibility mode only. Returns (resolved_level, warning_dict).
+    Must be explicitly invoked; never called as a silent fallback.
+    warning_dict keys when defaulting occurs: defaulted_from, selected_default, migration_debt.
+    Empty dict means no defaulting was needed (value was already valid).
+    """
+    normalized = str(value or "").strip().lower()
+    if normalized in ASSURANCE_LEVELS:
+        return normalized, {}
+    defaulted_from = normalized if normalized else "(empty)"
+    warning = {
+        "defaulted_from": defaulted_from,
+        "selected_default": DEFAULT_ASSURANCE_LEVEL,
+        "migration_debt": (
+            f"assurance_level '{defaulted_from}' is not in the allowed vocabulary "
+            f"{list(ASSURANCE_LEVELS)}. Defaulted to '{DEFAULT_ASSURANCE_LEVEL}' via "
+            "legacy compatibility mode. Update this artifact's assurance_level to a "
+            "valid value to remove this migration debt."
+        ),
+    }
+    return DEFAULT_ASSURANCE_LEVEL, warning
+
+
 def normalize_project_adapter(value: str) -> str:
     normalized = str(value or "").strip().lower()
     return normalized if normalized in PROJECT_ADAPTERS else DEFAULT_PROJECT_ADAPTER

@@ -1,0 +1,719 @@
+{
+  "schema_version": "characterization-result/v1",
+  "task_id": "TASK-1031",
+  "generated_at": "2026-05-04T18:03:55+08:00",
+  "characterization_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+  "overall_status": "pass",
+  "targets_analyzed": [
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "exists": true,
+      "sha256": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "metrics": {
+        "loc": 2678,
+        "function_count": 105,
+        "top_function_count": 104,
+        "class_count": 6,
+        "top_class_count": 6,
+        "top_level_statement_count": 188,
+        "main_guard_present": true
+      },
+      "governance_match": true
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "exists": true,
+      "sha256": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "metrics": {
+        "loc": 969,
+        "function_count": 25,
+        "top_function_count": 24,
+        "class_count": 1,
+        "top_class_count": 1,
+        "top_level_statement_count": 55,
+        "main_guard_present": true
+      },
+      "governance_match": true
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "exists": true,
+      "sha256": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "metrics": {
+        "loc": 636,
+        "function_count": 10,
+        "top_function_count": 10,
+        "class_count": 0,
+        "top_class_count": 0,
+        "top_level_statement_count": 41,
+        "main_guard_present": false
+      },
+      "governance_match": true
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "exists": true,
+      "sha256": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "metrics": {
+        "loc": 1745,
+        "function_count": 94,
+        "top_function_count": 88,
+        "class_count": 3,
+        "top_class_count": 2,
+        "top_level_statement_count": 131,
+        "main_guard_present": true
+      },
+      "governance_match": true
+    },
+    {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "exists": true,
+      "sha256": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+      "metrics": {
+        "loc": 12801,
+        "function_count": 1341,
+        "top_function_count": 16,
+        "class_count": 328,
+        "top_class_count": 323,
+        "top_level_statement_count": 379,
+        "main_guard_present": false
+      },
+      "governance_match": true
+    }
+  ],
+  "summary": {
+    "checks_total": 69,
+    "checks_pass": 69,
+    "checks_advisory": 0,
+    "checks_skipped_with_reason_code": 0
+  },
+  "checks": [
+    {
+      "check_id": "lifecycle_exists:artifacts/tasks/TASK-1031.task.md",
+      "target": "artifacts/tasks/TASK-1031.task.md",
+      "expected": "file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1031.task.md",
+      "reason_code": ""
+    },
+    {
+      "check_id": "lifecycle_exists:artifacts/plans/TASK-1031.plan.md",
+      "target": "artifacts/plans/TASK-1031.plan.md",
+      "expected": "file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1031.plan.md",
+      "reason_code": ""
+    },
+    {
+      "check_id": "lifecycle_exists:artifacts/decisions/TASK-1031.decision.md",
+      "target": "artifacts/decisions/TASK-1031.decision.md",
+      "expected": "file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/decisions/TASK-1031.decision.md",
+      "reason_code": ""
+    },
+    {
+      "check_id": "lifecycle_exists:artifacts/verify/TASK-1031.verify.md",
+      "target": "artifacts/verify/TASK-1031.verify.md",
+      "expected": "file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1031.verify.md",
+      "reason_code": ""
+    },
+    {
+      "check_id": "lifecycle_exists:artifacts/status/TASK-1031.status.json",
+      "target": "artifacts/status/TASK-1031.status.json",
+      "expected": "file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1031.status.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "dependency_satisfied:TASK-1029",
+      "target": "artifacts/status/TASK-1029.status.json",
+      "expected": "state=done verify_result=pass",
+      "actual": "state=done verify_result=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1029.status.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "dependency_satisfied:TASK-1030",
+      "target": "artifacts/status/TASK-1030.status.json",
+      "expected": "state=done verify_result=pass",
+      "actual": "state=done verify_result=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1030.status.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "characterization_artifact_exists",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "characterization_artifact_field:schema_version",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "validator-test-monolith-characterization/v1",
+      "actual": "validator-test-monolith-characterization/v1",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "characterization_artifact_field:plan_version",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "v3.5.1",
+      "actual": "v3.5.1",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "characterization_artifact_field:created_by_task",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "TASK-1031",
+      "actual": "TASK-1031",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_sha256_match:artifacts/scripts/guard_status_validator.py",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "actual": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:loc",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 2678,
+      "actual": 2678,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:function_count",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 105,
+      "actual": 105,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:top_function_count",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 104,
+      "actual": 104,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:class_count",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 6,
+      "actual": 6,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:top_class_count",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 6,
+      "actual": 6,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:top_level_statement_count",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": 188,
+      "actual": 188,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_status_validator.py:main_guard_present",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": true,
+      "actual": true,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "template_mirror_status:artifacts/scripts/guard_status_validator.py",
+      "target": "template/artifacts/scripts/guard_status_validator.py",
+      "expected": "byte_identical",
+      "actual": "byte_identical",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/guard_status_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_sha256_match:artifacts/scripts/guard_contract_validator.py",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "actual": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:loc",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 969,
+      "actual": 969,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:function_count",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 25,
+      "actual": 25,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:top_function_count",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 24,
+      "actual": 24,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:class_count",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 1,
+      "actual": 1,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:top_class_count",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 1,
+      "actual": 1,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:top_level_statement_count",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": 55,
+      "actual": 55,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/guard_contract_validator.py:main_guard_present",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": true,
+      "actual": true,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "template_mirror_status:artifacts/scripts/guard_contract_validator.py",
+      "target": "template/artifacts/scripts/guard_contract_validator.py",
+      "expected": "byte_identical",
+      "actual": "byte_identical",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/guard_contract_validator.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_sha256_match:artifacts/scripts/workflow_constants.py",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "actual": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:loc",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 636,
+      "actual": 636,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:function_count",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 10,
+      "actual": 10,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:top_function_count",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 10,
+      "actual": 10,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:class_count",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 0,
+      "actual": 0,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:top_class_count",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 0,
+      "actual": 0,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:top_level_statement_count",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": 41,
+      "actual": 41,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/workflow_constants.py:main_guard_present",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": false,
+      "actual": false,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "template_mirror_status:artifacts/scripts/workflow_constants.py",
+      "target": "template/artifacts/scripts/workflow_constants.py",
+      "expected": "byte_identical",
+      "actual": "byte_identical",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/workflow_constants.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_sha256_match:artifacts/scripts/run_red_team_suite.py",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "actual": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:loc",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 1745,
+      "actual": 1745,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:function_count",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 94,
+      "actual": 94,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:top_function_count",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 88,
+      "actual": 88,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:class_count",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 3,
+      "actual": 3,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:top_class_count",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 2,
+      "actual": 2,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:top_level_statement_count",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": 131,
+      "actual": 131,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/run_red_team_suite.py:main_guard_present",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": true,
+      "actual": true,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "template_mirror_status:artifacts/scripts/run_red_team_suite.py",
+      "target": "template/artifacts/scripts/run_red_team_suite.py",
+      "expected": "byte_identical",
+      "actual": "byte_identical",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/run_red_team_suite.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_sha256_match:artifacts/scripts/test_guard_units.py",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+      "actual": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:loc",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 12801,
+      "actual": 12801,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:function_count",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 1341,
+      "actual": 1341,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:top_function_count",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 16,
+      "actual": 16,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:class_count",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 328,
+      "actual": 328,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:top_class_count",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 323,
+      "actual": 323,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:top_level_statement_count",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": 379,
+      "actual": 379,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "target_metric:artifacts/scripts/test_guard_units.py:main_guard_present",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": false,
+      "actual": false,
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "template_mirror_status:artifacts/scripts/test_guard_units.py",
+      "target": "template/artifacts/scripts/test_guard_units.py",
+      "expected": "drift_baseline_existing",
+      "actual": "drift_baseline_existing",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/test_guard_units.py",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:targets",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:summary",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:responsibility_map",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:source_template_implications",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:cli_surface",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:import_side_effect_surface",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:golden_cli_surface",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:test_monolith_surface",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:risk_register",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:refactor_readiness_criteria",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:policy_registry_extraction_inputs",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "section_present:limitations",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "non_empty",
+      "actual": "non_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    },
+    {
+      "check_id": "readiness_status_in_vocabulary",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "in {not_ready_for_split, partially_ready_for_split, ready_for_split_candidate}",
+      "actual": "not_ready_for_split",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": ""
+    }
+  ],
+  "limitations": [
+    "Helper performs static-only analysis: ast.parse on raw bytes, sha256 on raw bytes; no module is imported from the repository.",
+    "Helper does not execute any CLI; argv shapes inside governance artifact are not runtime-verified.",
+    "advisory status is used (not fail) so that the helper remains advisory when invoked by Codex post-commit verifier; pass requires zero advisory checks.",
+    "PYTHONDONTWRITEBYTECODE=1 + sys.dont_write_bytecode=True set before any heavy import; helper produces no __pycache__."
+  ]
+}

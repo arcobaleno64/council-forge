@@ -1,0 +1,764 @@
+{
+  "schema_version": "validator-test-monolith-characterization/v1",
+  "plan_version": "v3.5.1",
+  "created_by_task": "TASK-1031",
+  "generated_at": "2026-05-04T18:05:00+08:00",
+  "git_reference_if_available": "HEAD=bd60076ab3f38587aadd782e486b9847562b3bb7 (TASK-1030 commit; head_at_task_start)",
+  "metrics_methodology": {
+    "loc": "len(text.splitlines()) on UTF-8 decoded bytes (no normalization, no comment stripping)",
+    "function_count": "ast.walk count of FunctionDef + AsyncFunctionDef nodes (includes nested methods)",
+    "top_function_count": "ast.Module.body count of FunctionDef + AsyncFunctionDef (top-level only)",
+    "class_count": "ast.walk count of ClassDef nodes (includes nested classes)",
+    "top_class_count": "ast.Module.body count of ClassDef (top-level only)",
+    "top_level_statement_count": "len(ast.Module.body)",
+    "sha256": "hashlib.sha256(raw_bytes).hexdigest() on file as-is on disk",
+    "main_guard_present": "any top-level ast.If with Compare(__name__ == ...) test",
+    "cli_entrypoint_present": "main_guard_present AND argparse.ArgumentParser referenced AND main() function defined",
+    "isolation": "PYTHONDONTWRITEBYTECODE=1 + sys.dont_write_bytecode=True + python -B; no module imported from repository other than stdlib for measurement"
+  },
+  "targets": [
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "exists": true,
+      "sha256": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "loc": 2678,
+      "function_count": 105,
+      "top_function_count": 104,
+      "class_count": 6,
+      "top_class_count": 6,
+      "top_level_statement_count": 188,
+      "cli_entrypoint_present": true,
+      "main_guard_present": true,
+      "import_candidate": true,
+      "template_mirror_path": "template/artifacts/scripts/guard_status_validator.py",
+      "template_mirror_status": "byte_identical",
+      "responsibility_tags": [
+        "parser",
+        "schema",
+        "rule_engine",
+        "policy_constants",
+        "cli",
+        "status_lifecycle"
+      ],
+      "known_couplings": [
+        "imports workflow_constants for ASSURANCE_PROFILES, PROJECT_ADAPTER_RULES, RACI_MATRIX, classify_path",
+        "subprocess invocations to git for diff/scope drift detection",
+        "urllib.request to GitHub API for PR file listing (optional, host-allowlisted)",
+        "reads artifacts/governance/verify-floor-baseline.v3.4.json"
+      ],
+      "risk_notes": [
+        "104 top-level functions + 6 dataclasses + 188 top-level statements concentrate parsing, schema, validation, scope-drift, premortem, status reconciliation in one module",
+        "subprocess git invocations and urllib network paths are exercised through tests but not isolated from validate_*",
+        "governance constants (PREMORTEM_*, HIGH_RISK_KEYWORDS, GITHUB_API_*) co-located with rule logic",
+        "FIND-30 monolith maintainability risk primary surface alongside test_guard_units.py"
+      ],
+      "characterization_status": "static_metrics_only_no_behavioral_corpus_added"
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "exists": true,
+      "sha256": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "loc": 969,
+      "function_count": 25,
+      "top_function_count": 24,
+      "class_count": 1,
+      "top_class_count": 1,
+      "top_level_statement_count": 55,
+      "cli_entrypoint_present": true,
+      "main_guard_present": true,
+      "import_candidate": true,
+      "template_mirror_path": "template/artifacts/scripts/guard_contract_validator.py",
+      "template_mirror_status": "byte_identical",
+      "responsibility_tags": [
+        "parser",
+        "schema",
+        "rule_engine",
+        "contract_validation",
+        "source_template_sync",
+        "cli"
+      ],
+      "known_couplings": [
+        "imports guard_status_validator (calls validate_markdown_artifact, validate_status_schema for root strictness)",
+        "imports workflow_constants for REQUIRED_TOPICS, TOPIC_PATTERN, validate_workflow_rule_tables",
+        "subprocess git for changed-file detection (validate_prompt_case_sync)",
+        "drives EXACT_SYNC_FILES, COMMON/SOURCE/DOWNSTREAM_REQUIRED_PHRASES, README_CONTRACTS, OBSIDIAN_CONTRACTS as in-module data tables"
+      ],
+      "risk_notes": [
+        "policy data (EXACT_SYNC_FILES list, README_CONTRACTS, OBSIDIAN_CONTRACTS) embedded as Python literals - prime candidate for TASK-1032 policy registry extraction analysis",
+        "_run_raci_audit_v2 spans 130+ lines including JSON output formatting, alias resolution, waiver application; functional cohesion mixed with I/O",
+        "DISALLOWED_GEMINI_FRAGMENTS / ALLOWED_GEMINI_MODELS / README_HEADERS_EN/_ZH / OBSIDIAN_HEADERS hard-coded inline"
+      ],
+      "characterization_status": "static_metrics_only_no_behavioral_corpus_added"
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "exists": true,
+      "sha256": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "loc": 636,
+      "function_count": 10,
+      "top_function_count": 10,
+      "class_count": 0,
+      "top_class_count": 0,
+      "top_level_statement_count": 41,
+      "cli_entrypoint_present": false,
+      "main_guard_present": false,
+      "import_candidate": true,
+      "template_mirror_path": "template/artifacts/scripts/workflow_constants.py",
+      "template_mirror_status": "byte_identical",
+      "responsibility_tags": [
+        "policy_constants",
+        "schema",
+        "rule_engine"
+      ],
+      "known_couplings": [
+        "consumed by guard_status_validator and guard_contract_validator at top-level import time",
+        "ASSURANCE_PROFILES + PROJECT_ADAPTER_RULES jointly resolved by resolve_verification_policy",
+        "RACI_MATRIX (set-valued) and RACI_MATRIX_V2 (frozenset-valued) coexist; both consulted by guard_contract_validator._run_raci_audit_v2"
+      ],
+      "risk_notes": [
+        "central candidate for policy registry extraction (TASK-1032 design input): ASSURANCE_LEVELS, PROJECT_ADAPTERS, WORKFLOW_STATES, ARTIFACT_TYPES, ASSURANCE_PROFILES, PROJECT_ADAPTER_RULES, RACI_MATRIX*, VERIFICATION_*",
+        "two RACI matrices (legacy + v2) drift risk if updated independently",
+        "no CLI / no main_guard - pure import surface; safer to import from helpers than running validators do already"
+      ],
+      "characterization_status": "static_metrics_only_no_behavioral_corpus_added"
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "exists": true,
+      "sha256": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "loc": 1745,
+      "function_count": 94,
+      "top_function_count": 88,
+      "class_count": 3,
+      "top_class_count": 2,
+      "top_level_statement_count": 131,
+      "cli_entrypoint_present": true,
+      "main_guard_present": true,
+      "import_candidate": true,
+      "template_mirror_path": "template/artifacts/scripts/run_red_team_suite.py",
+      "template_mirror_status": "byte_identical",
+      "responsibility_tags": [
+        "red_team",
+        "test_fixture",
+        "cli"
+      ],
+      "known_couplings": [
+        "case_rt_001..case_rt_030 (30 RT cases) + case_live_950, case_live_951 + case_pr_001..case_pr_025 (25 prompt regression cases) all co-located",
+        "loads modules dynamically via importlib (legacy_verify_corpus, migrate_artifact_schema)",
+        "spawns http.server thread for github_pr_files_server fixture",
+        "uses prepare_temp_root, copy_*_fixture helpers; drives subprocess against repo Python scripts"
+      ],
+      "risk_notes": [
+        "57+ case_* functions in one file - decomposition candidate by RT/LIVE/PR family",
+        "prepare_temp_root + handle_remove_readonly + cleanup_temp_roots + reset_temp_root_registry encode shared mutable state in module globals",
+        "build_cases assembles every case definition manually - any new case must touch this monolith"
+      ],
+      "characterization_status": "static_metrics_only_no_behavioral_corpus_added"
+    },
+    {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "exists": true,
+      "sha256": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+      "loc": 12801,
+      "function_count": 1341,
+      "top_function_count": 16,
+      "class_count": 328,
+      "top_class_count": 323,
+      "top_level_statement_count": 379,
+      "cli_entrypoint_present": false,
+      "main_guard_present": false,
+      "import_candidate": false,
+      "template_mirror_path": "template/artifacts/scripts/test_guard_units.py",
+      "template_mirror_status": "drift_baseline_existing",
+      "template_mirror_sha256": "b4b4258c4917252b74e3f2bbedbec70c9153b4b539acde46f731b3a42a1af0c8",
+      "responsibility_tags": [
+        "test_fixture"
+      ],
+      "known_couplings": [
+        "imports guard_contract_validator, guard_status_validator, workflow_constants, migrate_artifact_schema, run_red_team_suite, prompt_regression_validator, build_decision_registry, classify_existing_tasks, backfill_pdca_labels, repo_health_dashboard, validate_context_stack, validate_scorecard_deltas, update_repository_profile, aggregate_red_team_scorecard, discover_templates, legacy_verify_corpus",
+        "uses pytest fixtures (six pytest @fixture _mock_run inside TestRrtsCase* subclasses)",
+        "uses unittest.mock for subprocess + urllib patches",
+        "16 top-level helper functions (_make_artifact_tree, _ts, _future_ts, _make_full_status, _write_status, _build_*_artifact x 5, _setup_*_tree x 2, _mock_subprocess_run, _make_diff_evidence_code) shared across 323 test classes"
+      ],
+      "risk_notes": [
+        "12,801 LOC + 1,242 test methods in 323 test classes is the largest test monolith in repo (FIND-30 primary evidence)",
+        "test_guard_units.py is recorded as QB-DRIFT-0001 / QB-SYNC-0005 in quality-baseline.v3.5.json with enforcement=baseline_existing; root and template sha256 differ; no decision-artifact waiver with expires_at exists",
+        "TestRrts* classes alone span ~30 subclasses for run_red_team_suite case coverage - decomposition candidate by class-cluster",
+        "TestGsv* classes (~70 subclasses) shadow guard_status_validator surface - decomposition candidate by validator function family"
+      ],
+      "characterization_status": "static_metrics_only_no_behavioral_corpus_added"
+    }
+  ],
+  "summary": {
+    "target_count": 5,
+    "existing_target_count": 5,
+    "total_loc": 18829,
+    "total_function_count": 1575,
+    "total_top_function_count": 242,
+    "total_class_count": 338,
+    "total_top_class_count": 332,
+    "largest_file_by_loc": {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "loc": 12801
+    },
+    "largest_file_by_function_count": {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "function_count": 1341
+    },
+    "largest_validator_by_loc": {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "loc": 2678
+    },
+    "test_monolith_file": "artifacts/scripts/test_guard_units.py",
+    "highest_risk_targets": [
+      "artifacts/scripts/guard_status_validator.py",
+      "artifacts/scripts/test_guard_units.py",
+      "artifacts/scripts/run_red_team_suite.py"
+    ],
+    "readiness_status": "not_ready_for_split"
+  },
+  "responsibility_map": {
+    "status_validation": {
+      "primary_target": "artifacts/scripts/guard_status_validator.py",
+      "supporting_targets": ["artifacts/scripts/workflow_constants.py"],
+      "evidence": "validate_status_schema, validate_markdown_artifact, validate_artifact_presence, validate_transition, validate_all in guard_status_validator; ASSURANCE_PROFILES + PROJECT_ADAPTER_RULES in workflow_constants drive resolve_verification_policy",
+      "split_candidacy": "candidate_future_v3_6_only_after_characterization_corpus_added"
+    },
+    "contract_validation": {
+      "primary_target": "artifacts/scripts/guard_contract_validator.py",
+      "supporting_targets": ["artifacts/scripts/guard_status_validator.py", "artifacts/scripts/workflow_constants.py"],
+      "evidence": "validate_exact_sync, validate_required_phrases, validate_markdown_contracts, validate_section_contract, validate_repository_profile, validate_workflow_policy_contract, validate_root_artifact_strictness, validate_raci_hybrid_sync; reuses gsv.validate_markdown_artifact, gsv.validate_status_schema for root strictness",
+      "split_candidacy": "candidate_future_v3_6_only_after_characterization_corpus_added"
+    },
+    "workflow_constants": {
+      "primary_target": "artifacts/scripts/workflow_constants.py",
+      "supporting_targets": [],
+      "evidence": "ASSURANCE_LEVELS, PROJECT_ADAPTERS, WORKFLOW_STATES, ARTIFACT_TYPES, ASSURANCE_PROFILES, PROJECT_ADAPTER_RULES, RACI_MATRIX, RACI_MATRIX_V2, VERIFICATION_ITEM_RESULTS, VERIFICATION_REASON_CODES, _PATH_PREFIX_RULES, classify_path",
+      "split_candidacy": "primary_input_for_TASK_1032_policy_registry_extraction_design_decision"
+    },
+    "red_team_orchestration": {
+      "primary_target": "artifacts/scripts/run_red_team_suite.py",
+      "supporting_targets": [],
+      "evidence": "case_rt_001..case_rt_030 + case_live_950..case_live_951 + case_pr_001..case_pr_025 + build_cases + render_markdown + main; CaseDefinition + CaseResult dataclasses",
+      "split_candidacy": "candidate_future_v3_6_split_by_RT_LIVE_PR_family_after_characterization"
+    },
+    "unit_test_monolith": {
+      "primary_target": "artifacts/scripts/test_guard_units.py",
+      "supporting_targets": [],
+      "evidence": "323 top-level Test* classes covering guard_status_validator (TestGsv*, ~70), guard_contract_validator (TestGcv*, ~10), workflow_constants (TestWorkflowConstants), run_red_team_suite (TestRrts*, ~30), prompt_regression_validator (TestPrv*, ~5), aggregate_red_team_scorecard (TestArs*, ~3), build_decision_registry (TestBdr*, ~10), validate_context_stack (TestVcs*, ~10), repo_health_dashboard (TestRhd*, ~10), update_repository_profile (TestUrp*, ~5), discover_templates (TestDt*, ~4), and shared helpers (16 top-level _*)",
+      "split_candidacy": "candidate_future_v3_6_split_by_test_class_cluster_per_target_module_after_decomposition_strategy_recorded"
+    },
+    "source_template_sync": {
+      "primary_target": "artifacts/scripts/guard_contract_validator.py",
+      "supporting_targets": ["artifacts/governance/quality-baseline.v3.5.json", "artifacts/scripts/run_quality_gates.py"],
+      "evidence": "validate_exact_sync uses EXACT_SYNC_FILES (28 paths) + detect_repo_mode; QC-SYNC-001 in run_quality_gates.py provides the production gate; quality-baseline.v3.5.json records source_template_pairs and existing_drift_entries",
+      "split_candidacy": "out_of_scope_for_split_until_drift_baseline_remediated_or_waived"
+    },
+    "cli_output_behavior": {
+      "primary_target": "artifacts/scripts/guard_contract_validator.py",
+      "supporting_targets": ["artifacts/scripts/guard_status_validator.py", "artifacts/scripts/run_red_team_suite.py"],
+      "evidence": "[OK]/[FAIL]/[WARN] print stanzas in guard_contract_validator.main; print_result + write_transition stdout in guard_status_validator; render_markdown + json output in run_red_team_suite",
+      "split_candidacy": "candidate_for_golden_cli_corpus_capture_before_split"
+    },
+    "schema_surface": {
+      "primary_target": "artifacts/scripts/guard_status_validator.py",
+      "supporting_targets": ["artifacts/scripts/workflow_constants.py", "artifacts/scripts/guard_contract_validator.py"],
+      "evidence": "validate_verify_checklist_schema, validate_status_schema, validate_research_artifact, validate_decision_artifact, validate_improvement_artifact in guard_status_validator; ASSURANCE_PROFILE_FIELDS contract in workflow_constants; README/Obsidian/Repository profile contracts in guard_contract_validator",
+      "split_candidacy": "candidate_future_v3_6_after_characterization_corpus_per_artifact_type"
+    }
+  },
+  "source_template_implications": {
+    "paired_targets": [
+      {
+        "source": "artifacts/scripts/guard_status_validator.py",
+        "template": "template/artifacts/scripts/guard_status_validator.py",
+        "status": "byte_identical",
+        "sha256": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+        "baseline_id": null,
+        "split_implication": "any v3.6 split must update both source and template paths in lockstep to keep QC-SYNC-001 green"
+      },
+      {
+        "source": "artifacts/scripts/guard_contract_validator.py",
+        "template": "template/artifacts/scripts/guard_contract_validator.py",
+        "status": "byte_identical",
+        "sha256": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+        "baseline_id": null,
+        "split_implication": "any v3.6 split must update both source and template paths in lockstep; EXACT_SYNC_FILES list itself must be extended for any new validator/test files added by the split"
+      },
+      {
+        "source": "artifacts/scripts/workflow_constants.py",
+        "template": "template/artifacts/scripts/workflow_constants.py",
+        "status": "byte_identical",
+        "sha256": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+        "baseline_id": null,
+        "split_implication": "policy registry extraction (TASK-1032 input) likely changes this file's load surface; if the registry becomes a JSON, EXACT_SYNC_FILES must add the JSON pair entry"
+      },
+      {
+        "source": "artifacts/scripts/run_red_team_suite.py",
+        "template": "template/artifacts/scripts/run_red_team_suite.py",
+        "status": "byte_identical",
+        "sha256": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+        "baseline_id": null,
+        "split_implication": "case_* family split into per-family modules requires lockstep template mirroring plus EXACT_SYNC_FILES update"
+      },
+      {
+        "source": "artifacts/scripts/test_guard_units.py",
+        "template": "template/artifacts/scripts/test_guard_units.py",
+        "status": "drift_baseline_existing",
+        "sha256_source": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+        "sha256_template": "b4b4258c4917252b74e3f2bbedbec70c9153b4b539acde46f731b3a42a1af0c8",
+        "baseline_id": "QB-SYNC-0005",
+        "drift_id": "QB-DRIFT-0001",
+        "split_implication": "drift is recorded as baseline_existing in quality-baseline.v3.5.json; no decision-artifact waiver with expires_at exists; before any test monolith decomposition can ship, this drift must be either remediated (sync) or covered by a decision-artifact waiver with expires_at - tracked as RC-3 readiness criterion"
+      }
+    ],
+    "missing_templates": [],
+    "drift_status_from_baseline": {
+      "QB-DRIFT-0001": {
+        "category": "source_template_drift",
+        "source": "artifacts/scripts/test_guard_units.py",
+        "template": "template/artifacts/scripts/test_guard_units.py",
+        "enforcement": "baseline_existing",
+        "remediation_required_before_split": true,
+        "remediation_options": [
+          "sync template/ to source/ contents (largest test monolith - high churn risk)",
+          "issue decision-artifact waiver with expires_at and Build Guarantee for drift to remain through decomposition"
+        ]
+      }
+    },
+    "new_pair_implications": [
+      "Any v3.6 module split that adds new artifacts/scripts/<new>.py files MUST add corresponding template/artifacts/scripts/<new>.py and extend EXACT_SYNC_FILES in guard_contract_validator.py; otherwise QC-SYNC-001 post_baseline_new_pair will fail (proven by TASK-1029 NEG-001/NEG-002)."
+    ],
+    "sync_gate_dependency": "QC-SYNC-001 (run_quality_gates.py) is the active enforcement; its negative cases were proven by TASK-1029 (commit c75c3fe).",
+    "notes": [
+      "All four validator/runtime modules (guard_status_validator, guard_contract_validator, workflow_constants, run_red_team_suite) are currently byte_identical between root and template; only the test monolith drifts.",
+      "TASK-1031 does not remediate QB-DRIFT-0001 nor issue a waiver; remediation policy belongs to a separate decision artifact (out of scope here)."
+    ]
+  },
+  "cli_surface": {
+    "candidate_commands": [
+      {
+        "target": "artifacts/scripts/guard_contract_validator.py",
+        "argv_shape": "[--root PATH] [--check-readme] [--audit-raci FILE AGENT [--dry-run|--fix|--compatibility-mode]]",
+        "exit_code_semantics": "0 pass; 1 violations (or post-waiver violations for --audit-raci); 2 RACI fix rejected / alias rejected / unknown identity",
+        "stdout_shape_pass": "[OK] Contract validation passed",
+        "stdout_shape_fail": "[ERROR] Contract validation failed\\n[FAIL] <message>...",
+        "stdout_shape_audit_raci": "JSON object with schema_version=raci-audit/v2",
+        "characterization_status": "candidate_listed_no_golden_corpus_captured"
+      },
+      {
+        "target": "artifacts/scripts/guard_status_validator.py",
+        "argv_shape": "primary entry via main(); accepts subcommand-style args (validate, reconcile, transition, run_verify_floor_enforce variants); see parse_args + main",
+        "exit_code_semantics": "0 pass; 1 validation errors; 2 hard guard errors (GuardError/ValidationError raised)",
+        "stdout_shape": "print_result + write_transition emit structured stdout; check_tao_trace adds annotation lines",
+        "characterization_status": "candidate_listed_no_golden_corpus_captured"
+      },
+      {
+        "target": "artifacts/scripts/run_red_team_suite.py",
+        "argv_shape": "see parse_args; supports case selection + json/markdown rendering",
+        "exit_code_semantics": "0 all cases pass; non-zero on case failure or argparse error",
+        "stdout_shape": "render_markdown emits markdown report; JSON mode emits structured CaseResult list",
+        "characterization_status": "candidate_listed_no_golden_corpus_captured"
+      },
+      {
+        "target": "artifacts/scripts/workflow_constants.py",
+        "argv_shape": "no CLI - pure import surface (no main, no main_guard)",
+        "exit_code_semantics": "n/a",
+        "stdout_shape": "n/a",
+        "characterization_status": "no_cli_surface"
+      },
+      {
+        "target": "artifacts/scripts/test_guard_units.py",
+        "argv_shape": "no CLI - invoked via pytest discovery",
+        "exit_code_semantics": "pytest exit codes",
+        "stdout_shape": "pytest output",
+        "characterization_status": "not_a_cli_module"
+      }
+    ],
+    "execution_during_TASK_1031": "no_command_executed_to_avoid_subprocess_side_effects_and_cache_creation",
+    "limitations": [
+      "Argv shapes derived from ast inspection of parse_args + argparse.add_argument calls only; no command was executed during TASK-1031.",
+      "No SHA256-stable golden CLI capture corpus exists yet; this is RC-1 (not_satisfied)."
+    ]
+  },
+  "import_side_effect_surface": {
+    "import_concerns": [
+      {
+        "target": "artifacts/scripts/guard_status_validator.py",
+        "side_effect_class": "module_level_constant_compilation_only",
+        "evidence": "188 top-level statements; majority are ast.Assign for compiled regex constants and frozen tuples; no top-level subprocess, no top-level network, no top-level file write",
+        "safe_to_import": true
+      },
+      {
+        "target": "artifacts/scripts/guard_contract_validator.py",
+        "side_effect_class": "module_level_constant_compilation_only",
+        "evidence": "55 top-level statements; EXACT_SYNC_FILES, README_CONTRACTS, OBSIDIAN_CONTRACTS as Python literals; imports guard_status_validator + workflow_constants which themselves are import-safe",
+        "safe_to_import": true
+      },
+      {
+        "target": "artifacts/scripts/workflow_constants.py",
+        "side_effect_class": "pure_constants_and_function_defs",
+        "evidence": "41 top-level statements; only stdlib imports (re, typing); no subprocess, no network, no file I/O at import time",
+        "safe_to_import": true
+      },
+      {
+        "target": "artifacts/scripts/run_red_team_suite.py",
+        "side_effect_class": "constants_plus_dataclass_defs_only_at_top_level",
+        "evidence": "131 top-level statements; CaseDefinition / CaseResult dataclasses; case_* functions as defs only; main() entry point gates execution behind __name__==__main__",
+        "safe_to_import": true,
+        "caveat": "main() and prepare_temp_root must NOT be called at import time; only def lookup is safe"
+      },
+      {
+        "target": "artifacts/scripts/test_guard_units.py",
+        "side_effect_class": "imports_pytest_and_many_repository_modules",
+        "evidence": "imports guard_contract_validator, guard_status_validator, workflow_constants, migrate_artifact_schema, run_red_team_suite, prompt_regression_validator, build_decision_registry, classify_existing_tasks, backfill_pdca_labels, repo_health_dashboard, validate_context_stack, validate_scorecard_deltas, update_repository_profile, aggregate_red_team_scorecard, discover_templates, legacy_verify_corpus at module load",
+        "safe_to_import": false,
+        "caveat": "intended only for pytest collection; importing under arbitrary harness pulls 16 sibling modules and triggers their top-level constants - acceptable under pytest with PYTHONDONTWRITEBYTECODE but not for ad-hoc analysis"
+      }
+    ],
+    "isolation_strategy_used_by_TASK_1031": "ast.parse on raw bytes only; no module imported during inventory generation; PYTHONDONTWRITEBYTECODE=1 + sys.dont_write_bytecode=True + python -B; no __pycache__ created",
+    "limitations": [
+      "Import-time side effects derived from static ast inspection of top-level node types; runtime side effects under exception paths are not characterized."
+    ]
+  },
+  "golden_cli_surface": {
+    "captured": false,
+    "candidates": [
+      "guard_contract_validator.py --root <fixture-repo>",
+      "guard_contract_validator.py --check-readme",
+      "guard_contract_validator.py --audit-raci <FILE> <AGENT> --dry-run",
+      "guard_status_validator.py validate --task <TASK-ID>",
+      "run_red_team_suite.py --json"
+    ],
+    "rationale": "TASK-1031 is a characterization expansion gate; capturing a golden CLI corpus would require subprocess execution, fixture repos, and stable seeding which exceed read-only inventory scope.",
+    "deferred_to": "v3.6 module split prerequisite; tracked under RC-1 (not_satisfied)."
+  },
+  "test_monolith_surface": {
+    "path": "artifacts/scripts/test_guard_units.py",
+    "exists": true,
+    "loc": 12801,
+    "function_count": 1341,
+    "test_function_count": 1242,
+    "top_level_helper_function_count": 16,
+    "top_level_test_class_count": 323,
+    "fixture_count_estimate": 6,
+    "fixture_evidence": "@pytest.fixture decorators detected on _mock_run methods inside TestRrtsCaseRT001to010, TestRrtsCaseRT011to020, TestRrtsCaseRT021to023, TestRrtsCaseRT024to029, TestRrtsCaseLive, TestRrtsCasePrompt - i.e., subclass-scoped mock_run fixtures for run_red_team_suite case tests",
+    "known_test_groups": [
+      {
+        "prefix": "TestGsv*",
+        "approx_class_count": 70,
+        "covers": "guard_status_validator surface (validate_status_schema, validate_premortem, scope drift, override log, status reconciliation, transition gates, etc.)"
+      },
+      {
+        "prefix": "TestGcv*",
+        "approx_class_count": 10,
+        "covers": "guard_contract_validator surface (normalize_text, repo mode, exact sync, required phrases, README/Obsidian, RACI auditor)"
+      },
+      {
+        "prefix": "TestRrts*",
+        "approx_class_count": 30,
+        "covers": "run_red_team_suite surface (helpers, run_command, fixture copy, case_rt_001..030, case_live, case_pr_001..025, main)"
+      },
+      {
+        "prefix": "TestPrv*",
+        "approx_class_count": 5,
+        "covers": "prompt_regression_validator surface"
+      },
+      {
+        "prefix": "TestArs*",
+        "approx_class_count": 3,
+        "covers": "aggregate_red_team_scorecard surface"
+      },
+      {
+        "prefix": "TestBdr*",
+        "approx_class_count": 10,
+        "covers": "build_decision_registry surface"
+      },
+      {
+        "prefix": "TestVcs*",
+        "approx_class_count": 10,
+        "covers": "validate_context_stack surface"
+      },
+      {
+        "prefix": "TestRhd*",
+        "approx_class_count": 10,
+        "covers": "repo_health_dashboard surface"
+      },
+      {
+        "prefix": "TestUrp*",
+        "approx_class_count": 5,
+        "covers": "update_repository_profile surface"
+      },
+      {
+        "prefix": "TestDt*",
+        "approx_class_count": 4,
+        "covers": "discover_templates surface"
+      },
+      {
+        "prefix": "Test*CoverageCatchup",
+        "approx_class_count": 6,
+        "covers": "explicit coverage-catchup classes for migrate_artifact_schema, workflow_constants, guard_status_validator, legacy_verify_corpus, guard_contract_validator, build_decision_registry"
+      },
+      {
+        "prefix": "Test (legacy uncategorized prefix)",
+        "approx_class_count": 160,
+        "covers": "the remaining ~160 Test* classes (TestNormalizePathToken, TestParseKeyValueSection, TestParseListItems, TestExtractSection, ...) that pre-date the namespaced TestGsv*/TestGcv* prefixes; covers helper-level functions and pre-2025 tests"
+      }
+    ],
+    "risk_notes": [
+      "Largest test monolith in repo; primary FIND-30 evidence; baseline drift QB-DRIFT-0001 unresolved.",
+      "16 shared module-level helpers (_make_artifact_tree, _ts, _build_*_artifact, _setup_done_tree, _mock_subprocess_run, _make_diff_evidence_code) couple every Test class to the same fixture-construction shape - splitting helpers will fan out to many call sites.",
+      "Two functions named identically (_make_diff_evidence_code appears twice as top_func - confirmed by ast top_func scan returning duplicate name) signal that namespacing is already strained.",
+      "323 top-level Test classes is large enough that any decomposition must preserve pytest collection IDs to avoid invalidating CI history."
+    ],
+    "decomposition_candidates": [
+      "Split by target-module: tests/test_guard_status_validator.py, tests/test_guard_contract_validator.py, tests/test_run_red_team_suite.py, tests/test_workflow_constants.py, tests/test_prompt_regression_validator.py, tests/test_build_decision_registry.py, tests/test_validate_context_stack.py, tests/test_repo_health_dashboard.py, tests/test_update_repository_profile.py, tests/test_discover_templates.py, tests/test_aggregate_red_team_scorecard.py, plus tests/conftest.py for the 16 shared helpers.",
+      "Alternative split-by-prefix: keep TestGsv*, TestGcv*, TestRrts*, TestPrv*, TestArs*, TestBdr*, TestVcs*, TestRhd*, TestUrp*, TestDt* in separate files; move legacy unprefixed Test* classes into per-target files based on ast import-graph attribution.",
+      "Coverage-catchup classes (Test*CoverageCatchup) should colocate with their target's primary test file."
+    ],
+    "characterization_gaps": [
+      "No baseline measurement of pytest collection time, so decomposition risk vs current performance cannot be quantified.",
+      "Test count breakdown by class is not explicit in this artifact - only aggregate test_function_count=1242 is recorded.",
+      "Coverage attribution per target module is not measured (would require coverage.py runtime which is out of scope for read-only inventory).",
+      "Fixture count is a lower bound (6 detected via @pytest.fixture decorator on AST); pytest's auto-discovery of conftest fixtures is not analyzed."
+    ]
+  },
+  "risk_register": [
+    {
+      "risk_id": "RR-1",
+      "title": "validator_monolith - guard_status_validator.py concentration",
+      "severity": "high",
+      "affected_targets": ["artifacts/scripts/guard_status_validator.py"],
+      "evidence": "2,678 LOC, 104 top-level functions, 6 dataclasses, 188 top-level statements in one module mixing parsing, schema validation, scope-drift detection, GitHub API access, premortem rules, status reconciliation, and CLI dispatch.",
+      "mitigation_candidate": "v3.6 split by responsibility cluster (parser/schema/rule_engine/scope_drift/cli) after RC-1..RC-9 satisfied",
+      "blocks_refactor_now": true
+    },
+    {
+      "risk_id": "RR-2",
+      "title": "test_monolith - test_guard_units.py size and drift",
+      "severity": "high",
+      "affected_targets": ["artifacts/scripts/test_guard_units.py"],
+      "evidence": "12,801 LOC, 1,242 test methods, 323 test classes; QB-DRIFT-0001 unresolved between root and template.",
+      "mitigation_candidate": "decomposition by target module + drift remediation or expiring waiver before any module split",
+      "blocks_refactor_now": true
+    },
+    {
+      "risk_id": "RR-3",
+      "title": "source_template_drift - test_guard_units.py baseline_existing",
+      "severity": "medium",
+      "affected_targets": ["artifacts/scripts/test_guard_units.py", "template/artifacts/scripts/test_guard_units.py"],
+      "evidence": "QB-SYNC-0005 status=drift; sha256 source 5c7228c9..., sha256 template b4b4258c... ; quality-baseline.v3.5.json records baseline_existing classification but no decision-artifact waiver with expires_at exists.",
+      "mitigation_candidate": "either sync template to source, or issue decision-artifact waiver with expires_at and Build Guarantee",
+      "blocks_refactor_now": true
+    },
+    {
+      "risk_id": "RR-4",
+      "title": "cli_output_regression - no golden CLI corpus",
+      "severity": "medium",
+      "affected_targets": ["artifacts/scripts/guard_contract_validator.py", "artifacts/scripts/guard_status_validator.py", "artifacts/scripts/run_red_team_suite.py"],
+      "evidence": "No SHA256-stable golden CLI capture corpus exists; CLI argv shapes recorded statically only.",
+      "mitigation_candidate": "capture golden CLI corpus with deterministic seeding before split (RC-1)",
+      "blocks_refactor_now": true
+    },
+    {
+      "risk_id": "RR-5",
+      "title": "policy_constant_coupling - workflow_constants drift between RACI_MATRIX and RACI_MATRIX_V2",
+      "severity": "medium",
+      "affected_targets": ["artifacts/scripts/workflow_constants.py", "artifacts/scripts/guard_contract_validator.py"],
+      "evidence": "Two RACI matrices coexist (set-valued legacy + frozenset-valued v2); both consulted by guard_contract_validator._run_raci_audit_v2 and validate_raci_hybrid_sync; out-of-band updates risk silent divergence.",
+      "mitigation_candidate": "TASK-1032 design decision must address whether registry extraction unifies both",
+      "blocks_refactor_now": false
+    },
+    {
+      "risk_id": "RR-6",
+      "title": "import_side_effect - test_guard_units pulls 16 sibling modules",
+      "severity": "low",
+      "affected_targets": ["artifacts/scripts/test_guard_units.py"],
+      "evidence": "Top-level imports include 16 repository modules; ad-hoc imports outside pytest collection trigger constant compilation across the validator surface.",
+      "mitigation_candidate": "decomposition will localize imports per test file, reducing import fan-out",
+      "blocks_refactor_now": false
+    },
+    {
+      "risk_id": "RR-7",
+      "title": "golden_coverage_gap - no behavioral characterization corpus added in v3.5.1",
+      "severity": "medium",
+      "affected_targets": ["artifacts/scripts/guard_status_validator.py", "artifacts/scripts/guard_contract_validator.py", "artifacts/scripts/workflow_constants.py", "artifacts/scripts/run_red_team_suite.py", "artifacts/scripts/test_guard_units.py"],
+      "evidence": "TASK-1031 records static metrics only (this artifact + characterization-result.json); no new tests, no SHA-stable run_N captures, no coverage profile.",
+      "mitigation_candidate": "v3.5.x follow-up task to add explicit characterization tests per responsibility cluster, or v3.6 split prerequisite",
+      "blocks_refactor_now": true
+    },
+    {
+      "risk_id": "RR-8",
+      "title": "fixture_coupling - 16 module-level helpers shared by 323 test classes",
+      "severity": "low",
+      "affected_targets": ["artifacts/scripts/test_guard_units.py"],
+      "evidence": "_make_artifact_tree, _ts, _future_ts, _make_full_status, _write_status, _build_task_artifact, _build_plan_artifact, _build_code_artifact, _build_verify_artifact, _build_research_artifact, _setup_done_tree, _mock_subprocess_run, _setup_valid_done_tree, _make_diff_evidence_code (declared twice) at module top level.",
+      "mitigation_candidate": "extract to tests/conftest.py during decomposition; preserve function signatures to avoid touching individual test bodies",
+      "blocks_refactor_now": false
+    }
+  ],
+  "refactor_readiness_criteria": [
+    {
+      "criterion_id": "RC-1",
+      "description": "stable golden CLI coverage - SHA256-stable run_N captures of validator/runner CLI surfaces exist and are committed",
+      "current_status": "not_satisfied",
+      "evidence_ref": "no artifacts/verify/golden-cli/ corpus exists; cli_surface.captured=false",
+      "blocks_split": true
+    },
+    {
+      "criterion_id": "RC-2",
+      "description": "behavioral characterization coverage - explicit characterization tests recording current behavior of each public function/class on each target module",
+      "current_status": "partially_satisfied",
+      "evidence_ref": "test_guard_units.py provides 1,242 test methods covering most public surface, but coverage attribution per target module is unmeasured and no new characterization corpus was added in v3.5.1",
+      "blocks_split": true
+    },
+    {
+      "criterion_id": "RC-3",
+      "description": "source/template sync green or waived with expiration",
+      "current_status": "partially_satisfied",
+      "evidence_ref": "4 of 5 paired targets byte_identical (guard_status_validator, guard_contract_validator, workflow_constants, run_red_team_suite); test_guard_units.py drift QB-DRIFT-0001 recorded as baseline_existing in quality-baseline.v3.5.json with no decision-artifact waiver expires_at",
+      "blocks_split": true
+    },
+    {
+      "criterion_id": "RC-4",
+      "description": "known responsibility map - explicit responsibility map per target module published as governance artifact",
+      "current_status": "satisfied",
+      "evidence_ref": "this artifact's responsibility_map section",
+      "blocks_split": false
+    },
+    {
+      "criterion_id": "RC-5",
+      "description": "negative tests for QC-SYNC and PCACC completed",
+      "current_status": "satisfied",
+      "evidence_ref": "TASK-1029 (QC-SYNC-001 negative tests, commit c75c3fe, 6 cases pass) + TASK-1030 (PCACC negative tests, commit bd60076, 8 cases pass)",
+      "blocks_split": false
+    },
+    {
+      "criterion_id": "RC-6",
+      "description": "no broad refactor before characterization - no production code change to target modules in v3.5.1",
+      "current_status": "satisfied",
+      "evidence_ref": "TASK-1031 inspection-only; sha256 of all five targets unchanged from preflight to commit",
+      "blocks_split": false
+    },
+    {
+      "criterion_id": "RC-7",
+      "description": "test monolith decomposition strategy - explicit decomposition plan with rollback strategy and CI ID preservation",
+      "current_status": "not_satisfied",
+      "evidence_ref": "test_monolith_surface.decomposition_candidates lists candidates only; no chosen strategy; no rollback plan; no CI ID preservation analysis",
+      "blocks_split": true
+    },
+    {
+      "criterion_id": "RC-8",
+      "description": "policy registry extraction decision completed or explicitly deferred",
+      "current_status": "satisfied",
+      "evidence_ref": "v3.5.1 plan §9.2 explicitly defers policy_registry_extraction implementation to v3.6; design decision is reserved for TASK-1032 (not yet executed but explicitly in v3.5.1 candidate task sequence per governance-repair-manifest.v3.5.1.json execution_order)",
+      "blocks_split": false,
+      "note": "satisfied at v3.5.1 plan level (explicit defer); becomes 'design decision completed' only after TASK-1032 done"
+    },
+    {
+      "criterion_id": "RC-9",
+      "description": "rollback strategy - documented rollback plan for failed split (revert path, sha256 restoration, CI re-baseline)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "no rollback plan documented in any v3.5.x artifact",
+      "blocks_split": true
+    }
+  ],
+  "policy_registry_extraction_inputs": {
+    "candidate_policy_constants": [
+      {
+        "host_module": "artifacts/scripts/workflow_constants.py",
+        "constants": [
+          "REQUIRED_TOPICS",
+          "TOPIC_PATTERN (regex pattern source)",
+          "ASSURANCE_LEVELS",
+          "PROJECT_ADAPTERS",
+          "WORKFLOW_STATES",
+          "ARTIFACT_TYPES",
+          "STRUCTURED_CHECKLIST_FIELDS",
+          "ASSURANCE_PROFILES (rule table)",
+          "PROJECT_ADAPTER_RULES (rule table)",
+          "RACI_MATRIX",
+          "RACI_MATRIX_V2",
+          "VERIFICATION_ITEM_RESULTS",
+          "VERIFICATION_REASON_CODES",
+          "VERIFICATION_READINESS_STATES",
+          "DECISION_CLASSES",
+          "IMPROVEMENT_PROFILES",
+          "_PATH_PREFIX_RULES",
+          "_WORKFLOW_ENTRY_FILES",
+          "_AGENT_PROMPT_FILES"
+        ],
+        "registry_candidacy_rationale": "pure data tables; no Python control flow; already shaped as JSON-friendly dicts and frozensets; primary input for TASK-1032 design decision"
+      },
+      {
+        "host_module": "artifacts/scripts/guard_contract_validator.py",
+        "constants": [
+          "EXACT_SYNC_FILES (28 paths)",
+          "COMMON_REQUIRED_PHRASES",
+          "SOURCE_REQUIRED_PHRASES",
+          "DOWNSTREAM_REQUIRED_PHRASES",
+          "PROMPT_ENTRY_FILES",
+          "PROMPT_REGRESSION_FILES",
+          "REPOSITORY_PROFILE_FILES",
+          "ACTIVE_GEMINI_POLICY_FILES",
+          "ALLOWED_GEMINI_MODELS",
+          "DISALLOWED_GEMINI_FRAGMENTS",
+          "README_HEADERS_EN",
+          "README_HEADERS_ZH",
+          "OBSIDIAN_HEADERS",
+          "README_CONTRACTS",
+          "OBSIDIAN_CONTRACTS",
+          "PLACEHOLDER_PATTERNS"
+        ],
+        "registry_candidacy_rationale": "policy lists and contract tables embedded as Python literals; movable to JSON registry with schema versioning"
+      }
+    ],
+    "must_remain_in_python": [
+      "validate_workflow_rule_tables (control flow + cross-table consistency check)",
+      "resolve_verification_policy (resolution algorithm + adapter inheritance chain)",
+      "_resolve_adapter_chain (cycle detection)",
+      "classify_path (precedence-ordered prefix matching)",
+      "validate_raci_hybrid_sync (markdown table parsing)",
+      "validate_section_contract (markdown section traversal)",
+      "all argparse / subprocess / urllib / file I/O paths"
+    ],
+    "schema_requirements": [
+      "schema_version field per registry file",
+      "plan_version compatibility (v3.5.x vs v3.6+)",
+      "lockstep source/template mirroring if registry lives under artifacts/scripts/ paired files",
+      "alternative: registry lives under artifacts/governance/*.json (already paired-immune-by-policy)",
+      "load-time schema validation must reject malformed entries; runner refuses to start on registry parse failure"
+    ],
+    "backward_compatibility_concerns": [
+      "guard_status_validator and guard_contract_validator currently `import workflow_constants`; if registry extraction changes the import surface, both must update in lockstep with template mirror",
+      "RACI_MATRIX (set-valued legacy) vs RACI_MATRIX_V2 (frozenset-valued) registry shape divergence must be designed deliberately or unified",
+      "EXACT_SYNC_FILES is consumed at module top level by validate_exact_sync; registry extraction must preserve eager-load semantics or guard against late-load races during validate_all"
+    ],
+    "source_template_sync_implications": [
+      "If registry JSON lives at artifacts/scripts/<registry>.json, EXACT_SYNC_FILES must extend; QC-SYNC-001 post_baseline_new_pair semantics will trigger if template counterpart is missing (proven by TASK-1029 NEG-001/NEG-002).",
+      "If registry JSON lives at artifacts/governance/<registry>.v3.6.json, no source/template pairing is required; baseline pair set unchanged."
+    ],
+    "decision_questions_for_TASK_1032": [
+      "Q1: Where does the registry live - artifacts/scripts/ paired or artifacts/governance/ unpaired?",
+      "Q2: Does the registry use a single file or per-domain split (assurance_profiles.json + adapter_rules.json + raci_matrix.json + sync_paths.json)?",
+      "Q3: Is RACI_MATRIX (legacy) deprecated outright in favor of RACI_MATRIX_V2 in the registry, or do both ship?",
+      "Q4: Does extraction precede or follow the validator module split?",
+      "Q5: How is schema validation enforced - in-runner at startup, or via a separate quality-gate?",
+      "Q6: Do registry changes require waiver/decision artifacts (governance change) or are they treated as ordinary code changes?",
+      "Q7: How is RACI_MATRIX_V2 frozenset preserved through JSON round-trip (since JSON only has arrays)?",
+      "Q8: What is the rollback plan if registry-driven runtime regresses?"
+    ]
+  },
+  "limitations": [
+    "TASK-1031 is a characterization-expansion gate, not a refactor or test addition. No new tests were added; no production code was modified.",
+    "Static metrics derive from ast.parse on raw bytes. Runtime exception paths and dynamic imports (e.g., importlib.util.spec_from_file_location calls inside run_red_team_suite) are not characterized.",
+    "Test class counts include nested test_* methods inside Test* classes; nested helper functions inside test methods are also counted in function_count - hence function_count (1341) > test_function_count (1242) + top_level_helpers (16).",
+    "_make_diff_evidence_code appears twice as top-level FunctionDef in test_guard_units.py - the second definition shadows the first in pytest collection but both contribute to function_count.",
+    "Fixture count (6) is the count of @pytest.fixture-decorated methods detected via ast decorator scan inside subclass bodies; pytest fixture auto-discovery via conftest.py is not analyzed.",
+    "Argv shapes are derived statically from argparse.add_argument calls; no command was executed during TASK-1031, so exit-code semantics may diverge from runtime behavior under pathological input.",
+    "Coverage attribution per target module is not measured here (would require runtime coverage.py execution; out of scope).",
+    "QC-SYNC-001 baseline drift entry QB-DRIFT-0001 is reported as recorded; no remediation or waiver is performed in TASK-1031.",
+    "Readiness status 'not_ready_for_split' reflects RC-1, RC-3, RC-7, RC-9 still not_satisfied; this artifact does not authorize v3.6 split.",
+    "TASK-1032 (policy registry extraction design decision) is reserved but not executed; policy_registry_extraction_inputs section provides candidate inputs only."
+  ]
+}

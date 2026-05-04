@@ -1,0 +1,288 @@
+{
+  "schema_version": "evidence-ref-policy-prototype-inspection/v1",
+  "task_id": "TASK-1033",
+  "generated_at": "2026-05-04T20:20:00+08:00",
+  "prototype_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+  "design_ref": "artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "INS-001",
+      "target": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+      "expected": "prototype_json_exists_and_valid",
+      "actual": "exists=true;json_loadable=true;size_bytes=22373",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+      "reason_code": "prototype_present"
+    },
+    {
+      "check_id": "INS-002",
+      "target": "prototype.schema_version",
+      "expected": "evidence-ref-policy-registry-prototype/v1",
+      "actual": "evidence-ref-policy-registry-prototype/v1",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#schema_version",
+      "reason_code": "schema_version_matches"
+    },
+    {
+      "check_id": "INS-003",
+      "target": "prototype.plan_version",
+      "expected": "v3.5.2",
+      "actual": "v3.5.2",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#plan_version",
+      "reason_code": "plan_version_matches"
+    },
+    {
+      "check_id": "INS-004",
+      "target": "prototype.created_by_task",
+      "expected": "TASK-1033",
+      "actual": "TASK-1033",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#created_by_task",
+      "reason_code": "created_by_task_matches"
+    },
+    {
+      "check_id": "INS-005",
+      "target": "prototype.prototype_status",
+      "expected": "design_only",
+      "actual": "design_only",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#prototype_status",
+      "reason_code": "prototype_status_design_only"
+    },
+    {
+      "check_id": "INS-006",
+      "target": "prototype.runtime_consumption_authorized",
+      "expected": "false",
+      "actual": "false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#runtime_consumption_authorized",
+      "reason_code": "runtime_consumption_unauthorized"
+    },
+    {
+      "check_id": "INS-007",
+      "target": "prototype.allowed_ref_prefixes",
+      "expected": "list_of_>=6_with_prefix_pattern_kind_must_exist_on_disk",
+      "actual": "len=10;each_entry_has_prefix_id_prefix_pattern_kind_must_exist_on_disk_rationale_current_pcacc_002_match_branch",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#allowed_ref_prefixes",
+      "reason_code": "allowed_prefixes_defined"
+    },
+    {
+      "check_id": "INS-008",
+      "target": "prototype.local_artifact_constraints.forbidden_url_schemes",
+      "expected": "non_empty_list_excluding_http_https_ftp_file_ssh_git",
+      "actual": "len=7;contains http://, https://, ftp://, file://, ssh://, git://, git+ssh://",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints.forbidden_url_schemes",
+      "reason_code": "forbidden_url_schemes_listed"
+    },
+    {
+      "check_id": "INS-009",
+      "target": "prototype.local_artifact_constraints.forbidden_root_directories",
+      "expected": "non_empty_list_includes_dot_obsidian_dot_omc_dot_tmp_dot_pytest_basetemp",
+      "actual": "len=9;contains .obsidian, .omc, .tmp, .pytest-basetemp, __pycache__, .pytest_cache, node_modules, .venv, .git",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints.forbidden_root_directories",
+      "reason_code": "forbidden_root_directories_listed"
+    },
+    {
+      "check_id": "INS-010",
+      "target": "prototype.local_artifact_constraints.must_be_relative_path",
+      "expected": "true",
+      "actual": "must_be_relative_path=true;must_not_escape_repo_root=true;must_not_contain_parent_traversal=true;must_not_be_absolute=true;must_not_use_windows_drive_letter=true;must_use_forward_slashes=true;must_be_normalized=true;must_target_committed_or_task_authorized_evidence=true;must_be_resolvable_to_existing_file_or_directory_when_local=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints",
+      "reason_code": "local_artifact_constraints_defined"
+    },
+    {
+      "check_id": "INS-011",
+      "target": "prototype.required_ref_contexts",
+      "expected": "len_>=4_with_context_id_context_name_evidence_ref_required_missing_behavior_missing_reason_code",
+      "actual": "len=5;ids=RRC-1..RRC-5;each entry has context_id/context_name/description/evidence_ref_required/missing_behavior/missing_reason_code",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#required_ref_contexts",
+      "reason_code": "required_contexts_defined"
+    },
+    {
+      "check_id": "INS-012",
+      "target": "prototype.optional_ref_contexts",
+      "expected": "len_>=2_with_context_id_skip_reason_code",
+      "actual": "len=4;ids=ORC-1..ORC-4;each entry has skip_reason_code and missing_behavior_with_reason_code=skipped_with_reason_code",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#optional_ref_contexts",
+      "reason_code": "optional_contexts_defined"
+    },
+    {
+      "check_id": "INS-013",
+      "target": "prototype.malformed_ref_behavior",
+      "expected": "default_action_fail_and_silent_skip_forbidden",
+      "actual": "default_action=fail;silent_skip_forbidden=true;fallback_to_in_module_default_forbidden=true;reason_code_template=malformed_refs:<token>;evidence_from_TASK_1030_NEG_002 actual_reason_code=malformed_refs:garbage_token_not_a_known_prefix",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#malformed_ref_behavior",
+      "reason_code": "malformed_behavior_defined"
+    },
+    {
+      "check_id": "INS-014",
+      "target": "prototype.missing_ref_behavior",
+      "expected": "section_absent_fail_and_section_empty_fail",
+      "actual": "section_absent_action=fail;section_absent_reason_code=evidence_refs_section_absent;section_empty_action=fail;section_empty_reason_code=evidence_refs_section_empty;missing_path_action=fail;evidence_from_TASK_1030_NEG_003 actual_reason_code=evidence_refs_section_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#missing_ref_behavior",
+      "reason_code": "missing_behavior_defined"
+    },
+    {
+      "check_id": "INS-015",
+      "target": "prototype.pcacc_compatibility",
+      "expected": "current_PCACC_active_count_4_and_no_PCACC_005_introduction_and_no_AC_coverage_activation",
+      "actual": "current_pcacc_active_check_count=4;prototype_introduces_pcacc_005=false;prototype_changes_pcacc_active_count=false;prototype_changes_pcacc_result_schema=false;prototype_changes_pcacc_reason_code_set=false;prototype_changes_pcacc_runner_exit_codes=false;ac_to_verify_coverage_activated=false;ac_to_verify_coverage_remains_excluded=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#pcacc_compatibility",
+      "reason_code": "pcacc_compatibility_defined"
+    },
+    {
+      "check_id": "INS-016",
+      "target": "prototype.future_extraction_acceptance_criteria",
+      "expected": "len_>=6_each_with_criterion_id_description_evidence_required",
+      "actual": "len=9;ids=FE-1..FE-9;each entry has criterion_id/description/evidence_required",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#future_extraction_acceptance_criteria",
+      "reason_code": "future_extraction_criteria_defined"
+    },
+    {
+      "check_id": "INS-017",
+      "target": "prototype.non_authorization",
+      "expected": "all_values_false_and_includes_implementation_runtime_validator_split_production_validator_modification",
+      "actual": "len=35;all_values_false=true;includes implementation_authorized=false, runtime_consumption_authorized=false, validator_split_authorized=false, production_validator_modification_authorized=false, task_1034_plus_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#non_authorization",
+      "reason_code": "non_authorization_booleans_all_false"
+    },
+    {
+      "check_id": "INS-018",
+      "target": "artifacts/scripts/run_precommit_check.py",
+      "expected": "sha256_unchanged_5d1fcd1f96948028",
+      "actual": "5d1fcd1f96948028",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py",
+      "reason_code": "pcacc_runner_unchanged"
+    },
+    {
+      "check_id": "INS-019",
+      "target": "template/artifacts/scripts/run_precommit_check.py",
+      "expected": "sha256_unchanged_5d1fcd1f96948028",
+      "actual": "5d1fcd1f96948028",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/run_precommit_check.py",
+      "reason_code": "pcacc_runner_template_mirror_unchanged"
+    },
+    {
+      "check_id": "INS-020",
+      "target": "artifacts/governance/precommit-check-policy.v3.5.json",
+      "expected": "sha256_unchanged_66ea7c53837ff034",
+      "actual": "66ea7c53837ff034",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/precommit-check-policy.v3.5.json",
+      "reason_code": "pcacc_policy_unchanged"
+    },
+    {
+      "check_id": "INS-021",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": "sha256_unchanged_d58a41f6ca49ccfe",
+      "actual": "d58a41f6ca49ccfe",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": "production_validator_unchanged"
+    },
+    {
+      "check_id": "INS-022",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": "sha256_unchanged_7a38af7e2e0af5b7",
+      "actual": "7a38af7e2e0af5b7",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": "production_validator_unchanged"
+    },
+    {
+      "check_id": "INS-023",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": "sha256_unchanged_e1f09d2100b5685f",
+      "actual": "e1f09d2100b5685f",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": "workflow_constants_unchanged"
+    },
+    {
+      "check_id": "INS-024",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": "sha256_unchanged_77540c3b29f6ece6",
+      "actual": "77540c3b29f6ece6",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": "red_team_suite_unchanged"
+    },
+    {
+      "check_id": "INS-025",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": "sha256_unchanged_5c7228c9997edffd",
+      "actual": "5c7228c9997edffd",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": "test_guard_units_unchanged"
+    },
+    {
+      "check_id": "INS-026",
+      "target": "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+      "expected": "sha256_unchanged_fca30ea056bc87c6",
+      "actual": "fca30ea056bc87c6",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+      "reason_code": "task_1032_design_artifact_unchanged"
+    },
+    {
+      "check_id": "INS-027",
+      "target": "artifacts/governance/policy-registry-extraction-decision-matrix.v3.5.1.json",
+      "expected": "sha256_unchanged_6379e4b2cb03272c",
+      "actual": "6379e4b2cb03272c",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/policy-registry-extraction-decision-matrix.v3.5.1.json",
+      "reason_code": "task_1032_decision_matrix_unchanged"
+    },
+    {
+      "check_id": "INS-028",
+      "target": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "expected": "sha256_unchanged_b602a7f5f5be9e71",
+      "actual": "b602a7f5f5be9e71",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+      "reason_code": "task_1031_characterization_unchanged"
+    },
+    {
+      "check_id": "INS-029",
+      "target": "TASK-1034+ lifecycle artifacts",
+      "expected": "zero_files_at_artifacts_tasks_TASK_103_4_to_9_or_104_or_105",
+      "actual": "glob_artifacts_tasks_plans_decisions_verify_status_TASK_1034_through_1099 = 0 hits",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/;artifacts/plans/;artifacts/decisions/;artifacts/verify/;artifacts/status/",
+      "reason_code": "no_task_1034_plus_artifacts"
+    },
+    {
+      "check_id": "INS-030",
+      "target": "design_note.section_count",
+      "expected": "12_sections_per_prompt_section_9",
+      "actual": "12 sections present: Purpose / Inputs / Prototype Scope / Evidence Ref Policy Surface / Prototype Registry Schema / PCACC-002 Compatibility / Malformed and Missing Ref Semantics / Local Artifact Safety Constraints / Future Runtime Extraction Criteria / Risks and Limitations / Follow-up Task Candidates / Explicit Non-authorization",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md",
+      "reason_code": "design_note_complete"
+    }
+  ],
+  "limitations": [
+    "This inspection is static; it does not exercise PCACC-002 at runtime. PCACC-002 fixture rerun is out of scope and is owned by a future runtime extraction task per FE-2/FE-7.",
+    "SHA256 prefixes recorded here are 16-character truncations captured at TASK-1033 generation time; the inspection is bound to those values and would need refreshing if any guarded file is later modified.",
+    "INS-029 covers TASK-1034..TASK-1099 by glob pattern; future task IDs above 1099 are out of this inspection's range.",
+    "INS-030 verifies design note section presence by header parsing; per-section content quality is not auto-assessed and remains the responsibility of the verify artifact.",
+    "Reason codes here are inspection-local descriptors (e.g., prototype_present, schema_version_matches); they are not part of the PCACC-002 reason_code surface and must not be confused with runtime PCACC reason codes.",
+    "advisory status is listed as an allowed value per prompt section 10 but is not used here; all 30 checks resolve to pass."
+  ]
+}

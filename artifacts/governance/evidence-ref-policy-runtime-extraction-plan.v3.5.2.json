@@ -1,0 +1,459 @@
+{
+  "schema_version": "evidence-ref-policy-runtime-extraction-plan/v1",
+  "plan_version": "v3.5.2",
+  "created_by_task": "TASK-1034",
+  "generated_at": "2026-05-04T21:15:00+08:00",
+  "plan_status": "planning_only",
+  "implementation_authorized": false,
+  "runtime_registry_consumption_authorized": false,
+  "inputs": {
+    "prototype_registry": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+    "prototype_design_note": "artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md",
+    "prototype_inspection_evidence": "artifacts/verify/TASK-1033/evidence-ref-policy-prototype-inspection.json",
+    "current_pcacc_policy": "artifacts/governance/precommit-check-policy.v3.5.json",
+    "current_pcacc_runner": "artifacts/scripts/run_precommit_check.py",
+    "current_pcacc_runner_template_mirror": "template/artifacts/scripts/run_precommit_check.py",
+    "current_pcacc_runner_sha256_prefix": "5d1fcd1f96948028",
+    "current_pcacc_policy_sha256_prefix": "66ea7c53837ff034",
+    "task_1030_negative_test_evidence": "artifacts/verify/TASK-1030/pcacc-negative-test-result.json",
+    "policy_registry_extraction_design": "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+    "policy_registry_extraction_decision_matrix": "artifacts/governance/policy-registry-extraction-decision-matrix.v3.5.1.json",
+    "validator_test_monolith_characterization": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+    "v3_5_plan": "consilium-fabri-governance-repair-plan-v3.5.md",
+    "v3_5_manifest": "governance-repair-manifest.v3.5.json",
+    "v3_5_1_plan": "artifacts/governance/v3.5.1-gate-proving-plan.md",
+    "v3_5_1_manifest": "governance-repair-manifest.v3.5.1.json",
+    "task_1033_commit_at_plan_start": "8ef3fb6"
+  },
+  "current_prototype_state": {
+    "prototype_status": "design_only",
+    "runtime_consumption_authorized": false,
+    "prototype_path": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+    "prototype_path_intentionally_outside_runner_load_paths": true,
+    "prototype_top_level_field_count": 19,
+    "prototype_allowed_ref_prefix_count": 10,
+    "prototype_required_ref_context_count": 5,
+    "prototype_optional_ref_context_count": 4,
+    "prototype_future_extraction_acceptance_criteria_count": 9,
+    "prototype_non_authorization_false_key_count": 35,
+    "prototype_consumed_by_check": "PCACC-002",
+    "prototype_introduces_pcacc_005": false
+  },
+  "future_change_points": [
+    {
+      "change_point_id": "CP-1",
+      "surface": "artifacts/scripts/run_precommit_check.py:run_pcacc_002 (line 292) entrypoint",
+      "current_behavior": "in-module logic builds Evidence Ref policy from hard-coded path-prefix and scheme-token branches; no external policy file is read",
+      "future_planned_behavior": "before classification, optionally load the Evidence Ref registry from a CLI-provided path; if no path is given, retain identical in-module behavior; loading is the only structural delta and must be guarded by an explicit feature flag",
+      "implementation_authorized": false,
+      "risk": "modifying the function body could perturb downstream callers; mitigated by keeping the no-path path byte-equivalent",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py:292"
+    },
+    {
+      "change_point_id": "CP-2",
+      "surface": "artifacts/scripts/run_precommit_check.py:parse_evidence_refs (line 156) and per-ref classification branches inside run_pcacc_002",
+      "current_behavior": "per-ref branches accept artifacts/, template/, docs/, .github/, consilium-fabri-, governance-repair-, HEAD, commit, hex SHA, '=' inline tokens; non-matching tokens become malformed",
+      "future_planned_behavior": "per-ref branches consult the loaded registry's allowed_ref_prefixes when registry is active; when registry is inactive, branches behave identically to current code; no expansion of accepted token surface beyond prototype's 10 allowed_ref_prefixes",
+      "implementation_authorized": false,
+      "risk": "subtle change in branch order could cause TASK-1030 NEG-002 reason_code drift; mitigated by FE-2 fixture rerun",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py:156"
+    },
+    {
+      "change_point_id": "CP-3",
+      "surface": "new helper inside run_precommit_check.py (planned name: load_evidence_ref_registry)",
+      "current_behavior": "no such function exists; runner does not read any external Evidence Ref policy file",
+      "future_planned_behavior": "small standard-library function reads the registry path supplied via CLI, validates schema, returns parsed policy dict; fails closed on any error; never silently falls back to in-module default when registry is explicitly requested",
+      "implementation_authorized": false,
+      "risk": "load failures must surface with exit code 2 (hard guard error), not exit code 1; mitigated by FE-4",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#malformed_ref_behavior.exit_code_mapping_if_runtime_consumed"
+    },
+    {
+      "change_point_id": "CP-4",
+      "surface": "schema validation step inside the planned load_evidence_ref_registry",
+      "current_behavior": "no schema validation occurs because no file is read",
+      "future_planned_behavior": "validate schema_version equals registry/v1 sibling string; reject unknown top-level fields, missing required fields, malformed allowed_ref_prefixes, non-string enum entries; emit machine-readable failure record under artifacts/verify/<task>/precommit-check-result.json",
+      "implementation_authorized": false,
+      "risk": "schema check must reject unknown fields by default to prevent silent capability creep; mitigated by FE-4 plus regression case EVREF-REG-009",
+      "evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#future_extraction_acceptance_criteria FE-4"
+    },
+    {
+      "change_point_id": "CP-5",
+      "surface": "reason_code aggregation inside run_pcacc_002 around lines 357-359",
+      "current_behavior": "missing_paths and malformed_refs are aggregated, comma-joined, capped at first 5 offenders, then assigned to check.reason_code",
+      "future_planned_behavior": "preserved byte-identical when registry is inactive; preserved string-identical when registry is active; no new reason_code keys introduced; no PCACC-005 check added",
+      "implementation_authorized": false,
+      "risk": "any aggregation drift breaks TASK-1030 NEG-002 actual_reason_code anchor; mitigated by FE-2 plus regression case EVREF-REG-001",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py:357"
+    },
+    {
+      "change_point_id": "CP-6",
+      "surface": "PCACC runner exit-code surface at module top level",
+      "current_behavior": "exit code 0 on no violations; exit code 1 when violations present; exit code 2 reserved for hard guard errors",
+      "future_planned_behavior": "exit code surface unchanged when registry is inactive; exit code 2 used for registry load and schema validation failures when registry is explicitly requested; no new exit codes introduced",
+      "implementation_authorized": false,
+      "risk": "exit code drift would break CI gating; mitigated by FE-3 plus FE-7",
+      "evidence_ref": "artifacts/governance/precommit-check-policy.v3.5.json#non_authorization"
+    }
+  ],
+  "activation_model": {
+    "preferred_activation": "explicit_cli_argument",
+    "preferred_activation_example": "--evidence-ref-policy=artifacts/governance/evidence-ref-policy.v1.json",
+    "rejected_activation_models": [
+      {
+        "model": "automatic_discovery",
+        "rationale": "scanning artifacts/governance/ for any evidence-ref-policy*.json would silently consume the prototype or any draft and would break design-only isolation"
+      },
+      {
+        "model": "environment_variable_only_activation",
+        "rationale": "environment variables are invisible to git diff and to verify artifacts; not auditable per RACI-PDCA-SECI discipline"
+      },
+      {
+        "model": "policy_path_inside_precommit_check_policy_v3_5_json",
+        "rationale": "modifying precommit-check-policy.v3.5.json is forbidden by current non-authorization; could be acceptable only after a separate decision artifact authorizes a v3.5.x successor policy"
+      }
+    ],
+    "default_behavior_without_registry": "use current in-module PCACC-002 logic; no behavioral delta; TASK-1030 NEG-002 and NEG-003 reason_codes preserved",
+    "explicit_registry_requested_behavior": "load registry from supplied path; validate schema; classify refs using registry's allowed_ref_prefixes and forbidden patterns; fail closed on any load or validation failure with exit code 2",
+    "feature_flag_naming_guidance": "single CLI flag; no boolean default-on; no env-var fallback; no implicit detection from cwd"
+  },
+  "backward_compatibility": {
+    "if_registry_path_not_supplied_use_current_in_code_pcacc_002": true,
+    "if_registry_path_supplied_and_valid_outcomes_must_match_pcacc_002_for_existing_fixtures": true,
+    "if_registry_path_supplied_and_invalid_fail_closed": true,
+    "if_registry_file_missing_when_explicitly_requested_fail_closed_exit_2": true,
+    "if_registry_file_missing_when_not_requested_use_default_in_code_behavior": true,
+    "task_1030_neg_002_must_pass": true,
+    "task_1030_neg_003_must_pass": true,
+    "task_1030_neg_002_actual_reason_code_anchor": "malformed_refs:garbage_token_not_a_known_prefix",
+    "task_1030_neg_003_actual_reason_code_anchor": "evidence_refs_section_empty",
+    "pcacc_active_check_count_must_remain_4": true,
+    "pcacc_active_check_surface_must_remain": ["PCACC-001", "PCACC-002", "PCACC-003", "PCACC-004"],
+    "pcacc_005_must_not_be_introduced": true,
+    "ac_to_verify_coverage_must_remain_excluded": true,
+    "result_schema_must_remain_unchanged": true,
+    "reason_code_surface_must_be_string_identical_for_existing_fixtures": true
+  },
+  "fallback_and_failure_semantics": [
+    {
+      "case_id": "FS-1",
+      "condition": "missing_registry_explicit",
+      "description": "registry path explicitly supplied via CLI but file is absent on disk",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_missing:<path>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-2",
+      "condition": "malformed_json",
+      "description": "registry file present but json.load raises JSONDecodeError",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_malformed_json",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-3",
+      "condition": "schema_version_mismatch",
+      "description": "registry top-level schema_version is not the expected sibling string for the runner version",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_schema_version_mismatch:<actual>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-4",
+      "condition": "unknown_required_field",
+      "description": "a required top-level field is absent from the registry",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_missing_required_field:<field>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-5",
+      "condition": "unknown_enum_value",
+      "description": "an allowed_ref_prefixes entry uses a kind value outside the allowed enum (local_repo_relative_directory, local_repo_relative_filename_prefix, git_scheme_token, git_scheme_regex, inline_metadata_token)",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_unknown_enum_value:<field>=<value>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-6",
+      "condition": "forbidden_ref_pattern",
+      "description": "registry tries to permit a forbidden URL scheme (http, https, ftp, file, ssh, git, git+ssh) or a forbidden root directory (.obsidian, .omc, .tmp, .pytest-basetemp, __pycache__, .pytest_cache, node_modules, .venv, .git)",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_forbidden_pattern:<pattern>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-7",
+      "condition": "invalid_local_artifact_constraint",
+      "description": "a constraint required by the prototype (must_be_relative_path, must_not_escape_repo_root, must_not_contain_parent_traversal, must_not_be_absolute, must_not_use_windows_drive_letter, must_use_forward_slashes, must_be_normalized, must_target_committed_or_task_authorized_evidence, must_be_resolvable_to_existing_file_or_directory_when_local) is set to false in the loaded registry",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_invalid_local_artifact_constraint:<key>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    },
+    {
+      "case_id": "FS-8",
+      "condition": "policy_conflict_with_pcacc_002",
+      "description": "registry semantics would change PCACC-002 outcome on a TASK-1030 fixture (NEG-002 or NEG-003) compared to the in-module default; the load step refuses such a registry",
+      "future_status": "fail",
+      "reason_code": "evidence_ref_registry_pcacc_002_conflict:<fixture>",
+      "exit_code_behavior": "2",
+      "machine_readable_evidence": "artifacts/verify/<task>/precommit-check-result.json check entry status=fail"
+    }
+  ],
+  "schema_validation_plan": {
+    "required_top_level_fields": [
+      "schema_version",
+      "plan_version",
+      "created_by_task",
+      "generated_at",
+      "policy_surface",
+      "allowed_ref_prefixes",
+      "ref_format_rules",
+      "local_artifact_constraints",
+      "required_ref_contexts",
+      "optional_ref_contexts",
+      "malformed_ref_behavior",
+      "missing_ref_behavior",
+      "pcacc_compatibility"
+    ],
+    "required_nested_fields": {
+      "allowed_ref_prefixes_entry": ["prefix_id", "prefix_pattern", "kind", "must_exist_on_disk", "rationale"],
+      "required_ref_contexts_entry": ["context_id", "context_name", "evidence_ref_required", "missing_behavior", "missing_reason_code"],
+      "optional_ref_contexts_entry": ["context_id", "context_name", "evidence_ref_required", "missing_behavior_with_reason_code", "skip_reason_code"],
+      "malformed_ref_behavior": ["default_action", "reason_code_template", "silent_skip_forbidden", "fallback_to_in_module_default_forbidden"],
+      "missing_ref_behavior": ["section_absent_action", "section_absent_reason_code", "section_empty_action", "section_empty_reason_code", "missing_path_action", "missing_path_reason_code"]
+    },
+    "allowed_enums": {
+      "allowed_ref_prefixes_entry.kind": [
+        "local_repo_relative_directory",
+        "local_repo_relative_filename_prefix",
+        "git_scheme_token",
+        "git_scheme_regex",
+        "inline_metadata_token"
+      ],
+      "required_ref_contexts_entry.missing_behavior": ["fail"],
+      "optional_ref_contexts_entry.missing_behavior_with_reason_code": ["skipped_with_reason_code"],
+      "malformed_ref_behavior.default_action": ["fail"]
+    },
+    "unknown_field_behavior": "reject_unknown_fields_at_load_time",
+    "version_compatibility_behavior": "exact_match_required_for_runtime_load; supersedes chain documented in a separate decision artifact",
+    "error_message_requirements": "include offending field path and observed value; never silent",
+    "exit_code_behavior": "2 for any schema validation failure; 1 for runtime PCACC-002 violations on otherwise-valid registry; 0 for clean run",
+    "machine_readable_evidence_behavior": "single JSON record per failure, written to artifacts/verify/<task>/precommit-check-result.json; no markdown side-channel"
+  },
+  "regression_cases": [
+    {
+      "case_id": "EVREF-REG-001",
+      "title": "TASK-1030 NEG-002 malformed_refs anchor remains fail",
+      "expected_future_behavior": "PCACC-002 on case-002-malformed-evidence-ref fixture returns status=fail with actual_reason_code containing malformed_refs:garbage_token_not_a_known_prefix",
+      "source_evidence_ref": "artifacts/verify/TASK-1030/pcacc-negative-test-result.json#cases[1]",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-002",
+      "title": "TASK-1030 NEG-003 evidence_refs_section_empty anchor remains fail or explicit skip",
+      "expected_future_behavior": "PCACC-002 on case-003-missing-evidence-ref fixture returns status=fail with actual_reason_code=evidence_refs_section_empty when context is required; or returns skipped_with_reason_code with explicit reason_code when ORC-1..ORC-4 applies, never silent pass",
+      "source_evidence_ref": "artifacts/verify/TASK-1030/pcacc-negative-test-result.json#cases[2]",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-003",
+      "title": "Valid local artifact ref passes",
+      "expected_future_behavior": "ref starting with artifacts/ that resolves to an existing file returns status=pass with reason_code=evidence_refs_resolved",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#allowed_ref_prefixes[0]",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-004",
+      "title": "Absolute path fails",
+      "expected_future_behavior": "ref starting with / or with Windows drive letter returns status=fail with reason_code containing malformed_refs",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints.must_not_be_absolute",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-005",
+      "title": "Parent traversal fails",
+      "expected_future_behavior": "ref containing ../ returns status=fail with reason_code containing malformed_refs",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints.must_not_contain_parent_traversal",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-006",
+      "title": "Remote URL fails",
+      "expected_future_behavior": "ref containing :// for http, https, ftp, file, ssh, git, or git+ssh returns status=fail with reason_code containing malformed_refs",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#local_artifact_constraints.forbidden_url_schemes",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-007",
+      "title": "Shell command token fails",
+      "expected_future_behavior": "ref containing shell metacharacters such as ; | && $( ` returns status=fail with reason_code containing malformed_refs",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#ref_format_rules.newline_inside_ref",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-008",
+      "title": "Wildcard-only ref fails",
+      "expected_future_behavior": "ref consisting solely of * or ** or globs returns status=fail with reason_code containing malformed_refs",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#allowed_ref_prefixes",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-009",
+      "title": "Missing optional ref with reason_code is skipped_with_reason_code",
+      "expected_future_behavior": "verify artifact under ORC-1..ORC-4 with empty Evidence Refs section returns status=skipped_with_reason_code with explicit reason_code such as evidence_refs_optional_per_orc_<id>",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#optional_ref_contexts",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-010",
+      "title": "Missing optional ref without reason_code fails",
+      "expected_future_behavior": "verify artifact with empty Evidence Refs section but no ORC reason_code returns status=fail with reason_code=evidence_refs_section_empty",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#missing_ref_behavior.section_only_none_action",
+      "blocks_runtime_extraction": true
+    },
+    {
+      "case_id": "EVREF-REG-011",
+      "title": "Registry load failure fails closed with exit code 2 when explicitly requested",
+      "expected_future_behavior": "PCACC runner invoked with --evidence-ref-policy pointing at missing/malformed/schema-mismatched registry exits with code 2 and writes machine-readable failure record; default behavior unchanged when no flag is supplied",
+      "source_evidence_ref": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json#malformed_ref_behavior.exit_code_mapping_if_runtime_consumed",
+      "blocks_runtime_extraction": true
+    }
+  ],
+  "rollback_strategy": {
+    "steps": [
+      "remove the --evidence-ref-policy CLI argument from PCACC runner",
+      "git revert the commit that introduced runtime registry consumption",
+      "restore artifacts/scripts/run_precommit_check.py to sha256 prefix 5d1fcd1f96948028 and template/artifacts/scripts/run_precommit_check.py to the same prefix",
+      "fall back to in-module PCACC-002 behavior with no behavioral delta",
+      "keep the prototype registry under artifacts/governance/prototypes/ for design reference only; do not delete it",
+      "preserve evidence compatibility by rerunning TASK-1030 NEG-002 and NEG-003 fixtures and recording identical reason_codes",
+      "Codex post-rollback verification reports PASS on the rollback verify artifact"
+    ],
+    "rollback_evidence_required": [
+      "post-rollback sha256 prefix of run_precommit_check.py equals 5d1fcd1f96948028",
+      "post-rollback sha256 prefix of template/artifacts/scripts/run_precommit_check.py equals 5d1fcd1f96948028",
+      "TASK-1030 NEG-002 actual_reason_code remains malformed_refs:garbage_token_not_a_known_prefix",
+      "TASK-1030 NEG-003 actual_reason_code remains evidence_refs_section_empty"
+    ],
+    "rollback_authority": "rollback decision is owned by the future runtime extraction task lifecycle; TASK-1034 does not authorize rollback execution because no extraction has occurred"
+  },
+  "source_template_sync_implications": {
+    "future_runtime_registry_requires_template_mirror": false,
+    "future_runtime_registry_requires_template_mirror_rationale": "if the registry resides under artifacts/governance/ (unpaired path), no template mirror obligation applies; if a future task chooses to host it under artifacts/scripts/, EXACT_SYNC_FILES extension and template mirror creation must be governed by a separate decision artifact",
+    "production_runner_changes_require_template_mirror": true,
+    "production_runner_changes_require_template_mirror_rationale": "artifacts/scripts/run_precommit_check.py is a paired source with template/artifacts/scripts/run_precommit_check.py; any byte-level change must be mirrored in lockstep to preserve QC-SYNC-001",
+    "registry_changes_trigger_qc_sync_001": false,
+    "registry_changes_trigger_qc_sync_001_rationale": "QC-SYNC-001 only fires for paths in EXACT_SYNC_FILES; if registry is hosted under artifacts/governance/, it is not in that list and does not trigger QC-SYNC-001; this remains true unless a future decision moves the registry into a paired location",
+    "baseline_refresh_required_after_extraction": true,
+    "baseline_refresh_required_after_extraction_rationale": "modifying run_precommit_check.py changes its sha256; quality-baseline.v3.5.json may need refresh through a separate decision artifact; TASK-1034 does not authorize baseline refresh",
+    "waiver_application": "any drift introduced by extraction must be remediated or covered by an explicit waiver issued through a separate decision artifact; TASK-1034 does not issue waivers",
+    "post_baseline_drift_detection_application": "post-extraction QC-SYNC-001 negative regression test must inherit TASK-1029 model and prove that paired files remain byte-identical; this obligation passes to the future runtime extraction task per FE-8"
+  },
+  "future_task_acceptance_criteria": [
+    {
+      "criterion_id": "FTA-1",
+      "description": "production runner modification is minimal and localized to run_pcacc_002 plus the new load helper; no other functions modified"
+    },
+    {
+      "criterion_id": "FTA-2",
+      "description": "artifacts/scripts/run_precommit_check.py and template/artifacts/scripts/run_precommit_check.py remain byte-identical after extraction"
+    },
+    {
+      "criterion_id": "FTA-3",
+      "description": "default behavior unchanged when no --evidence-ref-policy flag is supplied; reason_codes string-identical for TASK-1030 NEG-002 and NEG-003"
+    },
+    {
+      "criterion_id": "FTA-4",
+      "description": "registry-driven behavior matches prototype semantics for all 11 EVREF-REG-* regression cases"
+    },
+    {
+      "criterion_id": "FTA-5",
+      "description": "TASK-1030 NEG-002 and NEG-003 fixtures still pass with original reason_codes"
+    },
+    {
+      "criterion_id": "FTA-6",
+      "description": "new registry-specific negative tests covering FS-1..FS-8 all pass"
+    },
+    {
+      "criterion_id": "FTA-7",
+      "description": "no new active PCACC check is added; PCACC active surface remains exactly PCACC-001..PCACC-004; PCACC-005 not introduced"
+    },
+    {
+      "criterion_id": "FTA-8",
+      "description": "AC-to-verify coverage remains excluded; reasoning faithfulness, belief-state, model self-confidence audits, free-text rationale, and SAVeR markdown remain forbidden"
+    },
+    {
+      "criterion_id": "FTA-9",
+      "description": "no validator module split is performed; 5 production validator/test files remain unmodified"
+    },
+    {
+      "criterion_id": "FTA-10",
+      "description": "rollback path is documented in the future task plan and decision artifacts and has been pre-rehearsed"
+    },
+    {
+      "criterion_id": "FTA-11",
+      "description": "Codex post-commit verification reports PASS on the future runtime extraction task verify artifact"
+    }
+  ],
+  "non_authorization": {
+    "implementation_authorized": false,
+    "runtime_registry_consumption_authorized": false,
+    "production_runner_modification_authorized": false,
+    "validator_split_authorized": false,
+    "production_validator_modification_authorized": false,
+    "task_1035_plus_authorized": false,
+    "pcacc_runner_modification_authorized": false,
+    "pcacc_policy_modification_authorized": false,
+    "quality_baseline_modification_authorized": false,
+    "quality_gate_policy_modification_authorized": false,
+    "artifact_obligation_matrix_modification_authorized": false,
+    "exact_sync_files_extension_authorized": false,
+    "ac_to_verify_coverage_activation_authorized": false,
+    "pcacc_005_introduction_authorized": false,
+    "task_1023_to_task_1033_lifecycle_modification_authorized": false,
+    "v3_5_or_v3_5_1_plan_or_manifest_modification_authorized": false,
+    "task_1031_governance_artifact_modification_authorized": false,
+    "task_1032_governance_artifact_modification_authorized": false,
+    "task_1033_governance_artifact_modification_authorized": false,
+    "policy_registry_extraction_implementation_authorized": false,
+    "validator_module_split_authorized": false,
+    "test_monolith_reorganization_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "find_18_status_change_authorized": false,
+    "p0_quality_gate_phase_2_or_3_activation_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "obsidian_or_omc_or_temp_directory_modification_authorized": false,
+    "ruff_mypy_pyright_coverage_lint_format_or_pkg_manager_execution_authorized": false,
+    "pytest_execution_authorized": false,
+    "target_file_cli_or_main_execution_authorized": false,
+    "srs_rtm_design_threat_model_release_migration_userguide_runbook_content_generation_authorized": false,
+    "standalone_waiver_or_style_debt_or_runtime_policy_registry_creation_authorized": false,
+    "assurance_level_taxonomy_high_addition_authorized": false,
+    "new_agent_role_or_global_model_brand_to_role_binding_authorized": false,
+    "reasoning_faithfulness_audit_authorized": false,
+    "belief_state_audit_authorized": false,
+    "model_self_confidence_audit_authorized": false,
+    "free_text_rationale_addition_authorized": false,
+    "saver_markdown_report_authorized": false
+  },
+  "limitations": [
+    "TASK-1034 is planning-only; no production code changes are authorized by this plan.",
+    "future change point identifiers (CP-1..CP-6) reference current line numbers in run_precommit_check.py at sha256 prefix 5d1fcd1f96948028; if the runner is later modified, change points must be re-anchored before any extraction work begins.",
+    "fallback_and_failure_semantics reason_codes are forward-looking proposals; runtime adoption must preserve them string-identically and add no synonyms.",
+    "regression_cases EVREF-REG-001..011 are forward-looking obligations; this plan does not author the corresponding fixtures or invoke them at runtime.",
+    "rollback_strategy describes the procedure for a hypothetical extraction; TASK-1034 does not authorize rollback execution because no extraction has occurred.",
+    "source_template_sync_implications describes obligations that pass to the future task lifecycle; TASK-1034 does not extend EXACT_SYNC_FILES, does not refresh quality-baseline, and does not issue waivers.",
+    "future_task_acceptance_criteria FTA-1..FTA-11 are forward-looking gates; satisfaction is owned by the future runtime extraction task lifecycle.",
+    "non_authorization is explicit and load-bearing; reading any item as implicit authorization is a misreading.",
+    "this plan resides under artifacts/governance/ rather than artifacts/governance/prototypes/ because it is governance metadata, not a registry; it must not be confused with the prototype JSON.",
+    "this plan does not generate SRS, RTM, design spec, threat model, release note, migration note, user guide, or operation runbook content; section coverage is intentionally narrow and bound to the Evidence Ref policy domain."
+  ]
+}

@@ -1,0 +1,333 @@
+{
+  "schema_version": "runtime-extraction-plan-inspection/v1",
+  "task_id": "TASK-1034",
+  "generated_at": "2026-05-04T21:20:00+08:00",
+  "plan_markdown_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.md",
+  "plan_json_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "INS-001",
+      "target": "artifacts/tasks/TASK-1034.task.md",
+      "expected": "lifecycle_task_artifact_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1034.task.md",
+      "reason_code": "lifecycle_task_present"
+    },
+    {
+      "check_id": "INS-002",
+      "target": "artifacts/plans/TASK-1034.plan.md",
+      "expected": "lifecycle_plan_artifact_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1034.plan.md",
+      "reason_code": "lifecycle_plan_present"
+    },
+    {
+      "check_id": "INS-003",
+      "target": "artifacts/decisions/TASK-1034.decision.md",
+      "expected": "lifecycle_decision_artifact_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/decisions/TASK-1034.decision.md",
+      "reason_code": "lifecycle_decision_present"
+    },
+    {
+      "check_id": "INS-004",
+      "target": "artifacts/verify/TASK-1034.verify.md",
+      "expected": "lifecycle_verify_artifact_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1034.verify.md",
+      "reason_code": "lifecycle_verify_present"
+    },
+    {
+      "check_id": "INS-005",
+      "target": "artifacts/status/TASK-1034.status.json",
+      "expected": "lifecycle_status_artifact_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1034.status.json",
+      "reason_code": "lifecycle_status_present"
+    },
+    {
+      "check_id": "INS-006",
+      "target": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.md",
+      "expected": "human_readable_plan_exists_and_contains_14_sections",
+      "actual": "exists; sections: Purpose / Inputs / Current Prototype State / Future Production Change Points / Backward-Compatible Default Behavior / Registry Path and Activation Model / Fallback and Failure Semantics / Schema Validation Plan / Regression Cases for Future Extraction / Rollback Strategy / Source/Template Sync Implications / Future TASK-1035 Acceptance Criteria / Risks and Limitations / Explicit Non-authorization (14 sections)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.md",
+      "reason_code": "markdown_plan_complete"
+    },
+    {
+      "check_id": "INS-007",
+      "target": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json",
+      "expected": "machine_readable_plan_exists_and_loads_as_valid_json",
+      "actual": "exists; json.loads succeeds; top-level field count=20 (covers all 19 required prompt §9 fields plus current_prototype_state)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json",
+      "reason_code": "json_plan_valid"
+    },
+    {
+      "check_id": "INS-008",
+      "target": "plan_json.schema_version",
+      "expected": "evidence-ref-policy-runtime-extraction-plan/v1",
+      "actual": "evidence-ref-policy-runtime-extraction-plan/v1",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#schema_version",
+      "reason_code": "schema_version_matches"
+    },
+    {
+      "check_id": "INS-009",
+      "target": "plan_json.plan_version",
+      "expected": "v3.5.2",
+      "actual": "v3.5.2",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#plan_version",
+      "reason_code": "plan_version_matches"
+    },
+    {
+      "check_id": "INS-010",
+      "target": "plan_json.created_by_task",
+      "expected": "TASK-1034",
+      "actual": "TASK-1034",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#created_by_task",
+      "reason_code": "created_by_task_matches"
+    },
+    {
+      "check_id": "INS-011",
+      "target": "plan_json.plan_status",
+      "expected": "planning_only",
+      "actual": "planning_only",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#plan_status",
+      "reason_code": "plan_status_planning_only"
+    },
+    {
+      "check_id": "INS-012",
+      "target": "plan_json.implementation_authorized",
+      "expected": "false",
+      "actual": "false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#implementation_authorized",
+      "reason_code": "implementation_unauthorized"
+    },
+    {
+      "check_id": "INS-013",
+      "target": "plan_json.runtime_registry_consumption_authorized",
+      "expected": "false",
+      "actual": "false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#runtime_registry_consumption_authorized",
+      "reason_code": "runtime_registry_consumption_unauthorized"
+    },
+    {
+      "check_id": "INS-014",
+      "target": "plan_json.future_change_points",
+      "expected": "list_len_>=4_each_with_change_point_id_surface_current_behavior_future_planned_behavior_implementation_authorized_risk_evidence_ref",
+      "actual": "len=6; ids=CP-1..CP-6; each entry has change_point_id/surface/current_behavior/future_planned_behavior/implementation_authorized/risk/evidence_ref; all implementation_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#future_change_points",
+      "reason_code": "future_change_points_defined"
+    },
+    {
+      "check_id": "INS-015",
+      "target": "plan_json.backward_compatibility",
+      "expected": "default_uses_in_module_pcacc_002_when_no_registry_and_task_1030_neg_anchors_preserved",
+      "actual": "if_registry_path_not_supplied_use_current_in_code_pcacc_002=true; if_registry_file_missing_when_not_requested_use_default_in_code_behavior=true; task_1030_neg_002_actual_reason_code_anchor=malformed_refs:garbage_token_not_a_known_prefix; task_1030_neg_003_actual_reason_code_anchor=evidence_refs_section_empty; pcacc_active_check_count_must_remain_4=true; pcacc_005_must_not_be_introduced=true; ac_to_verify_coverage_must_remain_excluded=true; result_schema_must_remain_unchanged=true; reason_code_surface_must_be_string_identical_for_existing_fixtures=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#backward_compatibility",
+      "reason_code": "backward_compatible_default_defined"
+    },
+    {
+      "check_id": "INS-016",
+      "target": "plan_json.activation_model",
+      "expected": "preferred_activation=explicit_cli_argument_and_rejected_models_listed_with_rationale",
+      "actual": "preferred_activation=explicit_cli_argument; preferred_activation_example=--evidence-ref-policy=...; rejected_activation_models len=3 (automatic_discovery / environment_variable_only_activation / policy_path_inside_precommit_check_policy_v3_5_json) each with rationale; default_behavior_without_registry defined; explicit_registry_requested_behavior defined",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#activation_model",
+      "reason_code": "activation_model_defined"
+    },
+    {
+      "check_id": "INS-017",
+      "target": "plan_json.fallback_and_failure_semantics",
+      "expected": "list_len_>=8_covering_all_8_required_failure_conditions",
+      "actual": "len=8; ids=FS-1..FS-8 covering missing_registry_explicit / malformed_json / schema_version_mismatch / unknown_required_field / unknown_enum_value / forbidden_ref_pattern / invalid_local_artifact_constraint / policy_conflict_with_pcacc_002; each entry has condition/future_status/reason_code/exit_code_behavior/machine_readable_evidence; all future_status=fail; all exit_code_behavior=2",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#fallback_and_failure_semantics",
+      "reason_code": "failure_semantics_defined"
+    },
+    {
+      "check_id": "INS-018",
+      "target": "plan_json.schema_validation_plan",
+      "expected": "required_top_level_fields_and_required_nested_fields_and_allowed_enums_and_unknown_field_behavior_and_version_compatibility_and_error_message_and_exit_code_and_machine_readable_evidence",
+      "actual": "required_top_level_fields len=13; required_nested_fields covers 5 entry types; allowed_enums covers 4 enum positions; unknown_field_behavior=reject_unknown_fields_at_load_time; version_compatibility_behavior=exact_match_required_for_runtime_load; error_message_requirements=include_offending_field_path_and_observed_value_never_silent; exit_code_behavior 0/1/2 mapping defined; machine_readable_evidence_behavior=single_json_record_per_failure_no_markdown_side_channel",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#schema_validation_plan",
+      "reason_code": "schema_validation_plan_defined"
+    },
+    {
+      "check_id": "INS-019",
+      "target": "plan_json.regression_cases",
+      "expected": "list_len_>=11_covering_all_required_EVREF_REG_ids_with_blocks_runtime_extraction_true",
+      "actual": "len=11; ids=EVREF-REG-001..EVREF-REG-011; each entry has case_id/title/expected_future_behavior/source_evidence_ref/blocks_runtime_extraction; all blocks_runtime_extraction=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#regression_cases",
+      "reason_code": "regression_cases_defined"
+    },
+    {
+      "check_id": "INS-020",
+      "target": "plan_json.rollback_strategy",
+      "expected": "steps_list_and_rollback_evidence_required_and_rollback_authority",
+      "actual": "steps len=7 (remove cli arg / git revert / restore runner sha256 / fall back to in-module / keep prototype / rerun TASK-1030 fixtures / Codex post-rollback); rollback_evidence_required len=4 (post-rollback runner sha256 prefix / mirror sha256 prefix / NEG-002 reason_code / NEG-003 reason_code); rollback_authority documented (rollback execution owned by future task lifecycle; TASK-1034 does not authorize rollback)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#rollback_strategy",
+      "reason_code": "rollback_strategy_defined"
+    },
+    {
+      "check_id": "INS-021",
+      "target": "plan_json.source_template_sync_implications",
+      "expected": "covers_template_mirror_obligations_qc_sync_001_baseline_refresh_waiver_post_baseline_drift_detection",
+      "actual": "future_runtime_registry_requires_template_mirror=false (with rationale); production_runner_changes_require_template_mirror=true (with rationale); registry_changes_trigger_qc_sync_001=false (with rationale); baseline_refresh_required_after_extraction=true (with rationale); waiver_application documented; post_baseline_drift_detection_application documented",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#source_template_sync_implications",
+      "reason_code": "source_template_sync_implications_defined"
+    },
+    {
+      "check_id": "INS-022",
+      "target": "plan_json.future_task_acceptance_criteria",
+      "expected": "list_len_>=11_each_with_criterion_id_description",
+      "actual": "len=11; ids=FTA-1..FTA-11; each entry has criterion_id/description; covers minimal/localized runner change / byte-identical mirror / default unchanged without flag / registry-driven matches prototype / TASK-1030 NEG fixtures still pass / new FS-1..FS-8 negatives pass / no PCACC-005 / AC-coverage excluded / no validator split / rollback documented / Codex PASS",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#future_task_acceptance_criteria",
+      "reason_code": "future_task_acceptance_criteria_defined"
+    },
+    {
+      "check_id": "INS-023",
+      "target": "plan_json.non_authorization",
+      "expected": "all_values_false_includes_implementation_runtime_consumption_production_runner_validator_split_production_validator_modification_task_1035_plus",
+      "actual": "len=39; all_values_false=true; includes implementation_authorized=false / runtime_registry_consumption_authorized=false / production_runner_modification_authorized=false / validator_split_authorized=false / production_validator_modification_authorized=false / task_1035_plus_authorized=false plus 33 extended false keys",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json#non_authorization",
+      "reason_code": "non_authorization_booleans_all_false"
+    },
+    {
+      "check_id": "INS-024",
+      "target": "task_1033_dependency",
+      "expected": "task_1033_status_done_verify_pass_recommendation_or_artifacts_present",
+      "actual": "artifacts/status/TASK-1033.status.json#state=done; verify_result=pass; verify_ac_count=31; prototype_status=design_only; runtime_consumption_authorized=false; commit 8ef3fb6; prototype/design/inspection artifacts all present at expected paths",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1033.status.json",
+      "reason_code": "task_1033_dependency_satisfied"
+    },
+    {
+      "check_id": "INS-025",
+      "target": "artifacts/scripts/run_precommit_check.py",
+      "expected": "sha256_unchanged_5d1fcd1f96948028",
+      "actual": "5d1fcd1f96948028",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py",
+      "reason_code": "pcacc_runner_unchanged"
+    },
+    {
+      "check_id": "INS-026",
+      "target": "template/artifacts/scripts/run_precommit_check.py",
+      "expected": "sha256_unchanged_5d1fcd1f96948028",
+      "actual": "5d1fcd1f96948028",
+      "status": "pass",
+      "evidence_ref": "template/artifacts/scripts/run_precommit_check.py",
+      "reason_code": "pcacc_runner_template_mirror_unchanged"
+    },
+    {
+      "check_id": "INS-027",
+      "target": "artifacts/governance/precommit-check-policy.v3.5.json",
+      "expected": "sha256_unchanged_66ea7c53837ff034",
+      "actual": "66ea7c53837ff034",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/precommit-check-policy.v3.5.json",
+      "reason_code": "pcacc_policy_unchanged"
+    },
+    {
+      "check_id": "INS-028",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": "sha256_unchanged_d58a41f6ca49ccfe",
+      "actual": "d58a41f6ca49ccfe",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "reason_code": "production_validator_unchanged"
+    },
+    {
+      "check_id": "INS-029",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": "sha256_unchanged_7a38af7e2e0af5b7",
+      "actual": "7a38af7e2e0af5b7",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "reason_code": "production_validator_unchanged"
+    },
+    {
+      "check_id": "INS-030",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": "sha256_unchanged_e1f09d2100b5685f",
+      "actual": "e1f09d2100b5685f",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "reason_code": "workflow_constants_unchanged"
+    },
+    {
+      "check_id": "INS-031",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": "sha256_unchanged_77540c3b29f6ece6",
+      "actual": "77540c3b29f6ece6",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "reason_code": "red_team_suite_unchanged"
+    },
+    {
+      "check_id": "INS-032",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": "sha256_unchanged_5c7228c9997edffd",
+      "actual": "5c7228c9997edffd",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/test_guard_units.py",
+      "reason_code": "test_guard_units_unchanged"
+    },
+    {
+      "check_id": "INS-033",
+      "target": "no_runtime_registry_created",
+      "expected": "zero_files_at_artifacts_governance_evidence_ref_policy_v_dot_json_or_artifacts_governance_policy_registry_runtime_dot_json_paths",
+      "actual": "glob artifacts/governance/evidence-ref-policy.v*.json = 0 hits; glob artifacts/governance/policy-registry-runtime*.json = 0 hits; glob artifacts/governance/status-policy*.json = 0 hits; glob artifacts/governance/contract-policy*.json = 0 hits; only Evidence Ref related governance JSON outside prototypes/ is the runtime extraction plan itself (planning artifact, not registry)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/",
+      "reason_code": "no_runtime_registry_present"
+    },
+    {
+      "check_id": "INS-034",
+      "target": "TASK-1035+ lifecycle artifacts",
+      "expected": "zero_files_at_artifacts_tasks_TASK_1035_plus",
+      "actual": "glob artifacts/{tasks,plans,decisions,verify,status}/TASK-1035* through TASK-1099* = 0 hits",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/;artifacts/plans/;artifacts/decisions/;artifacts/verify/;artifacts/status/",
+      "reason_code": "no_task_1035_plus_artifacts"
+    },
+    {
+      "check_id": "INS-035",
+      "target": "prototype_unchanged",
+      "expected": "TASK-1033 prototype JSON / design / inspection sha256 unchanged compared to TASK-1033 closure",
+      "actual": "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json read-only; artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md read-only; artifacts/verify/TASK-1033/evidence-ref-policy-prototype-inspection.json read-only; git status --short does not list any of these as modified",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/prototypes/;artifacts/governance/;artifacts/verify/TASK-1033/",
+      "reason_code": "task_1033_artifacts_unchanged"
+    }
+  ],
+  "limitations": [
+    "This inspection is static; it does not exercise PCACC-002 at runtime, does not invoke run_precommit_check.py, and does not run any fixture. PCACC-002 fixture rerun is owned by the future runtime extraction task per FTA-5/FTA-11.",
+    "SHA256 prefixes recorded here are 16-character truncations captured at TASK-1034 generation time and inherited from TASK-1033 inspection; the inspection is bound to those values and would need refreshing if any guarded file is later modified.",
+    "INS-034 covers TASK-1035..TASK-1099 by glob pattern; future task IDs above 1099 are out of this inspection's range.",
+    "INS-006 verifies markdown plan section presence by header parsing; per-section content quality is not auto-assessed and remains the responsibility of the verify artifact.",
+    "Reason codes here are inspection-local descriptors (e.g., schema_version_matches, plan_status_planning_only); they are not part of the PCACC-002 reason_code surface and must not be confused with runtime PCACC reason codes nor with the planned FS-1..FS-8 reason codes.",
+    "Status value advisory is allowed per prompt section 10 but not used here; all 35 checks resolve to pass."
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "schema_version": "quality-gate-result/v1",
+  "task_id": "TASK-1025",
+  "generated_at": "2026-05-04T10:18:07+08:00",
+  "self_check": false,
+  "baseline_ref": "artifacts/governance/quality-baseline.v3.5.json",
+  "policy_ref": "artifacts/governance/quality-gate-policy.v3.5.json",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0001",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0002",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0003",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0004",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/test_guard_units.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=drift; baseline_status=drift; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0005",
+      "status": "pass",
+      "reason_code": "baseline_existing"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/test_security_scans.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0006",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/agent_identity.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0007",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/validate_context_stack.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0008",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/aggregate_red_team_scorecard.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0009",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/build_decision_registry.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0010",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/discover_templates.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0011",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/legacy_verify_corpus.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0012",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/migrate_artifact_schema.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0013",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/prompt_regression_validator.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0014",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/repo_health_dashboard.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0015",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/repo_security_scan.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0016",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/update_repository_profile.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0017",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/validate_scorecard_deltas.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0018",
+      "status": "pass",
+      "reason_code": "in_sync"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/backfill_pdca_labels.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=missing_template; baseline_status=missing_template; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0019",
+      "status": "pass",
+      "reason_code": "baseline_existing"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/classify_existing_tasks.py",
+      "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+      "actual": "current_status=missing_template; baseline_status=missing_template; baseline_unchanged=True",
+      "evidence_ref": "baseline_id=QB-SYNC-0020",
+      "status": "pass",
+      "reason_code": "baseline_existing"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "governance-repair-manifest.v3.5.json",
+      "evidence_ref": "governance-repair-manifest.v3.5.json",
+      "expected": "required_keys_present:plan_version,execution_order,findings",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "artifacts/status/TASK-1023.status.json",
+      "evidence_ref": "artifacts/status/TASK-1023.status.json",
+      "expected": "required_keys_present:task_id,state",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "artifacts/status/TASK-1024.status.json",
+      "evidence_ref": "artifacts/status/TASK-1024.status.json",
+      "expected": "required_keys_present:task_id,state",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "artifacts/status/TASK-1025.status.json",
+      "evidence_ref": "artifacts/status/TASK-1025.status.json",
+      "expected": "required_keys_present:task_id,state",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "artifacts/governance/quality-baseline.v3.5.json",
+      "evidence_ref": "artifacts/governance/quality-baseline.v3.5.json",
+      "expected": "required_keys_present:plan_version,metrics,source_template_pairs",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "target": "artifacts/governance/quality-gate-policy.v3.5.json",
+      "evidence_ref": "artifacts/governance/quality-gate-policy.v3.5.json",
+      "expected": "required_keys_present:gates,rollout_phase",
+      "actual": "ok",
+      "status": "pass",
+      "reason_code": "schema_and_keys_ok"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/validate_context_stack.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/validate_context_stack.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/guard_status_validator.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/guard_contract_validator.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/guard_contract_validator.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/workflow_constants.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/workflow_constants.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/run_red_team_suite.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/run_red_team_suite.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "target": "artifacts/scripts/migrate_artifact_schema.py",
+      "expected": "import_clean_when_in_expected_clean_else_advisory",
+      "evidence_ref": "artifacts/scripts/migrate_artifact_schema.py",
+      "actual": "stdout_and_stderr_empty;exit=0",
+      "status": "pass",
+      "reason_code": "import_clean"
+    },
+    {
+      "gate_id": "QC-GOLDEN-001",
+      "target": "QB-CLI-0001",
+      "expected": "capture_policy=post_task_evidence_only_and_no_execution",
+      "actual": "command=python artifacts/scripts/guard_status_validator.py --help; capture_policy=post_task_evidence_only",
+      "evidence_ref": "QB-CLI-0001",
+      "status": "skipped_with_reason_code",
+      "reason_code": "post_task_evidence_only_capture_deferred"
+    },
+    {
+      "gate_id": "QC-GOLDEN-001",
+      "target": "QB-CLI-0002",
+      "expected": "capture_policy=post_task_evidence_only_and_no_execution",
+      "actual": "command=python artifacts/scripts/guard_contract_validator.py --help; capture_policy=post_task_evidence_only",
+      "evidence_ref": "QB-CLI-0002",
+      "status": "skipped_with_reason_code",
+      "reason_code": "post_task_evidence_only_capture_deferred"
+    },
+    {
+      "gate_id": "QC-GOLDEN-001",
+      "target": "QB-CLI-0003",
+      "expected": "capture_policy=post_task_evidence_only_and_no_execution",
+      "actual": "command=python artifacts/scripts/run_red_team_suite.py --help; capture_policy=post_task_evidence_only",
+      "evidence_ref": "QB-CLI-0003",
+      "status": "skipped_with_reason_code",
+      "reason_code": "post_task_evidence_only_capture_deferred"
+    },
+    {
+      "gate_id": "QC-RUFF-001",
+      "target": "ruff_config",
+      "expected": "advisory_only_in_v3.5.0_no_invocation",
+      "actual": "no_config_found",
+      "status": "advisory",
+      "reason_code": "advisory_only_in_v3.5.0",
+      "evidence_ref": "ruff_config_search"
+    }
+  ],
+  "limitations": [
+    "Ruff is P1 advisory only and is not invoked.",
+    "Golden CLI capture is post_task_evidence_only and deferred to a future task.",
+    "Waiver discovery uses policy.waivers array; no global waiver registry in v3.5.0.",
+    "Baseline-existing drift is allowed when sha256 unchanged from baseline.",
+    "QC-IMPORT-001 first cycle treats unlisted candidates as advisory."
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema_version": "quality-gate-policy/v1",
+  "plan_version": "v3.5.0",
+  "created_at": "2026-05-04T11:50:00+08:00",
+  "created_by_task": "TASK-1025",
+  "baseline_ref": "artifacts/governance/quality-baseline.v3.5.json",
+  "rollout_phase": {
+    "current_phase": 1,
+    "phase_1": {
+      "title": "baseline freeze",
+      "description": "Use TASK-1024 baseline as frozen snapshot. Existing drift is classified as baseline state. No new or modified drift allowed beyond baseline.",
+      "scope": "v3.5.0",
+      "active": true
+    },
+    "phase_2": {
+      "title": "strict on new or modified",
+      "description": "Existing drift must be remediated or covered by waiver with expires_at. New or modified violations are blocking. Expired waivers are blocking.",
+      "scope": "v3.5.0",
+      "active": false,
+      "activation_owner": "future task lifecycle"
+    },
+    "phase_3": {
+      "title": "full repo strict enforcement",
+      "description": "Strict enforcement applies repo-wide; no baseline allowance. NOT in v3.5.0 scope. Activation is data-driven after v3.5.0.",
+      "scope": "post_v3.5.0",
+      "active": false,
+      "activation_owner": "v3.5.x or v3.6 task lifecycle"
+    }
+  },
+  "gates": [
+    {
+      "gate_id": "QC-SYNC-001",
+      "title": "Source/template exact-sync gate (baseline-aware)",
+      "severity": "blocking",
+      "rationale": "FIND-29 source/template sync fragility. Baseline-aware enforcement uses TASK-1024 baseline_existing classification.",
+      "behavior": "For each pair in baseline.source_template_pairs: recompute sha256 of source and template; (a) if current=in_sync, pass; (b) if baseline declared drift/missing AND current sha unchanged from baseline, pass with reason_code=baseline_existing; (c) if drift after baseline change without waiver, fail; (d) if covered by valid unexpired waiver, skipped_with_reason_code.",
+      "implemented_by": "artifacts/scripts/run_quality_gates.py:run_qc_sync_001"
+    },
+    {
+      "gate_id": "QC-SCHEMA-001",
+      "title": "JSON schema / structure validation",
+      "severity": "blocking",
+      "rationale": "FIND-31 multi-model style and behavior drift. Minimal v3.5.0 bootstrap structural gate; not a universal JSON Schema framework.",
+      "behavior": "Parse JSON; verify required schema_version literal; verify required top-level keys present.",
+      "minimum_required_targets": [
+        "governance-repair-manifest.v3.5.json",
+        "artifacts/status/TASK-1023.status.json",
+        "artifacts/status/TASK-1024.status.json",
+        "artifacts/status/TASK-1025.status.json",
+        "artifacts/governance/quality-baseline.v3.5.json",
+        "artifacts/governance/quality-gate-policy.v3.5.json"
+      ],
+      "implemented_by": "artifacts/scripts/run_quality_gates.py:run_qc_schema_001"
+    },
+    {
+      "gate_id": "QC-IMPORT-001",
+      "title": "Import-time side-effect gate",
+      "severity": "blocking_when_expected_clean_else_advisory",
+      "rationale": "FIND-31 multi-model style and behavior drift. v3.4 TASK-1013 validate_context_stack import-side-effect fix established precedent.",
+      "behavior": "For each candidate in baseline.import_side_effect_surface (candidate_for_import_side_effect_gate=true): subprocess import with PYTHONDONTWRITEBYTECODE=1 + PYTHONUTF8=1 + PYTHONNOUSERSITE=1; capture stdout/stderr/exit_code. If module is in expected_import_clean list and not clean -> fail. Else advisory+record (first-cycle observation; no enforcement yet).",
+      "expected_import_clean": [
+        "artifacts/scripts/validate_context_stack.py"
+      ],
+      "first_cycle_advisory_for_unlisted_candidates": true,
+      "implemented_by": "artifacts/scripts/run_quality_gates.py:run_qc_import_001"
+    },
+    {
+      "gate_id": "QC-GOLDEN-001",
+      "title": "Golden CLI output harness bootstrap",
+      "severity": "blocking_on_unsafe_capture_policy_else_skipped_with_reason_code",
+      "rationale": "FIND-31 multi-model style and behavior drift. Bootstrap harness only; full golden coverage deferred.",
+      "behavior": "Validate each candidate's capture_policy = 'post_task_evidence_only'. Do not execute --help commands (would create __pycache__). Report skipped_with_reason_code unless unsafe capture_policy is detected.",
+      "implemented_by": "artifacts/scripts/run_quality_gates.py:run_qc_golden_001"
+    }
+  ],
+  "advisory_gates": [
+    {
+      "gate_id": "QC-RUFF-001",
+      "title": "ruff format + lint (advisory only in v3.5.0)",
+      "severity": "advisory",
+      "rationale": "Multi-model style baseline. v3.5.0 keeps ruff non-blocking for first cycle to avoid false drift fights with downstream forks.",
+      "behavior": "Detect ruff config presence (ruff.toml / .ruff.toml / pyproject.toml). Do NOT invoke ruff. Always emit status=advisory.",
+      "implemented_by": "artifacts/scripts/run_quality_gates.py:run_qc_ruff_001",
+      "blocking_in_v3_5_0": false
+    }
+  ],
+  "deferred_gates": [
+    {
+      "name": "PCACC",
+      "description": "Pre-Commit Cross-Artifact Consistency Check (4 strict structural checks).",
+      "deferred_to_task": "TASK-1026",
+      "deferred_to_phase": "v3.5.0 Prompt 2"
+    },
+    {
+      "name": "Artifact Obligation Matrix",
+      "description": "Presence-only matrix of required/optional/forbidden artifacts per task type.",
+      "deferred_to_task": "TASK-1027",
+      "deferred_to_phase": "v3.5.0 Prompt 3"
+    },
+    {
+      "name": "validator module split",
+      "description": "Split guard_status_validator.py / test_guard_units.py monoliths.",
+      "deferred_to_phase": "v3.5.1 / v3.6 candidate backlog",
+      "blocked_by": "v3.5.x characterization tests + gates green for at least one release cycle"
+    },
+    {
+      "name": "policy registry extraction",
+      "description": "Extract policy constants from workflow_constants.py into a separate registry.",
+      "deferred_to_phase": "v3.5.1 / v3.6 candidate backlog"
+    },
+    {
+      "name": "full repo strict enforcement (Phase 3)",
+      "description": "Repo-wide strict enforcement with no baseline allowance.",
+      "deferred_to_phase": "post-v3.5.0 (data-driven activation)"
+    }
+  ],
+  "waiver_policy": {
+    "schema": {
+      "required_fields": ["rule_id", "scope", "reason_code", "owner", "evidence_ref", "expires_at"],
+      "rules": [
+        "All six required fields must be present.",
+        "expires_at MUST NOT appear alone; missing peer fields make the waiver invalid.",
+        "owner MUST reference a human reviewer or accountable maintainer (not an AI agent label).",
+        "evidence_ref MUST point to a verify artifact path under artifacts/verify/.",
+        "expires_at MUST be enforceable: TASK-1025 gates MUST reject expired waivers as blocking.",
+        "scope MUST be a non-empty list of repo-relative paths.",
+        "Date format: YYYY-MM-DD; expiration check uses lexicographic comparison against Asia/Taipei date."
+      ]
+    },
+    "discovery": {
+      "mode": "explicit_policy_waivers_array",
+      "rationale": "v3.5.0 forbids a global waiver registry. Waivers live alongside the artifact they cover OR are recorded explicitly in this policy's waivers array.",
+      "registry_forbidden": true,
+      "style_debt_registry_forbidden": true
+    },
+    "expiration_enforcement": {
+      "expired_is_blocking": true,
+      "missing_expires_at_is_blocking": true,
+      "missing_required_field_is_blocking": true
+    }
+  },
+  "waivers": [],
+  "advisory_only_in_v3_5_0": ["QC-RUFF-001"],
+  "limitations": [
+    "Waiver discovery uses the explicit waivers array in this policy. Full decision-artifact waiver discovery (scanning artifacts/decisions/ for waiver blocks) is conservative-deferred; missing decision-side waivers will not be auto-recognized in v3.5.0.",
+    "QC-IMPORT-001 first cycle treats unlisted candidates as advisory; only modules listed in expected_import_clean are blocking. This is a baseline-aware bootstrap stance to avoid TASK-1025 self-check failing on pre-existing module-level state of unaudited candidates.",
+    "QC-GOLDEN-001 does not execute CLI --help commands to avoid creating __pycache__. Output capture is post_task_evidence_only and belongs to a future task.",
+    "QC-RUFF-001 does not invoke ruff. v3.5.0 keeps ruff non-blocking; advisory-only.",
+    "Phase 3 full repo strict enforcement is NOT in v3.5.0 scope. Activation is data-driven after v3.5.0.",
+    "PCACC and Artifact Obligation Matrix are deferred to TASK-1026 and TASK-1027 respectively.",
+    "Validator module split (FIND-30) and policy registry extraction are deferred to v3.5.1 / v3.6.",
+    "TASK-1025 does NOT remediate baseline drift (QB-DRIFT-0001..0003). Drift remediation belongs to a future task lifecycle with explicit decision artifact authorization."
+  ]
+}

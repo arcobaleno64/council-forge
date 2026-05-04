@@ -41,3 +41,6 @@ coverage-report/
 # Claude Code worktrees (local only)
 .claude/worktrees/
 pytest-cache-files-*/
+
+# OMC runtime state (sessions, HUD, project memory; per-machine)
+.omc/

@@ -1,0 +1,53 @@
+{
+  "schema_version": "precommit-check-result/v1",
+  "task_id": "TASK-1026",
+  "generated_at": "2026-05-04T12:32:02+08:00",
+  "self_check": false,
+  "policy_ref": "artifacts/governance/precommit-check-policy.v3.5.json",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "PCACC-001",
+      "target": "TASK-1026",
+      "expected": "all_lifecycle_artifacts_present:task,plan,decision,verify,status",
+      "actual": "present=task,plan,decision,verify,status;missing=",
+      "evidence_ref": "lifecycle_paths_for_TASK-1026",
+      "status": "pass",
+      "reason_code": "lifecycle_complete"
+    },
+    {
+      "check_id": "PCACC-002",
+      "target": "TASK-1026",
+      "expected": "evidence_refs_section_nonempty_and_paths_resolvable",
+      "evidence_ref": "artifacts/verify/TASK-1026.verify.md#Evidence Refs",
+      "actual": "ref_count=20;resolved=20;missing=0;malformed=0",
+      "status": "pass",
+      "reason_code": "evidence_refs_resolved"
+    },
+    {
+      "check_id": "PCACC-003",
+      "target": "TASK-1026",
+      "expected": "status.current_owner in Claude,Codex,Gemini;task.Owner in Claude,Codex,Gemini;final_approver_or_reviewer in arcobaleno",
+      "evidence_ref": "artifacts/status/TASK-1026.status.json;artifacts/tasks/TASK-1026.task.md",
+      "actual": "current_owner=Claude;task.Owner=Claude;final_approver=arcobaleno",
+      "status": "pass",
+      "reason_code": "owner_and_reviewer_canonical"
+    },
+    {
+      "check_id": "PCACC-004",
+      "target": "TASK-1026",
+      "expected": "review_timestamp_strictly_after_evidence_generated_at",
+      "evidence_ref": "artifacts/verify/TASK-1026/precommit-check-result.json",
+      "actual": "review_ts=2026-05-04T13:40:00+08:00(status.last_updated);evidence_ts=2026-05-04T12:31:36+08:00(status.self_check_result_ref)",
+      "status": "pass",
+      "reason_code": "review_after_evidence"
+    }
+  ],
+  "limitations": [
+    "PCACC v3.5.0 is structural only; not a reasoning-faithfulness audit.",
+    "PCACC-003 canonical reviewer set is sourced from policy; missing registry yields explicit reason_code, not silent pass.",
+    "PCACC-004 timestamp comparison is strict (review_ts > evidence_ts); equal timestamps fail.",
+    "Missing review_timestamp or evidence_generated_at returns skipped_with_reason_code, never silent pass.",
+    "PCACC detects violations only; resolution flows through the existing decision artifact workflow."
+  ]
+}

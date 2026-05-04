@@ -1,0 +1,137 @@
+{
+  "schema_version": "evidence-ref-registry-regression/v1",
+  "task_id": "TASK-1035",
+  "generated_at": "2026-05-04T23:30:55+08:00",
+  "runner_ref": "artifacts/scripts/run_precommit_check.py",
+  "registry_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+  "overall_status": "pass",
+  "cases": [
+    {
+      "case_id": "EVREF-REG-001",
+      "title": "TASK-1030 NEG-002 malformed_refs anchor remains fail under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+      "actual_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-001-malformed/",
+      "notes": "Registry-driven PCACC-002 must preserve TASK-1030 NEG-002 reason_code byte-identical."
+    },
+    {
+      "case_id": "EVREF-REG-002",
+      "title": "TASK-1030 NEG-003 evidence_refs_section_empty anchor remains fail under registry mode (no ORC marker)",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "evidence_refs_section_empty",
+      "actual_reason_code": "evidence_refs_section_empty",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-002-empty/",
+      "notes": "Empty section without ORC reason_code remains fail under registry mode (matches TASK-1030 NEG-003)."
+    },
+    {
+      "case_id": "EVREF-REG-003",
+      "title": "Valid local artifact ref passes under registry mode",
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "evidence_refs_resolved",
+      "actual_reason_code": "evidence_refs_resolved",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-003-valid-local/",
+      "notes": "Ref resolves to artifacts/stub/local.txt under fixture repo_root."
+    },
+    {
+      "case_id": "EVREF-REG-004",
+      "title": "Absolute path fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:/etc/passwd",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-004-absolute/",
+      "notes": "/etc/passwd ref classified as malformed."
+    },
+    {
+      "case_id": "EVREF-REG-005",
+      "title": "Parent traversal fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:../../../etc/passwd",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-005-parent-traversal/",
+      "notes": "../../../etc/passwd ref blocked by registry parent-traversal sieve."
+    },
+    {
+      "case_id": "EVREF-REG-006",
+      "title": "Remote URL fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:https://evil.example.com/stolen-evidence.json",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-006-remote-url/",
+      "notes": "https:// ref blocked by registry forbidden_url_schemes sieve."
+    },
+    {
+      "case_id": "EVREF-REG-007",
+      "title": "Shell command token fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:$(whoami)",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-007-shell-token/",
+      "notes": "$(whoami) ref does not match any allowed prefix; classified malformed."
+    },
+    {
+      "case_id": "EVREF-REG-008",
+      "title": "Wildcard-only ref fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:**",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-008-wildcard/",
+      "notes": "Glob '**' ref does not match any allowed prefix; classified malformed."
+    },
+    {
+      "case_id": "EVREF-REG-009",
+      "title": "Missing optional ref with ORC reason_code is skipped",
+      "expected_status": "skipped_with_reason_code",
+      "actual_status": "skipped_with_reason_code",
+      "expected_reason_code": "evidence_refs_optional_per_orc_1",
+      "actual_reason_code": "evidence_refs_optional_per_orc_1",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-009-orc-skip/",
+      "notes": "Empty Evidence Refs section with explicit ORC-1 marker is skipped under registry mode."
+    },
+    {
+      "case_id": "EVREF-REG-010",
+      "title": "Missing optional ref without reason_code fails under registry mode",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "evidence_refs_section_empty",
+      "actual_reason_code": "evidence_refs_section_empty",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-010-empty-no-orc/",
+      "notes": "Empty Evidence Refs section without ORC marker remains fail under registry mode."
+    },
+    {
+      "case_id": "EVREF-REG-011",
+      "title": "Registry load failure fails closed when requested; default behavior unchanged when not requested",
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "load_failed_with_evidence_ref_registry_missing AND default_unchanged",
+      "actual_reason_code": "load_reason=evidence_ref_registry_missing;default_status=fail;default_reason=evidence_refs_section_empty",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-011-missing-registry/missing.json",
+      "notes": "load_evidence_ref_registry on missing path raises EvidenceRefRegistryError(reason_code=evidence_ref_registry_missing); run_pcacc_002 on empty fixture without registry continues to return fail/evidence_refs_section_empty."
+    }
+  ],
+  "limitations": [
+    "Cases EVREF-REG-001..010 invoke run_pcacc_002 directly with synthetic fixture repo_roots; runner module is loaded once via importlib.util (no sys.path pollution); sys.dont_write_bytecode=True prevents __pycache__ creation.",
+    "EVREF-REG-001 / EVREF-REG-002 inherit TASK-1030 NEG-002 / NEG-003 anchor strings; reason_codes are byte-identical.",
+    "EVREF-REG-009 ORC skip semantics are activated only under registry-driven mode; default in-module mode continues to fail on empty section.",
+    "EVREF-REG-011 covers the registry-missing failure mode and the default-mode preservation; malformed-JSON / schema-invalid / pcacc-conflict failure modes are exercised in evidence-ref-runtime-extraction-result.json."
+  ]
+}

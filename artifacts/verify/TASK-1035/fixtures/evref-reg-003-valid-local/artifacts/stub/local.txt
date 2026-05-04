@@ -1,0 +1,1 @@
+TASK-1035 fixture stub for EVREF-REG-003 (valid local artifact ref).

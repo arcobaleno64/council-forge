@@ -64,6 +64,84 @@ REQUIRED_CHECK_FIELDS = (
 
 ALLOWED_STATUS_VALUES = ("pass", "fail", "skipped_with_reason_code")
 
+# TASK-1035 Evidence Ref policy registry (controlled runtime extraction).
+# Default behavior without --evidence-ref-policy remains unchanged.
+EVIDENCE_REF_REGISTRY_SCHEMA_VERSION = "evidence-ref-policy/v1"
+EVIDENCE_REF_REGISTRY_REQUIRED_TOP_LEVEL_FIELDS = (
+    "schema_version",
+    "plan_version",
+    "created_by_task",
+    "runtime_status",
+    "runtime_consumption_authorized",
+    "source_policy_refs",
+    "policy_surface",
+    "allowed_ref_prefixes",
+    "ref_format_rules",
+    "local_artifact_constraints",
+    "required_ref_contexts",
+    "optional_ref_contexts",
+    "malformed_ref_behavior",
+    "missing_ref_behavior",
+    "pcacc_compatibility",
+    "failure_semantics",
+    "non_authorization",
+    "limitations",
+)
+EVIDENCE_REF_REGISTRY_PREFIX_KIND_ENUM = (
+    "local_repo_relative_directory",
+    "local_repo_relative_filename_prefix",
+    "git_scheme_token",
+    "git_scheme_regex",
+    "inline_metadata_token",
+)
+EVIDENCE_REF_REGISTRY_REQUIRED_LOCAL_CONSTRAINTS = (
+    "must_be_relative_path",
+    "must_not_escape_repo_root",
+    "must_not_contain_parent_traversal",
+    "must_not_be_absolute",
+    "must_not_use_windows_drive_letter",
+    "must_use_forward_slashes",
+    "must_be_normalized",
+)
+EVIDENCE_REF_REGISTRY_REQUIRED_FORBIDDEN_URL_SCHEMES = (
+    "http://",
+    "https://",
+    "ftp://",
+    "file://",
+    "ssh://",
+    "git://",
+    "git+ssh://",
+)
+EVIDENCE_REF_REGISTRY_REQUIRED_FORBIDDEN_ROOT_DIRS = (
+    ".obsidian",
+    ".omc",
+    ".tmp",
+    ".pytest-basetemp",
+    "__pycache__",
+    ".pytest_cache",
+    "node_modules",
+    ".venv",
+    ".git",
+)
+EVIDENCE_REF_REGISTRY_PCACC_ACTIVE_SURFACE = (
+    "PCACC-001",
+    "PCACC-002",
+    "PCACC-003",
+    "PCACC-004",
+)
+EVIDENCE_REF_REGISTRY_ORC_REASON_CODE_RE = re.compile(
+    r"evidence_refs_optional_per_orc_([A-Za-z0-9_\-]+)"
+)
+
+
+class EvidenceRefRegistryError(Exception):
+    """Raised when an explicitly supplied Evidence Ref policy registry fails to load or validate."""
+
+    def __init__(self, reason_code: str, detail: str = "") -> None:
+        self.reason_code = reason_code
+        self.detail = detail
+        super().__init__(reason_code if not detail else reason_code + ":" + detail)
+
 
 # ---------------------------------------------------------------------------
 # Stream init (CLI entrypoint only; no import-time side-effect)
@@ -172,6 +250,127 @@ def parse_evidence_refs(text: str) -> Optional[List[str]]:
             line = line.split(" ", 1)[0]
         refs.append(line)
     return refs
+
+
+def load_evidence_ref_registry(path: Path) -> Dict[str, Any]:
+    """TASK-1035 controlled runtime extraction.
+
+    Load and strictly validate the Evidence Ref policy registry from an explicit path.
+    Fails closed (raises EvidenceRefRegistryError) on missing file, malformed JSON,
+    schema_version mismatch, missing required top-level field, unknown enum value,
+    forbidden pattern, invalid local-artifact constraint, or PCACC-002 conflict.
+    Never silently falls back to in-module default.
+    """
+    if not path.is_file():
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_missing",
+            str(path).replace("\\", "/"),
+        )
+    try:
+        data = load_json(path)
+    except json.JSONDecodeError:
+        raise EvidenceRefRegistryError("evidence_ref_registry_malformed_json")
+    except OSError as e:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_io_error", type(e).__name__
+        )
+
+    if not isinstance(data, dict):
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_malformed_json", "top_level_not_object"
+        )
+
+    if data.get("schema_version") != EVIDENCE_REF_REGISTRY_SCHEMA_VERSION:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_schema_version_mismatch",
+            str(data.get("schema_version")),
+        )
+
+    for field in EVIDENCE_REF_REGISTRY_REQUIRED_TOP_LEVEL_FIELDS:
+        if field not in data:
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_missing_required_field", field
+            )
+
+    if data.get("runtime_consumption_authorized") is not True:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_runtime_consumption_not_authorized"
+        )
+
+    prefixes = data.get("allowed_ref_prefixes")
+    if not isinstance(prefixes, list) or not prefixes:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_invalid_allowed_ref_prefixes",
+            "must_be_non_empty_list",
+        )
+    for entry in prefixes:
+        if not isinstance(entry, dict):
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_invalid_allowed_ref_prefixes",
+                "entry_not_object",
+            )
+        kind = entry.get("kind")
+        if kind not in EVIDENCE_REF_REGISTRY_PREFIX_KIND_ENUM:
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_unknown_enum_value",
+                "allowed_ref_prefixes.kind=" + str(kind),
+            )
+
+    constraints = data.get("local_artifact_constraints")
+    if not isinstance(constraints, dict):
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_invalid_local_artifact_constraint",
+            "must_be_object",
+        )
+    for key in EVIDENCE_REF_REGISTRY_REQUIRED_LOCAL_CONSTRAINTS:
+        if constraints.get(key) is not True:
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_invalid_local_artifact_constraint", key
+            )
+    forbidden_url_schemes = constraints.get("forbidden_url_schemes") or []
+    for required_scheme in EVIDENCE_REF_REGISTRY_REQUIRED_FORBIDDEN_URL_SCHEMES:
+        if required_scheme not in forbidden_url_schemes:
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_forbidden_pattern",
+                "missing_forbidden_url_scheme:" + required_scheme,
+            )
+    forbidden_roots = constraints.get("forbidden_root_directories") or []
+    for required_root in EVIDENCE_REF_REGISTRY_REQUIRED_FORBIDDEN_ROOT_DIRS:
+        if required_root not in forbidden_roots:
+            raise EvidenceRefRegistryError(
+                "evidence_ref_registry_forbidden_pattern",
+                "missing_forbidden_root_directory:" + required_root,
+            )
+
+    pcacc_compat = data.get("pcacc_compatibility")
+    if not isinstance(pcacc_compat, dict):
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_pcacc_002_conflict",
+            "pcacc_compatibility_missing_or_not_object",
+        )
+    if pcacc_compat.get("prototype_introduces_pcacc_005") is True:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_pcacc_002_conflict",
+            "pcacc_005_introduction_disallowed",
+        )
+    if pcacc_compat.get("prototype_changes_pcacc_active_count") is True:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_pcacc_002_conflict",
+            "active_count_change_disallowed",
+        )
+    surface = pcacc_compat.get("current_pcacc_active_check_surface")
+    if list(surface or ()) != list(EVIDENCE_REF_REGISTRY_PCACC_ACTIVE_SURFACE):
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_pcacc_002_conflict",
+            "active_check_surface_mismatch",
+        )
+    if pcacc_compat.get("ac_to_verify_coverage_activated") is True:
+        raise EvidenceRefRegistryError(
+            "evidence_ref_registry_pcacc_002_conflict",
+            "ac_to_verify_coverage_activation_disallowed",
+        )
+
+    return data
 
 
 def lifecycle_paths(repo_root: Path, task_id: str) -> Dict[str, Path]:
@@ -289,7 +488,11 @@ def run_pcacc_001(repo_root: Path, task_id: str) -> Dict[str, Any]:
 # PCACC-002 Evidence Refs exist and match required format
 # ---------------------------------------------------------------------------
 
-def run_pcacc_002(repo_root: Path, task_id: str) -> Dict[str, Any]:
+def run_pcacc_002(
+    repo_root: Path,
+    task_id: str,
+    evidence_ref_registry: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     verify_path = repo_root / "artifacts" / "verify" / (task_id + ".verify.md")
     rel_evidence = "artifacts/verify/" + task_id + ".verify.md#Evidence Refs"
     check: Dict[str, Any] = {
@@ -312,6 +515,17 @@ def run_pcacc_002(repo_root: Path, task_id: str) -> Dict[str, Any]:
         check["reason_code"] = "evidence_refs_section_absent"
         return check
     if not refs:
+        # TASK-1035: under registry-driven mode, an empty Evidence Refs section
+        # may be optionally skipped if the verify artifact carries an explicit
+        # ORC reason_code marker (evidence_refs_optional_per_orc_<id>).
+        # Default in-module behavior continues to fail on empty section.
+        if evidence_ref_registry is not None:
+            orc_match = EVIDENCE_REF_REGISTRY_ORC_REASON_CODE_RE.search(text)
+            if orc_match:
+                check["actual"] = "evidence_refs_section_empty_with_orc_reason_code"
+                check["status"] = "skipped_with_reason_code"
+                check["reason_code"] = "evidence_refs_optional_per_orc_" + orc_match.group(1)
+                return check
         check["actual"] = "evidence_refs_section_empty_or_none"
         check["status"] = "fail"
         check["reason_code"] = "evidence_refs_section_empty"
@@ -320,7 +534,33 @@ def run_pcacc_002(repo_root: Path, task_id: str) -> Dict[str, Any]:
     malformed: List[str] = []
     missing: List[str] = []
     resolved: List[str] = []
+    # TASK-1035: registry-mode forbidden-pattern sieve. Default mode is unchanged
+    # (these locals stay empty / False), so TASK-1030 NEG-002 / NEG-003 outcomes
+    # are byte-identical without the flag.
+    forbidden_schemes_to_check: List[str] = []
+    forbidden_roots_to_check: List[str] = []
+    parent_traversal_forbidden = False
+    if evidence_ref_registry is not None:
+        _constraints = evidence_ref_registry.get("local_artifact_constraints", {}) or {}
+        forbidden_schemes_to_check = list(_constraints.get("forbidden_url_schemes") or [])
+        forbidden_roots_to_check = list(_constraints.get("forbidden_root_directories") or [])
+        parent_traversal_forbidden = (
+            _constraints.get("must_not_contain_parent_traversal") is True
+        )
     for ref in refs:
+        if evidence_ref_registry is not None:
+            if any(ref.startswith(s) for s in forbidden_schemes_to_check):
+                malformed.append(ref)
+                continue
+            if parent_traversal_forbidden and "../" in ref:
+                malformed.append(ref)
+                continue
+            if any(
+                ref.startswith(fr + "/") or ref == fr
+                for fr in forbidden_roots_to_check
+            ):
+                malformed.append(ref)
+                continue
         if "://" in ref or ref.startswith("/") or (len(ref) >= 2 and ref[1] == ":"):
             if ref.startswith("HEAD") or re.match(r"^[A-Za-z]+\s*[:=]", ref):
                 resolved.append(ref)
@@ -512,11 +752,14 @@ def run_pcacc_004(repo_root: Path, task_id: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def run_all_checks(
-    repo_root: Path, task_id: str, policy: Dict[str, Any]
+    repo_root: Path,
+    task_id: str,
+    policy: Dict[str, Any],
+    evidence_ref_registry: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     checks: List[Dict[str, Any]] = []
     checks.append(run_pcacc_001(repo_root, task_id))
-    checks.append(run_pcacc_002(repo_root, task_id))
+    checks.append(run_pcacc_002(repo_root, task_id, evidence_ref_registry))
     checks.append(run_pcacc_003(repo_root, task_id, policy))
     checks.append(run_pcacc_004(repo_root, task_id))
     return checks
@@ -579,6 +822,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument("--task", required=False, default="TASK-1026", help="target task id (e.g. TASK-1026)")
     parser.add_argument("--policy", default=None, help="path to precommit-check-policy.v3.5.json")
+    parser.add_argument(
+        "--evidence-ref-policy",
+        default=None,
+        dest="evidence_ref_policy",
+        help="optional Evidence Ref policy registry path (TASK-1035; explicit activation only; fail-closed exit 2 on load failure)",
+    )
     parser.add_argument("--format", choices=["json"], default="json")
     parser.add_argument(
         "--self-check",
@@ -617,8 +866,24 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(json.dumps({"error": "invalid_task_id", "value": task_id}))
         return 2
 
+    evidence_ref_registry: Optional[Dict[str, Any]] = None
+    if args.evidence_ref_policy:
+        erp_path = Path(args.evidence_ref_policy)
+        if not erp_path.is_absolute():
+            erp_path = repo_root / erp_path
+        try:
+            evidence_ref_registry = load_evidence_ref_registry(erp_path)
+        except EvidenceRefRegistryError as e:
+            print(json.dumps({
+                "error": "evidence_ref_registry_load_failed",
+                "reason_code": e.reason_code,
+                "detail": e.detail,
+                "path": str(erp_path).replace("\\", "/"),
+            }))
+            return 2
+
     today_iso = now_taipei_iso()
-    checks = run_all_checks(repo_root, task_id, policy)
+    checks = run_all_checks(repo_root, task_id, policy, evidence_ref_registry)
     result = build_result(repo_root, task_id, policy_path, checks, today_iso, args.self_check)
 
     if args.output and not args.self_check:

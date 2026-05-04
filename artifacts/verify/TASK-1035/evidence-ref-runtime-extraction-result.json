@@ -1,0 +1,161 @@
+{
+  "schema_version": "evidence-ref-runtime-extraction-result/v1",
+  "task_id": "TASK-1035",
+  "generated_at": "2026-05-04T23:30:55+08:00",
+  "registry_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+  "runner_ref": "artifacts/scripts/run_precommit_check.py",
+  "template_runner_ref": "template/artifacts/scripts/run_precommit_check.py",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "RTX-001",
+      "target": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "expected": "registry_file_exists",
+      "actual": "exists",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "reason_code": "registry_present_on_disk"
+    },
+    {
+      "check_id": "RTX-002",
+      "target": "evidence-ref-policy.v3.5.3.json schema",
+      "expected": "schema_valid_per_load_evidence_ref_registry",
+      "actual": "valid",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "reason_code": "schema_validated_no_exception"
+    },
+    {
+      "check_id": "RTX-003",
+      "target": "registry.runtime_consumption_authorized",
+      "expected": "true",
+      "actual": "True",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json#runtime_consumption_authorized",
+      "reason_code": "runtime_consumption_authorized_true"
+    },
+    {
+      "check_id": "RTX-004",
+      "target": "run_precommit_check.py --evidence-ref-policy + load_evidence_ref_registry",
+      "expected": "cli_argument_and_loader_present",
+      "actual": "present",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py",
+      "reason_code": "explicit_cli_flag_supported"
+    },
+    {
+      "check_id": "RTX-005",
+      "target": "default behavior on TASK-1030 NEG-002 / NEG-003 fixtures without registry",
+      "expected": "fail+malformed_refs:garbage_token_not_a_known_prefix AND fail+evidence_refs_section_empty",
+      "actual": "neg002_status=fail;neg002_reason=malformed_refs:garbage_token_not_a_known_prefix;neg003_status=fail;neg003_reason=evidence_refs_section_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-001-malformed/;artifacts/verify/TASK-1035/fixtures/evref-reg-002-empty/",
+      "reason_code": "default_in_module_behavior_unchanged_without_flag"
+    },
+    {
+      "check_id": "RTX-006",
+      "target": "load_evidence_ref_registry on missing path",
+      "expected": "raise_evidence_ref_registry_missing",
+      "actual": "evidence_ref_registry_missing",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/evref-reg-011-missing-registry/missing.json",
+      "reason_code": "fail_closed_on_missing_registry"
+    },
+    {
+      "check_id": "RTX-007",
+      "target": "load_evidence_ref_registry on malformed JSON",
+      "expected": "raise_evidence_ref_registry_malformed_json",
+      "actual": "evidence_ref_registry_malformed_json",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/registry-malformed/malformed-json.json",
+      "reason_code": "fail_closed_on_malformed_json"
+    },
+    {
+      "check_id": "RTX-008",
+      "target": "load_evidence_ref_registry on schema_version mismatch",
+      "expected": "raise_evidence_ref_registry_schema_version_mismatch",
+      "actual": "evidence_ref_registry_schema_version_mismatch",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/registry-malformed/schema-version-mismatch.json",
+      "reason_code": "fail_closed_on_schema_version_mismatch"
+    },
+    {
+      "check_id": "RTX-009",
+      "target": "load_evidence_ref_registry on pcacc compatibility conflict",
+      "expected": "raise_evidence_ref_registry_pcacc_002_conflict",
+      "actual": "evidence_ref_registry_pcacc_002_conflict",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/fixtures/registry-malformed/pcacc-conflict.json",
+      "reason_code": "fail_closed_on_pcacc_002_conflict"
+    },
+    {
+      "check_id": "RTX-010",
+      "target": "TASK-1030 NEG-002 / NEG-003 anchor reason_codes",
+      "expected": "preserved_under_registry_mode_via_EVREF-REG-001_and_EVREF-REG-002",
+      "actual": "preserved",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/registry-regression-result.json#cases[0..1]",
+      "reason_code": "task_1030_anchor_preserved"
+    },
+    {
+      "check_id": "RTX-011",
+      "target": "EVREF-REG-001..011 registry regression",
+      "expected": "all_eleven_cases_pass",
+      "actual": "11/11_pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1035/registry-regression-result.json#overall_status",
+      "reason_code": "registry_regression_overall_pass"
+    },
+    {
+      "check_id": "RTX-012",
+      "target": "runner / template mirror byte equality",
+      "expected": "sha256_match",
+      "actual": "match",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py;template/artifacts/scripts/run_precommit_check.py",
+      "reason_code": "byte_identical_mirror;sha256_root=4dbb8a219093cc12"
+    },
+    {
+      "check_id": "RTX-013",
+      "target": "PCACC active check surface expansion",
+      "expected": "exactly_PCACC-001..004_no_PCACC-005",
+      "actual": "compliant",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json#pcacc_compatibility",
+      "reason_code": "pcacc_active_check_surface_unchanged"
+    },
+    {
+      "check_id": "RTX-014",
+      "target": "AC-to-verify coverage exclusion",
+      "expected": "remains_excluded",
+      "actual": "excluded",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json#pcacc_compatibility",
+      "reason_code": "ac_to_verify_coverage_remains_excluded"
+    },
+    {
+      "check_id": "RTX-015",
+      "target": "production validator/test files sha256",
+      "expected": "all_five_match_TASK-1034_snapshot_prefix",
+      "actual": "match",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py;artifacts/scripts/guard_contract_validator.py;artifacts/scripts/workflow_constants.py;artifacts/scripts/run_red_team_suite.py;artifacts/scripts/test_guard_units.py",
+      "reason_code": "production_validator_test_files_unchanged;artifacts/scripts/guard_status_validator.py=d58a41f6ca49ccfe;artifacts/scripts/guard_contract_validator.py=7a38af7e2e0af5b7;artifacts/scripts/workflow_constants.py=e1f09d2100b5685f;artifacts/scripts/run_red_team_suite.py=77540c3b29f6ece6;artifacts/scripts/test_guard_units.py=5c7228c9997edffd"
+    },
+    {
+      "check_id": "RTX-016",
+      "target": "TASK-1036+ lifecycle artifact absence",
+      "expected": "zero_hits",
+      "actual": "0_hits",
+      "status": "pass",
+      "evidence_ref": "artifacts/{tasks,plans,decisions,verify,status}/TASK-1036*..TASK-1039*",
+      "reason_code": "no_task_1036_plus_artifacts_present"
+    }
+  ],
+  "limitations": [
+    "Each negative-load case re-loads the registry via load_evidence_ref_registry; controlled malformed registries live under artifacts/verify/TASK-1035/fixtures/registry-malformed/.",
+    "EVREF-REG-001 / EVREF-REG-002 anchor TASK-1030 NEG-002 / NEG-003 reason_codes; aggregated under RTX-010 here; per-case detail recorded in registry-regression-result.json.",
+    "Runtime extraction does not modify production validator/test files (RTX-015) and does not create TASK-1036+ artifacts (RTX-016); both are evidence-only assertions.",
+    "Byte-equality of root runner and template mirror is asserted at RTX-012 via sha256."
+  ]
+}

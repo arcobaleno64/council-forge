@@ -1,0 +1,182 @@
+{
+  "schema_version": "qc-sync-negative-test-result/v1",
+  "task_id": "TASK-1029",
+  "generated_at": "2026-05-04T13:55:52+08:00",
+  "gate_id": "QC-SYNC-001",
+  "runner_ref": "artifacts/scripts/run_quality_gates.py",
+  "runner_function_under_test": "run_qc_sync_001",
+  "runner_modified_by_task_1029": false,
+  "fixture_root": "artifacts/verify/TASK-1029/fixtures/",
+  "isolation_strategy": "Driver imports run_quality_gates as a Python module without modification. It invokes run_qc_sync_001(fixture_repo_root, synthetic_baseline, synthetic_policy, today_iso) directly with fixture repo roots under artifacts/verify/TASK-1029/fixtures/. Real production source/template pairs under artifacts/scripts/ <-> template/artifacts/scripts/ are NOT touched. sys.dont_write_bytecode = True is set before import, and PYTHONDONTWRITEBYTECODE=1 is set in the parent env, so no __pycache__ is created during this test run.",
+  "overall_status": "pass",
+  "cases": [
+    {
+      "case_id": "QC-SYNC-NEG-001",
+      "title": "post-baseline source-only addition",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-001-source-only",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-001-source-only/artifacts/scripts/orphan_src.py"
+      ],
+      "target": "artifacts/scripts/orphan_src.py",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "actual_reason_code": "post_baseline_new_pair_missing_template",
+      "pass": true,
+      "notes": "Pass 2 discovers a NEW source under artifacts/scripts/ with no template mirror under template/artifacts/scripts/. Expected blocking failure.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/orphan_src.py",
+        "pair_classification": "post_baseline_new_pair",
+        "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+        "actual": "current_status=missing_template",
+        "evidence_ref": "post_baseline_discovery:artifacts/scripts/orphan_src.py",
+        "status": "fail",
+        "reason_code": "post_baseline_new_pair_missing_template"
+      }
+    },
+    {
+      "case_id": "QC-SYNC-NEG-002",
+      "title": "post-baseline template-only addition",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-002-template-only",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-002-template-only/template/artifacts/scripts/orphan_tpl.py"
+      ],
+      "target": "artifacts/scripts/orphan_tpl.py",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_source",
+      "actual_reason_code": "post_baseline_new_pair_missing_source",
+      "pass": true,
+      "notes": "Pass 2 discovers a NEW template under template/artifacts/scripts/ with no source mirror under artifacts/scripts/. Expected blocking failure.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/orphan_tpl.py",
+        "pair_classification": "post_baseline_new_pair",
+        "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+        "actual": "current_status=missing_source",
+        "evidence_ref": "post_baseline_discovery:artifacts/scripts/orphan_tpl.py",
+        "status": "fail",
+        "reason_code": "post_baseline_new_pair_missing_source"
+      }
+    },
+    {
+      "case_id": "QC-SYNC-NEG-003",
+      "title": "post-baseline source/template drift",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-003-drift",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-003-drift/artifacts/scripts/drift.py",
+        "artifacts/verify/TASK-1029/fixtures/case-003-drift/template/artifacts/scripts/drift.py"
+      ],
+      "target": "artifacts/scripts/drift.py",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_drift",
+      "actual_reason_code": "post_baseline_new_pair_drift",
+      "pass": true,
+      "notes": "Pass 2 discovers a NEW pair with differing SHA-256 between source and template. Expected blocking drift failure.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/drift.py",
+        "pair_classification": "post_baseline_new_pair",
+        "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+        "actual": "current_status=drift",
+        "evidence_ref": "post_baseline_discovery:artifacts/scripts/drift.py",
+        "status": "fail",
+        "reason_code": "post_baseline_new_pair_drift"
+      }
+    },
+    {
+      "case_id": "QC-SYNC-NEG-004",
+      "title": "valid unexpired waiver covers post-baseline drift",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-004-valid-waiver",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-004-valid-waiver/artifacts/scripts/waivered.py",
+        "artifacts/verify/TASK-1029/fixtures/case-004-valid-waiver/template/artifacts/scripts/waivered.py"
+      ],
+      "target": "artifacts/scripts/waivered.py",
+      "expected_status": "skipped_with_reason_code",
+      "actual_status": "skipped_with_reason_code",
+      "expected_reason_code": "post_baseline_new_pair_waivered_until:2099-12-31",
+      "actual_reason_code": "post_baseline_new_pair_waivered_until:2099-12-31",
+      "pass": true,
+      "notes": "Six-field waiver with future expires_at. Expected skipped_with_reason_code.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/waivered.py",
+        "pair_classification": "post_baseline_new_pair",
+        "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+        "actual": "current_status=drift",
+        "evidence_ref": "post_baseline_discovery:artifacts/scripts/waivered.py",
+        "status": "skipped_with_reason_code",
+        "reason_code": "post_baseline_new_pair_waivered_until:2099-12-31"
+      }
+    },
+    {
+      "case_id": "QC-SYNC-NEG-005",
+      "title": "expired waiver does not cover post-baseline drift",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-005-expired-waiver",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-005-expired-waiver/artifacts/scripts/expired_waiver.py",
+        "artifacts/verify/TASK-1029/fixtures/case-005-expired-waiver/template/artifacts/scripts/expired_waiver.py"
+      ],
+      "target": "artifacts/scripts/expired_waiver.py",
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_waiver_invalid:expired:2020-01-01",
+      "actual_reason_code": "post_baseline_new_pair_waiver_invalid:expired:2020-01-01",
+      "pass": true,
+      "notes": "Six-field waiver with past expires_at. Expected blocking failure with expired reason.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/expired_waiver.py",
+        "pair_classification": "post_baseline_new_pair",
+        "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+        "actual": "current_status=drift",
+        "evidence_ref": "post_baseline_discovery:artifacts/scripts/expired_waiver.py",
+        "status": "fail",
+        "reason_code": "post_baseline_new_pair_waiver_invalid:expired:2020-01-01"
+      }
+    },
+    {
+      "case_id": "QC-SYNC-NEG-006",
+      "title": "baseline-existing unchanged drift remains non-failing",
+      "fixture_repo_root": "artifacts/verify/TASK-1029/fixtures/case-006-baseline-existing-drift",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1029/fixtures/case-006-baseline-existing-drift/artifacts/scripts/legacy_drift.py",
+        "artifacts/verify/TASK-1029/fixtures/case-006-baseline-existing-drift/template/artifacts/scripts/legacy_drift.py"
+      ],
+      "target": "artifacts/scripts/legacy_drift.py",
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "baseline_existing",
+      "actual_reason_code": "baseline_existing",
+      "pass": true,
+      "notes": "Synthetic baseline pair with status=drift; current SHA-256 of fixture files exactly matches the baseline-recorded SHAs. Expected pass with reason_code baseline_existing.",
+      "checks_count": 1,
+      "matched_check": {
+        "gate_id": "QC-SYNC-001",
+        "target": "artifacts/scripts/legacy_drift.py",
+        "pair_classification": "baseline_existing_pair",
+        "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
+        "actual": "current_status=drift; baseline_status=drift; baseline_unchanged=True",
+        "evidence_ref": "baseline_id=QB-FIXTURE-006",
+        "status": "pass",
+        "reason_code": "baseline_existing"
+      }
+    }
+  ],
+  "limitations": [
+    "Driver invokes run_qc_sync_001 directly with synthetic baseline/policy. QC-SCHEMA-001, QC-IMPORT-001, QC-GOLDEN-001, QC-RUFF-001 are NOT exercised here (out of TASK-1029 scope).",
+    "Six cases match TASK-1028 v3.5.1 plan section 5.2; PCACC negative cases belong to TASK-1030.",
+    "Real production source/template pairs and the v3.5.0 quality-baseline.v3.5.json are NOT mutated.",
+    "Today timestamp uses real Asia/Taipei time; case-004 uses expires_at=2099-12-31 (future) and case-005 uses expires_at=2020-01-01 (past) so cases stay stable across re-runs.",
+    "Synthetic policy.waivers carries the controlled waiver per case; v3.5.0 policy that forbids a standalone waiver registry is preserved.",
+    "Real repository baseline drift (QB-DRIFT-0001..QB-DRIFT-0003) is NOT remediated."
+  ]
+}

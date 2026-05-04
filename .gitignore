@@ -44,3 +44,7 @@ pytest-cache-files-*/
 
 # OMC runtime state (sessions, HUD, project memory; per-machine)
 .omc/
+
+# Obsidian per-machine UI state (recent files, scroll, layout)
+.obsidian/workspace.json
+template/.obsidian/workspace.json

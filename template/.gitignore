@@ -35,3 +35,6 @@ template/.tmp-red-team/
 .coverage
 coverage-report/
 .pytest_cache/
+
+# Obsidian per-machine UI state (recent files, scroll, layout)
+.obsidian/workspace.json

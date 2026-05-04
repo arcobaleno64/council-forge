@@ -1,0 +1,640 @@
+{
+  "schema_version": "quality-baseline/v1",
+  "plan_version": "v3.5.0",
+  "created_at": "2026-05-04T11:00:00+08:00",
+  "created_by_task": "TASK-1024",
+  "git_reference_if_available": {
+    "head_at_baseline_creation": "14214a84b20cac9dcd70b96db817722457deda43",
+    "task_1023_commit": "a40f6bc",
+    "task_1023_commit_full": "a40f6bc (TASK-1023 introduce v3.5.0 quality control surface lifecycle)",
+    "v3_4_chain_seal_commit": "2403c98",
+    "note": "head_at_baseline_creation captured before TASK-1024 mutation. Final TASK-1024 commit hash will differ; recorded in TASK-1024 verify and status artifacts."
+  },
+  "metrics": [
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "loc": 2678,
+      "function_count": 105,
+      "responsibility_tags": ["rule_engine", "schema", "cli", "policy_constants"],
+      "notes": "Largest governance validator monolith; primary FIND-30 target. function_count counts all 'def ' / 'async def ' lines including class methods."
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "loc": 969,
+      "function_count": 25,
+      "responsibility_tags": ["rule_engine", "source_template_sync", "cli"],
+      "notes": "Contract / RACI / source-template sync validator. Carries QC-SYNC-001 enforcement responsibility for TASK-1025."
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "loc": 636,
+      "function_count": 10,
+      "responsibility_tags": ["policy_constants", "schema"],
+      "notes": "Authoritative policy constants for assurance level / project adapter resolution."
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "loc": 1745,
+      "function_count": 94,
+      "responsibility_tags": ["red_team", "cli"],
+      "notes": "Red-team execution harness. Secondary monolith; FIND-30 candidate."
+    },
+    {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "loc": 12801,
+      "function_count": 1341,
+      "responsibility_tags": ["test_fixture"],
+      "notes": "Largest test monolith in repo. Primary FIND-30 evidence. Function count includes test methods. Drift entry recorded under existing_drift_entries (template counterpart sha256 differs)."
+    },
+    {
+      "path": "artifacts/scripts/test_security_scans.py",
+      "loc": 201,
+      "function_count": 30,
+      "responsibility_tags": ["test_fixture"],
+      "notes": "Security scan unit tests."
+    },
+    {
+      "path": "artifacts/scripts/agent_identity.py",
+      "loc": 78,
+      "function_count": 3,
+      "responsibility_tags": ["policy_constants"],
+      "notes": "Canonical agent identity registry helper."
+    },
+    {
+      "path": "artifacts/scripts/validate_context_stack.py",
+      "loc": 402,
+      "function_count": 13,
+      "responsibility_tags": ["cli", "rule_engine"],
+      "notes": "Context-stack validator; subject of TASK-1013 import-side-effect fix in v3.4. Candidate for QC-IMPORT-001 regression coverage in TASK-1025."
+    },
+    {
+      "path": "artifacts/scripts/aggregate_red_team_scorecard.py",
+      "loc": 173,
+      "function_count": 7,
+      "responsibility_tags": ["red_team", "cli"],
+      "notes": "Aggregates red-team scorecards."
+    },
+    {
+      "path": "artifacts/scripts/build_decision_registry.py",
+      "loc": 279,
+      "function_count": 22,
+      "responsibility_tags": ["cli", "schema"],
+      "notes": "Builds decision registry with file-level lineage."
+    },
+    {
+      "path": "artifacts/scripts/discover_templates.py",
+      "loc": 106,
+      "function_count": 3,
+      "responsibility_tags": ["cli", "source_template_sync"],
+      "notes": "Template discovery CLI for subagent dispatch."
+    },
+    {
+      "path": "artifacts/scripts/legacy_verify_corpus.py",
+      "loc": 60,
+      "function_count": 4,
+      "responsibility_tags": ["test_fixture"],
+      "notes": "Shared regression corpus helper."
+    },
+    {
+      "path": "artifacts/scripts/migrate_artifact_schema.py",
+      "loc": 825,
+      "function_count": 34,
+      "responsibility_tags": ["cli", "schema", "rule_engine"],
+      "notes": "Artifact schema migration tool."
+    },
+    {
+      "path": "artifacts/scripts/prompt_regression_validator.py",
+      "loc": 232,
+      "function_count": 8,
+      "responsibility_tags": ["cli", "rule_engine"],
+      "notes": "Prompt regression validator."
+    },
+    {
+      "path": "artifacts/scripts/repo_health_dashboard.py",
+      "loc": 265,
+      "function_count": 12,
+      "responsibility_tags": ["cli"],
+      "notes": "Repo health dashboard generator."
+    },
+    {
+      "path": "artifacts/scripts/repo_security_scan.py",
+      "loc": 360,
+      "function_count": 17,
+      "responsibility_tags": ["cli", "rule_engine"],
+      "notes": "Repository security scanner."
+    },
+    {
+      "path": "artifacts/scripts/update_repository_profile.py",
+      "loc": 79,
+      "function_count": 4,
+      "responsibility_tags": ["cli"],
+      "notes": "Repository profile updater."
+    },
+    {
+      "path": "artifacts/scripts/validate_scorecard_deltas.py",
+      "loc": 102,
+      "function_count": 4,
+      "responsibility_tags": ["cli", "rule_engine"],
+      "notes": "Validates red-team scorecard deltas."
+    },
+    {
+      "path": "artifacts/scripts/backfill_pdca_labels.py",
+      "loc": 216,
+      "function_count": 7,
+      "responsibility_tags": ["cli"],
+      "notes": "PDCA label backfill tool. Root-only — no template counterpart. Drift entry recorded under existing_drift_entries (missing_template)."
+    },
+    {
+      "path": "artifacts/scripts/classify_existing_tasks.py",
+      "loc": 138,
+      "function_count": 4,
+      "responsibility_tags": ["cli"],
+      "notes": "Existing-task classifier. Root-only — no template counterpart. Drift entry recorded under existing_drift_entries (missing_template)."
+    }
+  ],
+  "metrics_methodology": {
+    "loc_method": "wc -l (counts newline-terminated lines of file bytes)",
+    "function_count_method": "grep -cE '^[[:space:]]*(def |async def )' — counts both top-level and class-method definitions",
+    "sha256_method": "sha256sum on raw file bytes (no normalization)",
+    "responsibility_tags_method": "static inspection of file responsibilities; conservative; uses 'unknown' when uncertain",
+    "no_imports_executed": true,
+    "no_tests_executed": true,
+    "no_validators_executed": true,
+    "no_formatters_executed": true,
+    "no_cache_emitting_tools_executed": true
+  },
+  "source_template_pairs": [
+    {
+      "baseline_id": "QB-SYNC-0001",
+      "source_path": "artifacts/scripts/guard_status_validator.py",
+      "template_path": "template/artifacts/scripts/guard_status_validator.py",
+      "status": "in_sync",
+      "sha256_source": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "sha256_template": "d58a41f6ca49ccfe5ef825e9119e6fd0fcbd2299a586f6b092adfb2b588ad5ac",
+      "enforcement": "baseline_existing",
+      "notes": "Largest validator; bytes match between source and template."
+    },
+    {
+      "baseline_id": "QB-SYNC-0002",
+      "source_path": "artifacts/scripts/guard_contract_validator.py",
+      "template_path": "template/artifacts/scripts/guard_contract_validator.py",
+      "status": "in_sync",
+      "sha256_source": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "sha256_template": "7a38af7e2e0af5b701385e655cc93b4813bfde4688590cf0943fa738bd98bef7",
+      "enforcement": "baseline_existing",
+      "notes": "Contract / RACI validator."
+    },
+    {
+      "baseline_id": "QB-SYNC-0003",
+      "source_path": "artifacts/scripts/workflow_constants.py",
+      "template_path": "template/artifacts/scripts/workflow_constants.py",
+      "status": "in_sync",
+      "sha256_source": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "sha256_template": "e1f09d2100b5685f6c7e3c8717fab1d77d3a9a7389d3f35d9e1169715d4babad",
+      "enforcement": "baseline_existing",
+      "notes": "Policy constants."
+    },
+    {
+      "baseline_id": "QB-SYNC-0004",
+      "source_path": "artifacts/scripts/run_red_team_suite.py",
+      "template_path": "template/artifacts/scripts/run_red_team_suite.py",
+      "status": "in_sync",
+      "sha256_source": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "sha256_template": "77540c3b29f6ece6d6a775227acebd9e4dc68c5c7239e6880868440b68afefe5",
+      "enforcement": "baseline_existing",
+      "notes": "Red-team execution harness."
+    },
+    {
+      "baseline_id": "QB-SYNC-0005",
+      "source_path": "artifacts/scripts/test_guard_units.py",
+      "template_path": "template/artifacts/scripts/test_guard_units.py",
+      "status": "drift",
+      "sha256_source": "5c7228c9997edffd420f6387f826181793bdbb6df05a5e3fc041475f7fe1cc37",
+      "sha256_template": "b4b4258c4917252b74e3f2bbedbec70c9153b4b539acde46f731b3a42a1af0c8",
+      "enforcement": "baseline_existing",
+      "notes": "Largest test monolith; sha256 differs between source and template. Existing baseline drift; not remediated by TASK-1024. Cross-referenced as existing_drift_entries QB-DRIFT-0001."
+    },
+    {
+      "baseline_id": "QB-SYNC-0006",
+      "source_path": "artifacts/scripts/test_security_scans.py",
+      "template_path": "template/artifacts/scripts/test_security_scans.py",
+      "status": "in_sync",
+      "sha256_source": "5fb33358b7f17f5e866b60595393bbd75617c5270f931199487f5f71e8824650",
+      "sha256_template": "5fb33358b7f17f5e866b60595393bbd75617c5270f931199487f5f71e8824650",
+      "enforcement": "baseline_existing",
+      "notes": "Security scan tests."
+    },
+    {
+      "baseline_id": "QB-SYNC-0007",
+      "source_path": "artifacts/scripts/agent_identity.py",
+      "template_path": "template/artifacts/scripts/agent_identity.py",
+      "status": "in_sync",
+      "sha256_source": "d1c74c7fe8f2cf22cf6d2c8faae090021f4c8487a51e67f8a3e68a41967dd720",
+      "sha256_template": "d1c74c7fe8f2cf22cf6d2c8faae090021f4c8487a51e67f8a3e68a41967dd720",
+      "enforcement": "baseline_existing",
+      "notes": "Canonical agent identity registry helper."
+    },
+    {
+      "baseline_id": "QB-SYNC-0008",
+      "source_path": "artifacts/scripts/validate_context_stack.py",
+      "template_path": "template/artifacts/scripts/validate_context_stack.py",
+      "status": "in_sync",
+      "sha256_source": "c1a2257630af8fc090425da54a6f8c236eb4a2641d71fedfe6fd460a4a9b3bb0",
+      "sha256_template": "c1a2257630af8fc090425da54a6f8c236eb4a2641d71fedfe6fd460a4a9b3bb0",
+      "enforcement": "baseline_existing",
+      "notes": "Context-stack validator (TASK-1013 import-side-effect fix in v3.4)."
+    },
+    {
+      "baseline_id": "QB-SYNC-0009",
+      "source_path": "artifacts/scripts/aggregate_red_team_scorecard.py",
+      "template_path": "template/artifacts/scripts/aggregate_red_team_scorecard.py",
+      "status": "in_sync",
+      "sha256_source": "baa3772ca9ae6d934c9845d70e1de91a083e1d4bdc4f336e1a2ed286e4d8a204",
+      "sha256_template": "baa3772ca9ae6d934c9845d70e1de91a083e1d4bdc4f336e1a2ed286e4d8a204",
+      "enforcement": "baseline_existing",
+      "notes": "Red-team scorecard aggregator."
+    },
+    {
+      "baseline_id": "QB-SYNC-0010",
+      "source_path": "artifacts/scripts/build_decision_registry.py",
+      "template_path": "template/artifacts/scripts/build_decision_registry.py",
+      "status": "in_sync",
+      "sha256_source": "30bddfd64cb1c523da261fb7071ee792a021ee3f0266e97823e3a1642382604b",
+      "sha256_template": "30bddfd64cb1c523da261fb7071ee792a021ee3f0266e97823e3a1642382604b",
+      "enforcement": "baseline_existing",
+      "notes": "Decision registry builder."
+    },
+    {
+      "baseline_id": "QB-SYNC-0011",
+      "source_path": "artifacts/scripts/discover_templates.py",
+      "template_path": "template/artifacts/scripts/discover_templates.py",
+      "status": "in_sync",
+      "sha256_source": "db1a3bfe5a37ccd91e80a498008a189846f9c09f824043e6f1e8101f50198839",
+      "sha256_template": "db1a3bfe5a37ccd91e80a498008a189846f9c09f824043e6f1e8101f50198839",
+      "enforcement": "baseline_existing",
+      "notes": "Template discovery CLI."
+    },
+    {
+      "baseline_id": "QB-SYNC-0012",
+      "source_path": "artifacts/scripts/legacy_verify_corpus.py",
+      "template_path": "template/artifacts/scripts/legacy_verify_corpus.py",
+      "status": "in_sync",
+      "sha256_source": "9d29bed5b7d774b9caf881c2bed28d2cd4ff6a2f60ebef8d73cb8246ffc2ca86",
+      "sha256_template": "9d29bed5b7d774b9caf881c2bed28d2cd4ff6a2f60ebef8d73cb8246ffc2ca86",
+      "enforcement": "baseline_existing",
+      "notes": "Legacy verify corpus helper."
+    },
+    {
+      "baseline_id": "QB-SYNC-0013",
+      "source_path": "artifacts/scripts/migrate_artifact_schema.py",
+      "template_path": "template/artifacts/scripts/migrate_artifact_schema.py",
+      "status": "in_sync",
+      "sha256_source": "426cb894eb30ae86ea036ff1e094f3d7568a3b15d91812881b4aeaf29cb8f399",
+      "sha256_template": "426cb894eb30ae86ea036ff1e094f3d7568a3b15d91812881b4aeaf29cb8f399",
+      "enforcement": "baseline_existing",
+      "notes": "Schema migration tool."
+    },
+    {
+      "baseline_id": "QB-SYNC-0014",
+      "source_path": "artifacts/scripts/prompt_regression_validator.py",
+      "template_path": "template/artifacts/scripts/prompt_regression_validator.py",
+      "status": "in_sync",
+      "sha256_source": "cf2fe81e9b2e6429381673d3cf90e65358cc5d3151e815160c7c5cabe9f3215a",
+      "sha256_template": "cf2fe81e9b2e6429381673d3cf90e65358cc5d3151e815160c7c5cabe9f3215a",
+      "enforcement": "baseline_existing",
+      "notes": "Prompt regression validator."
+    },
+    {
+      "baseline_id": "QB-SYNC-0015",
+      "source_path": "artifacts/scripts/repo_health_dashboard.py",
+      "template_path": "template/artifacts/scripts/repo_health_dashboard.py",
+      "status": "in_sync",
+      "sha256_source": "d39c8e144e1923345b8b1823c0912057f300891d7b9f6f967a6669ba75d43c4f",
+      "sha256_template": "d39c8e144e1923345b8b1823c0912057f300891d7b9f6f967a6669ba75d43c4f",
+      "enforcement": "baseline_existing",
+      "notes": "Health dashboard generator."
+    },
+    {
+      "baseline_id": "QB-SYNC-0016",
+      "source_path": "artifacts/scripts/repo_security_scan.py",
+      "template_path": "template/artifacts/scripts/repo_security_scan.py",
+      "status": "in_sync",
+      "sha256_source": "a7b97f3bbd1c8c18d7df2f29cae7425a81cc8a2a60fe270f0e89629a2cc4869b",
+      "sha256_template": "a7b97f3bbd1c8c18d7df2f29cae7425a81cc8a2a60fe270f0e89629a2cc4869b",
+      "enforcement": "baseline_existing",
+      "notes": "Repository security scanner."
+    },
+    {
+      "baseline_id": "QB-SYNC-0017",
+      "source_path": "artifacts/scripts/update_repository_profile.py",
+      "template_path": "template/artifacts/scripts/update_repository_profile.py",
+      "status": "in_sync",
+      "sha256_source": "22b99fee7def0fe1e61f55bf046ad8e11dca01a4c07f67081f9f639577ee6b60",
+      "sha256_template": "22b99fee7def0fe1e61f55bf046ad8e11dca01a4c07f67081f9f639577ee6b60",
+      "enforcement": "baseline_existing",
+      "notes": "Repository profile updater."
+    },
+    {
+      "baseline_id": "QB-SYNC-0018",
+      "source_path": "artifacts/scripts/validate_scorecard_deltas.py",
+      "template_path": "template/artifacts/scripts/validate_scorecard_deltas.py",
+      "status": "in_sync",
+      "sha256_source": "1e66d50db23889fe3c5791e2d418e4925799344a5453a683606579a72fef3e26",
+      "sha256_template": "1e66d50db23889fe3c5791e2d418e4925799344a5453a683606579a72fef3e26",
+      "enforcement": "baseline_existing",
+      "notes": "Scorecard delta validator."
+    },
+    {
+      "baseline_id": "QB-SYNC-0019",
+      "source_path": "artifacts/scripts/backfill_pdca_labels.py",
+      "template_path": "template/artifacts/scripts/backfill_pdca_labels.py",
+      "status": "missing_template",
+      "sha256_source": "be20ea56f239b81ceab7f53d71b090a466397c50c468838d3e041be1d20ff7b7",
+      "sha256_template": null,
+      "enforcement": "baseline_existing",
+      "notes": "Root-only script; template counterpart absent. Existing baseline drift; not remediated by TASK-1024. Cross-referenced as existing_drift_entries QB-DRIFT-0002."
+    },
+    {
+      "baseline_id": "QB-SYNC-0020",
+      "source_path": "artifacts/scripts/classify_existing_tasks.py",
+      "template_path": "template/artifacts/scripts/classify_existing_tasks.py",
+      "status": "missing_template",
+      "sha256_source": "a51d282f6cb57a96dee5eaf3645d74052f7bb7e741a458ff157fb0f55f5ff04e",
+      "sha256_template": null,
+      "enforcement": "baseline_existing",
+      "notes": "Root-only script; template counterpart absent. Existing baseline drift; not remediated by TASK-1024. Cross-referenced as existing_drift_entries QB-DRIFT-0003."
+    }
+  ],
+  "source_template_pair_summary": {
+    "total_pairs_inventoried": 20,
+    "in_sync": 17,
+    "drift": 1,
+    "missing_template": 2,
+    "missing_source": 0,
+    "unknown": 0
+  },
+  "existing_drift_entries": [
+    {
+      "baseline_id": "QB-DRIFT-0001",
+      "category": "source_template_drift",
+      "source_path": "artifacts/scripts/test_guard_units.py",
+      "template_path": "template/artifacts/scripts/test_guard_units.py",
+      "detected_by": "sha256 comparison via sha256sum on raw bytes",
+      "status": "drift",
+      "enforcement": "baseline_existing",
+      "notes": "Largest test monolith. sha256 source 5c7228c9..., sha256 template b4b4258c.... Drift is recorded as baseline state at TASK-1024 time and is NOT a TASK-1024 acceptance failure. Remediation policy belongs to TASK-1025 QC-SYNC-001 + waiver schema (with expires_at). FIND-30 flag (test monolith maintainability) overlaps."
+    },
+    {
+      "baseline_id": "QB-DRIFT-0002",
+      "category": "missing_template",
+      "source_path": "artifacts/scripts/backfill_pdca_labels.py",
+      "template_path": "template/artifacts/scripts/backfill_pdca_labels.py",
+      "detected_by": "Glob: template path returns no file",
+      "status": "missing_template",
+      "enforcement": "baseline_existing",
+      "notes": "Root-only PDCA label backfill tool. Existing baseline; not a TASK-1024 failure. Remediation (either copy source to template or formally exclude script from sync contract) belongs to TASK-1025 or later via decision artifact."
+    },
+    {
+      "baseline_id": "QB-DRIFT-0003",
+      "category": "missing_template",
+      "source_path": "artifacts/scripts/classify_existing_tasks.py",
+      "template_path": "template/artifacts/scripts/classify_existing_tasks.py",
+      "detected_by": "Glob: template path returns no file",
+      "status": "missing_template",
+      "enforcement": "baseline_existing",
+      "notes": "Root-only existing-task classifier. Existing baseline; not a TASK-1024 failure. Remediation belongs to TASK-1025 or later via decision artifact."
+    }
+  ],
+  "json_schema_surface": [
+    {
+      "path": "governance-repair-manifest.v3.5.json",
+      "schema_version_if_present": "governance-repair-manifest/v1",
+      "role": "v3.5.0 governance manifest (authoritative execution_order, findings, plan_relation, agent_roles_policy)",
+      "notes": "Reused schema_version from v3.4 manifest; plan_version is v3.5.0."
+    },
+    {
+      "path": "consilium-fabri-governance-repair-plan-v3.5.md",
+      "schema_version_if_present": "governance-repair-plan/v3.5",
+      "role": "v3.5.0 governance plan; declared in front matter",
+      "notes": "Markdown with declared schema_version metadata; not pure JSON but participates in schema surface."
+    },
+    {
+      "path": "artifacts/governance/governance-repair-manifest.v3.4.json",
+      "schema_version_if_present": "governance-repair-manifest/v1",
+      "role": "v3.4 governance manifest (chain-sealed by TASK-1016)",
+      "notes": "Frozen v3.4 chain artifact. Not modified by TASK-1024."
+    },
+    {
+      "path": "artifacts/governance/red-team-adversarial-cases.v3.4.json",
+      "schema_version_if_present": "red-team-cases/v3.4",
+      "role": "v3.4 red-team adversarial case design (TASK-1022)",
+      "notes": "Chain-sealed."
+    },
+    {
+      "path": "artifacts/governance/verify-floor-baseline.v3.4.json",
+      "schema_version_if_present": "verify-floor-baseline/v1",
+      "role": "v3.4 verify-floor baseline manifest (TASK-1009)",
+      "notes": "Chain-sealed; carries baseline-known-debt classification semantics."
+    },
+    {
+      "path": "artifacts/governance/threat-findings-pending-update.v3.4.json",
+      "schema_version_if_present": "threat-findings-pending-update/v1",
+      "role": "v3.4 pending threat findings registry",
+      "notes": "FIND-18 status field tracked here."
+    },
+    {
+      "path": "artifacts/governance/threat-finding-backlog.v3.4.json",
+      "schema_version_if_present": "threat-finding-backlog/v1",
+      "role": "v3.4 threat finding backlog (FIND-25..FIND-28 deferral)",
+      "notes": "Chain-sealed."
+    },
+    {
+      "path": "artifacts/governance/red-team-execution-results.v3.4.json",
+      "schema_version_if_present": "red-team-execution-results/v1",
+      "role": "v3.4 red-team execution results (TASK-1019)",
+      "notes": "Chain-sealed."
+    },
+    {
+      "path": "artifacts/governance/context-hygiene-starter-cases.v3.4.json",
+      "schema_version_if_present": "context-hygiene-starter-cases/v1",
+      "role": "v3.4 context hygiene red-team starter cases (TASK-1021)",
+      "notes": "Chain-sealed."
+    },
+    {
+      "path": "artifacts/governance/quality-baseline.v3.5.json",
+      "schema_version_if_present": "quality-baseline/v1",
+      "role": "v3.5.0 quality baseline (this artifact, created by TASK-1024)",
+      "notes": "Self-reference; TASK-1024 baseline output."
+    },
+    {
+      "path": "artifacts/status/TASK-1023.status.json",
+      "schema_version_if_present": null,
+      "role": "v3.5.0 lifecycle status: TASK-1023 (Prompt -1)",
+      "notes": "status.json files do not declare schema_version literal in current schema; their structure is governed by docs/artifact_schema.md §5.8."
+    },
+    {
+      "path": "artifacts/status/TASK-1024.status.json",
+      "schema_version_if_present": null,
+      "role": "v3.5.0 lifecycle status: TASK-1024 (Prompt 0)",
+      "notes": "Created by this task."
+    }
+  ],
+  "import_side_effect_surface": [
+    {
+      "path": "artifacts/scripts/validate_context_stack.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Subject of TASK-1013 import-side-effect fix in v3.4. Should remain stdout/stderr-clean on import. High-priority candidate for QC-IMPORT-001 regression coverage in TASK-1025.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep. Empirical import-clean check is deferred to TASK-1025 (TASK-1024 forbids importing repo modules)."
+    },
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Largest validator monolith; loaded by many CI paths. Module-level state corruption would cascade. High-priority candidate for QC-IMPORT-001.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep."
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Contract / RACI / source-template sync validator. Loaded by guard chain.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep."
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Imported by all guard validators as policy constants source. Must remain side-effect free.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep."
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Red-team execution harness. CLI entry; should not start work on import.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep."
+    },
+    {
+      "path": "artifacts/scripts/migrate_artifact_schema.py",
+      "candidate_for_import_side_effect_gate": true,
+      "reason": "Schema migration tool. CLI entry; should not start migration on import.",
+      "notes": "Static inspection: no module-level print/open found via ripgrep."
+    },
+    {
+      "path": "artifacts/scripts/agent_identity.py",
+      "candidate_for_import_side_effect_gate": false,
+      "reason": "Small policy-constants module; minimal surface area.",
+      "notes": "Inventory completeness; not high-priority."
+    }
+  ],
+  "import_side_effect_methodology": {
+    "static_pattern_search": "ripgrep '^(print|sys\\.stdout|sys\\.stderr|open\\(|os\\.environ|subprocess|loggi)' under artifacts/scripts/ — 0 matches",
+    "main_guard_count": "15 of 20 root scripts contain `if __name__ == '__main__'` block",
+    "no_actual_imports_executed": true,
+    "deferral_note": "Empirical import-time stdout/stderr capture is deferred to TASK-1025 QC-IMPORT-001 implementation; TASK-1024 forbids importing repo modules to avoid creating __pycache__ as a side effect."
+  },
+  "cli_output_surface": [
+    {
+      "command_id": "QB-CLI-0001",
+      "command": "python artifacts/scripts/guard_status_validator.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Running --help may create __pycache__ side effect. NOT executed by TASK-1024. Listing only; capture by TASK-1025 QC-GOLDEN-001."
+    },
+    {
+      "command_id": "QB-CLI-0002",
+      "command": "python artifacts/scripts/guard_contract_validator.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Same as QB-CLI-0001. Not executed."
+    },
+    {
+      "command_id": "QB-CLI-0003",
+      "command": "python artifacts/scripts/run_red_team_suite.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Same. Not executed."
+    },
+    {
+      "command_id": "QB-CLI-0004",
+      "command": "python artifacts/scripts/migrate_artifact_schema.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Same. Not executed."
+    },
+    {
+      "command_id": "QB-CLI-0005",
+      "command": "python artifacts/scripts/validate_context_stack.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Same. Not executed."
+    },
+    {
+      "command_id": "QB-CLI-0006",
+      "command": "python artifacts/scripts/build_decision_registry.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Same. Not executed."
+    }
+  ],
+  "golden_cli_candidates": [
+    {
+      "command_id": "QB-CLI-0001",
+      "command": "python artifacts/scripts/guard_status_validator.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Top-priority golden candidate; largest CLI surface."
+    },
+    {
+      "command_id": "QB-CLI-0002",
+      "command": "python artifacts/scripts/guard_contract_validator.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Top-priority golden candidate; contract / RACI surface."
+    },
+    {
+      "command_id": "QB-CLI-0003",
+      "command": "python artifacts/scripts/run_red_team_suite.py --help",
+      "expected_exit_code": 0,
+      "capture_policy": "post_task_evidence_only",
+      "risk_notes": "Red-team CLI surface."
+    }
+  ],
+  "skipped_paths": [
+    {
+      "path": ".pytest-basetemp/",
+      "reason": "directory does not exist in repo at TASK-1024 time (Glob returned 0 hits); known unrelated baseline name from prompt context",
+      "blocked_required_inventory": false
+    },
+    {
+      "path": ".tmp/",
+      "reason": "directory does not exist in repo at TASK-1024 time (Glob returned 0 hits); known unrelated baseline name from prompt context",
+      "blocked_required_inventory": false
+    },
+    {
+      "path": ".omc/",
+      "reason": "ignored via .gitignore (per-machine OMC runtime state); not part of inventory scope",
+      "blocked_required_inventory": false
+    },
+    {
+      "path": ".obsidian/core-plugins.json",
+      "reason": "marked skip-worktree locally (Obsidian per-machine plugin state); not part of inventory scope",
+      "blocked_required_inventory": false
+    },
+    {
+      "path": ".pytest_cache/",
+      "reason": "tooling cache; pre-existing in repo from prior v3.4 chain pytest runs (contains README.md, CACHEDIR.TAG, .gitignore, v/cache/lastfailed, v/cache/nodeids); ignored via .gitignore line 39 (.pytest_cache/) plus its own .pytest_cache/.gitignore; TASK-1024 forbidden to create new entries and confirmed not staged or modified",
+      "blocked_required_inventory": false
+    },
+    {
+      "path": "__pycache__/",
+      "reason": "tooling cache; pre-existing under artifacts/scripts/__pycache__/ and template/artifacts/scripts/__pycache__/ from prior v3.4 chain pytest and import runs (mtime range 2026-04-24 to 2026-05-03; pytest-9.0.3 tagged .pyc files present); ignored via .gitignore line 17 (__pycache__/); TASK-1024 forbidden to create new entries and confirmed not staged or modified",
+      "blocked_required_inventory": false
+    }
+  ],
+  "limitations": [
+    "function_count counts all 'def ' / 'async def ' lines including class methods. A separate top-level-only count would require AST parsing and was not performed (would need importing or running ast on each file; TASK-1024 prefers static inventory via grep).",
+    "Import-side-effect inventory uses ripgrep static patterns only. Empirical 'python -c \"import <module>\"' verification is deferred to TASK-1025 QC-IMPORT-001 implementation to avoid creating __pycache__ as a side effect of TASK-1024.",
+    "CLI golden candidates are listed but not executed. Output capture is deferred to TASK-1025 QC-GOLDEN-001 to avoid creating cache state.",
+    "git_reference_if_available.head_at_baseline_creation is HEAD before this TASK-1024 commit. The TASK-1024 commit hash itself (which adds this baseline) cannot be present in the JSON before the commit is created and is recorded separately in TASK-1024 verify and status artifacts.",
+    "Responsibility tags use a conservative palette and 'unknown' where uncertain. They are evidence-based static inspection, not full architectural analysis.",
+    "Drift entries are recorded but NOT remediated. TASK-1024 explicitly does not fix drift (sha256 normalization, line-ending rewrites, source-template copy operations are forbidden). All remediation policy belongs to TASK-1025 QC-SYNC-001 and the waiver schema with expires_at.",
+    "No runtime code, validator, or source/template paired file was modified during TASK-1024. Only TASK-1024 lifecycle artifacts and this baseline JSON were created."
+  ]
+}

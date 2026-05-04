@@ -1,0 +1,264 @@
+{
+  "schema_version": "artifact-obligation-matrix/v1",
+  "plan_version": "v3.5.0",
+  "matrix_version": "v3.5.0",
+  "effective_from": "TASK-1027",
+  "presence_only": true,
+  "created_at": "2026-05-04T14:05:00+08:00",
+  "created_by_task": "TASK-1027",
+  "v3_5_plan_ref": "consilium-fabri-governance-repair-plan-v3.5.md",
+  "v3_5_manifest_ref": "governance-repair-manifest.v3.5.json",
+  "rule_axes": {
+    "task_type": {
+      "description": "Coarse classification of the task's purpose; determines which artifact classes are minimally required.",
+      "allowed_values": [
+        "docs_only_plan_lifecycle",
+        "baseline_inventory",
+        "quality_gate_bootstrap",
+        "minimal_precommit_check",
+        "artifact_obligation_policy",
+        "tiny_fix",
+        "small_feature",
+        "medium_feature",
+        "high_risk_governance_change",
+        "security_sensitive_change",
+        "production_customer_facing_change"
+      ]
+    },
+    "risk_level": {
+      "description": "Risk band derived from blast radius, reversibility, and external dependency surface.",
+      "allowed_values": ["low", "medium", "high", "critical"]
+    },
+    "assurance_level": {
+      "description": "Verification floor required by the task. Mirrors docs/artifact_schema.md §5.11.1; 'high' is NOT a valid assurance level and MUST be rejected by validators.",
+      "allowed_values": ["poc", "mvp", "production"],
+      "forbidden_values": ["high"]
+    }
+  },
+  "artifact_catalog": {
+    "lifecycle_artifact": {
+      "members": ["task", "plan", "decision", "verify", "status"],
+      "description": "PDCA lifecycle artifacts owned by docs/artifact_schema.md §5.1, §5.3, §5.7, §5.6, §5.8."
+    },
+    "governance_artifact": {
+      "members": ["manifest", "governance_policy", "baseline_json"],
+      "description": "Plan-version-scoped governance JSON artifacts (manifests, policies, baselines)."
+    },
+    "code_artifact": {
+      "members": ["script", "template_mirror", "test_fixture"],
+      "description": "Runtime code and its byte-identical template mirror; test fixtures used by quality gates."
+    },
+    "evidence_artifact": {
+      "members": ["machine_readable_evidence", "self_check_result"],
+      "description": "Deterministic JSON evidence emitted by gate runners or PCACC; never narrative reports."
+    },
+    "generated_document_candidate": {
+      "members": [
+        "srs",
+        "rtm",
+        "design_spec",
+        "threat_model",
+        "release_note",
+        "migration_note",
+        "user_guide",
+        "operation_runbook"
+      ],
+      "description": "Long-form prose artifacts. The matrix MAY require their PRESENCE for specific task types; it MUST NOT generate their CONTENT. Content authorship belongs to a separate task lifecycle explicitly authorizing such generation."
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "AOM-001",
+      "task_type": "docs_only_plan_lifecycle",
+      "risk_level": "high",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "manifest"],
+      "optional_artifacts": [],
+      "forbidden_artifacts": ["script", "template_mirror", "srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Anchor rule for TASK-1023 (v3.5 plan + manifest introduction). Code change forbidden by Prompt -1 scope lock."
+    },
+    {
+      "rule_id": "AOM-002",
+      "task_type": "baseline_inventory",
+      "risk_level": "medium",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "baseline_json"],
+      "optional_artifacts": [],
+      "forbidden_artifacts": ["script", "template_mirror", "srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Anchor rule for TASK-1024 (quality-baseline.v3.5.json). Inventory only; no remediation, no runtime code."
+    },
+    {
+      "rule_id": "AOM-003",
+      "task_type": "quality_gate_bootstrap",
+      "risk_level": "high",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "governance_policy", "script", "template_mirror", "machine_readable_evidence"],
+      "optional_artifacts": ["baseline_json"],
+      "forbidden_artifacts": ["srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Anchor rule for TASK-1025 (run_quality_gates.py + quality-gate-policy.v3.5.json). Source/template pair is mandatory."
+    },
+    {
+      "rule_id": "AOM-004",
+      "task_type": "minimal_precommit_check",
+      "risk_level": "medium",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "governance_policy", "script", "template_mirror", "machine_readable_evidence"],
+      "optional_artifacts": [],
+      "forbidden_artifacts": ["srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Anchor rule for TASK-1026 (run_precommit_check.py + precommit-check-policy.v3.5.json). Structural checks only; no reasoning audit."
+    },
+    {
+      "rule_id": "AOM-005",
+      "task_type": "artifact_obligation_policy",
+      "risk_level": "high",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "governance_policy"],
+      "optional_artifacts": [],
+      "forbidden_artifacts": ["script", "template_mirror", "srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Anchor rule for TASK-1027 itself. Policy-only; no runtime validator implementation; no document content generation."
+    },
+    {
+      "rule_id": "AOM-006",
+      "task_type": "tiny_fix",
+      "risk_level": "low",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "status"],
+      "optional_artifacts": ["plan", "decision", "verify", "script"],
+      "forbidden_artifacts": ["srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Lightweight one-off fix. SRS/RTM/design spec/threat model are explicitly forbidden to prevent artifact bloat."
+    },
+    {
+      "rule_id": "AOM-007",
+      "task_type": "small_feature",
+      "risk_level": "low",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "verify", "status"],
+      "optional_artifacts": ["decision", "script", "template_mirror", "machine_readable_evidence"],
+      "forbidden_artifacts": ["srs", "rtm", "design_spec", "threat_model", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Single-purpose small feature. Decision artifact only required when conflicts/tradeoffs surface; document content remains forbidden."
+    },
+    {
+      "rule_id": "AOM-008",
+      "task_type": "medium_feature",
+      "risk_level": "medium",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status"],
+      "optional_artifacts": ["script", "template_mirror", "machine_readable_evidence", "design_spec"],
+      "forbidden_artifacts": ["srs", "rtm", "release_note", "migration_note", "user_guide", "operation_runbook"],
+      "notes": "Cross-module feature. design_spec is OPTIONAL (presence-only when invoked); SRS/RTM remain forbidden by default."
+    },
+    {
+      "rule_id": "AOM-009",
+      "task_type": "high_risk_governance_change",
+      "risk_level": "high",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status", "governance_policy"],
+      "optional_artifacts": ["script", "template_mirror", "machine_readable_evidence", "baseline_json"],
+      "forbidden_artifacts": ["srs", "rtm", "user_guide"],
+      "notes": "High-blast-radius governance work. Decision artifact mandatory. Threat model / release note / migration note are conditional (see waiver_policy and rule_application_notes)."
+    },
+    {
+      "rule_id": "AOM-010",
+      "task_type": "security_sensitive_change",
+      "risk_level": "high",
+      "assurance_level": "mvp",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status"],
+      "optional_artifacts": ["threat_model", "script", "template_mirror", "machine_readable_evidence"],
+      "forbidden_artifacts": ["srs", "rtm", "user_guide"],
+      "notes": "threat_model is OPTIONAL by default; required ONLY when the change actually alters security behavior, attack surface, or trust boundaries. Conditional escalation must be recorded in the task decision artifact."
+    },
+    {
+      "rule_id": "AOM-011",
+      "task_type": "production_customer_facing_change",
+      "risk_level": "medium",
+      "assurance_level": "production",
+      "required_artifacts": ["task", "plan", "decision", "verify", "status"],
+      "optional_artifacts": ["release_note", "user_guide", "migration_note", "script", "template_mirror"],
+      "forbidden_artifacts": ["srs", "rtm"],
+      "notes": "release_note / user_guide / migration_note are OPTIONAL by default; required ONLY when the change actually affects user-visible behavior or requires user-side migration. Conditional escalation must be recorded in the task decision artifact."
+    }
+  ],
+  "rule_application_notes": {
+    "presence_only_evaluation": "The matrix evaluates ARTIFACT PRESENCE against required/optional/forbidden lists for the matched (task_type, risk_level, assurance_level) tuple. It does NOT evaluate artifact content quality, semantic correctness, or schema conformance. Content quality belongs to docs/artifact_schema.md and the runners under artifacts/scripts/.",
+    "conditional_escalation": "Where a generated_document_candidate (threat_model, release_note, user_guide, migration_note, design_spec) appears in optional_artifacts, escalation to required is allowed ONLY when the task's decision artifact explicitly records the trigger condition (e.g. 'security behavior changed', 'user-visible behavior changed'). Escalation MUST NOT be inferred silently.",
+    "rule_resolution_priority": "When multiple rules could match a task, the most specific (task_type, risk_level, assurance_level) tuple wins. Anchor rules AOM-001..AOM-005 take precedence over generic rules AOM-006..AOM-011 for their respective task types.",
+    "no_runtime_validator_in_v3_5_0": "TASK-1027 does NOT implement a matrix validator. Validator implementation is deferred to a future task lifecycle that explicitly authorizes it; that future task MUST cite this matrix as input."
+  },
+  "supersession_policy": {
+    "completed_tasks_retroactive_evaluation": false,
+    "superseded_task_obligation_state": "frozen",
+    "superseding_task_inherits_open_obligations": true,
+    "waiver_requires_decision_artifact": true,
+    "matrix_changes_apply_from_effective_from_forward": true,
+    "notes": [
+      "Completed tasks are NOT retroactively re-evaluated under a newer matrix.",
+      "Superseded tasks freeze their original obligation state at the moment of supersession.",
+      "Superseding tasks inherit still-open obligations from the superseded task UNLESS explicitly waived by a decision artifact under the waiver_policy.",
+      "Matrix changes apply ONLY from the new effective_from forward; an updated matrix MUST declare a new effective_from and a new matrix_version."
+    ]
+  },
+  "legacy_task_policy": {
+    "pre_matrix_tasks_retroactive_evaluation": false,
+    "pre_matrix_tasks_advisory_only": true,
+    "modified_legacy_tasks_follow_current_matrix": true,
+    "superseding_legacy_tasks_follow_current_matrix": true,
+    "notes": [
+      "Tasks completed before TASK-1027 (effective_from anchor) are NOT automatically non-compliant; they remain advisory under their original obligations.",
+      "If a legacy task is materially modified after TASK-1027 (state transition, scope change, or artifact rewrite beyond cosmetic edits), the current matrix obligations apply to the modified scope.",
+      "If a legacy task is superseded after TASK-1027, the superseding task follows the current matrix in full."
+    ]
+  },
+  "waiver_policy": {
+    "mechanism": "decision_artifact_only",
+    "no_standalone_registry_in_v3_5_0": true,
+    "no_style_debt_registry_in_v3_5_0": true,
+    "narrative_only_waiver_invalid": true,
+    "required_waiver_fields": [
+      "rule_id",
+      "scope",
+      "reason_code",
+      "owner",
+      "evidence_ref",
+      "expires_at"
+    ],
+    "expired_waivers_are_invalid": true,
+    "notes": [
+      "Waivers MUST be declared inside a decision artifact under '## Guard Exception' or an equivalent structured block; narrative-only paragraphs are NOT valid waivers.",
+      "All six required_waiver_fields MUST be present; missing any one invalidates the waiver regardless of other content.",
+      "owner MUST reference a human reviewer or accountable maintainer (not an AI agent label).",
+      "evidence_ref MUST point to a verify artifact path under artifacts/verify/.",
+      "expires_at MUST be present and enforceable; expired waivers MUST be treated as invalid by any future matrix validator.",
+      "v3.5.0 explicitly forbids creating a standalone waiver registry or style debt registry; if data later justifies one, it is deferred to v3.5.2."
+    ]
+  },
+  "forbidden_generation": {
+    "applies_to_task": "TASK-1027",
+    "scope": "TASK-1027 MUST NOT generate the CONTENT of any of the listed artifact classes. The matrix MAY define when these artifacts are required or optional for OTHER tasks; it MUST NOT author them.",
+    "forbidden_content_classes": [
+      "srs",
+      "rtm",
+      "design_spec",
+      "threat_model",
+      "release_note",
+      "migration_note",
+      "user_guide",
+      "operation_runbook"
+    ],
+    "notes": [
+      "The matrix is an anti-bloat presence control, not a document generation plane.",
+      "Future authorship of any listed class belongs to a separate task lifecycle whose decision artifact explicitly authorizes content generation."
+    ]
+  },
+  "limitations": [
+    "Presence-only: the matrix does NOT evaluate content quality, semantic correctness, or schema conformance.",
+    "No runtime validator is implemented in TASK-1027; matrix enforcement is deferred to a future task lifecycle.",
+    "Conservative task_type taxonomy: 11 task types are enumerated; new task types require a new matrix_version with a new effective_from.",
+    "Risk level and assurance level remain coarse (4 and 3 values); finer-grained gating is deferred.",
+    "Rule resolution priority is fixed (anchor rules > generic rules); compound matchers (e.g. multi-type tasks) require a future matrix revision.",
+    "Conditional escalation of generated_document_candidate artifacts MUST be recorded in the task decision artifact; the matrix itself does NOT decide escalation.",
+    "Legacy tasks completed before effective_from are advisory only; the matrix does NOT retroactively invalidate prior governance work.",
+    "Waivers live alongside their target artifact via decision_artifact_only mechanism; no global registry exists in v3.5.0.",
+    "Superseded tasks freeze original obligations; superseding tasks inherit open obligations unless explicitly waived.",
+    "TASK-1027 is the v3.5.0 minimum-obligation control; v3.5.1 / v3.5.2 / v3.6 evolution requires new task lifecycles with their own decision artifacts."
+  ]
+}

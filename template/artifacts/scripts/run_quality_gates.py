@@ -157,6 +157,52 @@ def select_valid_waivers(
 # QC-SYNC-001 source/template baseline-aware enforcement
 # ---------------------------------------------------------------------------
 
+# Source/template root convention. Discovery runs over this convention to find
+# post-baseline new pairs that the TASK-1024 baseline does not list.
+SOURCE_TEMPLATE_ROOTS: List[Tuple[str, str]] = [
+    ("artifacts/scripts", "template/artifacts/scripts"),
+]
+
+
+def discover_current_pairs(repo_root: Path) -> Dict[str, Dict[str, str]]:
+    """Discover current source/template pairs from repo state.
+
+    Returns dict keyed by repo-relative source_path. Each value contains
+    source_path and template_path. The pair is collected when the .py file
+    appears under either side; the absent side is reported as missing later.
+    """
+    pairs: Dict[str, Dict[str, str]] = {}
+    for src_rel_root, tpl_rel_root in SOURCE_TEMPLATE_ROOTS:
+        src_root = repo_root / src_rel_root
+        tpl_root = repo_root / tpl_rel_root
+        names: set = set()
+        if src_root.is_dir():
+            for f in src_root.glob("*.py"):
+                if f.is_file():
+                    names.add(f.name)
+        if tpl_root.is_dir():
+            for f in tpl_root.glob("*.py"):
+                if f.is_file():
+                    names.add(f.name)
+        for name in sorted(names):
+            rel_src = src_rel_root + "/" + name
+            rel_tpl = tpl_rel_root + "/" + name
+            pairs[rel_src] = {"source_path": rel_src, "template_path": rel_tpl}
+    return pairs
+
+
+def _classify_current(current_src_sha: Optional[str], current_tpl_sha: Optional[str]) -> str:
+    if current_src_sha is None and current_tpl_sha is None:
+        return "missing_both"
+    if current_src_sha is None:
+        return "missing_source"
+    if current_tpl_sha is None:
+        return "missing_template"
+    if current_src_sha == current_tpl_sha:
+        return "in_sync"
+    return "drift"
+
+
 def run_qc_sync_001(
     repo_root: Path, baseline: Dict[str, Any], policy: Dict[str, Any], today_iso: str
 ) -> List[Dict[str, Any]]:
@@ -164,6 +210,9 @@ def run_qc_sync_001(
     waivers = policy.get("waivers", []) or []
     checks: List[Dict[str, Any]] = []
 
+    baseline_src_paths: set = set()
+
+    # ------------------- Pass 1: baseline-existing pairs -------------------
     for pair in pairs:
         bid = pair.get("baseline_id", "?")
         src_rel = pair.get("source_path") or ""
@@ -172,22 +221,15 @@ def run_qc_sync_001(
         baseline_src_sha = pair.get("sha256_source")
         baseline_tpl_sha = pair.get("sha256_template")
 
+        if src_rel:
+            baseline_src_paths.add(src_rel)
+
         src_path = repo_root / src_rel if src_rel else None
         tpl_path = repo_root / tpl_rel if tpl_rel else None
         current_src_sha = sha256_of_file(src_path) if src_path else None
         current_tpl_sha = sha256_of_file(tpl_path) if tpl_path else None
 
-        if current_src_sha is None and current_tpl_sha is None:
-            current_status = "missing_both"
-        elif current_src_sha is None:
-            current_status = "missing_source"
-        elif current_tpl_sha is None:
-            current_status = "missing_template"
-        elif current_src_sha == current_tpl_sha:
-            current_status = "in_sync"
-        else:
-            current_status = "drift"
-
+        current_status = _classify_current(current_src_sha, current_tpl_sha)
         baseline_unchanged = (
             current_src_sha == baseline_src_sha
             and current_tpl_sha == baseline_tpl_sha
@@ -196,6 +238,7 @@ def run_qc_sync_001(
         check: Dict[str, Any] = {
             "gate_id": "QC-SYNC-001",
             "target": src_rel,
+            "pair_classification": "baseline_existing_pair",
             "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
             "actual": (
                 "current_status=" + str(current_status)
@@ -228,6 +271,56 @@ def run_qc_sync_001(
                 else:
                     check["reason_code"] = "baseline_drift_changed_without_waiver"
         checks.append(check)
+
+    # ------------------- Pass 2: post-baseline new pairs -------------------
+    current_pairs = discover_current_pairs(repo_root)
+    for src_rel, info in sorted(current_pairs.items()):
+        if src_rel in baseline_src_paths:
+            continue  # already handled in Pass 1
+        tpl_rel = info["template_path"]
+        src_path = repo_root / src_rel
+        tpl_path = repo_root / tpl_rel
+        current_src_sha = sha256_of_file(src_path)
+        current_tpl_sha = sha256_of_file(tpl_path)
+        current_status = _classify_current(current_src_sha, current_tpl_sha)
+
+        check: Dict[str, Any] = {
+            "gate_id": "QC-SYNC-001",
+            "target": src_rel,
+            "pair_classification": "post_baseline_new_pair",
+            "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+            "actual": "current_status=" + str(current_status),
+            "evidence_ref": "post_baseline_discovery:" + src_rel,
+        }
+
+        if current_status == "in_sync":
+            check["status"] = "pass"
+            check["reason_code"] = "post_baseline_new_pair_in_sync"
+        else:
+            applicable = find_applicable_waivers("QC-SYNC-001", src_rel, waivers)
+            valid, invalid_reasons = select_valid_waivers(applicable, today_iso)
+            if valid:
+                check["status"] = "skipped_with_reason_code"
+                check["reason_code"] = (
+                    "post_baseline_new_pair_waivered_until:"
+                    + valid[0].get("expires_at", "")
+                )
+            else:
+                check["status"] = "fail"
+                if invalid_reasons:
+                    check["reason_code"] = (
+                        "post_baseline_new_pair_waiver_invalid:" + ";".join(invalid_reasons)
+                    )
+                elif current_status == "missing_template":
+                    check["reason_code"] = "post_baseline_new_pair_missing_template"
+                elif current_status == "missing_source":
+                    check["reason_code"] = "post_baseline_new_pair_missing_source"
+                elif current_status == "drift":
+                    check["reason_code"] = "post_baseline_new_pair_drift"
+                else:
+                    check["reason_code"] = "post_baseline_new_pair_unknown_status"
+        checks.append(check)
+
     return checks
 
 

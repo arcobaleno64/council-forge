@@ -1,7 +1,7 @@
 {
   "schema_version": "quality-gate-result/v1",
   "task_id": "TASK-1025",
-  "generated_at": "2026-05-04T10:18:07+08:00",
+  "generated_at": "2026-05-04T10:44:45+08:00",
   "self_check": false,
   "baseline_ref": "artifacts/governance/quality-baseline.v3.5.json",
   "policy_ref": "artifacts/governance/quality-gate-policy.v3.5.json",
@@ -10,6 +10,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/guard_status_validator.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0001",
@@ -19,6 +20,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/guard_contract_validator.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0002",
@@ -28,6 +30,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/workflow_constants.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0003",
@@ -37,6 +40,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/run_red_team_suite.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0004",
@@ -46,6 +50,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/test_guard_units.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=drift; baseline_status=drift; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0005",
@@ -55,6 +60,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/test_security_scans.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0006",
@@ -64,6 +70,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/agent_identity.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0007",
@@ -73,6 +80,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/validate_context_stack.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0008",
@@ -82,6 +90,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/aggregate_red_team_scorecard.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0009",
@@ -91,6 +100,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/build_decision_registry.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0010",
@@ -100,6 +110,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/discover_templates.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0011",
@@ -109,6 +120,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/legacy_verify_corpus.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0012",
@@ -118,6 +130,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/migrate_artifact_schema.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0013",
@@ -127,6 +140,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/prompt_regression_validator.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0014",
@@ -136,6 +150,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/repo_health_dashboard.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0015",
@@ -145,6 +160,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/repo_security_scan.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0016",
@@ -154,6 +170,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/update_repository_profile.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0017",
@@ -163,6 +180,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/validate_scorecard_deltas.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=in_sync; baseline_status=in_sync; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0018",
@@ -172,6 +190,7 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/backfill_pdca_labels.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=missing_template; baseline_status=missing_template; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0019",
@@ -181,11 +200,22 @@
     {
       "gate_id": "QC-SYNC-001",
       "target": "artifacts/scripts/classify_existing_tasks.py",
+      "pair_classification": "baseline_existing_pair",
       "expected": "in_sync_or_unchanged_baseline_drift_or_valid_waiver",
       "actual": "current_status=missing_template; baseline_status=missing_template; baseline_unchanged=True",
       "evidence_ref": "baseline_id=QB-SYNC-0020",
       "status": "pass",
       "reason_code": "baseline_existing"
+    },
+    {
+      "gate_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/run_quality_gates.py",
+      "pair_classification": "post_baseline_new_pair",
+      "expected": "post_baseline_new_pair_in_sync_or_valid_waiver",
+      "actual": "current_status=in_sync",
+      "evidence_ref": "post_baseline_discovery:artifacts/scripts/run_quality_gates.py",
+      "status": "pass",
+      "reason_code": "post_baseline_new_pair_in_sync"
     },
     {
       "gate_id": "QC-SCHEMA-001",

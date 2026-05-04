@@ -1,0 +1,592 @@
+{
+  "schema_version": "policy-registry-extraction-decision-matrix/v1",
+  "plan_version": "v3.5.1",
+  "created_by_task": "TASK-1032",
+  "generated_at": "2026-05-04T19:12:00+08:00",
+  "recommendation": "split_design_into_smaller_followups",
+  "inputs": {
+    "characterization_artifact_ref": "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+    "characterization_schema_version": "validator-test-monolith-characterization/v1",
+    "characterization_created_by_task": "TASK-1031",
+    "characterization_readiness_status": "not_ready_for_split",
+    "v3_5_1_plan_ref": "artifacts/governance/v3.5.1-gate-proving-plan.md",
+    "v3_5_1_manifest_ref": "governance-repair-manifest.v3.5.1.json",
+    "design_artifact_ref": "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+    "decision_questions_inherited_from_TASK_1031": [
+      "Q1: Where does the registry live - artifacts/scripts/ paired or artifacts/governance/ unpaired?",
+      "Q2: Does the registry use a single file or per-domain split?",
+      "Q3: Is RACI_MATRIX (legacy) deprecated outright in favor of RACI_MATRIX_V2 in the registry, or do both ship?",
+      "Q4: Does extraction precede or follow the validator module split?",
+      "Q5: How is schema validation enforced - in-runner at startup, or via a separate quality-gate?",
+      "Q6: Do registry changes require waiver/decision artifacts (governance change) or are they treated as ordinary code changes?",
+      "Q7: How is RACI_MATRIX_V2 frozenset preserved through JSON round-trip (since JSON only has arrays)?",
+      "Q8: What is the rollback plan if registry-driven runtime regresses?"
+    ],
+    "task_1031_rc_distribution": {
+      "satisfied": ["RC-4", "RC-5", "RC-6", "RC-8"],
+      "partially_satisfied": ["RC-2", "RC-3"],
+      "not_satisfied": ["RC-1", "RC-7", "RC-9"],
+      "unknown": []
+    }
+  },
+  "candidate_policy_data": {
+    "host_modules": [
+      {
+        "path": "artifacts/scripts/workflow_constants.py",
+        "constants": [
+          "REQUIRED_TOPICS",
+          "TOPIC_PATTERN",
+          "ASSURANCE_LEVELS",
+          "PROJECT_ADAPTERS",
+          "WORKFLOW_STATES",
+          "ARTIFACT_TYPES",
+          "STRUCTURED_CHECKLIST_FIELDS",
+          "ASSURANCE_PROFILES",
+          "PROJECT_ADAPTER_RULES",
+          "RACI_MATRIX",
+          "RACI_MATRIX_V2",
+          "VERIFICATION_ITEM_RESULTS",
+          "VERIFICATION_REASON_CODES",
+          "VERIFICATION_READINESS_STATES",
+          "DECISION_CLASSES",
+          "IMPROVEMENT_PROFILES",
+          "_PATH_PREFIX_RULES",
+          "_WORKFLOW_ENTRY_FILES",
+          "_AGENT_PROMPT_FILES"
+        ],
+        "constant_count": 19,
+        "extraction_candidacy": "primary"
+      },
+      {
+        "path": "artifacts/scripts/guard_contract_validator.py",
+        "constants": [
+          "EXACT_SYNC_FILES",
+          "COMMON_REQUIRED_PHRASES",
+          "SOURCE_REQUIRED_PHRASES",
+          "DOWNSTREAM_REQUIRED_PHRASES",
+          "PROMPT_ENTRY_FILES",
+          "PROMPT_REGRESSION_FILES",
+          "REPOSITORY_PROFILE_FILES",
+          "ACTIVE_GEMINI_POLICY_FILES",
+          "ALLOWED_GEMINI_MODELS",
+          "DISALLOWED_GEMINI_FRAGMENTS",
+          "README_HEADERS_EN",
+          "README_HEADERS_ZH",
+          "OBSIDIAN_HEADERS",
+          "README_CONTRACTS",
+          "OBSIDIAN_CONTRACTS",
+          "PLACEHOLDER_PATTERNS"
+        ],
+        "constant_count": 16,
+        "extraction_candidacy": "secondary"
+      }
+    ],
+    "risk_grade_buckets": {
+      "low": [
+        "ASSURANCE_LEVELS",
+        "PROJECT_ADAPTERS",
+        "WORKFLOW_STATES",
+        "ARTIFACT_TYPES",
+        "VERIFICATION_ITEM_RESULTS",
+        "VERIFICATION_REASON_CODES",
+        "VERIFICATION_READINESS_STATES",
+        "DECISION_CLASSES",
+        "ALLOWED_GEMINI_MODELS"
+      ],
+      "medium": [
+        "ASSURANCE_PROFILES",
+        "PROJECT_ADAPTER_RULES",
+        "IMPROVEMENT_PROFILES",
+        "README_CONTRACTS",
+        "OBSIDIAN_CONTRACTS"
+      ],
+      "high": [
+        "EXACT_SYNC_FILES",
+        "RACI_MATRIX",
+        "RACI_MATRIX_V2",
+        "_PATH_PREFIX_RULES",
+        "TOPIC_PATTERN"
+      ]
+    }
+  },
+  "must_remain_in_python": [
+    "validate_workflow_rule_tables (control flow + cross-table consistency)",
+    "resolve_verification_policy (resolution algorithm + adapter inheritance chain)",
+    "_resolve_adapter_chain (cycle detection)",
+    "classify_path (precedence-ordered prefix matching)",
+    "validate_raci_hybrid_sync (markdown table parsing)",
+    "validate_section_contract (markdown section traversal)",
+    "argparse / subprocess / urllib / file I/O paths",
+    "_run_raci_audit_v2 (mixed I/O and algorithm)",
+    "validate_exact_sync walking logic (FS traversal; only allowed-paths set is policy data)",
+    "detect_repo_mode (runtime detection)"
+  ],
+  "json_registry_candidates": [
+    {
+      "candidate_id": "RC-A",
+      "name": "assurance-profile-policy",
+      "source_constants": ["ASSURANCE_PROFILES", "PROJECT_ADAPTER_RULES", "IMPROVEMENT_PROFILES"],
+      "scope": "verify policy resolution",
+      "risk": "medium"
+    },
+    {
+      "candidate_id": "RC-B",
+      "name": "lifecycle-enum-policy",
+      "source_constants": [
+        "ASSURANCE_LEVELS",
+        "PROJECT_ADAPTERS",
+        "WORKFLOW_STATES",
+        "ARTIFACT_TYPES",
+        "VERIFICATION_ITEM_RESULTS",
+        "VERIFICATION_REASON_CODES",
+        "VERIFICATION_READINESS_STATES",
+        "DECISION_CLASSES"
+      ],
+      "scope": "lifecycle enum sets",
+      "risk": "low"
+    },
+    {
+      "candidate_id": "RC-C",
+      "name": "raci-policy",
+      "source_constants": ["RACI_MATRIX", "RACI_MATRIX_V2"],
+      "scope": "RACI rule tables",
+      "risk": "high"
+    },
+    {
+      "candidate_id": "RC-D",
+      "name": "path-classification-policy",
+      "source_constants": ["_PATH_PREFIX_RULES", "_WORKFLOW_ENTRY_FILES", "_AGENT_PROMPT_FILES"],
+      "scope": "path classification with precedence",
+      "risk": "medium"
+    },
+    {
+      "candidate_id": "RC-E",
+      "name": "evidence-ref-policy",
+      "source_constants": ["STRUCTURED_CHECKLIST_FIELDS", "REQUIRED_TOPICS", "TOPIC_PATTERN"],
+      "scope": "evidence/topic rules",
+      "risk": "medium"
+    },
+    {
+      "candidate_id": "RC-F",
+      "name": "sync-paths-policy",
+      "source_constants": [
+        "EXACT_SYNC_FILES",
+        "PROMPT_ENTRY_FILES",
+        "PROMPT_REGRESSION_FILES",
+        "REPOSITORY_PROFILE_FILES",
+        "ACTIVE_GEMINI_POLICY_FILES"
+      ],
+      "scope": "sync gate input paths",
+      "risk": "high"
+    },
+    {
+      "candidate_id": "RC-G",
+      "name": "phrase-contract-policy",
+      "source_constants": [
+        "COMMON_REQUIRED_PHRASES",
+        "SOURCE_REQUIRED_PHRASES",
+        "DOWNSTREAM_REQUIRED_PHRASES",
+        "DISALLOWED_GEMINI_FRAGMENTS",
+        "ALLOWED_GEMINI_MODELS"
+      ],
+      "scope": "text fragment contracts",
+      "risk": "low"
+    },
+    {
+      "candidate_id": "RC-H",
+      "name": "markdown-contract-policy",
+      "source_constants": [
+        "README_HEADERS_EN",
+        "README_HEADERS_ZH",
+        "OBSIDIAN_HEADERS",
+        "README_CONTRACTS",
+        "OBSIDIAN_CONTRACTS"
+      ],
+      "scope": "markdown structure contracts",
+      "risk": "medium"
+    },
+    {
+      "candidate_id": "RC-I",
+      "name": "placeholder-pattern-policy",
+      "source_constants": ["PLACEHOLDER_PATTERNS"],
+      "scope": "placeholder regex enum",
+      "risk": "medium"
+    }
+  ],
+  "schema_validation_requirements": {
+    "schema_version_field_required": true,
+    "schema_version_naming_pattern": "<registry-id>/v<n>",
+    "plan_version_compatibility_required": true,
+    "required_top_level_fields_reject_missing": true,
+    "allowed_enum_validation_required": true,
+    "unknown_field_handling": "reject_unknown_fields_true",
+    "migration_versioning_model": "supersedes_chain (no in-place upgrade; old version retained until supersession decision expires)",
+    "validation_failure_behavior": "fail_closed_runner_refuses_to_start_exit_nonzero",
+    "silent_fallback_to_in_module_default": "forbidden",
+    "source_template_mirror_behavior_if_paired": "EXACT_SYNC_FILES extension required + byte_identical mirror under template/",
+    "source_template_mirror_behavior_if_unpaired": "no mirror obligation; placement under artifacts/governance/",
+    "cross_registry_consistency_rule": "shared enum referenced via references field; copy-paste detection by validator"
+  },
+  "source_template_sync_implications": {
+    "qc_sync_001_dependency": "QC-SYNC-001 (TASK-1025 deliverable; TASK-1029 negative-test verified)",
+    "if_paired_under_artifacts_scripts": {
+      "exact_sync_files_extension_required": true,
+      "template_mirror_creation_required": true,
+      "baseline_pair_extension_required": true,
+      "lockstep_modification_required": true,
+      "negative_test_evidence_inherited": "TASK-1029 NEG-001/002/003"
+    },
+    "if_unpaired_under_artifacts_governance": {
+      "exact_sync_files_extension_required": false,
+      "template_mirror_creation_required": false,
+      "baseline_pair_extension_required": false,
+      "still_subject_to_decision_artifact_for_content_change": true
+    },
+    "baseline_modification_authority": "out_of_scope_for_TASK_1032; requires separate v3.6 task with explicit lifecycle",
+    "post_baseline_drift_detection_inheritance": "QC-SYNC-001 post_baseline_drift path applies to paired registries (TASK-1029 NEG-003 verified)",
+    "waiver_mechanism_inheritance": "decision-artifact waiver with six-field structure and unexpired expires_at applies (TASK-1029 NEG-004 verified)"
+  },
+  "backward_compatibility_concerns": [
+    {
+      "concern_id": "BC-1",
+      "subject": "existing CLI stdout shape",
+      "constraint": "[OK]/[FAIL]/[WARN] stanzas and raci-audit/v2 JSON object must not change due to extraction; user-facing change escalates to AOM-011"
+    },
+    {
+      "concern_id": "BC-2",
+      "subject": "existing evidence format",
+      "constraint": "verify artifact Evidence Refs and helper output JSON shape must not change; PCACC-002 strict scope (TASK-1030 NEG-002/003 verified)"
+    },
+    {
+      "concern_id": "BC-3",
+      "subject": "task / status JSON shape",
+      "constraint": "artifacts/status/TASK-XXXX.status.json schema must not change due to extraction; new fields require separate decision artifact"
+    },
+    {
+      "concern_id": "BC-4",
+      "subject": "v3.5.x artifact immutability",
+      "constraint": "TASK-1023..1031 lifecycle artifacts must not be retroactively modified; new v3.6 task must reference by name"
+    },
+    {
+      "concern_id": "BC-5",
+      "subject": "failure mode mapping",
+      "constraint": "exit codes 0=pass / 1=violations / 2=hard guard error must remain; registry load failure maps to exit code 2; silent fallback forbidden"
+    }
+  ],
+  "migration_options": [
+    {
+      "option_id": "A",
+      "title": "do_not_extract_in_v3_5_1",
+      "pros": [
+        "consistent with v3.5.1 plan §9.2 default defer",
+        "zero risk",
+        "no baseline / PCACC / AOM expansion",
+        "no new governance plane"
+      ],
+      "cons": [
+        "does not leverage TASK-1031 candidate listing",
+        "validator split v3.6 prerequisite (policy boundary clarity) unresolved",
+        "RR-5 RACI v1/v2 drift risk lingers"
+      ],
+      "risks": [
+        "if v3.6 split starts without extraction design, split-time policy double-write becomes risk source"
+      ],
+      "preconditions": [],
+      "recommended_followup": "re-evaluate before v3.6 implementation start; do not jump to implementation",
+      "recommendation_status": "acceptable"
+    },
+    {
+      "option_id": "B",
+      "title": "extract_before_validator_split",
+      "pros": [
+        "cleaner module boundaries during split (policy externalized)",
+        "exposes schema validation / migration risks earlier"
+      ],
+      "cons": [
+        "extraction itself complex (high-risk slices include EXACT_SYNC_FILES self-ref / RACI v1/v2 unification)",
+        "8 design questions must be solved first; single design task insufficient capacity",
+        "baseline / EXACT_SYNC_FILES expansion needs separate task first"
+      ],
+      "risks": [
+        "if extraction introduces regression (e.g., frozenset round-trip type loss), split is further deferred",
+        "extraction rollback path not yet defined"
+      ],
+      "preconditions": [
+        "all 8 design questions closed via narrower design tasks",
+        "schema prototype validated under PCACC strict scope",
+        "rollback plan formalized (sha256 restoration / runner re-baseline)"
+      ],
+      "recommended_followup": "execute Option D (schema prototype) first; then re-evaluate B",
+      "recommendation_status": "acceptable"
+    },
+    {
+      "option_id": "C",
+      "title": "extract_after_validator_split",
+      "pros": [
+        "post-split each new module's policy boundary naturally narrower; extraction can proceed per-module"
+      ],
+      "cons": [
+        "split-time policy double-write complexity = (split + extract) compounded",
+        "split blocked by RC-7 (decomposition strategy) unsatisfied; extract chained behind",
+        "multi-module baseline expansion = multiple governance changes; high churn"
+      ],
+      "risks": [
+        "during split, policy without extraction may be copy-pasted across new modules; introduces silent divergence (RR-5 same family)"
+      ],
+      "preconditions": [
+        "validator split done + verify pass + green at least one release cycle (v3.5 plan §5.6 / version_split_rule)"
+      ],
+      "recommended_followup": "record only; this decision rejects",
+      "recommendation_status": "rejected"
+    },
+    {
+      "option_id": "D",
+      "title": "schema_prototype_design_first_implementation_later",
+      "pros": [
+        "lowest-risk forward path; designs schema and contract only; no runner / validator / template change",
+        "provides shared contract for narrower follow-up tasks (Option E step 1)",
+        "no baseline / PCACC / AOM expansion"
+      ],
+      "cons": [
+        "does not directly reduce split-time risk; still needs implementation task"
+      ],
+      "risks": [
+        "if schema prototype chooses wrong (e.g., single file vs per-domain split), downstream follow-ups must rework"
+      ],
+      "preconditions": [
+        "TASK-1031 readiness gate documentation referenceable (already done)",
+        "Q1 (registry location) + Q2 (single vs per-domain) + Q5 (schema validation enforcement) have provisional answers"
+      ],
+      "recommended_followup": "draft contract for Q1/Q2/Q5 via narrower design task; then decide whether to enter Option B",
+      "recommendation_status": "acceptable"
+    },
+    {
+      "option_id": "E",
+      "title": "split_design_into_smaller_followups",
+      "pros": [
+        "directly addresses TASK-1031's 8 design question multi-axis complexity",
+        "preserves dedicated design space for Q3 (RACI unification) / Q7 (frozenset round-trip) / Q8 (rollback)",
+        "aligns with §11 follow-up candidates",
+        "composes with Option D (first narrower design task = schema prototype)"
+      ],
+      "cons": [
+        "serialization extends time-to-v3.6-implementation",
+        "multiple design task closure conditions need extra design"
+      ],
+      "risks": [
+        "without shared schema prototype, narrower design tasks may drift; mitigation: list schema prototype as the first prerequisite"
+      ],
+      "preconditions": [
+        "TASK-1031 done + verify pass (satisfied)",
+        "TASK-1032 done + verify pass (will be satisfied at this commit)"
+      ],
+      "recommended_followup": "schema prototype -> low-risk slice extraction design -> medium-risk slice extraction design -> high-risk slice + RACI unification",
+      "recommendation_status": "preferred"
+    }
+  ],
+  "risk_register": [
+    {
+      "risk_id": "DR-1",
+      "description": "design over-fragmentation; narrower design tasks lack shared contract; design drift",
+      "mitigation": "list Option D as Option E step 1; schema prototype is shared contract source",
+      "severity": "medium"
+    },
+    {
+      "risk_id": "DR-2",
+      "description": "narrower design delays v3.6 implementation start; validator split readiness pending policy boundary",
+      "mitigation": "map 8 design questions to <=4 narrower tasks; control narrowness granularity",
+      "severity": "medium"
+    },
+    {
+      "risk_id": "DR-3",
+      "description": "design phase implementation hints misread as authorization",
+      "mitigation": "this design and decision matrix list explicit non-authorization repeatedly; verify artifact checks explicitly",
+      "severity": "high"
+    },
+    {
+      "risk_id": "DR-4",
+      "description": "RACI v1/v2 unification design hastily deferred; RR-5 latent long-term",
+      "mitigation": "list Q3 + Q7 as mandatory items in narrower design task; reject blanket defer",
+      "severity": "medium"
+    },
+    {
+      "risk_id": "DR-5",
+      "description": "EXACT_SYNC_FILES self-reference paradox design failure (registry itself paired?)",
+      "mitigation": "list Q1 (registry location) as prerequisite; schema prototype must produce contract for this question",
+      "severity": "high"
+    },
+    {
+      "risk_id": "DR-6",
+      "description": "schema validation failure fallback misconfigured as 'retain in-module default'",
+      "mitigation": "schema_validation_requirements + backward_compatibility_concerns explicitly forbid silent fallback; narrower design task acceptance requires this clause",
+      "severity": "high"
+    }
+  ],
+  "readiness_gates": [
+    {
+      "gate_id": "RG-1",
+      "description": "TASK-1031 characterization done + verify pass + readiness_status recorded as not_ready_for_split",
+      "current_status": "satisfied",
+      "evidence_ref": "artifacts/status/TASK-1031.status.json#state=done verify_result=pass readiness_status=not_ready_for_split",
+      "blocks_implementation": false
+    },
+    {
+      "gate_id": "RG-2",
+      "description": "TASK-1032 design decision done + verify pass + recommendation recorded",
+      "current_status": "partially_satisfied",
+      "evidence_ref": "this artifact + artifacts/decisions/TASK-1032.decision.md (in this commit; partial because verify_result will pass at end of this task)",
+      "blocks_implementation": false
+    },
+    {
+      "gate_id": "RG-3",
+      "description": "schema prototype design task done + verify pass (Option D, candidate TASK-1033)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "no TASK-1033 lifecycle artifact exists; this decision does not create it",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-4",
+      "description": "at least one narrower domain design task done + verify pass (Option E step 2)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "no narrower design task lifecycle artifact exists",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-5",
+      "description": "RC-1 golden CLI corpus captured (TASK-1031 RC-1)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "TASK-1031 governance artifact #refactor_readiness_criteria[RC-1] current_status=not_satisfied",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-6",
+      "description": "RC-3 source/template sync green or waived with expiration (TASK-1031 RC-3)",
+      "current_status": "partially_satisfied",
+      "evidence_ref": "TASK-1031 governance artifact #refactor_readiness_criteria[RC-3] current_status=partially_satisfied (test_guard_units.py drift QB-DRIFT-0001 unwaived)",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-7",
+      "description": "RC-7 test monolith decomposition strategy with rollback (TASK-1031 RC-7)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "TASK-1031 governance artifact #refactor_readiness_criteria[RC-7] current_status=not_satisfied",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-8",
+      "description": "RC-9 rollback strategy documented (TASK-1031 RC-9)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "TASK-1031 governance artifact #refactor_readiness_criteria[RC-9] current_status=not_satisfied",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-9",
+      "description": "QC-SYNC-001 negative test for the chosen registry slice exists (TASK-1029 model)",
+      "current_status": "not_satisfied",
+      "evidence_ref": "TASK-1029 NEG-001/002/003 cover validator/test paired files; no slice-specific test for any candidate registry yet",
+      "blocks_implementation": true
+    },
+    {
+      "gate_id": "RG-10",
+      "description": "if paired path chosen, baseline / EXACT_SYNC_FILES expansion governance task done",
+      "current_status": "not_satisfied",
+      "evidence_ref": "no governance task exists; baseline policy modification out of scope for TASK-1032",
+      "blocks_implementation": true
+    }
+  ],
+  "follow_up_candidates": [
+    {
+      "candidate_id": "TASK-1033",
+      "proposed_name": "Policy Registry Schema Prototype Design",
+      "scope": "Q1/Q2/Q5; schema_version naming; fail-closed contract",
+      "depends_on": ["TASK-1032"],
+      "sequencing_step": 1,
+      "lifecycle_artifact_created_by_TASK_1032": false
+    },
+    {
+      "candidate_id": "TASK-1034",
+      "proposed_name": "Narrow Evidence Ref Policy Registry Design",
+      "scope": "RC-E (evidence-ref-policy); Q4/Q6; low-risk slice",
+      "depends_on": ["TASK-1033"],
+      "sequencing_step": 2,
+      "lifecycle_artifact_created_by_TASK_1032": false
+    },
+    {
+      "candidate_id": "TASK-1035",
+      "proposed_name": "Status Lifecycle Policy Registry Design",
+      "scope": "RC-B (lifecycle-enum-policy) + RC-A (assurance-profile-policy); Q4/Q6",
+      "depends_on": ["TASK-1033"],
+      "sequencing_step": 2,
+      "lifecycle_artifact_created_by_TASK_1032": false
+    },
+    {
+      "candidate_id": "TASK-1036",
+      "proposed_name": "RACI Policy Registry Design with v1/v2 Unification",
+      "scope": "RC-C (raci-policy); Q3/Q7",
+      "depends_on": ["TASK-1033"],
+      "sequencing_step": 3,
+      "lifecycle_artifact_created_by_TASK_1032": false
+    },
+    {
+      "candidate_id": "TASK-1037",
+      "proposed_name": "Sync Paths Policy Registry Self-reference Design",
+      "scope": "RC-F (sync-paths-policy); Q1 refinement",
+      "depends_on": ["TASK-1033", "TASK-1034"],
+      "sequencing_step": 3,
+      "lifecycle_artifact_created_by_TASK_1032": false
+    },
+    {
+      "candidate_id": "TASK-1038",
+      "proposed_name": "Validator Module Split Candidate Plan",
+      "scope": "TASK-1031 RC-7 / RC-9 satisfaction; rollback plan / decomposition strategy",
+      "depends_on": ["TASK-1031", "TASK-1032", "at_least_one_narrower_design_task"],
+      "sequencing_step": "v3.6_prerequisite",
+      "lifecycle_artifact_created_by_TASK_1032": false
+    }
+  ],
+  "non_authorization": {
+    "implementation_authorized": false,
+    "registry_files_created_for_runtime": false,
+    "validator_split_authorized": false,
+    "production_validator_modification_authorized": false,
+    "template_mirror_modification_authorized": false,
+    "pcacc_runner_or_policy_modification_authorized": false,
+    "quality_gate_runner_or_policy_modification_authorized": false,
+    "quality_baseline_modification_authorized": false,
+    "aom_matrix_modification_authorized": false,
+    "v3_5_or_v3_5_1_plan_or_manifest_modification_authorized": false,
+    "task_1023_to_task_1031_lifecycle_modification_authorized": false,
+    "task_1033_or_later_lifecycle_artifact_creation_authorized": false,
+    "test_monolith_reorganization_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "find_18_status_change_authorized": false,
+    "p0_quality_gate_phase_2_or_3_activation_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "obsidian_or_omc_or_temp_directory_modification_authorized": false,
+    "ruff_mypy_pyright_coverage_lint_format_or_pkg_manager_execution_authorized": false,
+    "pytest_execution_authorized": false,
+    "target_file_cli_or_main_execution_authorized": false,
+    "srs_rtm_design_threat_model_release_migration_userguide_runbook_content_generation_authorized": false,
+    "standalone_waiver_or_style_debt_or_runtime_policy_registry_creation_authorized": false,
+    "assurance_level_taxonomy_high_addition_authorized": false,
+    "new_agent_role_or_global_model_brand_to_role_binding_authorized": false,
+    "ac_to_verify_coverage_activation_authorized": false,
+    "reasoning_faithfulness_audit_authorized": false,
+    "belief_state_audit_authorized": false,
+    "model_self_confidence_audit_authorized": false,
+    "free_text_rationale_addition_authorized": false,
+    "saver_markdown_report_authorized": false
+  },
+  "limitations": [
+    "TASK-1032 is design-decision only; this artifact records option evaluation, not implementation contracts.",
+    "Recommendation `split_design_into_smaller_followups` defers contract details to narrower design tasks; this artifact does not create those tasks.",
+    "Candidate registry slice IDs (RC-A..RC-I) are organizational heuristics; final partitioning is determined by narrower design tasks.",
+    "Risk register (DR-1..DR-6) covers design-level risks; runtime risks of any future extraction are out of scope.",
+    "Readiness gates RG-1..RG-10 reference TASK-1031 RC IDs and design-level prerequisites; satisfaction is required before v3.6 extraction implementation, not before this decision.",
+    "Schema validation requirements (§6 of design artifact) are written as forward-looking constraints for future extraction; this artifact does not define a concrete JSON Schema.",
+    "Source/template sync implications inherit QC-SYNC-001 semantics proven by TASK-1029; no new sync gate logic is proposed.",
+    "Backward compatibility concerns BC-1..BC-5 reflect current v3.5.0/v3.5.1 contracts; future contract evolution requires separate decisions.",
+    "The 8 inherited design questions are listed as inputs; this artifact intentionally does not give per-question contracts (that work is the scope of narrower design tasks).",
+    "Follow-up candidate task IDs (TASK-1033..TASK-1038) are advisory; actual ID allocation is governed by future v3.6 task allocation lifecycle and may differ."
+  ]
+}

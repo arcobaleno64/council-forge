@@ -1,11 +1,11 @@
 {
   "task_id": "TASK-1026",
-  "state": "verifying",
+  "state": "done",
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "current_owner": "Claude",
   "next_agent": "Codex",
-  "last_updated": "2026-05-04T13:40:00+08:00",
+  "last_updated": "2026-05-04T13:50:00+08:00",
   "verification_readiness": "mvp",
   "open_verification_debts": [],
   "required_artifacts": ["task", "plan", "decision", "verify", "status", "code"],

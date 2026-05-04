@@ -1,0 +1,129 @@
+{
+  "schema_version": "precommit-check-policy/v1",
+  "plan_version": "v3.5.0",
+  "created_at": "2026-05-04T13:30:00+08:00",
+  "created_by_task": "TASK-1026",
+  "v3_5_plan_ref": "consilium-fabri-governance-repair-plan-v3.5.md",
+  "v3_5_manifest_ref": "governance-repair-manifest.v3.5.json",
+  "checks": [
+    {
+      "check_id": "PCACC-001",
+      "title": "Lifecycle artifact set exists",
+      "severity": "blocking",
+      "rationale": "FIND-32 cross-artifact consistency blind spot. Verifies task / plan / decision / verify / status all exist for the target task.",
+      "required_artifact_kinds": [
+        "task",
+        "plan",
+        "decision",
+        "verify",
+        "status"
+      ],
+      "implemented_by": "artifacts/scripts/run_precommit_check.py:run_pcacc_001"
+    },
+    {
+      "check_id": "PCACC-002",
+      "title": "Evidence Refs exist and match required format",
+      "severity": "blocking",
+      "rationale": "FIND-32. Verifies the verify artifact's '## Evidence Refs' section is non-empty and that referenced repo-relative paths exist on disk; flags malformed or absolute refs.",
+      "implemented_by": "artifacts/scripts/run_precommit_check.py:run_pcacc_002"
+    },
+    {
+      "check_id": "PCACC-003",
+      "title": "Canonical owner and reviewer references",
+      "severity": "blocking",
+      "rationale": "FIND-32. Verifies status owner and final_approver references against the canonical reviewer set; missing registry yields explicit reason_code rather than silent pass.",
+      "canonical_reviewers": [
+        "arcobaleno"
+      ],
+      "canonical_owners": [
+        "Claude",
+        "Codex",
+        "Gemini"
+      ],
+      "implemented_by": "artifacts/scripts/run_precommit_check.py:run_pcacc_003"
+    },
+    {
+      "check_id": "PCACC-004",
+      "title": "Review timestamp follows evidence generation timestamp",
+      "severity": "blocking",
+      "rationale": "FIND-32. When both review_timestamp and evidence_generated_at are present, asserts review_timestamp > evidence_generated_at. Missing timestamps return skipped_with_reason_code, never silent pass.",
+      "implemented_by": "artifacts/scripts/run_precommit_check.py:run_pcacc_004"
+    },
+    {
+      "check_id": "PCACC-005",
+      "title": "AC-to-verify coverage (forbidden activation)",
+      "severity": "blocking",
+      "rationale": "Attempted activation of v3.5.1-deferred AC-to-verify coverage as an active 5th PCACC check.",
+      "implemented_by": "synthetic_policy_mutation"
+    }
+  ],
+  "excluded_checks": [
+    {
+      "check_id": "PCACC-DEFERRED-AC-COVERAGE",
+      "title": "AC-to-verify coverage",
+      "reason": "Deferred to v3.5.1 after the four structural checks stabilize. v3.5.0 does NOT implement AC-to-verify coverage."
+    },
+    {
+      "check_id": "PCACC-EXCLUDED-REASONING-FAITHFULNESS",
+      "title": "Reasoning faithfulness score",
+      "reason": "Forbidden in v3.5.0 PCACC. PCACC v3.5.0 is a structural check, not a reasoning audit."
+    },
+    {
+      "check_id": "PCACC-EXCLUDED-BELIEF-STATE",
+      "title": "Belief-state audit",
+      "reason": "Forbidden in v3.5.0 PCACC. Hidden belief state is out of structural-check scope."
+    },
+    {
+      "check_id": "PCACC-EXCLUDED-MODEL-CONFIDENCE",
+      "title": "Model self-confidence audit",
+      "reason": "Forbidden in v3.5.0 PCACC. Self-reported model confidence is not deterministic governance evidence."
+    },
+    {
+      "check_id": "PCACC-EXCLUDED-FREE-TEXT-RATIONALE",
+      "title": "Free-text rationale field",
+      "reason": "Forbidden in v3.5.0 PCACC output. Each check entry uses structured fields only."
+    },
+    {
+      "check_id": "PCACC-EXCLUDED-SAVER-MARKDOWN",
+      "title": "Markdown SAVeR report",
+      "reason": "Forbidden in v3.5.0 PCACC output. PCACC output is JSON only; markdown narrative reports are not authoritative."
+    }
+  ],
+  "output_policy": {
+    "format": "json",
+    "free_text_rationale": false,
+    "allowed_status_values": [
+      "pass",
+      "fail",
+      "skipped_with_reason_code"
+    ],
+    "required_check_fields": [
+      "check_id",
+      "target",
+      "expected",
+      "actual",
+      "evidence_ref",
+      "status",
+      "reason_code"
+    ],
+    "forbidden_check_fields": [
+      "rationale",
+      "free_text_rationale",
+      "belief_state",
+      "reasoning_trace",
+      "confidence_score",
+      "self_audit"
+    ],
+    "result_artifact_path_template": "artifacts/verify/TASK-XXXX/precommit-check-result.json"
+  },
+  "limitations": [
+    "PCACC v3.5.0 is structural only; it does not verify reasoning faithfulness, hidden belief state, or model self-confidence.",
+    "PCACC detects violations but does not resolve them; resolution flows through the existing decision artifact workflow.",
+    "AC-to-verify coverage is deferred to v3.5.1; PCACC-DEFERRED-AC-COVERAGE in excluded_checks records the deferral.",
+    "PCACC-003 canonical reviewer set is conservative; expansion requires a future task lifecycle with explicit decision artifact authorization (no global model-brand-to-role binding per v3.5 plan §5.3).",
+    "PCACC-004 timestamp comparison uses ISO 8601 lexicographic order on Asia/Taipei dates; missing or malformed timestamps return skipped_with_reason_code with explicit reason_code.",
+    "PCACC does not perform validator module split (FIND-30, deferred to v3.5.1 / v3.6) and does not extract a policy registry (deferred to v3.5.1 / v3.6).",
+    "PCACC does not authorize TASK-1027 Artifact Obligation Matrix; that surface is owned by a separate task lifecycle."
+  ],
+  "non_authorization": "TASK-1026 only authorizes the four strict structural PCACC checks above. It does NOT authorize executing TASK-1027, implementing Artifact Obligation Matrix, AC-to-verify coverage, reasoning-faithfulness audit, belief-state audit, model self-confidence audit, free-text rationale, markdown SAVeR report, validator module split, policy registry extraction, ruff strict enforcement, FIND-18 Mitigated declaration, waiver registry creation, or style debt registry creation."
+}

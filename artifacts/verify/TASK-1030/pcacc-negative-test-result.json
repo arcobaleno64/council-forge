@@ -1,0 +1,133 @@
+{
+  "schema_version": "pcacc-negative-test-result/v1",
+  "task_id": "TASK-1030",
+  "generated_at": "2026-05-04T14:41:02+08:00",
+  "runner_ref": "artifacts/scripts/run_precommit_check.py",
+  "policy_ref": "artifacts/governance/precommit-check-policy.v3.5.json",
+  "fixture_root": "artifacts/verify/TASK-1030/fixtures/",
+  "isolation_strategy": "import run_precommit_check as module; invoke run_pcacc_001..004 with synthetic fixture repo_roots; invoke validate_policy with deepcopied synthetic policy mutations; runner unchanged; mirror unchanged; real policy unchanged",
+  "overall_status": "pass",
+  "cases": [
+    {
+      "case_id": "PCACC-NEG-001",
+      "title": "Missing lifecycle artifact (status.json absent)",
+      "pcacc_check_id": "PCACC-001",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-001-missing-lifecycle/"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "lifecycle_missing:status",
+      "actual_reason_code": "lifecycle_missing:status",
+      "pass": true,
+      "notes": "Synthetic lifecycle missing status.json; PCACC-001 must report lifecycle_missing:status."
+    },
+    {
+      "case_id": "PCACC-NEG-002",
+      "title": "Malformed Evidence Ref",
+      "pcacc_check_id": "PCACC-002",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-002-malformed-evidence-ref/"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs",
+      "actual_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+      "pass": true,
+      "notes": "Verify Evidence Refs entry 'garbage_token_not_a_known_prefix' matches no allowed path/HEAD/commit prefix; PCACC-002 must flag malformed_refs."
+    },
+    {
+      "case_id": "PCACC-NEG-003",
+      "title": "Missing Evidence Ref when required (empty section)",
+      "pcacc_check_id": "PCACC-002",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-003-missing-evidence-ref/"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "evidence_refs_section_empty",
+      "actual_reason_code": "evidence_refs_section_empty",
+      "pass": true,
+      "notes": "Verify file '## Evidence Refs' contains only '- None'; PCACC-002 must flag empty section."
+    },
+    {
+      "case_id": "PCACC-NEG-004",
+      "title": "Non-canonical owner/reviewer reference",
+      "pcacc_check_id": "PCACC-003",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-004-non-canonical-owner/"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "non_canonical",
+      "actual_reason_code": "non_canonical:status.current_owner=RogueAgent;task.Owner=RogueAgent",
+      "pass": true,
+      "notes": "status.current_owner='RogueAgent' and task.Owner='RogueAgent' violate canonical_owners=['Claude','Codex','Gemini']."
+    },
+    {
+      "case_id": "PCACC-NEG-005",
+      "title": "review_timestamp earlier than evidence_generated_at",
+      "pcacc_check_id": "PCACC-004",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-005-review-before-evidence/"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "review_before_evidence",
+      "actual_reason_code": "review_before_evidence",
+      "pass": true,
+      "notes": "review_ts=2026-05-04T10:00:00+08:00 < evidence_ts=2026-05-04T15:00:00+08:00; PCACC-004 strict comparison must reject review-before-evidence."
+    },
+    {
+      "case_id": "PCACC-NEG-006",
+      "title": "Missing timestamps must yield explicit reason_code (never silent pass)",
+      "pcacc_check_id": "PCACC-004",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-006-missing-timestamp-explicit-reason/"
+      ],
+      "expected_status": "skipped_with_reason_code",
+      "actual_status": "skipped_with_reason_code",
+      "expected_reason_code": "no_review_or_evidence_timestamp",
+      "actual_reason_code": "no_review_or_evidence_timestamp",
+      "pass": true,
+      "notes": "v3.5.0 PCACC-004 policy: 'Missing review_timestamp or evidence_generated_at returns skipped_with_reason_code, never silent pass.' This case proves no silent pass when timestamps are missing — operational equivalent of fail-without-silent-pass per prompt 8.6 'or equivalent' clause."
+    },
+    {
+      "case_id": "PCACC-NEG-007",
+      "title": "Forbidden free_text_rationale field activation",
+      "pcacc_check_id": "policy.output_policy.free_text_rationale",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-007-forbidden-free-text-rationale/mutated-policy.json"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "output_policy_free_text_rationale_must_be_false",
+      "actual_reason_code": "output_policy_free_text_rationale_must_be_false",
+      "pass": true,
+      "notes": "Synthetic policy mutation sets output_policy.free_text_rationale=true. validate_policy must reject and return the exact reason_code. Real precommit-check-policy.v3.5.json is NOT mutated."
+    },
+    {
+      "case_id": "PCACC-NEG-008",
+      "title": "Attempted AC-to-verify coverage activation as 5th active check",
+      "pcacc_check_id": "policy.checks_count",
+      "fixture_paths": [
+        "artifacts/verify/TASK-1030/fixtures/case-008-ac-coverage-activation/mutated-policy.json"
+      ],
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "checks_count_must_be_exactly_4_got_5",
+      "actual_reason_code": "checks_count_must_be_exactly_4_got_5",
+      "pass": true,
+      "notes": "Synthetic policy mutation appends PCACC-005 (AC-to-verify coverage) as a 5th active check. validate_policy must reject (must be exactly 4 checks). v3.5.1 explicitly defers AC-to-verify coverage. Real policy is NOT mutated."
+    }
+  ],
+  "limitations": [
+    "PCACC v3.5.0 controlled-negative tests run against synthetic fixtures and synthetic policy mutations only.",
+    "Real artifacts/scripts/run_precommit_check.py and template/artifacts/scripts/run_precommit_check.py are NOT modified by TASK-1030.",
+    "Real artifacts/governance/precommit-check-policy.v3.5.json is NOT mutated by TASK-1030.",
+    "Real production lifecycle artifacts (TASK-1023..TASK-1029) are NOT mutated to create negative cases.",
+    "Active PCACC check surface remains exactly PCACC-001..PCACC-004; AC-to-verify coverage and reasoning-faithfulness/belief-state/SAVeR remain excluded.",
+    "Case PCACC-NEG-006 expected_status='skipped_with_reason_code' aligns with v3.5.0 policy: missing timestamps yield explicit reason_code (never silent pass) — operational equivalent of fail-without-silent-pass per prompt 8.6 'or equivalent' clause.",
+    "Cases PCACC-NEG-007 and PCACC-NEG-008 exercise validate_policy on deepcopied synthetic policies; real policy is loaded read-only."
+  ]
+}

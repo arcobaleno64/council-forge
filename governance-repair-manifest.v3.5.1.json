@@ -1,0 +1,108 @@
+{
+  "schema_version": "governance-repair-manifest/v1",
+  "plan_version": "v3.5.1",
+  "plan_relation": {
+    "builds_on": "governance-repair-manifest.v3.5.json",
+    "supersedes": null
+  },
+  "reserved_task_range": {
+    "start": "TASK-1028",
+    "end": "TASK-1032"
+  },
+  "task_id_remapping": {
+    "applied": false,
+    "reason": "Preflight on 2026-05-04T15:00+08:00 confirmed all task IDs TASK-1028 through TASK-1032 are unused. No remapping required."
+  },
+  "execution_order": [
+    {
+      "prompt": "-1",
+      "task_id": "TASK-1028",
+      "name": "v3.5.1 Scope Freeze and Gate Proving Plan",
+      "depends_on": ["TASK-1023", "TASK-1024", "TASK-1025", "TASK-1026", "TASK-1027"]
+    },
+    {
+      "prompt": "0",
+      "task_id": "TASK-1029",
+      "name": "QC-SYNC-001 Controlled Negative Tests",
+      "depends_on": ["TASK-1028"]
+    },
+    {
+      "prompt": "1",
+      "task_id": "TASK-1030",
+      "name": "PCACC Controlled Negative Tests",
+      "depends_on": ["TASK-1028"]
+    },
+    {
+      "prompt": "2",
+      "task_id": "TASK-1031",
+      "name": "Validator/Test Monolith Characterization Expansion",
+      "depends_on": ["TASK-1029", "TASK-1030"]
+    },
+    {
+      "prompt": "3",
+      "task_id": "TASK-1032",
+      "name": "Policy Registry Extraction Design Decision",
+      "depends_on": ["TASK-1031"]
+    }
+  ],
+  "execution_dag_note": "Linear trunk TASK-1028; after TASK-1028 the graph forks into two parallel branches (TASK-1029 QC-SYNC negative tests, TASK-1030 PCACC negative tests); both must complete before TASK-1031 (characterization expansion); TASK-1032 (policy registry design decision) follows TASK-1031. Numeric task ID order is NOT execution order; manifest execution_order is authoritative.",
+  "findings_inherited_from_v3_5_0": [
+    {
+      "finding_id": "FIND-29",
+      "title": "Source/template sync fragility",
+      "priority": "high",
+      "v3_5_1_handler": "TASK-1029 (controlled negative tests prove QC-SYNC-001 enforcement)"
+    },
+    {
+      "finding_id": "FIND-30",
+      "title": "Validator and test monolith maintainability risk",
+      "priority": "high",
+      "v3_5_1_handler": "TASK-1031 (characterization expansion as readiness gate for v3.6 split)"
+    },
+    {
+      "finding_id": "FIND-31",
+      "title": "Multi-model style and behavior drift",
+      "priority": "high",
+      "v3_5_1_handler": "deferred (no v3.5.1 task; v3.5.2 candidate if data warrants)"
+    },
+    {
+      "finding_id": "FIND-32",
+      "title": "Cross-artifact consistency blind spot",
+      "priority": "medium-high",
+      "v3_5_1_handler": "TASK-1030 (controlled negative tests prove PCACC enforcement)"
+    },
+    {
+      "finding_id": "FIND-33",
+      "title": "Artifact obligation ambiguity",
+      "priority": "medium",
+      "v3_5_1_handler": "deferred (AOM matrix in v3.5.0 sufficient; v3.5.2 candidate for runtime validator)"
+    }
+  ],
+  "version_split_rule_inherited": {
+    "v3.5.0": "controls before refactor (closed)",
+    "v3.5.1": "gate proving and refactor readiness: prove v3.5.0 controls via controlled negative tests; characterize validator/test monolith; decide policy registry extraction; FORBID validator module split; FORBID policy registry implementation; FORBID document content generation; FORBID PCACC scope creep beyond four checks",
+    "v3.5.2": "maintenance policies after evidence accumulates (unchanged from v3.5.0)",
+    "v3.6": "structural evolution after behavior is characterized (unchanged from v3.5.0; requires v3.5.x characterization tests and gates green for at least one release cycle)"
+  },
+  "non_authorization": "TASK-1028 only authorizes creation of the v3.5.1 plan, manifest, and its own lifecycle artifacts. It does not authorize executing TASK-1029, TASK-1030, TASK-1031, TASK-1032, or any later v3.5.x / v3.6 task. It does not authorize modifying TASK-1023..TASK-1027 lifecycle artifacts or deliverables, modifying v3.5.0 governance policy or runners, modifying v3.5 plan or v3.5 manifest, implementing controlled negative tests, expanding characterization corpus, extracting policy registry, splitting validator modules, generating document content (SRS / RTM / design spec / threat model / release note / migration note / user guide / operation runbook), modifying Bootstrap Prompt Skill artifacts, declaring FIND-18 as Mitigated, creating waiver registry / style debt registry / policy registry, expanding PCACC beyond four checks, expanding P0 quality gates beyond four gates, or expanding AOM matrix beyond eleven rules.",
+  "preflight_evidence_ref": "artifacts/verify/TASK-1028.verify.md#preflight-evidence",
+  "v3_5_1_plan_ref": "artifacts/governance/v3.5.1-gate-proving-plan.md",
+  "find_18_status_rule_inherited": "FIND-18 transition from In-Progress to Mitigated requires all four prerequisites: CI exact-sync guard for root<->template pairs, drift regression case in test corpus, decision path evidence, and clean guard_contract_validator run. v3.5.1 does NOT declare FIND-18 Mitigated.",
+  "agent_roles_policy_inherited": {
+    "global_role_definitions": ["implementer", "architecture_critic", "negative_tester", "final_approver"],
+    "model_assignment": "per-task metadata only",
+    "global_model_brand_to_role_binding": "forbidden",
+    "implementer_and_final_approver": "must not be the same model",
+    "final_approver": "must be human"
+  },
+  "v3_5_0_closure_evidence": {
+    "TASK-1023": {"state": "done", "verify_result": "pass", "commit": "a40f6bc"},
+    "TASK-1024": {"state": "done", "verify_result": "pass", "commit": "249d26f"},
+    "TASK-1025": {"state": "done", "verify_result": "pass", "commit": "6da55ed", "repair_pass": 2},
+    "TASK-1026": {"state": "done", "verify_result": "pass", "commit_impl": "a3aaeec", "commit_status_seal": "4ecafd8"},
+    "TASK-1027": {"state": "done", "verify_result": "pass", "commit": "d6d878b"}
+  },
+  "head_at_manifest_creation": "d6d878b41327df889ef9c34cf4871a1a471d6b46",
+  "created_at": "2026-05-04T15:15:00+08:00",
+  "created_by": "TASK-1028"
+}

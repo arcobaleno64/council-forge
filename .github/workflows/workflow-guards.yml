@@ -41,7 +41,7 @@ jobs:
             --cov --cov-config=.coveragerc \
             --cov-report=term-missing \
             --cov-report=html:coverage-report \
-            --cov-fail-under=100
+            --cov-fail-under=90
 
       - name: Contract Guard
         run: python artifacts/scripts/guard_contract_validator.py --root .

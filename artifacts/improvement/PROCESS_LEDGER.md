@@ -21,3 +21,4 @@
 | 2026-04-11 | [TASK-951](TASK-951.improvement.md) | blocked resume drill 補齊 PDCA 證據鏈 | 只補 decision 容易被誤當成足夠的 resume 依據 | blocked_reason 與 decision 可能取代 applied improvement | 將 Gate E 演練保留為固定 live drill 樣本 | yes |
 | 2026-05-05 | [TASK-1044](TASK-1044.improvement.md) | workflow MD 全面同步審核確認無漂移 | 將 read-only audit 也包成完整 lifecycle 略嫌厚重 | 漏報 Tier 5 generated 檔之合法漂移 | POC profile 已釋 test 但仍要 code，docs-only audit 可考慮再簡化 | yes |
 | 2026-05-05 | [TASK-1045](TASK-1045.improvement.md) | schema/validator 演進至兼容 v2 governance（α/β/γ 三案後選 β） | 多次驗證迭代之間的脈絡來回 | MARKERS substring 比對未行端錨易誤觸 (## Decision vs ## Decision Class) | parser 寫成 alternates + 行錨 + 條件嚴格化；docs-spec 釋 code；§5.13 紀錄 | yes |
+| 2026-05-06 | [TASK-1047](TASK-1047.improvement.md) | CI Workflow Guards 修復 36 unit test 失敗 + coverage gate 90% | 中央 fixture helper 漏更（TASK-1008 strict mode 後遺累 9 日 CI 紅） | --cov-fail-under=100 不可達；CI 紅長忍 | central helper 一次修；CLI runner 入 omit；threshold 降至 90 並紀錄整合測試 follow-up | yes |

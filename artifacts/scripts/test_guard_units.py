@@ -1017,6 +1017,9 @@ class TestContextStackChecks:
     def test_main_passes_on_valid_repo(self, tmp_path, monkeypatch, capsys):
         self._build_valid_repo(tmp_path)
         monkeypatch.setattr(sys, "argv", ["validate_context_stack.py", "--root", str(tmp_path)])
+        # init_streams() rewrites sys.stdout when encoding != utf-8; that breaks pytest's
+        # capsys capture path. Patch it to a no-op for this test.
+        monkeypatch.setattr(vcs, "init_streams", lambda *a, **kw: None)
         assert vcs.main() == 0
         captured = capsys.readouterr()
         assert "PASSED" in captured.out
@@ -1950,6 +1953,10 @@ class TestValidateStatusSchema:
             "required_artifacts": ["task", "status"],
             "available_artifacts": ["task", "status"],
             "missing_artifacts": [],
+            "assurance_level": "poc",
+            "project_adapter": "generic",
+            "verification_readiness": "poc",
+            "open_verification_debts": [],
             "blocked_reason": "",
             "last_updated": "2026-01-15T10:00:00+08:00",
         }
@@ -2818,6 +2825,10 @@ class TestValidateStatusSchemaDecisionWaivers:
             "required_artifacts": ["task", "status"],
             "available_artifacts": ["task", "status"],
             "missing_artifacts": [],
+            "assurance_level": "poc",
+            "project_adapter": "generic",
+            "verification_readiness": "poc",
+            "open_verification_debts": [],
             "blocked_reason": "",
             "last_updated": "2026-01-15T10:00:00+08:00",
         }
@@ -2885,6 +2896,10 @@ class TestValidateStatusSchemaAutoUpgradeLog:
             "required_artifacts": ["task", "status"],
             "available_artifacts": ["task", "status"],
             "missing_artifacts": [],
+            "assurance_level": "poc",
+            "project_adapter": "generic",
+            "verification_readiness": "poc",
+            "open_verification_debts": [],
             "blocked_reason": "",
             "last_updated": "2026-01-15T10:00:00+08:00",
         }
@@ -4019,7 +4034,13 @@ def _future_ts():
 
 
 def _make_full_status(task_id, state="drafted", **overrides):
-    """Build a valid modern status.json dict."""
+    """Build a valid modern status.json dict.
+
+    TASK-1008 strict mode requires `assurance_level`; TASK-1047 added it as
+    a default here so that test fixtures default to a valid status payload.
+    Tests that intentionally exercise the missing-field path should pass
+    `assurance_level=None` or pop it from the returned dict.
+    """
     base = {
         "task_id": task_id,
         "state": state,
@@ -4028,6 +4049,10 @@ def _make_full_status(task_id, state="drafted", **overrides):
         "required_artifacts": ["task", "status"],
         "available_artifacts": ["task", "status"],
         "missing_artifacts": [],
+        "assurance_level": "poc",
+        "project_adapter": "generic",
+        "verification_readiness": "poc",
+        "open_verification_debts": [],
         "blocked_reason": "",
         "last_updated": _ts(),
     }
@@ -4106,6 +4131,10 @@ def _build_task_artifact(tmp_path, task_id):
         None
         ## Acceptance Criteria
         Done when tested
+        ## Assurance Level
+        poc
+        ## Project Adapter
+        generic
     """)
     p = d / f"{task_id}.task.md"
     p.write_text(content, encoding="utf-8")
@@ -5917,28 +5946,28 @@ class TestVcsUtf8Wrapping:
     """Cover L19, L21: module-level stdout/stderr UTF-8 wrapping."""
 
     def test_wraps_non_utf8_stdout(self):
-        import importlib, io as _io
+        # init_streams is now an explicit CLI helper rather than module-import side effect;
+        # call it directly instead of relying on importlib.reload to trigger the wrap.
+        import io as _io
         orig_stdout = sys.stdout
         try:
             fake = _io.TextIOWrapper(_io.BytesIO(), encoding="ascii")
             sys.stdout = fake
-            importlib.reload(vcs)
+            vcs.init_streams()
             assert sys.stdout.encoding == "utf-8"
         finally:
             sys.stdout = orig_stdout
-            importlib.reload(vcs)
 
     def test_wraps_non_utf8_stderr(self):
-        import importlib, io as _io
+        import io as _io
         orig_stderr = sys.stderr
         try:
             fake = _io.TextIOWrapper(_io.BytesIO(), encoding="ascii")
             sys.stderr = fake
-            importlib.reload(vcs)
+            vcs.init_streams()
             assert sys.stderr.encoding == "utf-8"
         finally:
             sys.stderr = orig_stderr
-            importlib.reload(vcs)
 
 
 # ─────────────────────────────────────────────
@@ -7448,7 +7477,7 @@ class TestGsvValidateTransitionGateE:
 
 def _setup_valid_done_tree(tmp_path, task_id="TASK-001"):
     """Set up a complete artifact tree for 'done' state with properly formatted artifacts."""
-    _write_markdown_artifact(tmp_path, task_id, "task", "## Objective\nTest objective\n## Constraints\nSome constraints\n## Acceptance Criteria\nDone when tested\n")
+    _write_markdown_artifact(tmp_path, task_id, "task", "## Objective\nTest objective\n## Constraints\nSome constraints\n## Acceptance Criteria\nDone when tested\n## Assurance Level\npoc\n## Project Adapter\ngeneric\n")
     plan_extra = (
         "## Scope\nTest scope\n"
         "## Files Likely Affected\n- `src/main.py`\n- `tests/test_main.py`\n"
@@ -10212,11 +10241,19 @@ class TestRrtsRunCommand:
     def test_allows_approved_env_override(self, monkeypatch):
         captured = {}
 
-        def fake_subprocess_run(args, **kwargs):
-            captured["env"] = kwargs.get("env")
-            return subprocess.CompletedProcess(args=args, returncode=0, stdout="ok", stderr="")
+        class FakePopen:
+            def __init__(self, args, **kwargs):
+                captured["args"] = args
+                captured["env"] = kwargs.get("env")
+                self.returncode = 0
+            def __enter__(self):
+                return self
+            def __exit__(self, *a):
+                return False
+            def communicate(self, timeout=None):
+                return ("ok", "")
 
-        monkeypatch.setattr(subprocess, "run", fake_subprocess_run)
+        monkeypatch.setattr(subprocess, "Popen", FakePopen)
         result = rrts.run_command(
             [sys.executable, "-c", "print('x')"],
             env={rrts.GITHUB_API_ALLOWED_HOSTS_ENV: "127.0.0.1"},
@@ -10776,7 +10813,7 @@ class TestRrtsCaseRT001to010:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args), returncode=0,
                 stdout="deadbeef" * 5 + "\n[OK] pass\n", stderr="",
@@ -10829,7 +10866,7 @@ class TestRrtsCaseRT011to020:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args), returncode=0,
                 stdout="deadbeef" * 5 + "\n[OK] pass\n", stderr="",
@@ -10882,7 +10919,7 @@ class TestRrtsCaseRT021to023:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args), returncode=0,
                 stdout="deadbeef" * 5 + "\n[OK] pass\n[AUTO-UPGRADE] done\n", stderr="",
@@ -10907,7 +10944,7 @@ class TestRrtsCaseRT024to029:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None, env=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args),
                 returncode=0,
@@ -10958,7 +10995,7 @@ class TestRrtsCaseLive:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args), returncode=0,
                 stdout="[OK] Validation passed\n", stderr="",
@@ -10979,7 +11016,7 @@ class TestRrtsCasePrompt:
 
     @pytest.fixture(autouse=True)
     def _mock_run(self, monkeypatch):
-        def fake(args, cwd=None):
+        def fake(args, cwd=None, env=None, timeout=None, **kwargs):
             return subprocess.CompletedProcess(
                 args=list(args), returncode=0,
                 stdout="Prompt Regression Report\n", stderr="",
@@ -11927,6 +11964,9 @@ class TestGuardStatusValidatorCoverageCatchup:
 
     def test_validate_markdown_artifact_task_with_invalid_profile(self, tmp_path, monkeypatch):
         task_path = tmp_path / "TASK-X.task.md"
+        # Strict mode reads Assurance Level from raw text; write alien value directly so
+        # the raw-text check fires. Project Adapter is checked via resolved value, so the
+        # monkeypatch on resolve_project_adapter still drives that error path.
         text = (
             "# Task: TASK-X\n"
             "## Metadata\n"
@@ -11936,15 +11976,16 @@ class TestGuardStatusValidatorCoverageCatchup:
             "- Status: approved\n"
             "- Last Updated: 2026-01-15T10:00:00+08:00\n"
             "## Assurance Level\n"
-            "poc\n"
+            "alien-level\n"
             "## Project Adapter\n"
             "generic\n"
+            "## Acceptance Criteria\n"
+            "Done\n"
         )
         task_path.write_text(text, encoding="utf-8")
-        monkeypatch.setattr(gsv, "resolve_assurance_level", lambda *a, **kw: "alien-level")
         monkeypatch.setattr(gsv, "resolve_project_adapter", lambda *a, **kw: "alien-adapter")
         result = gsv.validate_markdown_artifact(task_path, "task", "TASK-X")
-        assert any("invalid Assurance Level" in e for e in result.errors)
+        assert any("is not a valid assurance level" in e for e in result.errors)
         assert any("invalid Project Adapter" in e for e in result.errors)
 
     def test_validate_markdown_artifact_plan_missing_verification_obligations(self, tmp_path):

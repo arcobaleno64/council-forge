@@ -1,0 +1,434 @@
+{
+  "schema_version": "waiver-runtime-authorization-readiness-matrix/v1",
+  "plan_version": "v3.5.9",
+  "created_by_task": "TASK-1041",
+  "generated_at": "2026-05-06T00:10:00+08:00",
+  "decision_status": "decision_only",
+  "implementation_authorized": false,
+  "runtime_consumption_authorized": false,
+  "source_refs": {
+    "task_1040_runtime_extraction_plan_md": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+    "task_1040_runtime_extraction_plan_json": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+    "task_1040_inspection_evidence": "artifacts/verify/TASK-1040/waiver-runtime-extraction-plan-inspection.json",
+    "task_1039_waiver_policy_registry_prototype_json": "artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json",
+    "task_1039_waiver_policy_registry_prototype_design_md": "artifacts/governance/waiver-policy-registry-prototype-design.v3.5.7.md",
+    "evidence_ref_policy_registry": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+    "task_1037_golden_cli_coverage_result": "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+    "task_1037_golden_cli_case_manifest": "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+    "v3_5_x_governance_closure_index": "artifacts/governance/v3.5.x-governance-closure-index.json"
+  },
+  "readiness_decision": {
+    "decision": "ready_for_separate_human_authorization",
+    "rationale": "TASK-1040 runtime extraction plan markdown (17 sections) and JSON (21 top-level fields, 24 fail-closed rows, 19 golden CLI requirements, 15 future-task acceptance criteria FTC-1..FTC-15, 48 non_authorization keys all false) are complete and verified (TASK-1040 inspection JSON overall_status=pass with 25/25 checks pass). TASK-1039 prototype remains design-only. TASK-1038 v3.5.x closure index protected_surfaces remain intact. TASK-1037 24 golden CLI cases are frozen and provide the repair schema template (split actual_status / observed_cli_status). TASK-1035 Evidence Ref runtime extraction has already validated the explicit-CLI activation pattern (--evidence-ref-policy) which the future --waiver-policy implementation will mirror. All FTC-1..FTC-15 future-task acceptance criteria are individually scorable and the seven gates (golden CLI, Evidence Ref, runner mirror, fail-closed, rollback, human authorization, Codex verification) are surfaced with explicit acceptance criteria. The decision indicates that the planning context is sufficient to permit a separately authorized future implementation lifecycle; it does NOT authorize implementation by itself.",
+    "requires_separate_human_authorization": true,
+    "implementation_authorized_by_this_task": false
+  },
+  "readiness_criteria": [
+    {
+      "criterion_id": "explicit_human_authorization_required",
+      "description": "Future implementation lifecycle must obtain explicit human authorization (arcobaleno) before any file modification; mirrors TASK-1040 plan FTC-1.",
+      "status": "deferred_to_future_task",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-1]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "implementation_scope_allowlist_defined",
+      "description": "Implementation scope allowlist must be defined and enforced; staging set limited to TASK-1042 lifecycle artifacts, runtime registry JSON, run_quality_gates.py runner mirror pair, and TASK-1042 evidence; mirrors TASK-1040 plan FTC-2.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_allowlist;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-2]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "runner_mirror_preservation_defined",
+      "description": "Root runner and template mirror sha256 prefix must remain consistent; remaining four production validator/test files sha256 prefix unchanged; mirrors TASK-1040 plan FTC-3 / PR-1..PR-8.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#runner_mirror_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#runner_mirror_preservation",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "default_behavior_unchanged_required",
+      "description": "Without --waiver-policy flag, quality gate run must pass TASK-1029 fixtures byte-identically; mirrors TASK-1040 plan FTC-4 / BC-1.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#backward_compatibility;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-4]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "fail_closed_tests_required",
+      "description": "FC-01..FC-24 corresponding controlled fixtures and negative-case tests must land in future implementation; mirrors TASK-1040 plan FTC-5 / fail_closed_matrix.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#fail_closed_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#fail_closed_matrix",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "golden_cli_cases_required",
+      "description": "GCLI-WAIVER-001..019 must all lock in future implementation result JSON; inherits TASK-1037 repair schema; mirrors TASK-1040 plan FTC-6 / golden_cli_coverage_requirements.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#golden_cli_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#golden_cli_coverage_requirements",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "evidence_ref_enforcement_required",
+      "description": "FC-16 corresponding controlled negative case must pass; waiver evidence_ref must route through evidence-ref-policy.v3.5.3.json (or successor); mirrors TASK-1040 plan FTC-7 / evidence_ref_integration.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#evidence_ref_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#evidence_ref_integration",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "no_validator_split_required",
+      "description": "Five production validator/test files (guard_status_validator.py, guard_contract_validator.py, workflow_constants.py, run_red_team_suite.py, test_guard_units.py) sha256 prefix must remain unchanged; mirrors TASK-1040 plan FTC-8.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_non_goals[NG-1];artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-8]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "no_pcacc_active_check_expansion_required",
+      "description": "PCACC active surface must remain four (PCACC-001..PCACC-004); PCACC-005 must not be introduced; mirrors TASK-1040 plan FTC-9 / BC-8.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_non_goals[NG-2];artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-9]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "no_ac_to_verify_activation_required",
+      "description": "AC-to-verify coverage must remain excluded; mirrors TASK-1040 plan FTC-10 / BC-9.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_non_goals[NG-4];artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-10]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "codex_post_commit_pass_required",
+      "description": "Codex (agent_roles.negative_tester) must perform read-only PASS/FAIL verification on the future implementation commit and the result must be PASS; mirrors TASK-1040 plan FTC-11.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#codex_verification_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-11]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "rollback_plan_required",
+      "description": "Rollback strategy (RB-1..RB-9) must be inheritable into the future implementation lifecycle; rollback restores runner/template pair, preserves prototype/design and TASK-1040 plan artifacts as historical records, and does not lift any non_authorization boundary; mirrors TASK-1040 plan §13.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#rollback_gate;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#rollback_strategy",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "no_prior_task_artifact_retroactive_modification",
+      "description": "Future implementation lifecycle must not retroactively modify TASK-1023..TASK-1041 lifecycle artifacts; mirrors TASK-1040 plan FTC-12.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_non_goals[NG-15];artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-12]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "non_authorization_preserved",
+      "description": "Future implementation lifecycle must not lift TASK-1040 plan JSON non_authorization boundary (except runtime consumption surface explicitly authorized by FTC-1); mirrors TASK-1040 plan FTC-13.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#non_authorization;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-13]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "runtime_registry_path_separated_from_prototype",
+      "description": "Runtime registry must live at artifacts/governance/waiver-policy-registry.v<version>.json (active runtime path); separate from prototype path (artifacts/governance/prototypes/...); prototype must not be promoted to runtime registry; mirrors TASK-1040 plan FTC-14.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json#future_implementation_allowlist;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-14]",
+      "blocking_if_missing": true
+    },
+    {
+      "criterion_id": "runtime_registry_schema_version_distinct_from_prototype",
+      "description": "Runtime registry schema_version must be waiver-policy-registry/v1 (distinct from prototype's waiver-policy-registry-prototype/v1); mirrors TASK-1040 plan FTC-15 / runtime_loading_model LM-2.",
+      "status": "satisfied",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#runtime_loading_model;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria[FTC-15]",
+      "blocking_if_missing": true
+    }
+  ],
+  "future_implementation_allowlist": [
+    {
+      "path_pattern": "artifacts/scripts/run_quality_gates.py",
+      "purpose": "quality gate runner activation surface; receives --waiver-policy <path> argument and load_waiver_registry() loader",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "high"
+    },
+    {
+      "path_pattern": "template/artifacts/scripts/run_quality_gates.py",
+      "purpose": "template mirror; must remain byte-identical with root after authorized changes",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "high"
+    },
+    {
+      "path_pattern": "artifacts/governance/waiver-policy-registry.v<version>.json",
+      "purpose": "runtime registry skeleton at active runtime path; schema_version=waiver-policy-registry/v1; initial waivers=[]",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "high"
+    },
+    {
+      "path_pattern": "artifacts/verify/TASK-1042/...",
+      "purpose": "TASK-1042 evidence path (fixtures, result JSONs, inspection JSONs)",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    },
+    {
+      "path_pattern": "artifacts/tasks/TASK-1042.task.md",
+      "purpose": "TASK-1042 task lifecycle artifact",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    },
+    {
+      "path_pattern": "artifacts/plans/TASK-1042.plan.md",
+      "purpose": "TASK-1042 plan lifecycle artifact",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    },
+    {
+      "path_pattern": "artifacts/decisions/TASK-1042.decision.md",
+      "purpose": "TASK-1042 decision lifecycle artifact",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    },
+    {
+      "path_pattern": "artifacts/verify/TASK-1042.verify.md",
+      "purpose": "TASK-1042 verify lifecycle artifact",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    },
+    {
+      "path_pattern": "artifacts/status/TASK-1042.status.json",
+      "purpose": "TASK-1042 status lifecycle artifact",
+      "authorized_now": false,
+      "future_task_required": "TASK-1042",
+      "risk": "medium"
+    }
+  ],
+  "future_implementation_non_goals": [
+    {"non_goal_id": "NG-1", "description": "no validator split (5 production validator/test files sha256 prefix must not change)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-2", "description": "no PCACC active check expansion (PCACC active surface must remain four)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-3", "description": "no PCACC-005 introduction", "blocking_if_violated": true},
+    {"non_goal_id": "NG-4", "description": "no AC-to-verify activation", "blocking_if_violated": true},
+    {"non_goal_id": "NG-5", "description": "no production validator/test modification unless separately authorized", "blocking_if_violated": true},
+    {"non_goal_id": "NG-6", "description": "no Evidence Ref policy mutation unless separately authorized", "blocking_if_violated": true},
+    {"non_goal_id": "NG-7", "description": "no waiver prototype mutation; runtime_registry_promotion_from_prototype_authorized must remain false", "blocking_if_violated": true},
+    {"non_goal_id": "NG-8", "description": "no default behavior change without explicit --waiver-policy CLI flag", "blocking_if_violated": true},
+    {"non_goal_id": "NG-9", "description": "no automatic discovery (runner must not scan any default path)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-10", "description": "no environment-variable-only activation (e.g. WAIVER_POLICY env var must not trigger registry load alone)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-11", "description": "no document generation pipeline (no SRS / RTM / threat model / migration / user guide / runbook content under future task scope)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-12", "description": "no PCACC runner waiver registry attachment (run_precommit_check.py must not load waiver registry directly)", "blocking_if_violated": true},
+    {"non_goal_id": "NG-13", "description": "no EXACT_SYNC_FILES extension unless separately authorized", "blocking_if_violated": true},
+    {"non_goal_id": "NG-14", "description": "no broad runner execution outside controlled fixtures during verification", "blocking_if_violated": false},
+    {"non_goal_id": "NG-15", "description": "no prior task artifact retroactive modification (TASK-1023..TASK-1041 lifecycle must remain intact)", "blocking_if_violated": true}
+  ],
+  "golden_cli_gate": {
+    "gate_id": "golden_cli_gate",
+    "purpose": "future implementation must add 19 GCLI-WAIVER-001..019 cases covering default-unchanged, valid no-match, valid active suppression, expired, missing/malformed expires_at, missing/unknown field, malformed registry, schema mismatch, Evidence Ref violation, scope mismatch, wildcard-only, broad repo-wide, duplicate, conflicting, revoked, superseded, invalid status; existing 24 TASK-1037 cases must continue to pass.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "GCLI-WAIVER-001 default behavior unchanged without --waiver-policy",
+      "GCLI-WAIVER-002 valid registry no-match accepted",
+      "GCLI-WAIVER-003 valid active unexpired waiver suppresses only targeted finding",
+      "GCLI-WAIVER-004 expired waiver blocking",
+      "GCLI-WAIVER-005 missing expires_at blocking",
+      "GCLI-WAIVER-006 malformed expires_at blocking",
+      "GCLI-WAIVER-007 missing required field blocking",
+      "GCLI-WAIVER-008 unknown field blocking",
+      "GCLI-WAIVER-009 malformed registry blocking (exit 2)",
+      "GCLI-WAIVER-010 schema mismatch blocking (exit 2)",
+      "GCLI-WAIVER-011 Evidence Ref violation blocking (exit 2)",
+      "GCLI-WAIVER-012 scope mismatch blocking",
+      "GCLI-WAIVER-013 wildcard-only scope blocking (exit 2)",
+      "GCLI-WAIVER-014 broad repo-wide waiver blocking (exit 2)",
+      "GCLI-WAIVER-015 duplicate waiver_id blocking (exit 2)",
+      "GCLI-WAIVER-016 conflicting waivers blocking (exit 2)",
+      "GCLI-WAIVER-017 revoked waiver blocking",
+      "GCLI-WAIVER-018 superseded waiver blocking",
+      "GCLI-WAIVER-019 invalid status blocking (exit 2)",
+      "default unchanged (no finding suppressed when --waiver-policy absent)",
+      "TASK-1037 24 golden CLI cases continue to pass without regression",
+      "each case inherits TASK-1037 repair schema (split actual_status / observed_cli_status)"
+    ],
+    "blocking_if_missing": true
+  },
+  "evidence_ref_gate": {
+    "gate_id": "evidence_ref_gate",
+    "purpose": "waiver registry evidence_ref entries must resolve under artifacts/governance/evidence-ref-policy.v3.5.3.json and reject forbidden paths/tokens; runtime must not bypass evidence-ref-policy registry.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "local artifact refs only unless later policy explicitly allows otherwise",
+      "absolute paths rejected",
+      "parent traversal (../) rejected",
+      "remote URLs (http://, https://, ftp://, file://, ssh://, git://, git+ssh://) rejected",
+      "shell tokens rejected",
+      "forbidden root directories (.obsidian, .omc, .tmp, .pytest-basetemp, __pycache__, .pytest_cache, node_modules, .venv, .git) rejected",
+      "missing required evidence_ref blocking (FC-15)",
+      "RRC-5 alignment required (verify artifact echoes decision artifact ## Guard Exception Scope Files when waiver targets scope-drift finding)",
+      "runtime must delegate to evidence-ref-policy registry (no in-module evidence_ref check substituted at runtime)",
+      "Evidence Ref violation maps to fail-closed FC-16 (exit_code=2)"
+    ],
+    "blocking_if_missing": true
+  },
+  "runner_mirror_gate": {
+    "gate_id": "runner_mirror_gate",
+    "purpose": "root runner (run_quality_gates.py) and template mirror must remain byte-identical (sha256 prefix comparison) after authorized changes; remaining four production validator/test files sha256 prefix must not change.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "root runner and template mirror byte-identical after authorized changes (sha256 prefix comparison)",
+      "diff limited to authorized runner files and future task evidence path",
+      "default behavior preserved without explicit --waiver-policy CLI argument",
+      "golden CLI coverage updated before closure (GCLI-WAIVER-001..019 all locked)",
+      "five production validator/test files sha256 prefix unchanged (guard_status_validator.py prefix d58a41f6ca49ccfe; guard_contract_validator.py prefix 7a38af7e2e0af5b7; workflow_constants.py prefix e1f09d2100b5685f; run_red_team_suite.py prefix 77540c3b29f6ece6; test_guard_units.py prefix 5c7228c9997edffd)",
+      "template mirror sha256 prefix consistent with root mirror (run_quality_gates.py pair prefix 456b8328482b18a5; run_precommit_check.py pair prefix 4dbb8a219093cc12)",
+      "future task verify artifact must contain sha256 prefix comparison table mirroring TASK-1037 result JSON production_preservation.targets table",
+      "EXACT_SYNC_FILES must not be extended (unless separately authorized by another decision artifact)"
+    ],
+    "blocking_if_missing": true
+  },
+  "fail_closed_gate": {
+    "gate_id": "fail_closed_gate",
+    "purpose": "invalid registry or invalid waiver must not partially suppress findings; runtime loader must fail closed with stable reason_code surface (FC-01..FC-24).",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "registry load failure (FC-01..FC-06, FC-12..FC-16, FC-18..FC-21) exit_code=2 blocking; no partial application",
+      "waiver-level failure (FC-07..FC-11, FC-17, FC-24) exit_code=1 blocking; waiver does not suppress finding",
+      "valid active row (FC-22, FC-23) exit_code=0 with suppression_allowed=future_targeted_only (only matched finding suppressed)",
+      "no silent skip (unmatched waiver routes to FC-17 scope_mismatch)",
+      "machine-readable load failure envelope ({\"error\":\"waiver_registry_load_failed\",\"reason_code\":\"<code>\"}) mirrors TASK-1037 GCLI-PRECOMMIT-FAILCLOSED-001..004 envelope shape",
+      "reason_code surface preserves TASK-1039 prototype validation_semantics.registry_load_failure_reason_codes (9 codes) and reason_code_policy.qc_sync_001_runtime_reason_code_alignment (5 surfaces) byte-identically"
+    ],
+    "blocking_if_missing": true
+  },
+  "rollback_gate": {
+    "gate_id": "rollback_gate",
+    "purpose": "future implementation must inherit TASK-1040 plan rollback strategy (RB-1..RB-9); rollback restores runner/template pair and preserves design / plan / readiness artifacts; rollback does not lift any non_authorization boundary.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "RB-1 remove explicit CLI activation (remove --waiver-policy argument and loader code path)",
+      "RB-2 restore runner / template pair from previous commit (git checkout <pre-future-task sha> -- artifacts/scripts/run_quality_gates.py template/artifacts/scripts/run_quality_gates.py)",
+      "RB-3 preserve prototype / design artifacts as historical records",
+      "RB-4 preserve TASK-1040 plan artifacts as historical records",
+      "RB-5 preserve TASK-1041 readiness decision artifacts as historical records; do not delete prior evidence",
+      "RB-6 create repair / rollback lifecycle task",
+      "RB-7 Codex performs read-only verification on post-rollback working tree",
+      "RB-8 post-rollback quality gate run again passes TASK-1029 QC-SYNC-001 fixtures byte-identically",
+      "RB-9 rollback does not lift any non_authorization boundary; rollback is surface restoration, not authorization expansion"
+    ],
+    "blocking_if_missing": true
+  },
+  "human_authorization_gate": {
+    "gate_id": "human_authorization_gate",
+    "purpose": "future implementation cannot start without explicit human (arcobaleno) authorization recorded after this readiness decision lands; this readiness decision does not by itself authorize implementation.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "explicit human authorization (arcobaleno) recorded as future task prompt or future task decision artifact",
+      "authorization timestamp precedes any file modification by future task",
+      "authorization scope limited to future task staging allowlist (run_quality_gates.py mirror pair + runtime registry JSON + future TASK-1042 lifecycle and evidence)",
+      "authorization does not implicitly extend to PCACC runner attachment, validator/test modification, governance policy modification, or prototype mutation",
+      "authorization does not derive from this readiness decision's ready_for_separate_human_authorization value alone",
+      "scope override for any item outside the staging allowlist requires a separate decision artifact"
+    ],
+    "blocking_if_missing": true
+  },
+  "codex_verification_gate": {
+    "gate_id": "codex_verification_gate",
+    "purpose": "future implementation commit must pass Codex (agent_roles.negative_tester) post-commit read-only PASS/FAIL verification before closure; mirrors TASK-1037 / TASK-1038 / TASK-1039 / TASK-1040 negative_tester pattern.",
+    "required_for_future_implementation": true,
+    "authorized_now": false,
+    "acceptance_criteria": [
+      "Codex performs read-only verification only (no working tree modification)",
+      "verify covers staging set is limited to future TASK staging allowlist",
+      "verify covers 19 GCLI-WAIVER-001..019 cases in result JSON and case manifest",
+      "verify covers FC-01..FC-24 controlled fixture results",
+      "verify covers Evidence Ref enforcement (FC-16 controlled negative case passes)",
+      "verify covers runner / template mirror sha256 prefix comparison table",
+      "verify covers five production validator/test files sha256 prefix unchanged",
+      "verify covers prior task artifacts not retroactively modified",
+      "any FAIL result sets future task status to blocked and prevents closure"
+    ],
+    "blocking_if_missing": true
+  },
+  "future_task_constraints": {
+    "future_task_id": "TASK-1042",
+    "future_task_advisory_only": true,
+    "future_task_must_obtain_explicit_human_authorization_before_start": true,
+    "future_task_staging_set_limited_to_allowlist": true,
+    "future_task_must_satisfy_all_readiness_criteria": true,
+    "future_task_must_satisfy_all_seven_gates": true,
+    "future_task_must_not_lift_non_authorization_boundary_recorded_here": true,
+    "future_task_must_preserve_task_1023_to_1041_lifecycle_artifacts": true,
+    "future_task_must_preserve_task_1040_plan_artifacts": true,
+    "future_task_must_preserve_task_1039_prototype_artifacts": true,
+    "future_task_must_preserve_v3_5_x_closure_artifacts": true
+  },
+  "non_authorization": {
+    "implementation_authorized": false,
+    "runtime_consumption_authorized": false,
+    "production_runner_modification_authorized": false,
+    "production_validator_modification_authorized": false,
+    "production_policy_modification_authorized": false,
+    "waiver_prototype_modification_authorized": false,
+    "task_1040_plan_modification_authorized": false,
+    "new_test_implementation_authorized": false,
+    "validator_split_authorized": false,
+    "pcacc_active_check_expansion_authorized": false,
+    "pcacc_005_authorized": false,
+    "ac_to_verify_authorized": false,
+    "task_1042_plus_authorized": false,
+    "evidence_ref_registry_modification_authorized": false,
+    "quality_gate_policy_modification_authorized": false,
+    "precommit_check_policy_modification_authorized": false,
+    "aom_matrix_modification_authorized": false,
+    "quality_baseline_refresh_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "golden_cli_coverage_matrix_modification_authorized": false,
+    "golden_cli_harness_modification_authorized": false,
+    "v3_5_x_closure_snapshot_modification_authorized": false,
+    "v3_5_x_closure_index_modification_authorized": false,
+    "exact_sync_files_extension_authorized": false,
+    "task_1023_to_1040_lifecycle_modification_authorized": false,
+    "task_1037_repair_evidence_modification_authorized": false,
+    "task_1038_closure_evidence_modification_authorized": false,
+    "task_1039_prototype_evidence_modification_authorized": false,
+    "task_1040_plan_evidence_modification_authorized": false,
+    "v3_5_plan_or_manifest_modification_authorized": false,
+    "v3_5_1_plan_or_manifest_modification_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "obsidian_or_omc_or_temp_directory_modification_authorized": false,
+    "ruff_mypy_pyright_coverage_lint_format_or_pkg_manager_execution_authorized": false,
+    "pytest_execution_authorized": false,
+    "production_runner_cli_execution_authorized": false,
+    "broad_runner_execution_authorized": false,
+    "srs_rtm_design_threat_model_release_migration_userguide_runbook_content_generation_authorized": false,
+    "reasoning_faithfulness_audit_authorized": false,
+    "belief_state_audit_authorized": false,
+    "model_self_confidence_audit_authorized": false,
+    "free_text_rationale_addition_authorized": false,
+    "saver_markdown_report_authorized": false,
+    "global_model_brand_to_role_binding_authorized": false,
+    "high_assurance_taxonomy_extension_authorized": false,
+    "ci_pipeline_extension_authorized": false,
+    "rollback_execution_authorized": false,
+    "runtime_registry_promotion_from_prototype_authorized": false,
+    "prototype_schema_version_runtime_consumption_authorized": false,
+    "pcacc_runner_waiver_registry_attachment_authorized": false,
+    "waiver_policy_cli_implementation_authorized": false
+  },
+  "limitations": [
+    "TASK-1041 is decision-only; this readiness decision does not authorize any runtime extraction implementation, runtime consumption, or runner attachment.",
+    "The decision mirrors the contract recorded in artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md/.json (HEAD bbdd7ad); later edits to the plan invalidate this readiness decision until re-validated under a separate decision artifact.",
+    "readiness_criteria FTC mappings (FTC-1..FTC-15) preserve TASK-1040 plan JSON future_task_acceptance_criteria one-to-one; future runtime adoption must keep these byte-identical until a successor readiness decision lands.",
+    "non_authorization is explicit and load-bearing; any reading of this readiness decision as implicit authorization is incorrect.",
+    "future_implementation_allowlist enumerates the path patterns a future task may modify; TASK-1041 itself must not modify any of them, and authorized_now is false for every entry.",
+    "Even where readiness_decision.decision is ready_for_separate_human_authorization, this readiness decision does not authorize implementation; a future implementation lifecycle must obtain explicit human authorization (arcobaleno) and satisfy FTC-1..FTC-15 plus the seven gates recorded here.",
+    "Inspection evidence is a static self-attestation written at TASK-1041 commit time; Codex performs post-commit PASS/FAIL re-verification against the live working tree per agent_roles.negative_tester.",
+    "GCLI-QUALITY-SYNC-005 / GCLI-QUALITY-SYNC-006 cases recorded in golden-cli-coverage-matrix.v3.5.4.json remain implementation_authorized=false at TASK-1037 closure; this readiness decision does not lift that boundary.",
+    "QB-DRIFT-0001 (template_mirror_drift on test_guard_units.py) remains baseline_existing without remediation or waiver; this readiness decision does NOT issue a waiver for QB-DRIFT-0001 and does NOT lift the TASK-1038 closure-index non-authorization on QB-DRIFT-0001 remediation.",
+    "Unresolved questions UD-1 (schema_version pinning), UD-2 (file location flat vs nested), UD-3 (multi-source merge) recorded in TASK-1040 plan §16 remain unresolved; they are not readiness blockers and are deferred to future TASK-1042 plan.",
+    "Schema validation of this readiness matrix is performed only by the inspection evidence JSON at artifacts/verify/TASK-1041/waiver-runtime-readiness-inspection.json; no production runner or validator consumes this readiness matrix."
+  ]
+}

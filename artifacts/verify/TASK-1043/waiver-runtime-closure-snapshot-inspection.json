@@ -1,0 +1,215 @@
+{
+  "schema_version": "waiver-runtime-closure-snapshot-inspection/v1",
+  "task_id": "TASK-1043",
+  "generated_at": "2026-05-06T02:15:00+08:00",
+  "snapshot_ref": "artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md",
+  "index_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "CHK-01",
+      "target": "TASK-1043 lifecycle artifacts (task / plan / decision / verify / status) exist",
+      "expected": "five files exist under artifacts/{tasks,plans,decisions,verify,status}/TASK-1043.*",
+      "actual": "files present: artifacts/tasks/TASK-1043.task.md, artifacts/plans/TASK-1043.plan.md, artifacts/decisions/TASK-1043.decision.md, artifacts/verify/TASK-1043.verify.md, artifacts/status/TASK-1043.status.json",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1043.task.md;artifacts/plans/TASK-1043.plan.md;artifacts/decisions/TASK-1043.decision.md;artifacts/verify/TASK-1043.verify.md;artifacts/status/TASK-1043.status.json",
+      "reason_code": "lifecycle_artifacts_present"
+    },
+    {
+      "check_id": "CHK-02",
+      "target": "closure snapshot markdown exists with fifteen sections",
+      "expected": "artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md present and contains sections 1..15",
+      "actual": "file present; sections cover Purpose, Source of truth and limitations, Closure timeline, TASK-1041 readiness summary, TASK-1042 implementation summary, TASK-1042 evidence repair summary, v3.5.10 closure verification summary, Runtime capability summary, Golden CLI evidence summary, Evidence completeness summary, Protected surfaces, Known local noise, Non-authorization boundaries, Future candidate lifecycles, Closure conclusion",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md",
+      "reason_code": "closure_snapshot_markdown_present"
+    },
+    {
+      "check_id": "CHK-03",
+      "target": "closure index JSON exists with required schema_version / plan_version / created_by_task",
+      "expected": "schema_version=waiver-runtime-closure-index/v1; plan_version=v3.5.11; created_by_task=TASK-1043",
+      "actual": "schema_version=waiver-runtime-closure-index/v1; plan_version=v3.5.11; created_by_task=TASK-1043",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#schema_version;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#plan_version;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#created_by_task",
+      "reason_code": "closure_index_present"
+    },
+    {
+      "check_id": "CHK-04",
+      "target": "inspection evidence JSON exists with required schema_version / task_id / overall_status",
+      "expected": "schema_version=waiver-runtime-closure-snapshot-inspection/v1; task_id=TASK-1043; overall_status=pass",
+      "actual": "schema_version=waiver-runtime-closure-snapshot-inspection/v1; task_id=TASK-1043; overall_status=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1043/waiver-runtime-closure-snapshot-inspection.json#schema_version;artifacts/verify/TASK-1043/waiver-runtime-closure-snapshot-inspection.json#task_id;artifacts/verify/TASK-1043/waiver-runtime-closure-snapshot-inspection.json#overall_status",
+      "reason_code": "inspection_evidence_present"
+    },
+    {
+      "check_id": "CHK-05",
+      "target": "TASK-1042 dependency satisfied",
+      "expected": "TASK-1042.status.json#state=done AND verify_result=pass AND TASK-1042 verify markdown exists",
+      "actual": "TASK-1042.status.json state=done; verify_result=pass; TASK-1042.verify.md present at artifacts/verify/TASK-1042.verify.md",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1042.status.json#state;artifacts/status/TASK-1042.status.json#verify_result;artifacts/verify/TASK-1042.verify.md",
+      "reason_code": "task_1042_dependency_satisfied"
+    },
+    {
+      "check_id": "CHK-06",
+      "target": "TASK-1041 readiness represented",
+      "expected": "decision_only; readiness_decision=ready_for_separate_human_authorization; implementation_authorized_by_this_task=false; runtime_consumption_authorized=false",
+      "actual": "represented in closure index task_chain[?task_id=TASK-1041] and snapshot §4; mirror values: TASK-1041.status.json#readiness_decision_value=ready_for_separate_human_authorization; implementation_authorized_by_this_task=false; runtime_consumption_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1041.status.json#readiness_decision_value;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#task_chain;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-4",
+      "reason_code": "task_1041_readiness_represented"
+    },
+    {
+      "check_id": "CHK-07",
+      "target": "TASK-1042 implementation represented",
+      "expected": "implementation_authorized=true; runtime_consumption_authorized=true; activation_mode=explicit_cli_only; runner_pair_byte_identical=true",
+      "actual": "represented in closure index evidence_summary and task_chain[?task_id=TASK-1042] and snapshot §5; mirror values: TASK-1042.status.json#implementation_authorized=true; runtime_consumption_authorized=true; activation_mode=explicit_cli_only; runner_pair_byte_identical=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1042.status.json#implementation_authorized;artifacts/status/TASK-1042.status.json#runtime_consumption_authorized;artifacts/status/TASK-1042.status.json#activation_mode;artifacts/status/TASK-1042.status.json#runner_pair_byte_identical;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#evidence_summary",
+      "reason_code": "task_1042_implementation_represented"
+    },
+    {
+      "check_id": "CHK-08",
+      "target": "TASK-1042 evidence-completeness repair represented",
+      "expected": "repair commit ref 3a0b28a represented; verify markdown Repair Note section present",
+      "actual": "represented in closure index task_chain[?task_id=TASK-1042-repair] (commit_ref=3a0b28a) and snapshot §6; verify markdown Repair Note: \"Repair: evidence completeness repair added required implementation-result booleans and required cache_audit fields.\"",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1042.verify.md;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#task_chain;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-6",
+      "reason_code": "task_1042_repair_represented"
+    },
+    {
+      "check_id": "CHK-09",
+      "target": "v3.5.10 closure represented",
+      "expected": "closure_status.v3_5_10_closure=pass; verify_result=pass; state=done at TASK-1042",
+      "actual": "closure_status.v3_5_10_closure=pass in closure index; snapshot §7 records PASS; TASK-1042.status.json plan_version=v3.5.10 verify_result=pass state=done",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#closure_status;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-7;artifacts/status/TASK-1042.status.json#plan_version;artifacts/status/TASK-1042.status.json#verify_result;artifacts/status/TASK-1042.status.json#state",
+      "reason_code": "v3_5_10_closure_pass_represented"
+    },
+    {
+      "check_id": "CHK-10",
+      "target": "golden CLI 25 / 25 / 0 represented",
+      "expected": "golden_cli_total_cases=25; golden_cli_passed_cases=25; golden_cli_failed_cases=0",
+      "actual": "represented in evidence_summary block of closure index; mirror values: waiver-runtime-golden-cli-result.json#summary.total_cases=25; passed_cases=25; failed_cases=0; overall_status=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#summary;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#evidence_summary;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-9",
+      "reason_code": "golden_cli_25_25_0_represented"
+    },
+    {
+      "check_id": "CHK-11",
+      "target": "implementation evidence booleans represented",
+      "expected": "sixteen booleans represented and all true",
+      "actual": "represented in evidence_summary.required_implementation_boolean_keys (16 entries); waiver-runtime-implementation-result.json#implementation_verification all sixteen keys present and true",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json#implementation_verification;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#evidence_summary;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-10",
+      "reason_code": "implementation_booleans_represented"
+    },
+    {
+      "check_id": "CHK-12",
+      "target": "cache audit repair fields represented",
+      "expected": "pycache_created=false; unexpected_cache_paths=[]; python_b_flag_used=true",
+      "actual": "represented in evidence_summary.cache_audit_required_field_values; mirror values: waiver-runtime-golden-cli-result.json#cache_audit.pycache_created=false; unexpected_cache_paths=[]; python_b_flag_used=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cache_audit;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#evidence_summary",
+      "reason_code": "cache_audit_repair_fields_represented"
+    },
+    {
+      "check_id": "CHK-13",
+      "target": "protected surfaces listed",
+      "expected": "fourteen production paths represented in protected_surfaces with surface_type and modification_requires_explicit_task=true",
+      "actual": "fourteen entries in closure index protected_surfaces covering run_precommit_check (root + template), run_quality_gates (root + template), five validator/test files, and five governance policy files; each entry carries surface_type, modification_requires_explicit_task=true, and notes",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#protected_surfaces;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-11",
+      "reason_code": "protected_surfaces_listed"
+    },
+    {
+      "check_id": "CHK-14",
+      "target": "non-authorization boundaries listed",
+      "expected": "twelve required false booleans present in non_authorization block",
+      "actual": "non_authorization block contains task_1044_plus_authorized=false; new_runtime_behavior_authorized=false; production_runner_modification_authorized=false; production_validator_modification_authorized=false; production_policy_modification_authorized=false; new_golden_cli_expansion_authorized=false; pcacc_active_check_expansion_authorized=false; pcacc_005_authorized=false; ac_to_verify_authorized=false; validator_split_authorized=false; document_generation_authorized=false; bootstrap_prompt_skill_modification_authorized=false (all twelve required keys present and false)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#non_authorization;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-13",
+      "reason_code": "non_authorization_boundaries_listed"
+    },
+    {
+      "check_id": "CHK-15",
+      "target": "known local noise listed",
+      "expected": "five entries: .pytest-basetemp/, .tmp/, .obsidian/, .omc/, __pycache__/",
+      "actual": "five entries listed in known_local_noise block of closure index and §12 of snapshot",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#known_local_noise;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-12",
+      "reason_code": "known_local_noise_listed"
+    },
+    {
+      "check_id": "CHK-16",
+      "target": "future candidate lifecycles unauthorized",
+      "expected": "TASK-1044 candidate present with authorized=false",
+      "actual": "future_candidate_lifecycles block lists TASK-1044 (authorized=false) plus three unnumbered advisory candidates (production_runtime_registry_authoring, waiver_runtime_repair_rollback, baseline_refresh), all authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#future_candidate_lifecycles;artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md#section-14",
+      "reason_code": "future_candidate_lifecycles_unauthorized"
+    },
+    {
+      "check_id": "CHK-17",
+      "target": "production runners unchanged",
+      "expected": "run_precommit_check.py (root + template) sha256 prefix 4dbb8a219093cc12; run_quality_gates.py (root + template) sha256 prefix c6c4d29700390ffe; not modified by TASK-1043",
+      "actual": "TASK-1043 staging set excludes all four runner files; runner sha prefixes recorded in waiver-runtime-implementation-result.json (run_quality_gates.py pair = c6c4d29700390ffe) and TASK-1042 status (run_precommit_check.py pair = 4dbb8a219093cc12) match the protected_surfaces entries",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json#runner_root_sha256;artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json#runner_template_sha256;artifacts/status/TASK-1042.status.json#real_pcacc_runner_sha256_prefix;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#protected_surfaces",
+      "reason_code": "production_runners_unchanged"
+    },
+    {
+      "check_id": "CHK-18",
+      "target": "production validator/test files unchanged",
+      "expected": "guard_status_validator.py d58a41f6ca49ccfe; guard_contract_validator.py 7a38af7e2e0af5b7; workflow_constants.py e1f09d2100b5685f; run_red_team_suite.py 77540c3b29f6ece6; test_guard_units.py 5c7228c9997edffd; not modified by TASK-1043",
+      "actual": "TASK-1043 staging set excludes all five files; sha prefixes mirror the values recorded in TASK-1042 status target_file_sha256_prefixes",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1042.status.json#target_file_sha256_prefixes;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#protected_surfaces",
+      "reason_code": "production_validator_test_files_unchanged"
+    },
+    {
+      "check_id": "CHK-19",
+      "target": "production governance policies unchanged",
+      "expected": "quality-baseline.v3.5.json 0d8a05f39d31e6f7; quality-gate-policy.v3.5.json 479154c353e0178b; precommit-check-policy.v3.5.json 66ea7c53837ff034; artifact-obligation-matrix.v3.5.json 66374a1ce932510e; evidence-ref-policy.v3.5.3.json 0ca80e7eae09a25a; not modified by TASK-1043",
+      "actual": "TASK-1043 staging set excludes all five files; sha prefixes mirror the values recorded in TASK-1042 status real_*_sha256_prefix fields",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1042.status.json#real_quality_baseline_sha256_prefix;artifacts/status/TASK-1042.status.json#real_quality_gate_policy_sha256_prefix;artifacts/status/TASK-1042.status.json#real_pcacc_policy_sha256_prefix;artifacts/status/TASK-1042.status.json#real_aom_matrix_sha256_prefix;artifacts/status/TASK-1042.status.json#real_evidence_ref_registry_sha256_prefix",
+      "reason_code": "production_governance_policies_unchanged"
+    },
+    {
+      "check_id": "CHK-20",
+      "target": "prior task artifacts unchanged",
+      "expected": "TASK-1023..TASK-1042 lifecycle artifacts and TASK-1042 evidence files unchanged by TASK-1043",
+      "actual": "TASK-1043 staging set is limited to artifacts/{tasks,plans,decisions,verify,status}/TASK-1043.* + artifacts/governance/waiver-runtime-closure-{snapshot.v3.5.11.md,index.v3.5.11.json} + artifacts/verify/TASK-1043/waiver-runtime-closure-snapshot-inspection.json; no TASK-1042 evidence file under artifacts/verify/TASK-1042/ is staged; pre-commit git diff --cached --name-only inspection enforces this",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#non_authorization;artifacts/plans/TASK-1043.plan.md#approach",
+      "reason_code": "prior_task_artifacts_unchanged"
+    },
+    {
+      "check_id": "CHK-21",
+      "target": "no new tests implemented",
+      "expected": "no .py test files added; no harness modification; no golden CLI case manifest mutation",
+      "actual": "TASK-1043 staging set contains zero .py files (no harness, no test, no helper script); harness at artifacts/verify/TASK-1042/run_waiver_runtime_golden.py is unchanged; case manifest at artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json is unchanged",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1043.plan.md#files-likely-affected",
+      "reason_code": "no_new_tests_implemented"
+    },
+    {
+      "check_id": "CHK-22",
+      "target": "no TASK-1044+ artifacts",
+      "expected": "no TASK-1044+ lifecycle artifact created; commit staging contains only TASK-1043 authorized files",
+      "actual": "preflight glob over artifacts/{tasks,plans,decisions,verify,status}/TASK-{1044,1045,1046,1047,1048,1049,105*}* returned zero hits before authoring; staging set enumerated to TASK-1043 authorized files only",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1043.plan.md#files-likely-affected;artifacts/governance/waiver-runtime-closure-index.v3.5.11.json#future_candidate_lifecycles",
+      "reason_code": "no_task_1044_plus_artifacts"
+    }
+  ],
+  "limitations": [
+    "Inspection evidence is a static self-attestation written at TASK-1043 commit time.",
+    "Codex performs post-commit PASS/FAIL re-verification per agent_roles.negative_tester recorded in TASK-1043.task.md.",
+    "Each check cites the source artifact in evidence_ref; cross-checks rely on the evidence anchors at HEAD 3a0b28a.",
+    "Sha prefixes are seven-to-sixteen-character prefixes recorded in source artifacts (TASK-1042 status, TASK-1042 implementation result); full hashes require git rev-parse against the working tree.",
+    "Future candidate lifecycles are advisory only; they are not authorized by TASK-1043."
+  ]
+}

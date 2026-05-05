@@ -1,0 +1,406 @@
+{
+  "schema_version": "waiver-runtime-closure-index/v1",
+  "plan_version": "v3.5.11",
+  "created_by_task": "TASK-1043",
+  "generated_at": "2026-05-06T02:15:00+08:00",
+  "snapshot_ref": "artifacts/governance/waiver-runtime-closure-snapshot.v3.5.11.md",
+  "snapshot_head_short": "3a0b28a",
+  "source_of_truth": [
+    "artifacts/status/TASK-1041.status.json",
+    "artifacts/governance/waiver-runtime-authorization-readiness-decision.v3.5.9.md",
+    "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json",
+    "artifacts/verify/TASK-1041/waiver-runtime-readiness-inspection.json",
+    "artifacts/status/TASK-1042.status.json",
+    "artifacts/verify/TASK-1042.verify.md",
+    "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json",
+    "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json",
+    "artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json",
+    "artifacts/verify/TASK-1042/run_waiver_runtime_golden.py",
+    "artifacts/decisions/TASK-1042.decision.md",
+    "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+    "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+    "artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json",
+    "artifacts/governance/v3.5.x-governance-closure-index.json"
+  ],
+  "closure_status": {
+    "overall_status": "closed_verified",
+    "v3_5_10_closure": "pass",
+    "task_1041": "pass",
+    "task_1042_implementation": "pass",
+    "task_1042_repair": "pass"
+  },
+  "task_chain": [
+    {
+      "task_id": "TASK-1041",
+      "role": "waiver_runtime_implementation_authorization_readiness_decision",
+      "status": "pass",
+      "commit_ref": "a39457f",
+      "artifact_refs": [
+        "artifacts/tasks/TASK-1041.task.md",
+        "artifacts/plans/TASK-1041.plan.md",
+        "artifacts/decisions/TASK-1041.decision.md",
+        "artifacts/verify/TASK-1041.verify.md",
+        "artifacts/status/TASK-1041.status.json",
+        "artifacts/governance/waiver-runtime-authorization-readiness-decision.v3.5.9.md",
+        "artifacts/governance/waiver-runtime-authorization-readiness-matrix.v3.5.9.json",
+        "artifacts/verify/TASK-1041/waiver-runtime-readiness-inspection.json"
+      ],
+      "notes": "decision_only; readiness_decision=ready_for_separate_human_authorization; implementation_authorized_by_this_task=false; runtime_consumption_authorized=false; sixteen readiness criteria; nine future implementation allowlist entries; fifty-one non_authorization keys all false; inspection 27/27 pass."
+    },
+    {
+      "task_id": "TASK-1042",
+      "role": "waiver_runtime_implementation_explicit_cli_only",
+      "status": "pass",
+      "commit_ref": "096dd25",
+      "artifact_refs": [
+        "artifacts/tasks/TASK-1042.task.md",
+        "artifacts/plans/TASK-1042.plan.md",
+        "artifacts/decisions/TASK-1042.decision.md",
+        "artifacts/verify/TASK-1042.verify.md",
+        "artifacts/status/TASK-1042.status.json",
+        "artifacts/scripts/run_quality_gates.py",
+        "template/artifacts/scripts/run_quality_gates.py",
+        "artifacts/verify/TASK-1042/run_waiver_runtime_golden.py",
+        "artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json",
+        "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json",
+        "artifacts/verify/TASK-1042/fixtures/"
+      ],
+      "notes": "explicit-CLI-only --waiver-policy on run_quality_gates pair; runner pair sha256 prefix c6c4d29700390ffe and byte-identical; default behavior preserved without flag; runtime registry schema_version=waiver-policy-registry/v1; prototype schema_version rejected; QC-SYNC-001-only suppression; non-QC-SYNC surfaces unaffected."
+    },
+    {
+      "task_id": "TASK-1042-repair",
+      "role": "waiver_runtime_evidence_completeness_repair",
+      "status": "pass",
+      "commit_ref": "3a0b28a",
+      "artifact_refs": [
+        "artifacts/verify/TASK-1042.verify.md",
+        "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
+      ],
+      "notes": "evidence-completeness-only repair; added required implementation_verification booleans (sixteen) and required cache_audit fields (pycache_created, unexpected_cache_paths, python_b_flag_used); did not change runtime behavior, --waiver-policy activation, golden CLI outcomes, runner sha256, or any production validator/test/governance file."
+    }
+  ],
+  "capabilities": [
+    {
+      "capability_id": "waiver_runtime_explicit_activation",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/scripts/run_quality_gates.py",
+        "template/artifacts/scripts/run_quality_gates.py",
+        "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Activation is explicit-CLI-only via --waiver-policy <path>. No automatic discovery; no environment-variable-only activation; no implicit prototype consumption."
+    },
+    {
+      "capability_id": "waiver_runtime_default_preservation",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-001]",
+        "artifacts/verify/TASK-1042.verify.md#AC-4"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Default behavior without --waiver-policy is byte-identical to TASK-1025 / TASK-1037 default mode; live default-mode self-check emits overall_status=pass with waiver_policy_ref=null and runtime_waiver_count=0."
+    },
+    {
+      "capability_id": "waiver_runtime_fail_closed",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json#fail_closed_load_error_envelope",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Registry load failures fail closed with exit code 2 and machine-readable envelope {\"error\":\"waiver_registry_load_failed\",\"reason_code\":\"<code>\"}; reason codes mirror TASK-1040 plan FC-01..FC-24."
+    },
+    {
+      "capability_id": "waiver_runtime_evidence_ref_validation",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-016]",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-017]"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "evidence_ref enforcement mirrors evidence-ref-policy.v3.5.3.json: empty / absolute path / parent traversal / remote URL / shell-token / forbidden-root / not-under-artifacts entries are rejected at runtime load."
+    },
+    {
+      "capability_id": "waiver_runtime_qc_sync_targeted_suppression",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-023]",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-024]",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cases[?case_id=WAIVER-RT-025]"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Valid active unexpired waiver suppresses only the targeted QC-SYNC-001 finding; non-target QC-SYNC findings remain blocking; non-QC-SYNC surfaces (QC-SCHEMA-001, QC-IMPORT-001, QC-GOLDEN-001, QC-RUFF-001, PCACC, Evidence Ref) are unaffected by --waiver-policy."
+    },
+    {
+      "capability_id": "waiver_runtime_golden_cli_coverage",
+      "introduced_by": "TASK-1042 (096dd25)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042/run_waiver_runtime_golden.py",
+        "artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Twenty-five WAIVER-RT cases; passed_cases=25; failed_cases=0; overall_status=pass; surface=CLI-QUALITY-GATES; harness uses standard library only with PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 and python -B."
+    },
+    {
+      "capability_id": "waiver_runtime_evidence_completeness_repair",
+      "introduced_by": "TASK-1042-repair (3a0b28a)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1042.verify.md",
+        "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json#implementation_verification",
+        "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json#cache_audit"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Evidence-completeness-only repair; added required implementation booleans and cache_audit fields; did not change runtime behavior or runner sha256."
+    }
+  ],
+  "evidence_summary": {
+    "implementation_result_ref": "artifacts/verify/TASK-1042/waiver-runtime-implementation-result.json",
+    "golden_cli_result_ref": "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json",
+    "golden_cli_total_cases": 25,
+    "golden_cli_passed_cases": 25,
+    "golden_cli_failed_cases": 0,
+    "golden_cli_overall_status": "pass",
+    "required_implementation_booleans_present": true,
+    "required_implementation_boolean_keys": [
+      "explicit_waiver_policy_activation",
+      "fail_closed_semantics_verified",
+      "evidence_ref_validation_verified",
+      "qc_sync_only_suppression",
+      "no_task_1043_plus_artifacts",
+      "default_behavior_preserved",
+      "runtime_consumption_authorized",
+      "implementation_authorized",
+      "runner_pair_byte_identical",
+      "production_validator_test_files_unchanged",
+      "production_governance_policies_unchanged",
+      "task_1039_1040_1041_artifacts_unchanged",
+      "run_precommit_check_unmodified",
+      "pcacc_not_expanded",
+      "ac_to_verify_not_activated",
+      "validator_split_not_performed"
+    ],
+    "cache_audit_required_fields_present": true,
+    "cache_audit_required_field_values": {
+      "pycache_created": false,
+      "unexpected_cache_paths": [],
+      "python_b_flag_used": true
+    },
+    "runner_pair_byte_identical": true,
+    "runner_root_sha256_prefix": "c6c4d29700390ffe",
+    "runner_template_sha256_prefix": "c6c4d29700390ffe",
+    "task_1041_readiness_decision": "ready_for_separate_human_authorization",
+    "task_1041_implementation_authorized": false,
+    "task_1041_runtime_consumption_authorized": false,
+    "task_1042_implementation_authorized": true,
+    "task_1042_runtime_consumption_authorized": true,
+    "task_1042_activation_mode": "explicit_cli_only",
+    "task_1042_cli_argument": "--waiver-policy",
+    "task_1042_default_behavior_preserved": true,
+    "task_1042_applied_rule_id_surface": ["QC-SYNC-001"],
+    "task_1042_runtime_registry_schema_version_accepted": "waiver-policy-registry/v1",
+    "task_1042_runtime_registry_schema_versions_rejected": [
+      "waiver-policy-registry-prototype/v1",
+      "wrong-schema/v0"
+    ]
+  },
+  "protected_surfaces": [
+    {
+      "path": "artifacts/scripts/run_precommit_check.py",
+      "surface_type": "production_runner",
+      "modification_requires_explicit_task": true,
+      "notes": "Production PCACC runner. Sha prefix 4dbb8a219093cc12 unchanged by TASK-1042 / TASK-1043."
+    },
+    {
+      "path": "template/artifacts/scripts/run_precommit_check.py",
+      "surface_type": "template_mirror_runner",
+      "modification_requires_explicit_task": true,
+      "notes": "Template mirror of production PCACC runner. Sha prefix 4dbb8a219093cc12 unchanged by TASK-1042 / TASK-1043."
+    },
+    {
+      "path": "artifacts/scripts/run_quality_gates.py",
+      "surface_type": "production_runner",
+      "modification_requires_explicit_task": true,
+      "notes": "Production quality gate runner. Sha prefix c6c4d29700390ffe post-TASK-1042. Modification requires Codex post-commit verification."
+    },
+    {
+      "path": "template/artifacts/scripts/run_quality_gates.py",
+      "surface_type": "template_mirror_runner",
+      "modification_requires_explicit_task": true,
+      "notes": "Template mirror of production quality gate runner. Sha prefix c6c4d29700390ffe post-TASK-1042; required to be byte-identical to the live runner."
+    },
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "surface_type": "production_validator",
+      "modification_requires_explicit_task": true,
+      "notes": "Production status validator. Sha prefix d58a41f6ca49ccfe; module split deferred to v3.6 per TASK-1031 readiness=not_ready_for_split."
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "surface_type": "production_validator",
+      "modification_requires_explicit_task": true,
+      "notes": "Production contract validator. Sha prefix 7a38af7e2e0af5b7; module split deferred to v3.6."
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "surface_type": "production_module",
+      "modification_requires_explicit_task": true,
+      "notes": "Production workflow constants module. Sha prefix e1f09d2100b5685f; carries the assurance / adapter resolver pipeline."
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "surface_type": "production_runner",
+      "modification_requires_explicit_task": true,
+      "notes": "Production red-team suite runner. Sha prefix 77540c3b29f6ece6; modification requires red-team scorecard re-anchoring."
+    },
+    {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "surface_type": "production_test",
+      "modification_requires_explicit_task": true,
+      "notes": "Production guard unit tests. Sha prefix 5c7228c9997edffd; template mirror carries QB-DRIFT-0001 (recorded as baseline_existing without remediation or waiver)."
+    },
+    {
+      "path": "artifacts/governance/quality-baseline.v3.5.json",
+      "surface_type": "production_governance_policy",
+      "modification_requires_explicit_task": true,
+      "notes": "Production quality baseline. Sha prefix 0d8a05f39d31e6f7; PCACC runner entry refresh deferred to a separate baseline refresh task."
+    },
+    {
+      "path": "artifacts/governance/quality-gate-policy.v3.5.json",
+      "surface_type": "production_governance_policy",
+      "modification_requires_explicit_task": true,
+      "notes": "Production quality gate policy. Sha prefix 479154c353e0178b; modification not authorized by TASK-1043."
+    },
+    {
+      "path": "artifacts/governance/precommit-check-policy.v3.5.json",
+      "surface_type": "production_governance_policy",
+      "modification_requires_explicit_task": true,
+      "notes": "Production PCACC policy. Sha prefix 66ea7c53837ff034; modification not authorized by TASK-1043."
+    },
+    {
+      "path": "artifacts/governance/artifact-obligation-matrix.v3.5.json",
+      "surface_type": "production_governance_policy",
+      "modification_requires_explicit_task": true,
+      "notes": "Production artifact obligation matrix. Sha prefix 66374a1ce932510e; eleven AOM rules; modification not authorized by TASK-1043."
+    },
+    {
+      "path": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "surface_type": "production_governance_policy",
+      "modification_requires_explicit_task": true,
+      "notes": "Production Evidence Ref policy registry. Sha prefix 0ca80e7eae09a25a; runtime evidence_ref enforcement delegates here; modification not authorized by TASK-1043."
+    }
+  ],
+  "non_authorization": {
+    "task_1044_plus_authorized": false,
+    "new_runtime_behavior_authorized": false,
+    "production_runner_modification_authorized": false,
+    "production_validator_modification_authorized": false,
+    "production_policy_modification_authorized": false,
+    "new_golden_cli_expansion_authorized": false,
+    "pcacc_active_check_expansion_authorized": false,
+    "pcacc_005_authorized": false,
+    "ac_to_verify_authorized": false,
+    "validator_split_authorized": false,
+    "document_generation_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "task_1023_to_1042_lifecycle_modification_authorized": false,
+    "task_1042_evidence_modification_authorized": false,
+    "task_1041_readiness_artifacts_modification_authorized": false,
+    "task_1040_plan_artifacts_modification_authorized": false,
+    "task_1039_prototype_modification_authorized": false,
+    "v3_5_x_closure_artifacts_modification_authorized": false,
+    "evidence_ref_registry_modification_authorized": false,
+    "quality_baseline_refresh_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "exact_sync_files_extension_authorized": false,
+    "runtime_registry_promotion_from_prototype_authorized": false,
+    "prototype_schema_version_runtime_consumption_authorized": false,
+    "pcacc_runner_waiver_registry_attachment_authorized": false,
+    "production_runtime_registry_authoring_authorized": false,
+    "rollback_execution_authorized": false,
+    "ruff_mypy_pyright_coverage_lint_format_or_pkg_manager_execution_authorized": false,
+    "pytest_execution_authorized": false,
+    "production_runner_cli_execution_authorized": false,
+    "broad_runner_execution_authorized": false
+  },
+  "known_local_noise": [
+    {
+      "path": ".pytest-basetemp/",
+      "category": "pytest_local_workspace",
+      "blocking": false,
+      "note": "Local pytest base temp; not tracked."
+    },
+    {
+      "path": ".tmp/",
+      "category": "local_scratch",
+      "blocking": false,
+      "note": "Local scratch; not tracked."
+    },
+    {
+      "path": ".obsidian/",
+      "category": "obsidian_workspace_state",
+      "blocking": false,
+      "note": "Local Obsidian editor / workspace UI state; covered by .gitignore where applicable."
+    },
+    {
+      "path": ".omc/",
+      "category": "omc_runtime_state",
+      "blocking": false,
+      "note": "oh-my-claudecode runtime state; ignored via .gitignore (commit 14214a8)."
+    },
+    {
+      "path": "__pycache__/",
+      "category": "python_bytecode_cache",
+      "blocking": false,
+      "note": "Python bytecode cache directories under artifacts/scripts/__pycache__/ and template/artifacts/scripts/__pycache__/ are pre-existing from prior v3.4 / v3.5 chains; not attributed to TASK-1043."
+    }
+  ],
+  "future_candidate_lifecycles": [
+    {
+      "candidate_id": "TASK-1044",
+      "title": "Waiver Runtime Closure Refinement or Next Capability Planning",
+      "purpose": "Refine the waiver runtime closure snapshot/index produced by TASK-1043 or plan the next waiver runtime capability. Authoring requires explicit human authorization.",
+      "authorized": false,
+      "risk_level": "low",
+      "notes": "Advisory only; numbering is a candidate convention; TASK-1043 does not authorize this follow-up."
+    },
+    {
+      "candidate_id": "candidate_production_runtime_registry_authoring",
+      "title": "Production Waiver Registry Authoring",
+      "purpose": "Author a production runtime registry under artifacts/governance/waiver-policy-registry.v<version>.json with schema_version=waiver-policy-registry/v1; requires its own staging allowlist.",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; not numbered; requires its own decision artifact and a separate explicit human authorization."
+    },
+    {
+      "candidate_id": "candidate_waiver_runtime_repair_rollback",
+      "title": "Waiver Runtime Repair / Rollback",
+      "purpose": "Remove --waiver-policy support and restore the runner pair to the pre-TASK-1042 sha256 prefix; would inherit RB-1..RB-9 strategy recorded in TASK-1040 plan JSON and TASK-1041 rollback gate.",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; not numbered; requires its own decision artifact, Codex post-rollback PASS/FAIL verification, and a separate explicit human authorization."
+    },
+    {
+      "candidate_id": "candidate_baseline_refresh",
+      "title": "Quality Baseline Refresh",
+      "purpose": "Refresh quality-baseline.v3.5.json PCACC runner entry to sha 4dbb8a219093cc12 and address QB-DRIFT-0001 with explicit decision artifact.",
+      "authorized": false,
+      "risk_level": "low",
+      "notes": "Advisory only; not numbered; requires its own decision artifact under a separate lifecycle."
+    }
+  ],
+  "limitations": [
+    "Snapshot is a frozen view at HEAD 3a0b28a; it does not auto-update on future commits.",
+    "Closure status fields use only enum values pass / closed_verified.",
+    "Commit hashes are short hashes (seven characters) read from git log; full hashes require git rev-parse.",
+    "Future candidate lifecycles are recorded as advisory only; numbering is a candidate convention and the user retains authority to assign different IDs when authorizing.",
+    "TASK-1043 inspection evidence is a static self-attestation written at TASK-1043 commit time; Codex performs post-commit PASS/FAIL re-verification per agent_roles.negative_tester.",
+    "QB-DRIFT-0001 (template_mirror_drift on test_guard_units.py) remains baseline_existing without remediation or waiver; TASK-1043 does not lift this boundary.",
+    "Production runtime registry under artifacts/governance/waiver-policy-registry.v<version>.json is not created by TASK-1043; future creation requires a separate decision artifact.",
+    "Schema validation of this closure index is performed only by the inspection evidence JSON at artifacts/verify/TASK-1043/waiver-runtime-closure-snapshot-inspection.json; no production runner or validator consumes this index."
+  ]
+}

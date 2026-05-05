@@ -1,0 +1,43 @@
+{
+  "schema_version": "precommit-check-policy/v1",
+  "plan_version": "v3.5.0",
+  "checks": [
+    {
+      "check_id": "PCACC-001"
+    },
+    {
+      "check_id": "PCACC-002"
+    },
+    {
+      "check_id": "PCACC-003",
+      "canonical_owners": [
+        "Claude"
+      ],
+      "canonical_reviewers": [
+        "arcobaleno"
+      ]
+    },
+    {
+      "check_id": "PCACC-004"
+    }
+  ],
+  "output_policy": {
+    "format": "json",
+    "free_text_rationale": false,
+    "allowed_status_values": [
+      "pass",
+      "fail",
+      "skipped_with_reason_code"
+    ],
+    "required_check_fields": [
+      "check_id",
+      "target",
+      "expected",
+      "actual",
+      "evidence_ref",
+      "status",
+      "reason_code"
+    ],
+    "forbidden_check_fields": []
+  }
+}

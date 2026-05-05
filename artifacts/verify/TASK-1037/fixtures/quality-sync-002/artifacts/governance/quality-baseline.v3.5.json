@@ -1,0 +1,17 @@
+{
+  "schema_version": "quality-baseline/v1",
+  "plan_version": "v3.5.0-fixture",
+  "metrics": [],
+  "source_template_pairs": [
+    {
+      "baseline_id": "FX-SYNC-0002",
+      "source_path": "artifacts/scripts/case_pair.py",
+      "template_path": "template/artifacts/scripts/case_pair.py",
+      "status": "drift",
+      "sha256_source": "1cc53b12d183547dd8034ad90410f7e59d96792f63569fe828fc1d279451ad53",
+      "sha256_template": "5e52740edd665b9a5f164601687cc9c9b4270780c43771a52140aa97dffd61c2"
+    }
+  ],
+  "import_side_effect_surface": [],
+  "golden_cli_candidates": []
+}

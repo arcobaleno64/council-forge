@@ -1,0 +1,592 @@
+{
+  "schema_version": "golden-cli-case-manifest/v1",
+  "task_id": "TASK-1037",
+  "created_by_task": "TASK-1037",
+  "generated_at": "2026-05-05T03:15:00+08:00",
+  "source_plan_refs": {
+    "coverage_matrix": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+    "coverage_plan_markdown": "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+    "coverage_plan_inspection": "artifacts/verify/TASK-1036/golden-cli-coverage-plan-inspection.json",
+    "task_1035_runtime_extraction_result": "artifacts/verify/TASK-1035/evidence-ref-runtime-extraction-result.json",
+    "task_1035_registry_regression_result": "artifacts/verify/TASK-1035/registry-regression-result.json",
+    "task_1030_negative_test_result": "artifacts/verify/TASK-1030/pcacc-negative-test-result.json"
+  },
+  "case_groups": [
+    {
+      "group_id": "GCLI-PRECOMMIT-DEFAULT",
+      "surface_id": "CLI-PRECOMMIT",
+      "purpose": "Lock the default success-path PCACC CLI contract: --self-check on a fully compliant lifecycle bundle yields overall_status=pass and exit 0 with all four PCACC checks pass.",
+      "cases": [
+        {
+          "case_id": "GCLI-PRECOMMIT-DEFAULT-001",
+          "title": "All four PCACC checks pass on synthetic compliant lifecycle (no --evidence-ref-policy)",
+          "fixture_id": "fx-pcacc-default-001",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_pcacc_001_reason_code": "lifecycle_complete",
+          "expected_pcacc_002_reason_code": "evidence_refs_resolved",
+          "expected_pcacc_003_reason_code": "owner_and_reviewer_canonical",
+          "expected_pcacc_004_reason_code": "review_after_evidence",
+          "implementation_status": "implemented"
+        }
+      ],
+      "fixture_requirements": [
+        "synthetic TASK-90001 lifecycle quintet under fixtures/pcacc-default-001/repo/",
+        "fixture-local precommit-check-policy.v3.5.json with canonical_owners=['Claude'] and canonical_reviewers=['arcobaleno']",
+        "deterministic Taipei ISO timestamps such that verify.Last Updated > pcacc result.generated_at"
+      ],
+      "contracts": {
+        "json_fields_locked": ["schema_version", "overall_status", "checks[*].check_id", "checks[*].status", "checks[*].reason_code"],
+        "fields_excluded_from_byte_lock": ["generated_at", "task_id", "policy_ref"],
+        "exit_code": 0,
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "purpose": "Lock --evidence-ref-policy registry-mode behavior: valid local ref resolves, ORC-1 marker triggers skip, registry-mode forbidden patterns fail closed within PCACC-002, and default-mode TASK-1030 NEG-002 / NEG-003 reason_codes are byte-identically preserved.",
+      "cases": [
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-001",
+          "title": "Valid local artifact ref resolves under registry mode",
+          "fixture_id": "fx-evref-valid-local",
+          "use_evidence_ref_policy": true,
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_pcacc_002_status": "pass",
+          "expected_pcacc_002_reason_code": "evidence_refs_resolved",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-002",
+          "title": "Empty Evidence Refs section with ORC-1 marker is skipped under registry mode",
+          "fixture_id": "fx-evref-orc-skip",
+          "use_evidence_ref_policy": true,
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_pcacc_002_status": "skipped_with_reason_code",
+          "expected_pcacc_002_reason_code": "evidence_refs_optional_per_orc_1",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-003",
+          "title": "Forbidden URL scheme ref under registry mode classified malformed",
+          "fixture_id": "fx-evref-remote-url",
+          "use_evidence_ref_policy": true,
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_002_status": "fail",
+          "expected_pcacc_002_reason_code_prefix": "malformed_refs:https://",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-004",
+          "title": "Parent traversal ref under registry mode classified malformed",
+          "fixture_id": "fx-evref-parent-traversal",
+          "use_evidence_ref_policy": true,
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_002_status": "fail",
+          "expected_pcacc_002_reason_code_prefix": "malformed_refs:../",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-005",
+          "title": "Default mode (no --evidence-ref-policy) on TASK-1030 NEG-002 fixture preserves byte-identical reason_code",
+          "fixture_id": "fx-evref-task-1030-neg-002",
+          "use_evidence_ref_policy": false,
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_002_status": "fail",
+          "expected_pcacc_002_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-EVREF-006",
+          "title": "Default mode on TASK-1030 NEG-003 fixture preserves byte-identical reason_code",
+          "fixture_id": "fx-evref-task-1030-neg-003",
+          "use_evidence_ref_policy": false,
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_002_status": "fail",
+          "expected_pcacc_002_reason_code": "evidence_refs_section_empty",
+          "implementation_status": "implemented"
+        }
+      ],
+      "fixture_requirements": [
+        "TASK-1030 NEG-002 anchor verify body containing literal `garbage_token_not_a_known_prefix`",
+        "TASK-1030 NEG-003 anchor verify body with empty Evidence Refs and no ORC marker",
+        "byte-identical copy of artifacts/governance/evidence-ref-policy.v3.5.3.json under fixtures/<case>/repo/artifacts/governance/"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?check_id=PCACC-002].status", "checks[?check_id=PCACC-002].reason_code"],
+        "fields_excluded_from_byte_lock": ["generated_at", "task_id", "policy_ref"],
+        "exit_code": "0_for_pass_or_skipped_with_reason_code;1_for_fail",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-PRECOMMIT-FAILCLOSED",
+      "surface_id": "CLI-PRECOMMIT",
+      "purpose": "Lock fail-closed registry-load envelope: missing path / malformed JSON / schema_version mismatch / PCACC-002 conflict exit code 2 with stable JSON error envelope.",
+      "cases": [
+        {
+          "case_id": "GCLI-PRECOMMIT-FAILCLOSED-001",
+          "title": "--evidence-ref-policy points at missing file -> exit 2 (evidence_ref_registry_missing)",
+          "fixture_id": "fx-failclosed-missing",
+          "registry_arg_relpath": "registries/missing.json",
+          "expected_exit_code": 2,
+          "expected_envelope_error": "evidence_ref_registry_load_failed",
+          "expected_envelope_reason_code": "evidence_ref_registry_missing",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-FAILCLOSED-002",
+          "title": "--evidence-ref-policy points at malformed JSON -> exit 2 (evidence_ref_registry_malformed_json)",
+          "fixture_id": "fx-failclosed-malformed",
+          "registry_arg_relpath": "registries/malformed-json.json",
+          "expected_exit_code": 2,
+          "expected_envelope_error": "evidence_ref_registry_load_failed",
+          "expected_envelope_reason_code": "evidence_ref_registry_malformed_json",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-FAILCLOSED-003",
+          "title": "--evidence-ref-policy schema_version mismatch -> exit 2 (evidence_ref_registry_schema_version_mismatch)",
+          "fixture_id": "fx-failclosed-schema-mismatch",
+          "registry_arg_relpath": "registries/schema-version-mismatch.json",
+          "expected_exit_code": 2,
+          "expected_envelope_error": "evidence_ref_registry_load_failed",
+          "expected_envelope_reason_code": "evidence_ref_registry_schema_version_mismatch",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-FAILCLOSED-004",
+          "title": "--evidence-ref-policy with PCACC-002 conflict -> exit 2 (evidence_ref_registry_pcacc_002_conflict)",
+          "fixture_id": "fx-failclosed-pcacc-conflict",
+          "registry_arg_relpath": "registries/pcacc-conflict.json",
+          "expected_exit_code": 2,
+          "expected_envelope_error": "evidence_ref_registry_load_failed",
+          "expected_envelope_reason_code": "evidence_ref_registry_pcacc_002_conflict",
+          "implementation_status": "implemented"
+        }
+      ],
+      "fixture_requirements": [
+        "byte-identical reuse of TASK-1035 controlled malformed registries (malformed-json / schema-version-mismatch / pcacc-conflict), copied under fixtures/pcacc/registries/ to avoid cross-task coupling",
+        "missing.json path is intentionally absent on disk to drive evidence_ref_registry_missing"
+      ],
+      "contracts": {
+        "json_fields_locked": ["error", "reason_code"],
+        "fields_excluded_from_byte_lock": ["detail", "path"],
+        "exit_code": 2,
+        "stderr_strategy": "may_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "purpose": "Lock PCACC-001 / PCACC-003 / PCACC-004 fail-path output and the invalid_task_id invocation envelope.",
+      "cases": [
+        {
+          "case_id": "GCLI-PRECOMMIT-LIFECYCLE-001",
+          "title": "Missing verify artifact -> PCACC-001 fail with reason_code prefix=lifecycle_missing:",
+          "fixture_id": "fx-lifecycle-missing-verify",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_001_status": "fail",
+          "expected_pcacc_001_reason_code_prefix": "lifecycle_missing:",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-LIFECYCLE-002",
+          "title": "Non-canonical owner -> PCACC-003 fail with reason_code prefix=non_canonical:",
+          "fixture_id": "fx-lifecycle-non-canonical-owner",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_003_status": "fail",
+          "expected_pcacc_003_reason_code_prefix": "non_canonical:",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-LIFECYCLE-003",
+          "title": "review_ts equal to evidence_ts -> PCACC-004 fail with reason_code=review_equal_to_evidence_not_strictly_after",
+          "fixture_id": "fx-lifecycle-equal-timestamps",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_004_status": "fail",
+          "expected_pcacc_004_reason_code": "review_equal_to_evidence_not_strictly_after",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-LIFECYCLE-004",
+          "title": "review_ts before evidence_ts -> PCACC-004 fail with reason_code=review_before_evidence",
+          "fixture_id": "fx-lifecycle-review-before-evidence",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_pcacc_004_status": "fail",
+          "expected_pcacc_004_reason_code": "review_before_evidence",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-PRECOMMIT-LIFECYCLE-005",
+          "title": "Invalid task ID -> exit 2 with stdout {error: invalid_task_id, value: <raw>}",
+          "fixture_id": "fx-lifecycle-invalid-task-id",
+          "expected_exit_code": 2,
+          "expected_envelope_error": "invalid_task_id",
+          "expected_envelope_value": "NOT-A-TASK",
+          "implementation_status": "implemented"
+        }
+      ],
+      "fixture_requirements": [
+        "synthetic TASK-9XXXX lifecycle bundles purpose-built per case; fixture-local policy with canonical_owners=['Claude'] and canonical_reviewers=['arcobaleno']"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?check_id=PCACC-001..004].status", "checks[?check_id=PCACC-001..004].reason_code"],
+        "fields_excluded_from_byte_lock": ["generated_at", "task_id", "policy_ref"],
+        "exit_code": "1_for_fail;2_for_invalid_task_id",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-QUALITY-SYNC",
+      "surface_id": "CLI-QUALITY-GATES",
+      "purpose": "Lock QC-SYNC-001 reason_code surface across in_sync / baseline_existing / post_baseline_new_pair_drift; remaining matrix cases (post_baseline_in_sync / waivered_until / waiver_invalid:expired) are recorded with implementation_status=implemented_with_limitations for a future lifecycle.",
+      "cases": [
+        {
+          "case_id": "GCLI-QUALITY-SYNC-001",
+          "title": "Baseline-existing pair byte-identical -> reason_code=in_sync; exit 0",
+          "fixture_id": "fx-quality-sync-001",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_sync_target_relpath": "artifacts/scripts/case_pair.py",
+          "expected_qc_sync_status": "pass",
+          "expected_qc_sync_reason_code": "in_sync",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-SYNC-002",
+          "title": "Baseline-existing pair declared drift with sha unchanged from baseline -> reason_code=baseline_existing; exit 0",
+          "fixture_id": "fx-quality-sync-002",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_sync_target_relpath": "artifacts/scripts/case_pair.py",
+          "expected_qc_sync_status": "pass",
+          "expected_qc_sync_reason_code": "baseline_existing",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-SYNC-004",
+          "title": "Post-baseline new pair drift without waiver -> reason_code=post_baseline_new_pair_drift; exit 1",
+          "fixture_id": "fx-quality-sync-004",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_qc_sync_target_relpath": "artifacts/scripts/post_baseline_new.py",
+          "expected_qc_sync_status": "fail",
+          "expected_qc_sync_reason_code": "post_baseline_new_pair_drift",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-SYNC-003",
+          "title": "Post-baseline new pair in sync -> reason_code=post_baseline_new_pair_in_sync (covered transitively by every quality fixture's runner self-pair)",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Covered as a side-effect of runner self-pair in every quality fixture (Pass 2 detect of runner copy bytes-identical pair). A dedicated case adds no marginal value over the contract already locked by SYNC-001/002/004; deferred to candidate TASK-1038 if explicit isolation is desired."
+        },
+        {
+          "case_id": "GCLI-QUALITY-SYNC-005",
+          "title": "Drift covered by valid unexpired waiver -> reason_code=waivered_until:<date>",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Quality runner waiver scoping reads policy.waivers[] with rule_id and scope; the literal contract requires synthesizing a waiver-bearing policy and a drift-bearing source/template pair. Deferred to candidate TASK-1038 to keep TASK-1037 fixture scope bounded."
+        },
+        {
+          "case_id": "GCLI-QUALITY-SYNC-006",
+          "title": "Drift covered by expired waiver -> reason_code=waiver_invalid:expired:<date>",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Same fixture engineering cost as SYNC-005 plus expired-waiver-date generation; deferred to candidate TASK-1038."
+        }
+      ],
+      "fixture_requirements": [
+        "synthetic source/template pair under fixtures/quality-sync-XXX/repo/artifacts/scripts/ + fixtures/quality-sync-XXX/repo/template/artifacts/scripts/",
+        "fixture-local quality-baseline.v3.5.json with controlled source_template_pairs and sha256 entries",
+        "fixture-local quality-gate-policy.v3.5.json with controlled waivers (empty for SYNC-001/002/004)",
+        "fixture-local minimum_required_targets stubs to keep QC-SCHEMA-001 from blocking the run"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?gate_id=QC-SYNC-001].status (case-target)", "checks[?gate_id=QC-SYNC-001].reason_code (case-target)"],
+        "fields_excluded_from_byte_lock": ["generated_at", "checks[*].actual"],
+        "exit_code": "0_for_pass;1_for_fail",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-QUALITY-SCHEMA",
+      "surface_id": "CLI-QUALITY-GATES",
+      "purpose": "Lock QC-SCHEMA-001 reason_code surface across schema_and_keys_ok and schema_version_mismatch; missing_required_keys / json_parse_error are recorded with implementation_status=implemented_with_limitations.",
+      "cases": [
+        {
+          "case_id": "GCLI-QUALITY-SCHEMA-001",
+          "title": "All schema targets present and valid -> reason_code=schema_and_keys_ok per target; exit 0",
+          "fixture_id": "fx-quality-schema-001",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_schema_target_relpath": "artifacts/governance/quality-baseline.v3.5.json",
+          "expected_qc_schema_status": "pass",
+          "expected_qc_schema_reason_code": "schema_and_keys_ok",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-SCHEMA-002",
+          "title": "schema_version mismatch on quality-baseline.v3.5.json -> reason_code=schema_version_mismatch; exit 1",
+          "fixture_id": "fx-quality-schema-002",
+          "expected_exit_code": 1,
+          "expected_overall_status": "fail",
+          "expected_qc_schema_target_relpath": "artifacts/governance/quality-baseline.v3.5.json",
+          "expected_qc_schema_status": "fail",
+          "expected_qc_schema_reason_code": "schema_version_mismatch",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-SCHEMA-003",
+          "title": "Missing required keys on quality-gate-policy.v3.5.json -> reason_code=missing_required_keys; exit 1",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Same fixture topology as SCHEMA-002 with a different mutation; deferred to candidate TASK-1038."
+        },
+        {
+          "case_id": "GCLI-QUALITY-SCHEMA-004",
+          "title": "Malformed JSON on governance-repair-manifest.v3.5.json -> reason_code=json_parse_error; exit 1",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Same fixture topology as SCHEMA-002 with a different mutation; deferred to candidate TASK-1038."
+        }
+      ],
+      "fixture_requirements": [
+        "fixture-local copies of governance-repair-manifest.v3.5.json / artifacts/status/TASK-{1023,1024,1025}.status.json / artifacts/governance/quality-baseline.v3.5.json / artifacts/governance/quality-gate-policy.v3.5.json under fixtures/quality-schema-XXX/repo/"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?gate_id=QC-SCHEMA-001].status (target=baseline)", "checks[?gate_id=QC-SCHEMA-001].reason_code (target=baseline)"],
+        "fields_excluded_from_byte_lock": ["generated_at", "checks[*].actual"],
+        "exit_code": "0_for_pass;1_for_fail",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-QUALITY-IMPORT",
+      "surface_id": "CLI-QUALITY-GATES",
+      "purpose": "Lock QC-IMPORT-001 advisory contract for first_cycle_observation_dirty_import; clean / fail / pycache hygiene cases are recorded with implementation_status=implemented_with_limitations.",
+      "cases": [
+        {
+          "case_id": "GCLI-QUALITY-IMPORT-003",
+          "title": "Module not listed in expected_import_clean prints to stdout -> reason_code=first_cycle_observation_dirty_import; status=advisory; exit 0",
+          "fixture_id": "fx-quality-import-003",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_import_target_relpath": "artifacts/scripts/dirty_module.py",
+          "expected_qc_import_status": "advisory",
+          "expected_qc_import_reason_code": "first_cycle_observation_dirty_import",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-IMPORT-001",
+          "title": "Module listed in expected_import_clean imports cleanly -> reason_code=import_clean; exit 0",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Requires synthesizing a clean module that imports without stdout/stderr emission AND a fixture-local quality-gate-policy.v3.5.json that lists the module under expected_import_clean. Same harness mechanics as IMPORT-003; deferred to candidate TASK-1038."
+        },
+        {
+          "case_id": "GCLI-QUALITY-IMPORT-002",
+          "title": "Module listed in expected_import_clean raises ImportError -> reason_code=import_error_when_expected_clean; exit 1",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Requires synthesizing an ImportError module AND policy listing; same mechanics; deferred to candidate TASK-1038."
+        },
+        {
+          "case_id": "GCLI-QUALITY-IMPORT-004",
+          "title": "Subprocess invocation does not produce __pycache__ in fixture root after run",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Pycache hygiene is asserted by the harness's global cache_audit (cache_audit.pycache_created=false; unexpected_cache_paths=[]) which already covers IMPORT-003 subprocess; a dedicated case duplicates the assertion. Recorded for completeness."
+        }
+      ],
+      "fixture_requirements": [
+        "synthetic dirty_module.py under fixtures/quality-import-003/repo/artifacts/scripts/ that prints on import",
+        "fixture-local quality-baseline.v3.5.json with import_side_effect_surface entry candidate_for_import_side_effect_gate=true",
+        "fixture-local quality-gate-policy.v3.5.json with QC-IMPORT-001 expected_import_clean=[] (so dirty_module is unlisted; advisory)"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?gate_id=QC-IMPORT-001].status (case-target)", "checks[?gate_id=QC-IMPORT-001].reason_code (case-target)"],
+        "fields_excluded_from_byte_lock": ["generated_at", "checks[*].actual"],
+        "exit_code": "0_for_pass_or_advisory;1_for_fail",
+        "stderr_strategy": "may_be_nonempty_when_subprocess_emits_warnings",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-QUALITY-GOLDEN",
+      "surface_id": "CLI-QUALITY-GATES",
+      "purpose": "Lock QC-GOLDEN-001 deferred-capture contract: capture_policy=post_task_evidence_only -> skipped_with_reason_code; unsafe capture_policy fail is recorded with implementation_status=implemented_with_limitations.",
+      "cases": [
+        {
+          "case_id": "GCLI-QUALITY-GOLDEN-001",
+          "title": "Baseline golden_cli_candidates carry capture_policy=post_task_evidence_only -> reason_code=post_task_evidence_only_capture_deferred; status=skipped_with_reason_code; exit 0",
+          "fixture_id": "fx-quality-golden-001",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_golden_status": "skipped_with_reason_code",
+          "expected_qc_golden_reason_code": "post_task_evidence_only_capture_deferred",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-GOLDEN-002",
+          "title": "Baseline candidate with unsafe capture_policy -> reason_code prefix=unsafe_capture_policy:; exit 1",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Requires baseline mutation with unsafe capture_policy; same mechanics; deferred to candidate TASK-1038."
+        }
+      ],
+      "fixture_requirements": [
+        "fixture-local quality-baseline.v3.5.json with golden_cli_candidates carrying capture_policy=post_task_evidence_only"
+      ],
+      "contracts": {
+        "json_fields_locked": ["overall_status", "checks[?gate_id=QC-GOLDEN-001].status", "checks[?gate_id=QC-GOLDEN-001].reason_code"],
+        "fields_excluded_from_byte_lock": ["generated_at", "checks[*].actual"],
+        "exit_code": "0_for_skipped_with_reason_code;1_for_fail",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    },
+    {
+      "group_id": "GCLI-QUALITY-RUFF-ADVISORY",
+      "surface_id": "CLI-QUALITY-GATES",
+      "purpose": "Lock QC-RUFF-001 advisory-only contract: status=advisory; reason_code=advisory_only_in_v3.5.0; never blocking.",
+      "cases": [
+        {
+          "case_id": "GCLI-QUALITY-RUFF-ADVISORY-001",
+          "title": "Fixture repo with no ruff config -> status=advisory; reason_code=advisory_only_in_v3.5.0; exit 0",
+          "fixture_id": "fx-quality-ruff-001",
+          "expected_exit_code": 0,
+          "expected_overall_status": "pass",
+          "expected_qc_ruff_status": "advisory",
+          "expected_qc_ruff_reason_code": "advisory_only_in_v3.5.0",
+          "implementation_status": "implemented"
+        },
+        {
+          "case_id": "GCLI-QUALITY-RUFF-ADVISORY-002",
+          "title": "Fixture repo with ruff.toml present -> status=advisory; reason_code=advisory_only_in_v3.5.0; exit 0",
+          "implementation_status": "implemented_with_limitations",
+          "limitation_reason": "Adding ruff.toml in fixture only flips actual=config_files_found=ruff.toml without changing status / reason_code; the advisory-only contract is already locked by RUFF-001 (no config). Deferred to candidate TASK-1038."
+        }
+      ],
+      "fixture_requirements": [
+        "fixture repo without ruff.toml / .ruff.toml / pyproject.toml so QC-RUFF-001 reports config_files_found empty"
+      ],
+      "contracts": {
+        "json_fields_locked": ["checks[?gate_id=QC-RUFF-001].status", "checks[?gate_id=QC-RUFF-001].reason_code"],
+        "fields_excluded_from_byte_lock": ["generated_at", "checks[*].actual"],
+        "exit_code": "never_drives_exit_above_0_on_its_own",
+        "stderr_strategy": "must_be_empty",
+        "cache_behavior": "no __pycache__ produced under fixture root"
+      },
+      "implementation_status": "implemented"
+    }
+  ],
+  "output_contract_strategy": {
+    "preferred_contracts": [
+      "stable schema_version literal lock (precommit-check-result/v1, quality-gate-result/v1)",
+      "stable check_id / gate_id set lock (PCACC-001..004; QC-SYNC-001 / QC-SCHEMA-001 / QC-IMPORT-001 / QC-GOLDEN-001 / QC-RUFF-001)",
+      "stable status enum lock (pass / fail / skipped_with_reason_code; plus advisory for QC-IMPORT-001 / QC-RUFF-001)",
+      "stable reason_code literal or stable reason_code prefix lock per case",
+      "stable exit_code per case (0 / 1 / 2)",
+      "stderr empty unless explicitly justified per case",
+      "no __pycache__ or *.pyc produced under fixture root or harness directory"
+    ],
+    "rejected_contracts": [
+      "brittle full-stdout byte-equality (would break on Taipei timestamp, JSON key reordering, fixture path interpolation)",
+      "matching against actual paths or absolute filesystem locations",
+      "matching against `actual` free-form descriptors that aggregate counts or stderr tails"
+    ],
+    "exit_code_strategy": {
+      "pcacc_runner": {
+        "0": "overall_status=pass; all four PCACC checks pass or skipped_with_reason_code where allowed",
+        "1": "at least one PCACC check has status=fail",
+        "2": "invocation error envelope on stdout: repo_root_detection_failed | policy_not_found | policy_invalid | invalid_task_id | evidence_ref_registry_load_failed"
+      },
+      "quality_gate_runner": {
+        "0": "overall_status=pass; no gate has status=fail",
+        "1": "at least one gate has status=fail",
+        "2": "invocation error envelope on stdout: repo_root_detection_failed | baseline_not_found | policy_not_found"
+      }
+    },
+    "stdout_strategy": "JSON-only stdout; harness asserts json.loads(stdout) succeeds and that the locked field subset equals expected literals or expected prefix.",
+    "stderr_strategy": "empty by default for both runners; cases with non-empty stderr must record the justification in the case manifest.",
+    "json_strategy": "subset assertion against locked fields; generated_at is always excluded from the lock; actual strings that include counts or path interpolation are excluded unless explicitly listed.",
+    "reason_code_strategy": "exact literal match for stable reason_codes; prefix match for templated codes (e.g. lifecycle_missing:<kinds>, malformed_refs:<token>, post_baseline_new_pair_drift).",
+    "cache_strategy": "harness sets sys.dont_write_bytecode=True; subprocess env contains PYTHONDONTWRITEBYTECODE=1; subprocess argv uses python -B; post-run sweep over artifacts/verify/TASK-1037/ asserts zero __pycache__ / *.pyc."
+  },
+  "fixture_strategy": {
+    "fixture_root": "artifacts/verify/TASK-1037/fixtures/",
+    "fixture_layout": "fixtures/<surface>-<group-tail>-<NNN>/repo/{artifacts,template,...} per case; PCACC fail-closed registries shared under fixtures/pcacc/registries/.",
+    "synthetic_task_id_pattern": "TASK-9XXXX",
+    "no_production_artifact_mutation": true,
+    "no_cache_writes_outside_task_evidence": true,
+    "fixture_repo_root_strategy": "Each fixture repo contains the consilium-fabri-governance-repair-plan-v3.5.md sentinel + artifacts/governance/ + template/ so the runner's detect_repo_root() resolves to the fixture root. The runner is invoked as a fixture-local byte-identical copy at artifacts/scripts/run_precommit_check.py or run_quality_gates.py to ensure SCRIPT_PATH.parents lands inside the fixture tree.",
+    "policy_override_strategy": "harness passes --policy and --baseline pointing at fixture-local copies; production policy and baseline are never consumed by tests.",
+    "registry_override_strategy": "harness passes --evidence-ref-policy pointing at fixture-local copies for EVREF + FAILCLOSED groups; controlled malformed registries live under fixtures/pcacc/registries/ and never under artifacts/governance/.",
+    "timestamp_strategy": "fixtures inline deterministic Taipei ISO 8601 timestamps; runner-emitted generated_at is excluded from the byte lock.",
+    "forbidden_fixture_locations": [
+      ".obsidian",
+      ".omc",
+      ".tmp",
+      ".pytest-basetemp",
+      "__pycache__",
+      ".pytest_cache"
+    ]
+  },
+  "non_authorization": {
+    "production_runner_modification_authorized": false,
+    "production_validator_modification_authorized": false,
+    "validator_split_authorized": false,
+    "new_registry_extraction_authorized": false,
+    "task_1038_plus_authorized": false,
+    "pcacc_005_introduction_authorized": false,
+    "ac_to_verify_coverage_activation_authorized": false,
+    "test_monolith_reorganization_authorized": false,
+    "production_governance_policy_modification_authorized": false,
+    "evidence_ref_registry_modification_authorized": false,
+    "quality_baseline_refresh_authorized": false,
+    "quality_gate_policy_extension_authorized": false,
+    "aom_matrix_extension_authorized": false,
+    "exact_sync_files_extension_authorized": false,
+    "pytest_invocation_authorized": false,
+    "ruff_invocation_authorized": false,
+    "formatter_invocation_authorized": false,
+    "package_manager_invocation_authorized": false,
+    "obsidian_workspace_modification_authorized": false,
+    "omc_state_modification_authorized": false,
+    "tmp_or_pytest_basetemp_modification_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "v3_5_plan_or_manifest_modification_authorized": false,
+    "v3_5_1_plan_or_manifest_modification_authorized": false,
+    "task_1023_to_1036_lifecycle_modification_authorized": false,
+    "srs_or_rtm_or_design_spec_or_threat_model_or_release_note_or_migration_note_or_user_guide_or_runbook_content_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "broader_directory_mutation_outside_TASK_1037_authorized_set_authorized": false
+  },
+  "limitations": [
+    "Twenty-four cases are implemented; remaining matrix cases (SYNC-003 / 005 / 006, SCHEMA-003 / 004, IMPORT-001 / 002 / 004, GOLDEN-002, RUFF-002) are recorded with implementation_status=implemented_with_limitations and a per-case limitation_reason. They remain candidates for a future lifecycle.",
+    "Reason_code surface is anchored at PCACC sha=4dbb8a219093cc12 and quality sha=456b8328482b18a5; future runner edits will require a separate refresh task.",
+    "Per-case fixture repo includes byte-identical copies of the production runner under artifacts/scripts/ to guarantee SCRIPT_PATH.parents lands in the fixture root; the copy is not a runtime modification of the production runner.",
+    "Quality runner Pass-2 discover_current_pairs detects the runner self-pair as post_baseline_new_pair_in_sync; harness asserts case-specific QC-SYNC-001 check by target path to avoid coupling to the runner self-pair.",
+    "QC-SCHEMA-001 reads minimum_required_targets from fixed paths under repo root; per-case fixture provides deterministic stubs for all six required JSON targets to keep the gate well-defined.",
+    "ORC marker matching is substring against verify text (`evidence_refs_optional_per_orc_<id>`); future tightening into a structured heading would require both runner and harness to re-anchor.",
+    "Result JSON production_preservation block reports sha256 prefix only (first 16 hex chars); full 64-char comparison is not duplicated here."
+  ]
+}

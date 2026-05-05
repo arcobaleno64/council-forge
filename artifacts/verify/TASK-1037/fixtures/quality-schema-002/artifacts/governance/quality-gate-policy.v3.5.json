@@ -1,0 +1,15 @@
+{
+  "schema_version": "quality-gate-policy/v1",
+  "plan_version": "v3.5.0-fixture",
+  "rollout_phase": {
+    "current_phase": 1
+  },
+  "gates": [
+    {
+      "gate_id": "QC-IMPORT-001",
+      "expected_import_clean": [],
+      "first_cycle_advisory_for_unlisted_candidates": true
+    }
+  ],
+  "waivers": []
+}

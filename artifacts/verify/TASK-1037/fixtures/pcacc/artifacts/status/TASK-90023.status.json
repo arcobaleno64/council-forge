@@ -1,0 +1,7 @@
+{
+  "task_id": "TASK-90023",
+  "state": "done",
+  "current_owner": "Claude",
+  "last_updated": "2026-05-05T03:00:00+08:00",
+  "self_check_result_ref": "artifacts/verify/TASK-90023/precommit-check-result.json"
+}

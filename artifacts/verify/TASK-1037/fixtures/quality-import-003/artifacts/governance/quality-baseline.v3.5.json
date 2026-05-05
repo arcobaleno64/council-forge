@@ -1,0 +1,13 @@
+{
+  "schema_version": "quality-baseline/v1",
+  "plan_version": "v3.5.0-fixture",
+  "metrics": [],
+  "source_template_pairs": [],
+  "import_side_effect_surface": [
+    {
+      "path": "artifacts/scripts/dirty_module.py",
+      "candidate_for_import_side_effect_gate": true
+    }
+  ],
+  "golden_cli_candidates": []
+}

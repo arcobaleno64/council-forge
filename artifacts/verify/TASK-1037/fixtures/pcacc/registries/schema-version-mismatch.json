@@ -1,0 +1,20 @@
+{
+  "schema_version": "evidence-ref-policy-registry-prototype/v1",
+  "plan_version": "v3.5.3",
+  "created_by_task": "TASK-99999",
+  "runtime_status": "production_runtime",
+  "runtime_consumption_authorized": true,
+  "source_policy_refs": {},
+  "policy_surface": {},
+  "allowed_ref_prefixes": [],
+  "ref_format_rules": {},
+  "local_artifact_constraints": {},
+  "required_ref_contexts": [],
+  "optional_ref_contexts": [],
+  "malformed_ref_behavior": {},
+  "missing_ref_behavior": {},
+  "pcacc_compatibility": {},
+  "failure_semantics": [],
+  "non_authorization": {},
+  "limitations": []
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": "wrong-schema-version/v1",
+  "plan_version": "v3.5.0-fixture",
+  "metrics": [],
+  "source_template_pairs": [],
+  "import_side_effect_surface": [],
+  "golden_cli_candidates": []
+}

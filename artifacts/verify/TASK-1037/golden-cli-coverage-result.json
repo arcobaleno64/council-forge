@@ -1,0 +1,993 @@
+{
+  "schema_version": "golden-cli-coverage-result/v1",
+  "task_id": "TASK-1037",
+  "generated_at": "2026-05-05T09:47:54+08:00",
+  "harness_ref": "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+  "case_manifest_ref": "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+  "overall_status": "pass",
+  "summary": {
+    "total_cases": 24,
+    "passed_cases": 24,
+    "skipped_with_reason_code_cases": 0,
+    "advisory_cases": 0,
+    "failed_cases": 0,
+    "surface_counts": {
+      "CLI-PRECOMMIT": {
+        "total": 16,
+        "passed": 16,
+        "failed": 0
+      },
+      "CLI-QUALITY-GATES": {
+        "total": 8,
+        "passed": 8,
+        "failed": 0
+      }
+    },
+    "group_counts": {
+      "GCLI-PRECOMMIT-DEFAULT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "GCLI-PRECOMMIT-EVREF": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      },
+      "GCLI-PRECOMMIT-FAILCLOSED": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0
+      },
+      "GCLI-PRECOMMIT-LIFECYCLE": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0
+      },
+      "GCLI-QUALITY-SYNC": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0
+      },
+      "GCLI-QUALITY-SCHEMA": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0
+      },
+      "GCLI-QUALITY-IMPORT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "GCLI-QUALITY-GOLDEN": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "GCLI-QUALITY-RUFF-ADVISORY": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "GCLI-PRECOMMIT-DEFAULT-001",
+      "group_id": "GCLI-PRECOMMIT-DEFAULT",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "All four PCACC checks pass on synthetic compliant lifecycle (no --evidence-ref-policy)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90001 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "checks_reason_codes_match": true,
+        "expected_reason_codes": {
+          "PCACC-001": "lifecycle_complete",
+          "PCACC-002": "evidence_refs_resolved",
+          "PCACC-003": "owner_and_reviewer_canonical",
+          "PCACC-004": "review_after_evidence"
+        },
+        "actual_reason_codes": {
+          "PCACC-001": "lifecycle_complete",
+          "PCACC-002": "evidence_refs_resolved",
+          "PCACC-003": "owner_and_reviewer_canonical",
+          "PCACC-004": "review_after_evidence"
+        }
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "schema_version": "precommit-check-result/v1",
+        "overall_status": "pass"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "all_four_pcacc_pass",
+      "actual_reason_code": "PCACC-001=lifecycle_complete;PCACC-002=evidence_refs_resolved;PCACC-003=owner_and_reviewer_canonical;PCACC-004=review_after_evidence",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Default success path locked at the CLI boundary."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-001",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Valid local artifact ref resolves under registry mode",
+      "command": "python -B <fixture-runner-copy> --task TASK-90011 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\evidence-ref-policy.v3.5.3.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "pcacc_002.status": "pass",
+        "pcacc_002.reason_code": "evidence_refs_resolved"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "evidence_refs_resolved",
+      "actual_reason_code": "evidence_refs_resolved",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-002",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Empty Evidence Refs section with ORC-1 marker is skipped under registry mode",
+      "command": "python -B <fixture-runner-copy> --task TASK-90012 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\evidence-ref-policy.v3.5.3.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "pcacc_002.status": "skipped_with_reason_code",
+        "pcacc_002.reason_code": "evidence_refs_optional_per_orc_1"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "evidence_refs_optional_per_orc_1",
+      "actual_reason_code": "evidence_refs_optional_per_orc_1",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-003",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Forbidden URL scheme ref under registry mode classified malformed",
+      "command": "python -B <fixture-runner-copy> --task TASK-90013 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\evidence-ref-policy.v3.5.3.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "pcacc_002.status": "fail",
+        "pcacc_002.reason_code": "malformed_refs:https://evil.example.com/x.json"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "prefix:malformed_refs:https://",
+      "actual_reason_code": "malformed_refs:https://evil.example.com/x.json",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-004",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Parent traversal ref under registry mode classified malformed",
+      "command": "python -B <fixture-runner-copy> --task TASK-90014 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\evidence-ref-policy.v3.5.3.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "pcacc_002.status": "fail",
+        "pcacc_002.reason_code": "malformed_refs:../../../etc/passwd"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "prefix:malformed_refs:../",
+      "actual_reason_code": "malformed_refs:../../../etc/passwd",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-005",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Default mode preserves TASK-1030 NEG-002 reason_code byte-identically",
+      "command": "python -B <fixture-runner-copy> --task TASK-90015 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "pcacc_002.status": "fail",
+        "pcacc_002.reason_code": "malformed_refs:garbage_token_not_a_known_prefix"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+      "actual_reason_code": "malformed_refs:garbage_token_not_a_known_prefix",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-EVREF-006",
+      "group_id": "GCLI-PRECOMMIT-EVREF",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Default mode preserves TASK-1030 NEG-003 reason_code byte-identically",
+      "command": "python -B <fixture-runner-copy> --task TASK-90016 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "pcacc_002_present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "pcacc_002.status": "fail",
+        "pcacc_002.reason_code": "evidence_refs_section_empty"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "evidence_refs_section_empty",
+      "actual_reason_code": "evidence_refs_section_empty",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "Evidence Ref policy CLI lock per matrix GCLI-PRECOMMIT-EVREF."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-FAILCLOSED-001",
+      "group_id": "GCLI-PRECOMMIT-FAILCLOSED",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "--evidence-ref-policy at missing file -> exit 2 (evidence_ref_registry_missing)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90011 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy registries/missing.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 2,
+      "actual_exit_code": 2,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "envelope.error": "evidence_ref_registry_load_failed",
+        "envelope.reason_code": "evidence_ref_registry_missing"
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "error": "evidence_ref_registry_load_failed",
+        "reason_code": "evidence_ref_registry_missing"
+      },
+      "expected_status": "exit_2_load_failed",
+      "actual_status": "exit_2_load_failed",
+      "expected_reason_code": "evidence_ref_registry_missing",
+      "actual_reason_code": "evidence_ref_registry_missing",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/registries/missing.json",
+      "notes": "Fail-closed envelope locked."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-FAILCLOSED-002",
+      "group_id": "GCLI-PRECOMMIT-FAILCLOSED",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "--evidence-ref-policy at malformed JSON -> exit 2 (evidence_ref_registry_malformed_json)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90011 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy registries/malformed-json.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 2,
+      "actual_exit_code": 2,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "envelope.error": "evidence_ref_registry_load_failed",
+        "envelope.reason_code": "evidence_ref_registry_malformed_json"
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "error": "evidence_ref_registry_load_failed",
+        "reason_code": "evidence_ref_registry_malformed_json"
+      },
+      "expected_status": "exit_2_load_failed",
+      "actual_status": "exit_2_load_failed",
+      "expected_reason_code": "evidence_ref_registry_malformed_json",
+      "actual_reason_code": "evidence_ref_registry_malformed_json",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/registries/malformed-json.json",
+      "notes": "Fail-closed envelope locked."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-FAILCLOSED-003",
+      "group_id": "GCLI-PRECOMMIT-FAILCLOSED",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "--evidence-ref-policy schema_version mismatch -> exit 2 (evidence_ref_registry_schema_version_mismatch)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90011 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy registries/schema-version-mismatch.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 2,
+      "actual_exit_code": 2,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "envelope.error": "evidence_ref_registry_load_failed",
+        "envelope.reason_code": "evidence_ref_registry_schema_version_mismatch"
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "error": "evidence_ref_registry_load_failed",
+        "reason_code": "evidence_ref_registry_schema_version_mismatch"
+      },
+      "expected_status": "exit_2_load_failed",
+      "actual_status": "exit_2_load_failed",
+      "expected_reason_code": "evidence_ref_registry_schema_version_mismatch",
+      "actual_reason_code": "evidence_ref_registry_schema_version_mismatch",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/registries/schema-version-mismatch.json",
+      "notes": "Fail-closed envelope locked."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-FAILCLOSED-004",
+      "group_id": "GCLI-PRECOMMIT-FAILCLOSED",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "--evidence-ref-policy with PCACC-002 conflict -> exit 2 (evidence_ref_registry_pcacc_002_conflict)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90011 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check --evidence-ref-policy registries/pcacc-conflict.json",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 2,
+      "actual_exit_code": 2,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "envelope.error": "evidence_ref_registry_load_failed",
+        "envelope.reason_code": "evidence_ref_registry_pcacc_002_conflict"
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "error": "evidence_ref_registry_load_failed",
+        "reason_code": "evidence_ref_registry_pcacc_002_conflict"
+      },
+      "expected_status": "exit_2_load_failed",
+      "actual_status": "exit_2_load_failed",
+      "expected_reason_code": "evidence_ref_registry_pcacc_002_conflict",
+      "actual_reason_code": "evidence_ref_registry_pcacc_002_conflict",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/registries/pcacc-conflict.json",
+      "notes": "Fail-closed envelope locked."
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-LIFECYCLE-001",
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Missing verify artifact -> PCACC-001 fail (lifecycle_missing:<kinds>)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90021 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "PCACC-001.present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "PCACC-001.status": "fail",
+        "PCACC-001.reason_code": "lifecycle_missing:verify"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "prefix:lifecycle_missing:",
+      "actual_reason_code": "lifecycle_missing:verify",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/artifacts/{tasks,plans,decisions,verify,status}/TASK-90021.*",
+      "notes": "PCACC fail-path lock for PCACC-001"
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-LIFECYCLE-002",
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Non-canonical owner -> PCACC-003 fail (non_canonical:<fields>)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90022 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "PCACC-003.present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "PCACC-003.status": "fail",
+        "PCACC-003.reason_code": "non_canonical:status.current_owner=Mallory;task.Owner=Mallory"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "prefix:non_canonical:",
+      "actual_reason_code": "non_canonical:status.current_owner=Mallory;task.Owner=Mallory",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/artifacts/{tasks,plans,decisions,verify,status}/TASK-90022.*",
+      "notes": "PCACC fail-path lock for PCACC-003"
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-LIFECYCLE-003",
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "review_ts == evidence_ts -> PCACC-004 fail (review_equal_to_evidence_not_strictly_after)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90023 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "PCACC-004.present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "PCACC-004.status": "fail",
+        "PCACC-004.reason_code": "review_equal_to_evidence_not_strictly_after"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "review_equal_to_evidence_not_strictly_after",
+      "actual_reason_code": "review_equal_to_evidence_not_strictly_after",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/artifacts/{tasks,plans,decisions,verify,status}/TASK-90023.*",
+      "notes": "PCACC fail-path lock for PCACC-004"
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-LIFECYCLE-004",
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "review_ts < evidence_ts -> PCACC-004 fail (review_before_evidence)",
+      "command": "python -B <fixture-runner-copy> --task TASK-90024 --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "PCACC-004.present": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "PCACC-004.status": "fail",
+        "PCACC-004.reason_code": "review_before_evidence"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "review_before_evidence",
+      "actual_reason_code": "review_before_evidence",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/artifacts/{tasks,plans,decisions,verify,status}/TASK-90024.*",
+      "notes": "PCACC fail-path lock for PCACC-004"
+    },
+    {
+      "case_id": "GCLI-PRECOMMIT-LIFECYCLE-005",
+      "group_id": "GCLI-PRECOMMIT-LIFECYCLE",
+      "surface_id": "CLI-PRECOMMIT",
+      "title": "Invalid task ID -> exit 2 with stdout {error: invalid_task_id, value: <raw>}",
+      "command": "python -B <fixture-runner-copy> --task NOT-A-TASK --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\pcacc\\artifacts\\governance\\precommit-check-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 2,
+      "actual_exit_code": 2,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "envelope.error": "invalid_task_id",
+        "envelope.value": "NOT-A-TASK"
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "error": "invalid_task_id",
+        "value": "NOT-A-TASK"
+      },
+      "expected_status": "exit_2_invalid_task_id",
+      "actual_status": "exit_2_invalid_task_id",
+      "expected_reason_code": "invalid_task_id",
+      "actual_reason_code": "invalid_task_id",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/pcacc/",
+      "notes": "invocation-error envelope locked."
+    },
+    {
+      "case_id": "GCLI-QUALITY-SYNC-001",
+      "group_id": "GCLI-QUALITY-SYNC",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "Baseline-existing pair byte-identical -> reason_code=in_sync; exit 0",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-001\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-001\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-SYNC-001.target": "artifacts/scripts/case_pair.py",
+        "QC-SYNC-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-SYNC-001.status": "pass",
+        "QC-SYNC-001.reason_code": "in_sync"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "in_sync",
+      "actual_reason_code": "in_sync",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-sync-001/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-SYNC"
+    },
+    {
+      "case_id": "GCLI-QUALITY-SYNC-002",
+      "group_id": "GCLI-QUALITY-SYNC",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "Baseline-existing drift unchanged -> reason_code=baseline_existing; exit 0",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-002\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-002\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-SYNC-001.target": "artifacts/scripts/case_pair.py",
+        "QC-SYNC-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-SYNC-001.status": "pass",
+        "QC-SYNC-001.reason_code": "baseline_existing"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "baseline_existing",
+      "actual_reason_code": "baseline_existing",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-sync-002/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-SYNC"
+    },
+    {
+      "case_id": "GCLI-QUALITY-SYNC-004",
+      "group_id": "GCLI-QUALITY-SYNC",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "Post-baseline new pair drift -> reason_code=post_baseline_new_pair_drift; exit 1",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-004\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-sync-004\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-SYNC-001.target": "artifacts/scripts/post_baseline_new.py",
+        "QC-SYNC-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "QC-SYNC-001.status": "fail",
+        "QC-SYNC-001.reason_code": "post_baseline_new_pair_drift"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_drift",
+      "actual_reason_code": "post_baseline_new_pair_drift",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-sync-004/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-SYNC"
+    },
+    {
+      "case_id": "GCLI-QUALITY-SCHEMA-001",
+      "group_id": "GCLI-QUALITY-SCHEMA",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "All schema targets valid -> reason_code=schema_and_keys_ok; exit 0",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-schema-001\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-schema-001\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-SCHEMA-001.target": "artifacts/governance/quality-baseline.v3.5.json",
+        "QC-SCHEMA-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-SCHEMA-001.status": "pass",
+        "QC-SCHEMA-001.reason_code": "schema_and_keys_ok"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "schema_and_keys_ok",
+      "actual_reason_code": "schema_and_keys_ok",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-schema-001/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-SCHEMA"
+    },
+    {
+      "case_id": "GCLI-QUALITY-SCHEMA-002",
+      "group_id": "GCLI-QUALITY-SCHEMA",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "schema_version mismatch on quality-baseline -> reason_code=schema_version_mismatch; exit 1",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-schema-002\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-schema-002\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-SCHEMA-001.target": "artifacts/governance/quality-baseline.v3.5.json",
+        "QC-SCHEMA-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "fail",
+        "QC-SCHEMA-001.status": "fail",
+        "QC-SCHEMA-001.reason_code": "schema_version_mismatch"
+      },
+      "expected_status": "fail",
+      "actual_status": "fail",
+      "expected_reason_code": "schema_version_mismatch",
+      "actual_reason_code": "schema_version_mismatch",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-schema-002/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-SCHEMA"
+    },
+    {
+      "case_id": "GCLI-QUALITY-IMPORT-003",
+      "group_id": "GCLI-QUALITY-IMPORT",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "Unlisted dirty module -> first_cycle_observation_dirty_import advisory",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-import-003\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-import-003\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-IMPORT-001.target": "artifacts/scripts/dirty_module.py",
+        "QC-IMPORT-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-IMPORT-001.status": "advisory",
+        "QC-IMPORT-001.reason_code": "first_cycle_observation_dirty_import"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "first_cycle_observation_dirty_import",
+      "actual_reason_code": "first_cycle_observation_dirty_import",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-import-003/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-IMPORT"
+    },
+    {
+      "case_id": "GCLI-QUALITY-GOLDEN-001",
+      "group_id": "GCLI-QUALITY-GOLDEN",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "Deferred capture_policy -> post_task_evidence_only_capture_deferred skipped_with_reason_code",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-golden-001\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-golden-001\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-GOLDEN-001.target": "FX-CLI-0001",
+        "QC-GOLDEN-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-GOLDEN-001.status": "skipped_with_reason_code",
+        "QC-GOLDEN-001.reason_code": "post_task_evidence_only_capture_deferred"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "post_task_evidence_only_capture_deferred",
+      "actual_reason_code": "post_task_evidence_only_capture_deferred",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-golden-001/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-GOLDEN"
+    },
+    {
+      "case_id": "GCLI-QUALITY-RUFF-ADVISORY-001",
+      "group_id": "GCLI-QUALITY-RUFF-ADVISORY",
+      "surface_id": "CLI-QUALITY-GATES",
+      "title": "RUFF advisory contract -> status=advisory reason_code=advisory_only_in_v3.5.0",
+      "command": "python -B <fixture-runner-copy> --baseline C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-ruff-001\\artifacts\\governance\\quality-baseline.v3.5.json --policy C:\\Users\\arcobaleno\\Documents\\Code\\consilium-fabri\\artifacts\\verify\\TASK-1037\\fixtures\\quality-ruff-001\\artifacts\\governance\\quality-gate-policy.v3.5.json --self-check",
+      "subprocess_env_overrides": [
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONUTF8"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "stdout_contract": {
+        "json_parse": "ok",
+        "QC-RUFF-001.target": "ruff_config",
+        "QC-RUFF-001.selected": true
+      },
+      "stderr_contract": {
+        "empty_required": true,
+        "stderr_len": 0
+      },
+      "json_contract": {
+        "overall_status": "pass",
+        "QC-RUFF-001.status": "advisory",
+        "QC-RUFF-001.reason_code": "advisory_only_in_v3.5.0"
+      },
+      "expected_status": "pass",
+      "actual_status": "pass",
+      "expected_reason_code": "advisory_only_in_v3.5.0",
+      "actual_reason_code": "advisory_only_in_v3.5.0",
+      "pass": true,
+      "evidence_ref": "artifacts/verify/TASK-1037/fixtures/quality-ruff-001/",
+      "notes": "Quality gate CLI lock per matrix GCLI-QUALITY-RUFF-ADVISORY"
+    }
+  ],
+  "cache_audit": {
+    "pycache_created": false,
+    "unexpected_cache_paths": [],
+    "pre_existing_pycache_under_artifacts_scripts": [
+      "artifacts/scripts/__pycache__",
+      "template/artifacts/scripts/__pycache__"
+    ],
+    "env_controls": [
+      "PYTHONDONTWRITEBYTECODE",
+      "PYTHONNOUSERSITE",
+      "PYTHONUTF8"
+    ],
+    "python_b_flag_used": true,
+    "harness_dont_write_bytecode": true
+  },
+  "production_preservation": {
+    "all_targets_unchanged": true,
+    "targets": [
+      {
+        "path": "artifacts/scripts/run_precommit_check.py",
+        "expected_sha256_prefix": "4dbb8a219093cc12",
+        "actual_sha256_prefix": "4dbb8a219093cc12",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "template/artifacts/scripts/run_precommit_check.py",
+        "expected_sha256_prefix": "4dbb8a219093cc12",
+        "actual_sha256_prefix": "4dbb8a219093cc12",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/run_quality_gates.py",
+        "expected_sha256_prefix": "456b8328482b18a5",
+        "actual_sha256_prefix": "456b8328482b18a5",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "template/artifacts/scripts/run_quality_gates.py",
+        "expected_sha256_prefix": "456b8328482b18a5",
+        "actual_sha256_prefix": "456b8328482b18a5",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/guard_status_validator.py",
+        "expected_sha256_prefix": "d58a41f6ca49ccfe",
+        "actual_sha256_prefix": "d58a41f6ca49ccfe",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/guard_contract_validator.py",
+        "expected_sha256_prefix": "7a38af7e2e0af5b7",
+        "actual_sha256_prefix": "7a38af7e2e0af5b7",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/workflow_constants.py",
+        "expected_sha256_prefix": "e1f09d2100b5685f",
+        "actual_sha256_prefix": "e1f09d2100b5685f",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/run_red_team_suite.py",
+        "expected_sha256_prefix": "77540c3b29f6ece6",
+        "actual_sha256_prefix": "77540c3b29f6ece6",
+        "unchanged_relative_to_task_1036_baseline": true
+      },
+      {
+        "path": "artifacts/scripts/test_guard_units.py",
+        "expected_sha256_prefix": "5c7228c9997edffd",
+        "actual_sha256_prefix": "5c7228c9997edffd",
+        "unchanged_relative_to_task_1036_baseline": true
+      }
+    ],
+    "baseline_source": "TASK-1036.status.json#real_pcacc_runner_sha256_prefix; real_quality_gate_runner_sha256_prefix; target_file_sha256_prefixes"
+  },
+  "limitations": [
+    "Twenty-four cases are implemented; remaining matrix cases are recorded with implementation_status=implemented_with_limitations in the case manifest and remain candidates for a future lifecycle.",
+    "Each fixture repo contains byte-identical copies of the production runner under artifacts/scripts/ to anchor SCRIPT_PATH.parents inside the fixture root; fixture-local copies are not modifications of the production runner.",
+    "Quality runner Pass-2 detects the runner self-pair as post_baseline_new_pair_in_sync; harness asserts QC-SYNC-001 case-specific check by target path to avoid coupling to the runner self-pair.",
+    "QC-SCHEMA-001 reads minimum_required_targets from fixed paths under repo root; per-case fixture provides deterministic stubs to make the gate well-defined.",
+    "Cache audit only blames cache files that appear under artifacts/verify/TASK-1037/. Pre-existing __pycache__ under artifacts/scripts/ from prior v3.4 / v3.5 chains is recorded but not attributed to TASK-1037."
+  ]
+}

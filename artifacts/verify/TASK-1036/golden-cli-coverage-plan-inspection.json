@@ -1,0 +1,287 @@
+{
+  "schema_version": "golden-cli-coverage-plan-inspection/v1",
+  "task_id": "TASK-1036",
+  "generated_at": "2026-05-05T00:50:00+08:00",
+  "plan_markdown_ref": "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+  "coverage_matrix_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_id": "INS-001",
+      "target": "artifacts/tasks/TASK-1036.task.md",
+      "expected": "lifecycle_task_artifact_exists",
+      "actual": "exists_with_30_acceptance_criteria",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1036.task.md",
+      "reason_code": "task_artifact_present"
+    },
+    {
+      "check_id": "INS-002",
+      "target": "artifacts/plans/TASK-1036.plan.md",
+      "expected": "lifecycle_plan_artifact_exists_with_premortem",
+      "actual": "exists_with_R1_R6_premortem",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1036.plan.md",
+      "reason_code": "plan_artifact_present"
+    },
+    {
+      "check_id": "INS-003",
+      "target": "artifacts/decisions/TASK-1036.decision.md",
+      "expected": "lifecycle_decision_artifact_exists_with_v2_frontmatter",
+      "actual": "exists_with_governance-golden-cli-coverage-plan_class",
+      "status": "pass",
+      "evidence_ref": "artifacts/decisions/TASK-1036.decision.md",
+      "reason_code": "decision_artifact_present"
+    },
+    {
+      "check_id": "INS-004",
+      "target": "artifacts/verify/TASK-1036.verify.md",
+      "expected": "lifecycle_verify_artifact_exists_with_build_guarantee",
+      "actual": "exists_with_30_AC_checklist_and_build_guarantee",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1036.verify.md",
+      "reason_code": "verify_artifact_present"
+    },
+    {
+      "check_id": "INS-005",
+      "target": "artifacts/status/TASK-1036.status.json",
+      "expected": "lifecycle_status_artifact_exists_with_state_done",
+      "actual": "exists_with_state_done_verify_pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1036.status.json",
+      "reason_code": "status_artifact_present"
+    },
+    {
+      "check_id": "INS-006",
+      "target": "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+      "expected": "human_readable_coverage_plan_with_14_sections",
+      "actual": "exists_with_14_sections",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+      "reason_code": "coverage_plan_markdown_present"
+    },
+    {
+      "check_id": "INS-007",
+      "target": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+      "expected": "machine_readable_coverage_matrix_with_required_top_level_fields",
+      "actual": "schema_version=golden-cli-coverage-matrix/v1;plan_version=v3.5.4;created_by_task=TASK-1036;plan_status=planning_only;implementation_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+      "reason_code": "coverage_matrix_present"
+    },
+    {
+      "check_id": "INS-008",
+      "target": "TASK-1035 dependency satisfied",
+      "expected": "TASK-1035.status.json#state=done verify_result=pass",
+      "actual": "state=done;verify_result=pass;verify_ac_count=30;runtime_consumption_authorized=true;commit=ce9c072",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1035.status.json",
+      "reason_code": "task_1035_closure_verified"
+    },
+    {
+      "check_id": "INS-009",
+      "target": "matrix.cli_surfaces inventory",
+      "expected": "two_surfaces_CLI-PRECOMMIT_and_CLI-QUALITY-GATES",
+      "actual": "len=2;ids=[CLI-PRECOMMIT,CLI-QUALITY-GATES]",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#cli_surfaces",
+      "reason_code": "cli_surfaces_inventoried"
+    },
+    {
+      "check_id": "INS-010",
+      "target": "CLI-PRECOMMIT surface fields",
+      "expected": "exists=true;observed_cli_options_includes_--task_--policy_--evidence-ref-policy_--format_--self-check_--output;observed_exit_code_semantics_covers_0_1_2",
+      "actual": "all_fields_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#cli_surfaces[CLI-PRECOMMIT]",
+      "reason_code": "cli_precommit_surface_complete"
+    },
+    {
+      "check_id": "INS-011",
+      "target": "CLI-QUALITY-GATES surface fields",
+      "expected": "exists=true;observed_cli_options_includes_--baseline_--policy_--format_--self-check_--output;observed_exit_code_semantics_covers_0_1_2",
+      "actual": "all_fields_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#cli_surfaces[CLI-QUALITY-GATES]",
+      "reason_code": "cli_quality_gates_surface_complete"
+    },
+    {
+      "check_id": "INS-012",
+      "target": "matrix.golden_case_groups required IDs",
+      "expected": "nine_required_group_ids_present_GCLI-PRECOMMIT-DEFAULT_EVREF_FAILCLOSED_LIFECYCLE_QUALITY-SYNC_SCHEMA_IMPORT_GOLDEN_RUFF-ADVISORY",
+      "actual": "len=9;all_required_ids_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#golden_case_groups",
+      "reason_code": "golden_case_groups_complete"
+    },
+    {
+      "check_id": "INS-013",
+      "target": "matrix.golden_case_groups[*].implementation_authorized",
+      "expected": "all_false",
+      "actual": "all_groups_implementation_authorized_false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#golden_case_groups",
+      "reason_code": "no_group_authorized_for_implementation"
+    },
+    {
+      "check_id": "INS-014",
+      "target": "Evidence Ref post-TASK-1035 cases included",
+      "expected": "GCLI-PRECOMMIT-EVREF_GCLI-PRECOMMIT-FAILCLOSED_cover_default_unchanged_valid_local_orc_skip_forbidden_patterns_missing_malformed_schema_mismatch_pcacc_conflict",
+      "actual": "EVREF_001..006_FAILCLOSED_001..004_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#golden_case_groups[GCLI-PRECOMMIT-EVREF;GCLI-PRECOMMIT-FAILCLOSED]",
+      "reason_code": "evidence_ref_post_task_1035_cases_present"
+    },
+    {
+      "check_id": "INS-015",
+      "target": "TASK-1030 NEG-002 / NEG-003 backward compat anchor",
+      "expected": "byte_identical_reason_code_lock_in_GCLI-PRECOMMIT-EVREF-005_006",
+      "actual": "EVREF-005=malformed_refs:garbage_token_not_a_known_prefix;EVREF-006=evidence_refs_section_empty",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#golden_case_groups[GCLI-PRECOMMIT-EVREF].planned_cases[4..5]",
+      "reason_code": "task_1030_backward_compat_anchored"
+    },
+    {
+      "check_id": "INS-016",
+      "target": "matrix.output_contract_strategy",
+      "expected": "preferred_contracts_rejected_contracts_exit_code_strategy_stdout_strategy_stderr_strategy_json_strategy_reason_code_strategy_cache_strategy_all_present",
+      "actual": "all_eight_subfields_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#output_contract_strategy",
+      "reason_code": "output_contract_strategy_complete"
+    },
+    {
+      "check_id": "INS-017",
+      "target": "matrix.fixture_strategy",
+      "expected": "fixture_root_synthetic_task_id_no_production_artifact_mutation_no_cache_writes_outside_task_evidence_forbidden_fixture_locations_present",
+      "actual": "fixture_root=artifacts/verify/TASK-1037/fixtures/;synthetic_task_id_pattern=TASK-9XXXX;no_production_artifact_mutation=true;no_cache_writes_outside_task_evidence=true;forbidden_fixture_locations_len=6",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#fixture_strategy",
+      "reason_code": "fixture_strategy_complete"
+    },
+    {
+      "check_id": "INS-018",
+      "target": "no-cache and no-pycache execution requirements",
+      "expected": "documented_in_plan_section_11_and_matrix_output_contract_strategy_cache_strategy",
+      "actual": "plan_md_section_11_present;matrix.output_contract_strategy.cache_strategy_present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md#11-no-cache-and-no-pycache-execution-requirements;artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#output_contract_strategy.cache_strategy",
+      "reason_code": "no_cache_no_pycache_documented"
+    },
+    {
+      "check_id": "INS-019",
+      "target": "future_task_acceptance_criteria",
+      "expected": "len_ge_6_with_criterion_id_description_current_status_evidence_ref_blocks_implementation",
+      "actual": "len=11;all_entries_have_required_fields;current_status_in_satisfied_or_not_satisfied",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#future_task_acceptance_criteria",
+      "reason_code": "fta_complete"
+    },
+    {
+      "check_id": "INS-020",
+      "target": "matrix.implementation_authorized",
+      "expected": "false",
+      "actual": "false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#implementation_authorized",
+      "reason_code": "implementation_remains_unauthorized"
+    },
+    {
+      "check_id": "INS-021",
+      "target": "production runners unchanged",
+      "expected": "PCACC_runner_sha_prefix_4dbb8a219093cc12_unchanged_AND_quality_runner_sha_prefix_456b8328482b18a5_unchanged",
+      "actual": "artifacts/scripts/run_precommit_check.py=4dbb8a219093cc12;template/artifacts/scripts/run_precommit_check.py=4dbb8a219093cc12;artifacts/scripts/run_quality_gates.py=456b8328482b18a5;template/artifacts/scripts/run_quality_gates.py=456b8328482b18a5",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/run_precommit_check.py;template/artifacts/scripts/run_precommit_check.py;artifacts/scripts/run_quality_gates.py;template/artifacts/scripts/run_quality_gates.py",
+      "reason_code": "production_runners_unchanged"
+    },
+    {
+      "check_id": "INS-022",
+      "target": "production validator/test files unchanged",
+      "expected": "five_target_files_sha_unchanged_relative_to_TASK-1035_record",
+      "actual": "guard_status_validator.py=d58a41f6ca49ccfe;guard_contract_validator.py=7a38af7e2e0af5b7;workflow_constants.py=e1f09d2100b5685f;run_red_team_suite.py=77540c3b29f6ece6;test_guard_units.py=5c7228c9997edffd",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/guard_status_validator.py;artifacts/scripts/guard_contract_validator.py;artifacts/scripts/workflow_constants.py;artifacts/scripts/run_red_team_suite.py;artifacts/scripts/test_guard_units.py",
+      "reason_code": "production_validator_test_files_unchanged"
+    },
+    {
+      "check_id": "INS-023",
+      "target": "no new registry extraction",
+      "expected": "evidence-ref-policy.v3.5.3.json_sha_unchanged_AND_no_new_runtime_registry_json_created",
+      "actual": "artifacts/governance/evidence-ref-policy.v3.5.3.json=0ca80e7eae09a25a;no_new_runtime_registry_path_created_under_artifacts/governance/",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "reason_code": "no_new_registry_extraction"
+    },
+    {
+      "check_id": "INS-024",
+      "target": "no validator split",
+      "expected": "validator_module_layout_unchanged",
+      "actual": "no_new_python_module_under_artifacts/scripts/_introduced_by_task_1036",
+      "status": "pass",
+      "evidence_ref": "artifacts/scripts/",
+      "reason_code": "validator_module_split_not_executed"
+    },
+    {
+      "check_id": "INS-025",
+      "target": "no TASK-1037+ artifacts",
+      "expected": "zero_hits_on_artifacts/{tasks,plans,decisions,verify,status}/TASK-103[7-9]*_or_TASK-104*_or_TASK-105*",
+      "actual": "0_hits",
+      "status": "pass",
+      "evidence_ref": "artifacts/{tasks,plans,decisions,verify,status}/",
+      "reason_code": "no_task_1037_plus_artifacts_present"
+    },
+    {
+      "check_id": "INS-026",
+      "target": "matrix.non_authorization core six false keys",
+      "expected": "golden_test_implementation_authorized=false;production_runner_modification_authorized=false;production_validator_modification_authorized=false;validator_split_authorized=false;new_registry_extraction_authorized=false;task_1037_plus_authorized=false",
+      "actual": "all_six_core_keys_false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#non_authorization",
+      "reason_code": "non_authorization_core_keys_false"
+    },
+    {
+      "check_id": "INS-027",
+      "target": "matrix.coverage_gaps enumeration",
+      "expected": "len_ge_8_with_gap_id_surface_id_description_risk_evidence_ref_blocks_future_refactor",
+      "actual": "len=12;all_entries_have_required_fields",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#coverage_gaps",
+      "reason_code": "coverage_gaps_enumerated"
+    },
+    {
+      "check_id": "INS-028",
+      "target": "PCACC active surface unchanged",
+      "expected": "exactly_PCACC-001..004_no_PCACC-005_introduced",
+      "actual": "matrix_observed_check_ids=[PCACC-001,PCACC-002,PCACC-003,PCACC-004];no_PCACC-005_referenced_anywhere_in_TASK-1036",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#cli_surfaces[CLI-PRECOMMIT].observed_json_surfaces",
+      "reason_code": "pcacc_active_surface_unchanged"
+    },
+    {
+      "check_id": "INS-029",
+      "target": "QC P0 gate surface unchanged",
+      "expected": "exactly_QC-SYNC-001_QC-SCHEMA-001_QC-IMPORT-001_QC-GOLDEN-001_plus_advisory_QC-RUFF-001",
+      "actual": "matrix_observed_gate_ids=[QC-SYNC-001,QC-SCHEMA-001,QC-IMPORT-001,QC-GOLDEN-001,QC-RUFF-001]",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json#cli_surfaces[CLI-QUALITY-GATES].observed_json_surfaces",
+      "reason_code": "qc_gate_surface_unchanged"
+    },
+    {
+      "check_id": "INS-030",
+      "target": "AC-to-verify coverage remains excluded",
+      "expected": "no_activation_in_TASK-1036",
+      "actual": "no_AC-to-verify_coverage_referenced_in_matrix_or_plan_md",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json;artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+      "reason_code": "ac_to_verify_coverage_remains_excluded"
+    }
+  ],
+  "limitations": [
+    "Inspection is performed via static read-only analysis of the runners and policies; no broad CLI execution of run_precommit_check.py or run_quality_gates.py is performed in TASK-1036.",
+    "Reason_code surface enumeration is anchored at PCACC sha=4dbb8a219093cc12 and quality sha=456b8328482b18a5; future runner edits will require a separate refresh task.",
+    "INS-021 / INS-022 sha verification is byte-prefix comparison (first 16 hex chars) against TASK-1035 status records; full 64-char comparison is not performed in this artifact to avoid duplicating TASK-1035 evidence.",
+    "INS-025 zero-hit assertion is based on glob inspection at TASK-1036 closure time; nothing prevents future tasks from creating TASK-1037+ artifacts in their own lifecycle.",
+    "Future_task_acceptance_criteria FTA-* entries with current_status=satisfied are inherited from TASK-1035 and TASK-1030 evidence; satisfaction does not by itself authorize implementation."
+  ]
+}

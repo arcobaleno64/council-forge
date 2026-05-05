@@ -1,0 +1,250 @@
+{
+  "schema_version": "waiver-runtime-extraction-plan-inspection/v1",
+  "task_id": "TASK-1040",
+  "generated_at": "2026-05-05T23:30:00+08:00",
+  "markdown_plan_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+  "json_plan_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+  "overall_status": "pass",
+  "summary": {
+    "total_checks": 25,
+    "pass_count": 25,
+    "skipped_with_reason_code_count": 0,
+    "advisory_count": 0,
+    "fail_count": 0
+  },
+  "checks": [
+    {
+      "check_id": "lifecycle-artifacts-exist",
+      "target": "TASK-1040 lifecycle artifact set",
+      "expected": "task / plan / decision / verify / status all present under artifacts/{tasks,plans,decisions,verify,status}/TASK-1040.*",
+      "actual": "artifacts/tasks/TASK-1040.task.md, artifacts/plans/TASK-1040.plan.md, artifacts/decisions/TASK-1040.decision.md, artifacts/verify/TASK-1040.verify.md, artifacts/status/TASK-1040.status.json all present at commit time",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1040.task.md;artifacts/plans/TASK-1040.plan.md;artifacts/decisions/TASK-1040.decision.md;artifacts/verify/TASK-1040.verify.md;artifacts/status/TASK-1040.status.json",
+      "reason_code": "lifecycle_artifacts_present"
+    },
+    {
+      "check_id": "markdown-plan-exists",
+      "target": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "expected": "markdown plan exists with seventeen required sections (Purpose / Source of truth and limitations / Preconditions / Non-authorization boundary / Proposed activation model / Runtime loading model / Fail-closed matrix / Waiver selection and matching model / Evidence Ref integration requirements / Backward compatibility requirements / Golden CLI coverage requirements / Production runner and template mirror preservation / Rollback strategy / Migration and staged rollout plan / Future TASK-1041 acceptance criteria / Risks and unresolved decisions / Closure conclusion)",
+      "actual": "markdown plan present; seventeen section markers all present (## 1. Purpose, ## 2. Source of truth and limitations, ## 3. Preconditions, ## 4. Non-authorization boundary, ## 5. Proposed activation model, ## 6. Runtime loading model, ## 7. Fail-closed matrix, ## 8. Waiver selection and matching model, ## 9. Evidence Ref integration requirements, ## 10. Backward compatibility requirements, ## 11. Golden CLI coverage requirements, ## 12. Production runner and template mirror preservation, ## 13. Rollback strategy, ## 14. Migration and staged rollout plan, ## 15. Future TASK-1041 acceptance criteria, ## 16. Risks and unresolved decisions, ## 17. Closure conclusion)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "markdown_plan_present"
+    },
+    {
+      "check_id": "json-plan-exists",
+      "target": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+      "expected": "JSON plan exists with schema_version=waiver-policy-runtime-extraction-plan/v1, plan_version=v3.5.8, created_by_task=TASK-1040, plan_status=planning_only, implementation_authorized=false, runtime_consumption_authorized=false",
+      "actual": "JSON plan parses cleanly under standard library json module; schema_version=waiver-policy-runtime-extraction-plan/v1; plan_version=v3.5.8; created_by_task=TASK-1040; plan_status=planning_only; implementation_authorized=false; runtime_consumption_authorized=false; 21 top-level keys",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+      "reason_code": "json_plan_present_and_well_formed"
+    },
+    {
+      "check_id": "inspection-evidence-exists",
+      "target": "artifacts/verify/TASK-1040/waiver-runtime-extraction-plan-inspection.json",
+      "expected": "schema_version=waiver-runtime-extraction-plan-inspection/v1; task_id=TASK-1040; overall_status=pass",
+      "actual": "this very file; schema_version=waiver-runtime-extraction-plan-inspection/v1; task_id=TASK-1040; overall_status=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1040/waiver-runtime-extraction-plan-inspection.json",
+      "reason_code": "inspection_evidence_present"
+    },
+    {
+      "check_id": "task-1039-dependency-satisfied",
+      "target": "TASK-1039 status / verify / prototype JSON / design note / inspection JSON",
+      "expected": "TASK-1039 status state=done verify_result=pass; prototype JSON and design note present; inspection JSON overall_status=pass",
+      "actual": "artifacts/status/TASK-1039.status.json#state=done verify_result=pass; artifacts/verify/TASK-1039.verify.md records pass; artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json present (schema_version=waiver-policy-registry-prototype/v1, prototype_status=design_only, runtime_consumption_authorized=false); artifacts/governance/waiver-policy-registry-prototype-design.v3.5.7.md present (16 sections); artifacts/verify/TASK-1039/waiver-policy-prototype-inspection.json overall_status=pass; HEAD at TASK-1040 task start = ff94995 (TASK-1039 prototype waiver policy registry)",
+      "status": "pass",
+      "evidence_ref": "artifacts/status/TASK-1039.status.json;artifacts/verify/TASK-1039.verify.md;artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json;artifacts/governance/waiver-policy-registry-prototype-design.v3.5.7.md;artifacts/verify/TASK-1039/waiver-policy-prototype-inspection.json",
+      "reason_code": "task_1039_dependency_satisfied"
+    },
+    {
+      "check_id": "activation-model-defined",
+      "target": "plan JSON activation_model + markdown §5",
+      "expected": "activation_kind=explicit_cli_only; cli_argument=--waiver-policy <path>; default_behavior_unchanged_without_explicit_path=true; no_automatic_discovery=true; no_environment_variable_only_activation=true; no_implicit_consumption_from_prototype_path=true; explicit_path_required=true; missing_explicit_file_fails_closed=true; malformed_explicit_file_fails_closed=true",
+      "actual": "plan JSON activation_model carries activation_kind=explicit_cli_only, cli_argument=--waiver-policy <path>, eight required booleans all true, activation_pattern_mirrors=TASK-1035 --evidence-ref-policy, eight constraints AM-1..AM-8; markdown §5 documents AM-1..AM-8 and §5.2 limits activation surface to run_quality_gates.py and its template mirror",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#activation_model;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "activation_model_defined"
+    },
+    {
+      "check_id": "runtime-loading-model-defined",
+      "target": "plan JSON runtime_loading_model + markdown §6",
+      "expected": "load_steps cover read from explicit path / schema_version validation / plan/version compatibility / reject unknown fields / non_authorization sanity check / per-entry validation / fail closed on load errors / no partial application / runner gates execution on load success / machine-readable load failure envelope",
+      "actual": "plan JSON runtime_loading_model.load_steps length=10 covering LM-1..LM-10; runtime_registry_schema_version=waiver-policy-registry/v1; runtime_registry_path_pattern=artifacts/governance/waiver-policy-registry.v<version>.json; prototype_schema_version_rejected_at_runtime=waiver-policy-registry-prototype/v1; markdown §6 documents LM-1..LM-10",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#runtime_loading_model;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "runtime_loading_model_defined"
+    },
+    {
+      "check_id": "fail-closed-matrix-defined",
+      "target": "plan JSON fail_closed_matrix + markdown §7",
+      "expected": "fail_closed_matrix covers every condition listed in prompt §9.3: missing/malformed registry, schema mismatch, unknown top-level/entry field, missing required field, missing/malformed expires_at, expired/revoked/superseded waiver, invalid status, missing owner / reason_code / evidence_ref, Evidence Ref violation, scope mismatch, wildcard-only scope, broad repo-wide waiver, duplicate waiver_id, conflicting waivers, valid active unexpired waiver. Each row carries condition_id / condition / future_expected_behavior / future_exit_code_expectation / suppression_allowed / reason_code / golden_cli_required / implementation_authorized=false. Valid active row may carry suppression_allowed=future_targeted_only; all others must carry suppression_allowed=false.",
+      "actual": "plan JSON fail_closed_matrix length=24 (FC-01..FC-24); each row carries the eight required keys; FC-22 and FC-23 (valid active and post_baseline_new_pair valid active) carry suppression_allowed=future_targeted_only; remaining 22 rows carry suppression_allowed=false; every row carries implementation_authorized=false; reason_code surface preserves prototype's validation_semantics.registry_load_failure_reason_codes (waiver_registry_missing:<path>, waiver_registry_malformed_json, waiver_registry_schema_version_mismatch:<actual>, waiver_registry_missing_required_field:<field>, waiver_registry_unknown_enum_value:<field>=<value>, waiver_registry_forbidden_pattern:<pattern>, waiver_registry_pair_uniqueness_violation:<waiver_id>, waiver_registry_qc_sync_001_conflict:<fixture>) and reason_code_policy.qc_sync_001_runtime_reason_code_alignment (waivered_until:<date>, waiver_invalid:expired:<date>, waiver_invalid:missing_fields:<fields>, post_baseline_new_pair_waivered_until:<date>, post_baseline_new_pair_waiver_invalid:<reasons>); markdown §7 mirrors the same 24 rows",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#fail_closed_matrix;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md;artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json#validation_semantics",
+      "reason_code": "fail_closed_matrix_defined"
+    },
+    {
+      "check_id": "waiver-selection-model-defined",
+      "target": "plan JSON waiver_selection_model + markdown §8",
+      "expected": "waiver_selection_model carries select_only_valid_active_unexpired_waivers=true; exact_rule_id_and_target_match_preferred=true; wildcard_only_scope_rejected=true; broad_repo_wide_waiver_rejected_by_default=true; multi_scope_waiver_requires_explicit_justification=true; expired/revoked/superseded/invalid_waiver_cannot_suppress_blocking_finding=true; conflicts_fail_closed_or_require_deterministic_rejection=true; matching_evaluation_is_deterministic=true; silent_skip_forbidden=true; selection_steps SM-1..SM-14 enumerated",
+      "actual": "plan JSON waiver_selection_model carries every required boolean as true; selection_steps length=14 covering SM-1..SM-14; markdown §8 mirrors SM-1..SM-14",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#waiver_selection_model;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "waiver_selection_model_defined"
+    },
+    {
+      "check_id": "evidence-ref-integration-defined",
+      "target": "plan JSON evidence_ref_integration + markdown §9",
+      "expected": "evidence_ref_integration carries evidence_ref_policy_source=artifacts/governance/evidence-ref-policy.v3.5.3.json; local_artifact_refs_only_unless_later_policy_explicitly_allows=true; absolute_paths_rejected=true; parent_traversal_rejected=true; remote_urls_rejected=true; shell_tokens_rejected=true; .obsidian/.omc/.tmp/.pytest-basetemp under forbidden_root_directories_rejected; missing_required_evidence_ref_blocking=true; rrc_5_alignment_required=true; runtime_must_delegate_to_evidence_ref_policy_registry=true; runtime_must_not_fallback_to_in_module_evidence_ref_check=true; evidence_ref_violation_maps_to_fail_closed_row=FC-16; constraints ER-1..ER-10 enumerated",
+      "actual": "plan JSON evidence_ref_integration carries every required boolean as true; forbidden_root_directories_rejected length=9 includes .obsidian/.omc/.tmp/.pytest-basetemp/__pycache__/.pytest_cache/node_modules/.venv/.git; forbidden_url_schemes_rejected length=7 includes http://, https://, ftp://, file://, ssh://, git://, git+ssh://; evidence_ref_violation_maps_to_fail_closed_row=FC-16; constraints length=10 covering ER-1..ER-10; markdown §9 mirrors ER-1..ER-10",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#evidence_ref_integration;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md;artifacts/governance/evidence-ref-policy.v3.5.3.json",
+      "reason_code": "evidence_ref_integration_defined"
+    },
+    {
+      "check_id": "backward-compatibility-defined",
+      "target": "plan JSON backward_compatibility + markdown §10",
+      "expected": "backward_compatibility carries default_behavior_preserved_without_flag=true; task_1029_qc_sync_001_fixtures_must_pass_byte_identically=true; quality_gate_policy_default_discovery_mode_unchanged=explicit_policy_waivers_array; quality_gate_policy_registry_forbidden_in_default_mode=true; task_1037_24_golden_cli_cases_must_pass=true; task_1037_repair_schema_must_not_regress=true; pcacc_active_surface_must_remain_four=true; pcacc_005_must_not_be_introduced=true; ac_to_verify_coverage_must_remain_excluded=true; aom_waiver_mechanism_decision_artifact_only_must_remain=true; evidence_ref_policy_rrc_5_must_remain=true; constraints BC-1..BC-11",
+      "actual": "plan JSON backward_compatibility carries every required boolean as true; constraints length=11 covering BC-1..BC-11; markdown §10 mirrors BC-1..BC-11",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#backward_compatibility;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "backward_compatibility_defined"
+    },
+    {
+      "check_id": "golden-cli-coverage-requirements-defined",
+      "target": "plan JSON golden_cli_coverage_requirements + markdown §11",
+      "expected": "golden_cli_coverage_requirements carries each required future case enumerated in prompt §9.6 (default behavior unchanged / valid registry accepted / valid active suppresses targeted only / expired blocking / missing expires_at / malformed expires_at / missing required field / unknown field / malformed registry / schema mismatch / Evidence Ref violation / scope mismatch / wildcard-only scope / broad repo-wide waiver / duplicate waiver_id / conflicting waivers / revoked / superseded / invalid status). Each case carries case_id / title / surface / required_future_task / authorized_now=false / expected_status / reason_code.",
+      "actual": "plan JSON golden_cli_coverage_requirements length=19 (GCLI-WAIVER-001..019); every case carries the seven required keys; every case carries authorized_now=false; every case maps required_future_task=TASK-1041; markdown §11 mirrors the same 19 cases",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#golden_cli_coverage_requirements;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "golden_cli_coverage_requirements_defined"
+    },
+    {
+      "check_id": "runner-mirror-preservation-defined",
+      "target": "plan JSON runner_mirror_preservation + markdown §12",
+      "expected": "runner_mirror_preservation carries root_runner_and_template_mirror_byte_identical_after_authorized_changes=true; diff_limited_to_authorized_runner_files_and_task_evidence=true; default_behavior_preserved_without_explicit_cli_argument=true; golden_cli_coverage_updated_before_closure=true; five_production_validator_test_files_sha256_unchanged=true; exact_sync_files_extension_not_authorized=true; preservation_targets enumerates the runner pair plus the five production validator/test files; constraints PR-1..PR-8",
+      "actual": "plan JSON runner_mirror_preservation carries every required boolean as true; preservation_targets length=9 (run_quality_gates root + template mirror with sha256 prefix 456b8328482b18a5; run_precommit_check root + template mirror with sha256 prefix 4dbb8a219093cc12; five validator/test files with their respective sha256 prefixes); constraints length=8 covering PR-1..PR-8; markdown §12 mirrors PR-1..PR-8",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#runner_mirror_preservation;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "runner_mirror_preservation_defined"
+    },
+    {
+      "check_id": "rollback-strategy-defined",
+      "target": "plan JSON rollback_strategy + markdown §13",
+      "expected": "rollback_strategy carries remove_explicit_cli_activation=true; restore_runner_template_pair_from_previous_commit=true; preserve_prototype_design_artifacts_as_historical_records=true; do_not_delete_prior_evidence=true; create_repair_rollback_lifecycle_task_if_needed=true; codex_post_rollback_verification_required=true; rollback_does_not_lift_non_authorization_boundary=true; rollback_steps RB-1..RB-9",
+      "actual": "plan JSON rollback_strategy carries every required boolean as true; rollback_steps length=9 covering RB-1..RB-9; markdown §13 mirrors RB-1..RB-9",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#rollback_strategy;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "rollback_strategy_defined"
+    },
+    {
+      "check_id": "future-task-1041-acceptance-criteria-defined",
+      "target": "plan JSON future_task_acceptance_criteria + markdown §15",
+      "expected": "future_task_acceptance_criteria covers explicit human authorization / implementation scope allowlist / runner mirror preservation / default behavior unchanged / fail-closed tests / golden CLI cases / Evidence Ref enforcement / no validator split / no PCACC active check expansion / no AC-to-verify activation / Codex post-commit PASS",
+      "actual": "plan JSON future_task_acceptance_criteria length=15 covering FTC-1..FTC-15 (explicit human authorization; implementation scope allowlist; runner mirror preservation; default behavior unchanged; fail-closed tests; golden CLI cases; Evidence Ref enforcement; no validator split; no PCACC active check expansion; no AC-to-verify activation; Codex post-commit PASS; no prior task artifact retroactive modification; non_authorization preserved; runtime registry path separate from prototype; runtime registry schema_version distinct from prototype); markdown §15 mirrors FTC-1..FTC-15",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#future_task_acceptance_criteria;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md",
+      "reason_code": "future_task_1041_acceptance_criteria_defined"
+    },
+    {
+      "check_id": "implementation-authorized-false",
+      "target": "plan JSON top-level + non_authorization",
+      "expected": "plan_status=planning_only; implementation_authorized=false (top-level); non_authorization.implementation_authorized=false",
+      "actual": "plan_status=planning_only; top-level implementation_authorized=false; non_authorization.implementation_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+      "reason_code": "implementation_not_authorized"
+    },
+    {
+      "check_id": "runtime-consumption-authorized-false",
+      "target": "plan JSON top-level + non_authorization",
+      "expected": "runtime_consumption_authorized=false (top-level); non_authorization.runtime_consumption_authorized=false",
+      "actual": "top-level runtime_consumption_authorized=false; non_authorization.runtime_consumption_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+      "reason_code": "runtime_consumption_not_authorized"
+    },
+    {
+      "check_id": "non-authorization-block-complete",
+      "target": "plan JSON non_authorization",
+      "expected": "non_authorization carries every required false key (implementation_authorized, runtime_consumption_authorized, production_runner_modification_authorized, production_validator_modification_authorized, production_policy_modification_authorized, waiver_prototype_modification_authorized, new_test_implementation_authorized, validator_split_authorized, pcacc_active_check_expansion_authorized, pcacc_005_authorized, ac_to_verify_authorized, task_1041_plus_authorized); every value literal false",
+      "actual": "non_authorization carries 48 keys; every required key is present with literal false; additional explicit boundaries include quality_baseline_refresh_authorized, qb_drift_0001_remediation_or_waiver_authorized, evidence_ref_registry_modification_authorized, quality_gate_policy_modification_authorized, precommit_check_policy_modification_authorized, aom_matrix_modification_authorized, golden_cli_coverage_matrix_modification_authorized, golden_cli_harness_modification_authorized, v3_5_x_closure_snapshot_modification_authorized, v3_5_x_closure_index_modification_authorized, exact_sync_files_extension_authorized, task_1023_to_1039_lifecycle_modification_authorized, task_1037_repair_evidence_modification_authorized, task_1038_closure_evidence_modification_authorized, task_1039_prototype_evidence_modification_authorized, runtime_registry_promotion_from_prototype_authorized, prototype_schema_version_runtime_consumption_authorized, pcacc_runner_waiver_registry_attachment_authorized, etc; every value literal false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "non_authorization_block_complete"
+    },
+    {
+      "check_id": "production-runners-unchanged",
+      "target": "artifacts/scripts/run_precommit_check.py + run_quality_gates.py + their template mirrors",
+      "expected": "TASK-1040 staging set does not include any production runner path; pre-commit git diff --cached --name-only shows zero modification",
+      "actual": "TASK-1040 plan §Files Likely Affected lists production runners under Forbidden; non_authorization.production_runner_modification_authorized=false; pre-commit staged-set inspection planned at commit time and must not contain artifacts/scripts/run_precommit_check.py, template/artifacts/scripts/run_precommit_check.py, artifacts/scripts/run_quality_gates.py, or template/artifacts/scripts/run_quality_gates.py",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1040.plan.md#files-likely-affected;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "production_runners_unchanged_by_design"
+    },
+    {
+      "check_id": "production-validator-test-files-unchanged",
+      "target": "artifacts/scripts/{guard_status_validator,guard_contract_validator,workflow_constants,run_red_team_suite,test_guard_units}.py + their template mirrors",
+      "expected": "TASK-1040 staging set does not include any of the five validator/test files",
+      "actual": "TASK-1040 plan §Files Likely Affected lists these files under Forbidden; non_authorization.production_validator_modification_authorized=false; pre-commit staged-set inspection planned at commit time",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1040.plan.md#files-likely-affected;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "validator_test_files_unchanged_by_design"
+    },
+    {
+      "check_id": "production-governance-policies-unchanged",
+      "target": "artifacts/governance/{precommit-check-policy,quality-gate-policy,quality-baseline,artifact-obligation-matrix}.v3.5.json + evidence-ref-policy.v3.5.3.json + golden-cli-coverage-matrix.v3.5.4.json + v3.5.x-governance-closure-{snapshot.md,index.json}",
+      "expected": "TASK-1040 staging set under artifacts/governance/ is exactly the runtime extraction plan markdown + the runtime extraction plan JSON; no production governance policy is modified",
+      "actual": "TASK-1040 plan §Files Likely Affected lists these governance files under Forbidden; non_authorization.production_policy_modification_authorized=false, quality_gate_policy_modification_authorized=false, precommit_check_policy_modification_authorized=false, aom_matrix_modification_authorized=false, evidence_ref_registry_modification_authorized=false, golden_cli_coverage_matrix_modification_authorized=false, v3_5_x_closure_snapshot_modification_authorized=false, v3_5_x_closure_index_modification_authorized=false; pre-commit staged-set under artifacts/governance/ is exactly artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.md + artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1040.plan.md#files-likely-affected;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "governance_policies_unchanged_by_design"
+    },
+    {
+      "check_id": "waiver-prototype-unchanged",
+      "target": "artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json + artifacts/governance/waiver-policy-registry-prototype-design.v3.5.7.md",
+      "expected": "TASK-1040 staging set does not include the prototype JSON or the prototype design note; prototype is read-only source of truth",
+      "actual": "TASK-1040 plan §Files Likely Affected lists the prototype JSON and design note under Forbidden; non_authorization.waiver_prototype_modification_authorized=false, task_1039_prototype_evidence_modification_authorized=false; runtime_registry_promotion_from_prototype_authorized=false; prototype_schema_version_runtime_consumption_authorized=false; pre-commit staged-set inspection planned at commit time and must not contain artifacts/governance/prototypes/waiver-policy-registry.prototype.v3.5.7.json or artifacts/governance/waiver-policy-registry-prototype-design.v3.5.7.md",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1040.plan.md#files-likely-affected;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "waiver_prototype_unchanged_by_design"
+    },
+    {
+      "check_id": "prior-task-artifacts-unchanged",
+      "target": "artifacts/{tasks,plans,decisions,verify,status}/TASK-{1023..1039}.* and their evidence subdirectories",
+      "expected": "TASK-1040 staging set does not include any TASK-1023..TASK-1039 path",
+      "actual": "TASK-1040 plan §Files Likely Affected lists TASK-1023..TASK-1039 lifecycle artifacts and deliverables under Forbidden; non_authorization.task_1023_to_1039_lifecycle_modification_authorized=false, task_1037_repair_evidence_modification_authorized=false, task_1038_closure_evidence_modification_authorized=false, task_1039_prototype_evidence_modification_authorized=false; pre-commit staged-set inspection planned at commit time and must not contain any path matching artifacts/{tasks,plans,decisions,verify,status}/TASK-{1023..1039}.* or their evidence subdirectories",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1040.plan.md#files-likely-affected;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "prior_task_artifacts_unchanged_by_design"
+    },
+    {
+      "check_id": "no-new-tests-implemented",
+      "target": "artifacts/scripts/ + artifacts/verify/TASK-1040/",
+      "expected": "TASK-1040 staging set does not include any new test under artifacts/scripts/ or test fixture under artifacts/verify/TASK-1040/; only inspection JSON is added",
+      "actual": "TASK-1040 staging set does not include any path under artifacts/scripts/ or template/artifacts/scripts/; the only artifact under artifacts/verify/TASK-1040/ is waiver-runtime-extraction-plan-inspection.json (this file); non_authorization.new_test_implementation_authorized=false; non_authorization.validator_split_authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "no_new_tests_implemented"
+    },
+    {
+      "check_id": "no-task-1041-plus-artifacts",
+      "target": "artifacts/{tasks,plans,decisions,verify,status}/TASK-104{1..9}* and TASK-105*",
+      "expected": "no TASK-1041+ lifecycle artifact exists at commit time; candidate ids appear only as advisory descriptions in the plan markdown / decision artifact",
+      "actual": "Glob over artifacts/{tasks,plans,decisions,verify,status}/TASK-104{1..9}* and TASK-105* returns zero hits at commit time; candidate ids TASK-1041..TASK-1042 appear only as strings in artifacts/decisions/TASK-1040.decision.md#follow-up and as advisory mentions in the plan markdown §15 / plan JSON future_task_acceptance_criteria; no path under artifacts/{tasks,plans,decisions,verify,status}/ is created for any candidate id",
+      "status": "pass",
+      "evidence_ref": "artifacts/decisions/TASK-1040.decision.md;artifacts/governance/waiver-policy-runtime-extraction-plan.v3.5.8.json#non_authorization",
+      "reason_code": "no_task_1041_plus_artifacts_created"
+    }
+  ],
+  "limitations": [
+    "Inspection is a snapshot self-attestation written at TASK-1040 commit time; Codex performs the post-commit PASS/FAIL re-verification against the live working tree per agent_roles.negative_tester",
+    "Pre-commit staged-set inspection is recorded in the verify markdown Build Guarantee block; this JSON only declares the design-time intent",
+    "Inspection covers plan markdown / plan JSON shape and the TASK-1040 lifecycle; it does NOT rerun QC-SYNC-001 or PCACC fixtures (fixture rerun is a future TASK-1041 obligation)",
+    "GCLI-WAIVER-001..019 cases are forward-looking case definitions; inspection records the case_id / reason_code surface as informative only; case implementation is gated by FTC-1..FTC-15",
+    "Snapshot reflects HEAD ff94995 (TASK-1039 prototype waiver policy registry); subsequent commits may add evidence not represented here",
+    "The plan does NOT promote the prototype JSON; the prototype remains under artifacts/governance/prototypes/ until a future lifecycle authorizes promotion under the planned activation model"
+  ]
+}

@@ -1,6 +1,6 @@
-# Consilium Fabri Wiki
+# Council Forge Wiki
 
-歡迎來到 Consilium Fabri 的 Wiki。本專案是一套面向實務開發的多 Agent AI 協作工作流框架，強調 artifact-first、gate-guarded 與可驗證交付。
+歡迎來到 Council Forge 的 Wiki。本專案是一套面向實務開發的多 Agent AI 協作工作流框架，強調 artifact-first、gate-guarded 與可驗證交付。
 
 ## 導覽
 
@@ -14,6 +14,6 @@
 
 ## 外部連結
 
-- [GitHub Repository](https://github.com/arcobaleno64/consilium-fabri)
-- [README (English)](https://github.com/arcobaleno64/consilium-fabri/blob/master/README.md)
-- [README (繁體中文)](https://github.com/arcobaleno64/consilium-fabri/blob/master/README.zh-TW.md)
+- [GitHub Repository](https://github.com/arcobaleno64/council-forge)
+- [README (English)](https://github.com/arcobaleno64/council-forge/blob/master/README.md)
+- [README (繁體中文)](https://github.com/arcobaleno64/council-forge/blob/master/README.zh-TW.md)

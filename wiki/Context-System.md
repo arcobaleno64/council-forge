@@ -1,6 +1,6 @@
 # 上下文管理系統
 
-Consilium Fabri 內建分層式上下文管理系統，搭配 VS Code Copilot 使用，取代傳統的「一次讀完整套文件」策略。
+Council Forge 內建分層式上下文管理系統，搭配 VS Code Copilot 使用，取代傳統的「一次讀完整套文件」策略。
 
 ## 架構分層
 

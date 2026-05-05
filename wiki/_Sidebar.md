@@ -1,4 +1,4 @@
-**Consilium Fabri Wiki**
+**Council Forge Wiki**
 
 * [[Home]]
 * [[Getting-Started]]

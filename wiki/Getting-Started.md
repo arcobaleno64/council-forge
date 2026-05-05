@@ -13,7 +13,7 @@
 
 ```bash
 # 1. 複製範本到你的專案
-git clone https://github.com/arcobaleno64/consilium-fabri.git my-project
+git clone https://github.com/arcobaleno64/council-forge.git my-project
 cd my-project
 
 # 2. 替換 CLAUDE.md 中的 placeholder（無 fork 則移除 fork 區段）
@@ -30,7 +30,7 @@ python artifacts/scripts/prompt_regression_validator.py --root .
 python artifacts/scripts/run_red_team_suite.py --phase all
 ```
 
-完整啟動指引請參閱 [BOOTSTRAP_PROMPT.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/BOOTSTRAP_PROMPT.md)。
+完整啟動指引請參閱 [BOOTSTRAP_PROMPT.md](https://github.com/arcobaleno64/council-forge/blob/master/BOOTSTRAP_PROMPT.md)。
 
 ## 快速上手 — 既有專案
 

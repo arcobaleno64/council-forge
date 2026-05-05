@@ -39,7 +39,7 @@ Workflow template 位於：【填入 artifact-harness repo clone 路徑，或直
   - 執行 `python artifacts/scripts/guard_contract_validator.py --check-readme` 確認 README 結構合規
 5. 執行 `python artifacts/scripts/guard_status_validator.py --task-id TASK-900` 確認 [OK]
 6. 執行 `python artifacts/scripts/guard_contract_validator.py` 確認 contract 未漂移
-  - source template repo（含 `.consilium-source-repo`）會檢查 root / template / Obsidian / repository profile
+  - source template repo（含 `.council-forge-source-repo`）會檢查 root / template / Obsidian / repository profile
   - downstream terminal repo 只檢查 root / Obsidian / repository profile，不再要求 nested `template/`
 7. 執行 `python artifacts/scripts/prompt_regression_validator.py --root .` 確認 Prompt regression 測例通過
 8. 若要做完整流程壓力測試，可再執行 `python artifacts/scripts/run_red_team_suite.py --phase all`

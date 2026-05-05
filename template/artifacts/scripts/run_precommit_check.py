@@ -164,7 +164,7 @@ def detect_repo_root() -> Path:
     matches = [
         parent
         for parent in SCRIPT_PATH.parents
-        if (parent / "consilium-fabri-governance-repair-plan-v3.5.md").is_file()
+        if (parent / "council-forge-governance-repair-plan-v3.5.md").is_file()
         and (parent / "artifacts" / "governance").is_dir()
         and (parent / "template").is_dir()
     ]
@@ -571,7 +571,7 @@ def run_pcacc_002(
             resolved.append(ref)
             continue
         if ref.startswith("artifacts/") or ref.startswith("template/") or ref.startswith("docs/") \
-                or ref.startswith("consilium-fabri-") or ref.startswith("governance-repair-") \
+                or ref.startswith("council-forge-") or ref.startswith("governance-repair-") \
                 or ref.startswith(".github/"):
             target = repo_root / ref
             if target.is_file() or target.is_dir():

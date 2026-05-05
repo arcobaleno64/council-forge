@@ -58,8 +58,8 @@ Intake → Research → Planning → Coding → Verification → Done
 - 可簡化 verify（可用 Environment constraint 替代 Build Guarantee）
 - 仍需 code artifact + Files Changed
 
-詳見 [docs/lightweight_mode_rules.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/lightweight_mode_rules.md)。
+詳見 [docs/lightweight_mode_rules.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/lightweight_mode_rules.md)。
 
 ## 狀態機
 
-8 個合法狀態與轉移規則，詳見 [docs/workflow_state_machine.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/workflow_state_machine.md)。
+8 個合法狀態與轉移規則，詳見 [docs/workflow_state_machine.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/workflow_state_machine.md)。

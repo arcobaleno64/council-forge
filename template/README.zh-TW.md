@@ -1,6 +1,6 @@
 <div align="center">
 
-# Consilium Fabri
+# Council Forge
 
 <p>
   一套面向實務開發的多 Agent AI 協作工作流框架，強調 artifact-first、gate-guarded 與可驗證交付。
@@ -35,7 +35,7 @@
 
 ## 產品定位
 
-Consilium Fabri 是一套可嵌入專案儲存庫的多 Agent AI 工作流框架，設計目標不是單純「叫模型幫你寫程式」，而是建立一條有邊界、有檢查點、有產物紀錄的開發流程。
+Council Forge 是一套可嵌入專案儲存庫的多 Agent AI 工作流框架，設計目標不是單純「叫模型幫你寫程式」，而是建立一條有邊界、有檢查點、有產物紀錄的開發流程。
 
 它特別適合以下需求：
 
@@ -59,7 +59,7 @@ Consilium Fabri 是一套可嵌入專案儲存庫的多 Agent AI 工作流框架
 - Agent 角色重疊，導致任務邊界混亂
 - 每次都把整包文件塞進上下文，成本高又不穩定
 
-Consilium Fabri 的核心價值，在於把這些常見失控點收斂成一套有狀態、有產物、有 gate 的工作流。
+Council Forge 的核心價值，在於把這些常見失控點收斂成一套有狀態、有產物、有 gate 的工作流。
 
 ---
 

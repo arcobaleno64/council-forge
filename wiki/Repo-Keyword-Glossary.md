@@ -1,11 +1,11 @@
-# Consilium Fabri Repo 關鍵字與技術術語速讀
+# Council Forge Repo 關鍵字與技術術語速讀
 
 這份文件是給第一次接觸這個 repo 的人看的「白話版索引」。  
 如果你只想先知道這個 repo 在做什麼、常見名詞代表什麼、該從哪裡開始讀，先看這一份就夠。
 
 ## 先用一句話理解這個 Repo
 
-Consilium Fabri 不是一般以產品功能為主的 app repo；它比較像一套放在 repo 內部的 **multi-agent AI workflow framework**，用明確的文件、artifact、validator 與 GitHub Actions，把研究、規劃、實作、驗證流程固定下來。  
+Council Forge 不是一般以產品功能為主的 app repo；它比較像一套放在 repo 內部的 **multi-agent AI workflow framework**，用明確的文件、artifact、validator 與 GitHub Actions，把研究、規劃、實作、驗證流程固定下來。  
 證據：`README.zh-TW.md`、`docs/orchestration.md`、`docs/artifact_schema.md`
 
 ## 一眼看懂整體結構
@@ -63,7 +63,7 @@ Consilium Fabri 不是一般以產品功能為主的 app repo；它比較像一�
 | prompts | 可重複使用的提示模板，例如 pack-context、remember-capture。 | `.github/prompts/`、`README.zh-TW.md` |
 | skills | 專門能力模組，例如 code-tour、security-review、quality-playbook。 | `.github/skills/` |
 | custom agents | 額外定義的代理人格；目前 repo 內有 `autonomous-executor` 與 `readonly-process-auditor`。 | `.github/agents/` |
-| source template repo | 這個 repo 本身；它是其他專案複製 workflow 骨架的來源，而且因為根目錄有 `.consilium-source-repo`，所以要維護 root、`template/`、Obsidian 文件的一致性。 | `.consilium-source-repo`、`CLAUDE.md` |
+| source template repo | 這個 repo 本身；它是其他專案複製 workflow 骨架的來源，而且因為根目錄有 `.council-forge-source-repo`，所以要維護 root、`template/`、Obsidian 文件的一致性。 | `.council-forge-source-repo`、`CLAUDE.md` |
 | downstream terminal repo | 從 `template/` 複製出去的新專案；只維護 root 文件與 `OBSIDIAN.md`，不再保留新的 `template/`。 | `CLAUDE.md`、`README.zh-TW.md` |
 | Obsidian | 這個 repo 的另一個文件入口；`OBSIDIAN.md` 供 Obsidian vault 使用。 | `OBSIDIAN.md`、`README.zh-TW.md` |
 

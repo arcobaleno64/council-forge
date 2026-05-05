@@ -11,7 +11,7 @@ from typing import Dict, List, Sequence
 import guard_status_validator as gsv
 from workflow_constants import REQUIRED_TOPICS, TOPIC_PATTERN, validate_workflow_rule_tables
 
-SOURCE_REPO_SENTINEL = ".consilium-source-repo"
+SOURCE_REPO_SENTINEL = ".council-forge-source-repo"
 SOURCE_REPO_MODE = "source"
 DOWNSTREAM_REPO_MODE = "downstream"
 
@@ -65,7 +65,7 @@ SOURCE_REQUIRED_PHRASES: Dict[str, Sequence[str]] = {
         "guard_contract_validator.py",
         "OBSIDIAN.md",
         "template/OBSIDIAN.md",
-        ".consilium-source-repo",
+        ".council-forge-source-repo",
         "source template repo",
         "任一同步缺漏（包含 Obsidian 入口）都視為 workflow 變更未完成。",
     ),
@@ -200,7 +200,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                     "required": ("template/ + .github/ + OBSIDIAN.md + external/",),
                 },
                 "Getting Started": {
-                    "required": ("source template repo", ".consilium-source-repo", "downstream terminal repo"),
+                    "required": ("source template repo", ".council-forge-source-repo", "downstream terminal repo"),
                 },
                 "Validator Commands": {
                     "required": ("source mode checks root ↔ template ↔ Obsidian",),
@@ -214,7 +214,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                     "required": ("template/ + .github/ + OBSIDIAN.md + external/",),
                 },
                 "開始使用": {
-                    "required": ("source template repo", ".consilium-source-repo", "downstream terminal repo"),
+                    "required": ("source template repo", ".council-forge-source-repo", "downstream terminal repo"),
                 },
                 "驗證指令": {
                     "required": ("source mode 檢查 root ↔ template ↔ Obsidian",),
@@ -230,7 +230,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                 },
                 "Getting Started": {
                     "required": ("downstream terminal repo", "nested `template/`"),
-                    "forbidden": (".consilium-source-repo",),
+                    "forbidden": (".council-forge-source-repo",),
                 },
                 "Validator Commands": {
                     "required": ("downstream mode checks root ↔ Obsidian",),
@@ -246,7 +246,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                 },
                 "開始使用": {
                     "required": ("downstream terminal repo", "nested `template/`"),
-                    "forbidden": (".consilium-source-repo",),
+                    "forbidden": (".council-forge-source-repo",),
                 },
                 "驗證指令": {
                     "required": ("downstream mode 檢查 root ↔ Obsidian",),
@@ -264,7 +264,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                 },
                 "Getting Started": {
                     "required": ("downstream terminal repo", "nested `template/`"),
-                    "forbidden": (".consilium-source-repo",),
+                    "forbidden": (".council-forge-source-repo",),
                 },
                 "Validator Commands": {
                     "required": ("downstream mode checks root ↔ Obsidian",),
@@ -281,7 +281,7 @@ README_CONTRACTS: Dict[str, Dict[str, dict[str, object]]] = {
                 },
                 "開始使用": {
                     "required": ("downstream terminal repo", "nested `template/`"),
-                    "forbidden": (".consilium-source-repo",),
+                    "forbidden": (".council-forge-source-repo",),
                 },
                 "驗證指令": {
                     "required": ("downstream mode 檢查 root ↔ Obsidian",),

@@ -183,7 +183,7 @@
       {
         "file": "CLAUDE.md",
         "must_contain_all": [
-          ".consilium-source-repo",
+          ".council-forge-source-repo",
           "source template repo",
           "修改以下檔案後，必須同步到 `template/` + 推送",
           "template/OBSIDIAN.md",

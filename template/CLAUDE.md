@@ -181,7 +181,7 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 
 ### Template Sync（source template repo）
 
-此 repo 以 `.consilium-source-repo` 標記為 source template repo。
+此 repo 以 `.council-forge-source-repo` 標記為 source template repo。
 
 修改以下檔案後，必須同步到 `template/` + 推送：
 

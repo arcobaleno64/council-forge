@@ -1,6 +1,6 @@
 <div align="center">
 
-# Consilium Fabri
+# Council Forge
 
 <p>
   A production-minded multi-agent AI workflow for teams that want traceability, control, and engineering-grade delivery.
@@ -35,7 +35,7 @@
 
 ## Product Positioning
 
-Consilium Fabri is a multi-agent AI workflow framework designed to live inside the repository itself. It is not built around "asking a model to code faster"; it is built around creating a delivery system with explicit boundaries, reviewable checkpoints, durable artifacts, and hard verification.
+Council Forge is a multi-agent AI workflow framework designed to live inside the repository itself. It is not built around "asking a model to code faster"; it is built around creating a delivery system with explicit boundaries, reviewable checkpoints, durable artifacts, and hard verification.
 
 It is especially useful when you need to:
 
@@ -59,7 +59,7 @@ Most multi-agent AI development breaks down in familiar ways:
 - agent roles overlap and task boundaries become blurry
 - too much documentation gets stuffed into every prompt, increasing cost and instability
 
-Consilium Fabri exists to compress those failure modes into an explicit operating model with state, artifacts, and gates.
+Council Forge exists to compress those failure modes into an explicit operating model with state, artifacts, and gates.
 
 ---
 
@@ -248,12 +248,12 @@ python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_se
 
 ```bash
 # 1. Clone the source template repo locally
-git clone https://github.com/arcobaleno64/consilium-fabri.git consilium-fabri
+git clone https://github.com/arcobaleno64/council-forge.git council-forge
 
 # 2. Create your downstream project and copy template contents into its root
 #    (do not keep a nested template/)
-cd consilium-fabri
-#    This source repo is identified by the `.consilium-source-repo` sentinel.
+cd council-forge
+#    This source repo is identified by the `.council-forge-source-repo` sentinel.
 # copy template/* into your target repository root
 # cd <your-project-root>
 

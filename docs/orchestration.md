@@ -396,7 +396,7 @@ Codex CLI 不得：
 
 ## 9. Sync Contract
 
-此 workflow 同時支援兩種 repo mode，由 root 是否存在 `.consilium-source-repo` 判定：
+此 workflow 同時支援兩種 repo mode，由 root 是否存在 `.council-forge-source-repo` 判定：
 
 - source template repo：保留 `root ↔ template ↔ Obsidian` 同步契約，作為範本來源庫。
 - downstream terminal repo：由 `template/` 複製出去的新專案；不再建立新的 `template/`，只維護 root 文件與 `OBSIDIAN.md`。
@@ -413,7 +413,7 @@ Codex CLI 不得：
 
 ### 9.2 Source Template Repo 流程
 
-當 repo 含 `.consilium-source-repo` 時，workflow 變更必須：
+當 repo 含 `.council-forge-source-repo` 時，workflow 變更必須：
 
 1. **泛化**：將專案特定引用替換為通用描述或 placeholder。
    - 具體 TASK ID / decision 引用 → 通用描述
@@ -427,7 +427,7 @@ Codex CLI 不得：
 
 ### 9.3 Downstream Terminal Repo 流程
 
-當 repo **不含** `.consilium-source-repo` 時，workflow 變更必須：
+當 repo **不含** `.council-forge-source-repo` 時，workflow 變更必須：
 
 1. 僅維護 root 文件與 `OBSIDIAN.md`。
 2. 不得再建立新的 `template/`，也不得要求 nested template sync。
@@ -479,7 +479,7 @@ sync contract 由 **Orchestrator（Claude Code）** 負責。Gemini CLI 與 Code
 
 | 檔案 | Source Template Repo | Downstream Terminal Repo |
 |---|---|---|
-| `CLAUDE.md` | 說明 `.consilium-source-repo`、template sync、placeholder 泛化 | 說明 downstream terminal repo、不得再建立新的 `template/`、只維護 root 文件 |
+| `CLAUDE.md` | 說明 `.council-forge-source-repo`、template sync、placeholder 泛化 | 說明 downstream terminal repo、不得再建立新的 `template/`、只維護 root 文件 |
 
 #### Tier 3: Section-Contract Sync
 

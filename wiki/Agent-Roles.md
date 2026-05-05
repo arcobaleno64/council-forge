@@ -1,6 +1,6 @@
 # Agent 角色分工
 
-Consilium Fabri 採用三個 AI agent 分工協作，各自有明確的職責邊界。
+Council Forge 採用三個 AI agent 分工協作，各自有明確的職責邊界。
 
 ## 三個 Agent
 
@@ -66,4 +66,4 @@ Codex CLI (實作)
 | Verification | `docs/artifact_schema.md` §5.5-6 | — | — |
 | Closure | `docs/workflow_state_machine.md` | — | — |
 
-詳見 [AGENTS.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/AGENTS.md)。
+詳見 [AGENTS.md](https://github.com/arcobaleno64/council-forge/blob/master/AGENTS.md)。

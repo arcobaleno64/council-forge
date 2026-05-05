@@ -1,6 +1,6 @@
 # Artifact Schema
 
-所有工作流產物遵循 [docs/artifact_schema.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/artifact_schema.md) 定義的 8 種 schema。
+所有工作流產物遵循 [docs/artifact_schema.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/artifact_schema.md) 定義的 8 種 schema。
 
 ## 8 種 Artifact 類型
 
@@ -50,4 +50,4 @@ artifacts/
 └── red_team/    # Red-team exercise reports
 ```
 
-詳見 [docs/artifact_schema.md](https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/artifact_schema.md)。
+詳見 [docs/artifact_schema.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/artifact_schema.md)。

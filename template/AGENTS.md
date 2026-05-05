@@ -33,7 +33,7 @@
 - 專有名詞、檔名、CLI 指令、環境變數、`artifact type`、狀態值、placeholder、schema literal 保留英文原字。
 - 不得更動會被 agent、validator、腳本依賴的精確字串，例如 `## Metadata`、`Task ID`、`Artifact Type`、`Owner`、`Status`、`Last Updated` 與各種狀態值。
 - 所有規範中的紀錄時間、`Last Updated` 與相關時間戳，一律使用 `Asia/Taipei`，採 ISO 8601 並帶 `+08:00`。
-- source template repo（含 `.consilium-source-repo`）中，`root`、`template/` 與 Obsidian 入口文件必須保持語義一致；由 `template/` 複製出的 downstream terminal repo 不再建立新的 `template/`，只維護 root 文件與 `OBSIDIAN.md`。
+- source template repo（含 `.council-forge-source-repo`）中，`root`、`template/` 與 Obsidian 入口文件必須保持語義一致；由 `template/` 複製出的 downstream terminal repo 不再建立新的 `template/`，只維護 root 文件與 `OBSIDIAN.md`。
 - GitHub 對外入口以 `README.md` / `README.zh-TW.md` 為準；Obsidian 入口以 `OBSIDIAN.md` 為準。
 - 歷史 artifacts、實驗輸出、外部 repo 內 Markdown 不在追溯改寫範圍內。
 

@@ -2448,7 +2448,7 @@ class TestValidateMarkdownContracts:
                 gcv.README_HEADERS_EN,
                 {
                     "Architecture Snapshot": "template/ + .github/ + OBSIDIAN.md + external/",
-                    "Getting Started": "source template repo .consilium-source-repo downstream terminal repo",
+                    "Getting Started": "source template repo .council-forge-source-repo downstream terminal repo",
                     "Validator Commands": "source mode checks root ↔ template ↔ Obsidian",
                 },
             ),
@@ -2456,7 +2456,7 @@ class TestValidateMarkdownContracts:
                 gcv.README_HEADERS_ZH,
                 {
                     "架構速覽": "template/ + .github/ + OBSIDIAN.md + external/",
-                    "開始使用": "source template repo .consilium-source-repo downstream terminal repo",
+                    "開始使用": "source template repo .council-forge-source-repo downstream terminal repo",
                     "驗證指令": "source mode 檢查 root ↔ template ↔ Obsidian",
                 },
             ),
@@ -2556,9 +2556,9 @@ class TestValidateMarkdownContracts:
     def test_source_root_readme_missing_sentinel_phrase_fails(self, tmp_path):
         self._write_source_repo_docs(tmp_path)
         path = tmp_path / "README.md"
-        path.write_text(path.read_text(encoding="utf-8").replace(".consilium-source-repo", "sentinel"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace(".council-forge-source-repo", "sentinel"), encoding="utf-8")
         errors = gcv.validate_markdown_contracts(tmp_path)
-        assert any("README.md section 'Getting Started' missing required phrase: .consilium-source-repo" in e for e in errors)
+        assert any("README.md section 'Getting Started' missing required phrase: .council-forge-source-repo" in e for e in errors)
 
     def test_missing_required_section_fails(self, tmp_path):
         self._write_downstream_repo_docs(tmp_path)

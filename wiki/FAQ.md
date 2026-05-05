@@ -4,7 +4,7 @@
 
 ### Q: 這個專案跟一般的 prompt 範本集有什麼不同？
 
-Consilium Fabri 不只是一組 prompt，而是一套完整的工作流治理框架。它包含：
+Council Forge 不只是一組 prompt，而是一套完整的工作流治理框架。它包含：
 - 明確的狀態機與 gate 驗證
 - 8 種 artifact schema
 - 自動化驗證腳本
@@ -21,7 +21,7 @@ Consilium Fabri 不只是一組 prompt，而是一套完整的工作流治理框
 
 ### Q: 支援什麼程式語言？
 
-Consilium Fabri 是語言無關的工作流框架。它管理的是開發流程，不限制你用什麼語言實作。驗證腳本本身以 Python 撰寫。
+Council Forge 是語言無關的工作流框架。它管理的是開發流程，不限制你用什麼語言實作。驗證腳本本身以 Python 撰寫。
 
 ---
 

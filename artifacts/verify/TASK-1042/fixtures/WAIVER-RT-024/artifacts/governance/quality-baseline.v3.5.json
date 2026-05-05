@@ -1,0 +1,10 @@
+{
+  "schema_version": "quality-baseline/v1",
+  "plan_version": "v3.5.0",
+  "metrics": {
+    "task_id": "TASK-1042-FIXTURE"
+  },
+  "source_template_pairs": [],
+  "import_side_effect_surface": [],
+  "golden_cli_candidates": []
+}

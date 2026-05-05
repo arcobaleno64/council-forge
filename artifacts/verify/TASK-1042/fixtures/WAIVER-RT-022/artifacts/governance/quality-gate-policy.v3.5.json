@@ -1,0 +1,14 @@
+{
+  "schema_version": "quality-gate-policy/v1",
+  "plan_version": "v3.5.0",
+  "rollout_phase": {
+    "current_phase": 1
+  },
+  "gates": [],
+  "advisory_gates": [],
+  "deferred_gates": [],
+  "waivers": [],
+  "advisory_only_in_v3_5_0": [
+    "QC-RUFF-001"
+  ]
+}

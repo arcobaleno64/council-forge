@@ -1,0 +1,42 @@
+{
+  "schema_version": "waiver-policy-registry/v1",
+  "plan_version": "v3.5.10",
+  "created_by_task": "TASK-1042",
+  "generated_at": "2026-05-06T00:30:00+08:00",
+  "registry_status": "runtime_test_fixture",
+  "runtime_consumption_authorized": true,
+  "waivers": [
+    {
+      "waiver_id": "WV-DUPLICATE",
+      "rule_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/orphan_a.py",
+      "scope": {
+        "type": "path",
+        "value": "artifacts/scripts/orphan_a.py"
+      },
+      "reason_code": "intentional_post_baseline_new_pair_for_TASK_1042_fixture",
+      "owner": "arcobaleno",
+      "evidence_ref": "artifacts/verify/TASK-1042/fixtures/waiver-evidence-stub.md",
+      "expires_at": "2099-12-31",
+      "created_by_task": "TASK-1042",
+      "created_at": "2026-05-05T00:00:00+08:00",
+      "status": "active"
+    },
+    {
+      "waiver_id": "WV-DUPLICATE",
+      "rule_id": "QC-SYNC-001",
+      "target": "artifacts/scripts/orphan_b.py",
+      "scope": {
+        "type": "path",
+        "value": "artifacts/scripts/orphan_b.py"
+      },
+      "reason_code": "intentional_post_baseline_new_pair_for_TASK_1042_fixture",
+      "owner": "arcobaleno",
+      "evidence_ref": "artifacts/verify/TASK-1042/fixtures/waiver-evidence-stub.md",
+      "expires_at": "2099-12-31",
+      "created_by_task": "TASK-1042",
+      "created_at": "2026-05-05T00:00:00+08:00",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "waiver-runtime-implementation-result/v1",
+  "task_id": "TASK-1042",
+  "generated_at": "2026-05-05T18:10:07+08:00",
+  "runner_ref": "artifacts/scripts/run_quality_gates.py",
+  "runner_template_ref": "template/artifacts/scripts/run_quality_gates.py",
+  "runner_pair_byte_identical": true,
+  "runner_root_sha256": "c6c4d29700390ffe8b26e90a9e8a43e10bd05ae190caac9b9da5caf7dc05c42b",
+  "runner_template_sha256": "c6c4d29700390ffe8b26e90a9e8a43e10bd05ae190caac9b9da5caf7dc05c42b",
+  "activation_mode": "explicit_cli_only",
+  "cli_argument": "--waiver-policy <path>",
+  "default_behavior_preserved": true,
+  "runtime_consumption_authorized": true,
+  "runtime_registry_schema_version_accepted": "waiver-policy-registry/v1",
+  "runtime_registry_schema_version_rejected_examples": [
+    "waiver-policy-registry-prototype/v1",
+    "wrong-schema/v0"
+  ],
+  "applied_rule_id_surface": [
+    "QC-SYNC-001"
+  ],
+  "fail_closed_load_error_envelope": {
+    "error": "waiver_registry_load_failed",
+    "reason_code_examples": [
+      "waiver_registry_missing:<path>",
+      "waiver_registry_malformed_json",
+      "waiver_registry_schema_version_mismatch:<actual>",
+      "waiver_registry_unknown_top_level_field:<field>",
+      "waiver_registry_unknown_waiver_field:<field>",
+      "waiver_registry_missing_required_field:<field>",
+      "waiver_registry_invalid_expires_at:<value>",
+      "waiver_registry_unknown_enum_value:status=<value>",
+      "waiver_registry_runtime_consumption_not_authorized",
+      "waiver_registry_forbidden_pattern:<pattern>",
+      "waiver_registry_pair_uniqueness_violation:<waiver_id>",
+      "waiver_registry_qc_sync_001_conflict:<target>"
+    ]
+  },
+  "suppression_reason_code_pattern": "[post_baseline_new_pair_]waiver_active_until:<waiver_id>:<expires_at>",
+  "evidence_refs": {
+    "case_manifest": "artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json",
+    "golden_cli_result": "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
+  },
+  "overall_status": "pass"
+}

@@ -1,0 +1,283 @@
+{
+  "schema_version": "waiver-runtime-case-manifest/v1",
+  "task_id": "TASK-1042",
+  "generated_at": "2026-05-05T18:10:07+08:00",
+  "case_count": 25,
+  "cases": [
+    {
+      "case_id": "WAIVER-RT-001",
+      "title": "default behavior unchanged without --waiver-policy",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-001/",
+      "registry_ref": null,
+      "expected_exit_code": 0,
+      "expected_cli_status": "pass",
+      "expected_reason_code": "default_no_waiver_registry_path",
+      "notes": "FTC-4 default-behavior-unchanged anchor; no waiver activation surface invoked."
+    },
+    {
+      "case_id": "WAIVER-RT-002",
+      "title": "valid explicit empty registry accepted without suppression",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-002/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-002/registry.json",
+      "expected_exit_code": 0,
+      "expected_cli_status": "pass",
+      "expected_reason_code": "waiver_registry_loaded_no_match",
+      "notes": "Empty waivers array; runner accepts and produces pass."
+    },
+    {
+      "case_id": "WAIVER-RT-003",
+      "title": "missing registry file fails closed (FC-01)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-003/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-003/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_missing:<...>",
+      "notes": "FC-01 missing explicit registry path → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-004",
+      "title": "malformed JSON fails closed (FC-02)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-004/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-004/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_malformed_json",
+      "notes": "FC-02 malformed JSON → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-005",
+      "title": "schema_version mismatch fails closed (FC-03)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-005/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-005/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_schema_version_mismatch:wrong-schema/v0",
+      "notes": "FC-03 schema_version mismatch → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-006",
+      "title": "TASK-1039 prototype schema rejected at runtime",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-006/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-006/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_schema_version_mismatch:waiver-policy-registry-prototype/v1",
+      "notes": "FC-03 prototype schema_version explicitly rejected at runtime load."
+    },
+    {
+      "case_id": "WAIVER-RT-007",
+      "title": "unknown top-level field fails closed (FC-04)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-007/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-007/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_unknown_top_level_field:spurious_top_level_field",
+      "notes": "FC-04 unknown top-level field → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-008",
+      "title": "unknown waiver entry field fails closed (FC-05)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-008/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-008/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_unknown_waiver_field:spurious_field",
+      "notes": "FC-05 unknown waiver entry field → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-009",
+      "title": "missing required waiver field fails closed (FC-06)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-009/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-009/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_missing_required_field:waiver_id",
+      "notes": "FC-06 missing required waiver field (waiver_id absent) → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-010",
+      "title": "missing expires_at fails closed (FC-07)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-010/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-010/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_missing_required_field:expires_at",
+      "notes": "FC-07 missing expires_at → exit 2 envelope (registry-load-failure semantics)."
+    },
+    {
+      "case_id": "WAIVER-RT-011",
+      "title": "malformed expires_at fails closed (FC-08)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-011/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-011/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_invalid_expires_at:2099/12/31",
+      "notes": "FC-08 malformed expires_at → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-012",
+      "title": "expired waiver does not suppress (FC-09)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-012/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-012/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "FC-09 expired waiver loads but cannot suppress; QC-SYNC-001 finding remains blocking."
+    },
+    {
+      "case_id": "WAIVER-RT-013",
+      "title": "revoked waiver does not suppress (FC-10)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-013/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-013/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "FC-10 revoked waiver cannot suppress; finding remains blocking."
+    },
+    {
+      "case_id": "WAIVER-RT-014",
+      "title": "superseded waiver does not suppress (FC-11)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-014/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-014/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "FC-11 superseded waiver cannot suppress; finding remains blocking."
+    },
+    {
+      "case_id": "WAIVER-RT-015",
+      "title": "invalid status waiver does not suppress",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-015/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-015/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "Status=invalid is a valid enum but not active; waiver does not suppress."
+    },
+    {
+      "case_id": "WAIVER-RT-016",
+      "title": "missing evidence_ref fails closed (FC-15)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-016/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-016/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_missing_required_field:evidence_ref",
+      "notes": "FC-15 missing/empty evidence_ref → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-017",
+      "title": "Evidence Ref violation fails closed (FC-16)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-017/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-017/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_forbidden_pattern:remote_url:https://",
+      "notes": "FC-16 Evidence Ref violation (remote URL) → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-018",
+      "title": "scope mismatch does not suppress (FC-17)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-018/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-018/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "FC-17 scope mismatch → finding remains; waiver loads but does not match orphan_a."
+    },
+    {
+      "case_id": "WAIVER-RT-019",
+      "title": "wildcard-only scope rejected (FC-18)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-019/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-019/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_forbidden_pattern:wildcard_only_scope",
+      "notes": "FC-18 wildcard-only scope → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-020",
+      "title": "broad repo-wide scope rejected (FC-19)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-020/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-020/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_forbidden_pattern:broad_repo_wide_waiver",
+      "notes": "FC-19 broad repo-wide scope → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-021",
+      "title": "duplicate waiver_id fails closed (FC-20)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-021/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-021/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_pair_uniqueness_violation:WV-DUPLICATE",
+      "notes": "FC-20 duplicate waiver_id → exit 2 envelope; deterministic rejection."
+    },
+    {
+      "case_id": "WAIVER-RT-022",
+      "title": "conflicting waiver entries fail closed (FC-21)",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-022/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-022/registry.json",
+      "expected_exit_code": 2,
+      "expected_cli_status": "error_envelope",
+      "expected_reason_code": "waiver_registry_qc_sync_001_conflict:artifacts/scripts/orphan_a.py",
+      "notes": "FC-21 conflicting active waivers (same rule_id+target) → exit 2 envelope."
+    },
+    {
+      "case_id": "WAIVER-RT-023",
+      "title": "valid active unexpired waiver suppresses targeted QC-SYNC-001 finding only",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-023/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-023/registry.json",
+      "expected_exit_code": 0,
+      "expected_cli_status": "pass",
+      "expected_reason_code": "post_baseline_new_pair_waiver_active_until:WV-VALID-001:2099-12-31",
+      "notes": "FC-22 valid active unexpired waiver suppresses ONLY the targeted post-baseline new pair finding."
+    },
+    {
+      "case_id": "WAIVER-RT-024",
+      "title": "valid waiver does not suppress non-target QC-SYNC-001 finding",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-024/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-024/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "post_baseline_new_pair_missing_template",
+      "notes": "Targeted suppression on orphan_a; orphan_b finding remains blocking."
+    },
+    {
+      "case_id": "WAIVER-RT-025",
+      "title": "valid waiver does not affect QC-SCHEMA / QC-IMPORT / QC-GOLDEN surfaces",
+      "surface": "CLI-QUALITY-GATES",
+      "fixture_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-025/",
+      "registry_ref": "artifacts/verify/TASK-1042/fixtures/WAIVER-RT-025/registry.json",
+      "expected_exit_code": 1,
+      "expected_cli_status": "fail",
+      "expected_reason_code": "missing_required_keys",
+      "notes": "Waiver suppresses QC-SYNC orphan_a; QC-SCHEMA-001 manifest break remains blocking; non-QC-SYNC surface unaffected."
+    }
+  ]
+}

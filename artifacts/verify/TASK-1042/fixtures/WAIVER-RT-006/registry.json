@@ -1,0 +1,8 @@
+{
+  "schema_version": "waiver-policy-registry-prototype/v1",
+  "plan_version": "v3.5.7",
+  "created_by_task": "TASK-1039",
+  "registry_status": "runtime_test_fixture",
+  "runtime_consumption_authorized": true,
+  "waivers": []
+}

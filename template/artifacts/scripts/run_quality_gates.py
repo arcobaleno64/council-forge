@@ -12,15 +12,23 @@ Existing baseline drift with unchanged sha256 is NOT a TASK-1025 failure.
 New or modified drift after baseline IS blocking unless covered by a
 valid unexpired waiver. Expired waivers are blocking.
 
+TASK-1042 adds explicit CLI-only runtime waiver registry consumption via
+``--waiver-policy <path>``. When the flag is absent, behavior is byte-
+identical to TASK-1025/TASK-1037 default mode. When provided, the runner
+loads a ``waiver-policy-registry/v1`` registry and applies its valid
+active unexpired waivers to QC-SYNC-001 findings only; registry load
+failures fail closed with exit code 2.
+
 Usage:
   python artifacts/scripts/run_quality_gates.py [--baseline PATH] [--policy PATH]
+                                                [--waiver-policy PATH]
                                                 [--format json] [--self-check]
                                                 [--output PATH]
 
 Exit codes:
   0 = no blocking failures
   1 = at least one blocking gate failed
-  2 = invocation error / missing inputs
+  2 = invocation error / missing inputs / waiver registry load failure
 """
 from __future__ import annotations
 
@@ -29,6 +37,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -154,6 +163,310 @@ def select_valid_waivers(
 
 
 # ---------------------------------------------------------------------------
+# TASK-1042 runtime waiver registry (explicit --waiver-policy <path> only)
+# ---------------------------------------------------------------------------
+
+RUNTIME_WAIVER_REGISTRY_SCHEMA_VERSION = "waiver-policy-registry/v1"
+
+RUNTIME_WAIVER_REGISTRY_REQUIRED_TOP_FIELDS: Tuple[str, ...] = (
+    "schema_version",
+    "created_by_task",
+    "registry_status",
+    "runtime_consumption_authorized",
+    "waivers",
+)
+
+RUNTIME_WAIVER_REGISTRY_OPTIONAL_TOP_FIELDS: Tuple[str, ...] = (
+    "plan_version",
+    "generated_at",
+    "limitations",
+)
+
+RUNTIME_WAIVER_REGISTRY_ALLOWED_TOP_FIELDS: Tuple[str, ...] = (
+    RUNTIME_WAIVER_REGISTRY_REQUIRED_TOP_FIELDS
+    + RUNTIME_WAIVER_REGISTRY_OPTIONAL_TOP_FIELDS
+)
+
+RUNTIME_WAIVER_ENTRY_REQUIRED_FIELDS: Tuple[str, ...] = (
+    "waiver_id",
+    "rule_id",
+    "target",
+    "scope",
+    "reason_code",
+    "owner",
+    "evidence_ref",
+    "expires_at",
+    "created_by_task",
+    "created_at",
+    "status",
+)
+
+RUNTIME_WAIVER_ENTRY_ALLOWED_FIELDS: Tuple[str, ...] = RUNTIME_WAIVER_ENTRY_REQUIRED_FIELDS
+
+RUNTIME_WAIVER_ALLOWED_STATUSES: Tuple[str, ...] = (
+    "active",
+    "expired",
+    "revoked",
+    "superseded",
+    "invalid",
+    "advisory_only",
+)
+
+RUNTIME_WAIVER_SUPPORTED_RULE_IDS: Tuple[str, ...] = ("QC-SYNC-001",)
+
+RUNTIME_WAIVER_SUPPORTED_SCOPE_TYPES: Tuple[str, ...] = ("path", "pair", "task", "artifact")
+
+RUNTIME_WAIVER_FORBIDDEN_SCOPE_VALUES_WILDCARD: Tuple[str, ...] = (
+    "*",
+    "**",
+    "**/*",
+    "*/",
+    "*.*",
+)
+
+RUNTIME_WAIVER_FORBIDDEN_SCOPE_VALUES_BROAD: Tuple[str, ...] = (
+    "",
+    "/",
+    "artifacts",
+    "artifacts/",
+    "template",
+    "template/",
+    "docs",
+    "docs/",
+    ".github",
+    ".github/",
+)
+
+RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_PREFIXES: Tuple[str, ...] = (
+    ".obsidian/",
+    ".omc/",
+    ".tmp/",
+    ".pytest-basetemp/",
+    "__pycache__/",
+    ".pytest_cache/",
+    "node_modules/",
+    ".venv/",
+    ".git/",
+)
+
+RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_SCHEMES: Tuple[str, ...] = (
+    "http://",
+    "https://",
+    "ftp://",
+    "file://",
+    "ssh://",
+    "git://",
+    "git+ssh://",
+)
+
+RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_SHELL_TOKENS: Tuple[str, ...] = (
+    ";",
+    "|",
+    "&&",
+    ">",
+    "<",
+    "`",
+    "$(",
+)
+
+_EXPIRES_AT_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _waiver_registry_load_error(reason_code: str) -> Dict[str, Any]:
+    return {"error": "waiver_registry_load_failed", "reason_code": reason_code}
+
+
+def _validate_runtime_waiver_evidence_ref(value: Any) -> Optional[str]:
+    if not isinstance(value, str) or not value:
+        return "waiver_registry_missing_required_field:evidence_ref"
+    if value.startswith("/") or value.startswith("\\"):
+        return "waiver_registry_forbidden_pattern:absolute_path"
+    if len(value) >= 2 and value[1] == ":":
+        return "waiver_registry_forbidden_pattern:absolute_path"
+    if ".." in value:
+        return "waiver_registry_forbidden_pattern:parent_traversal"
+    for scheme in RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_SCHEMES:
+        if value.startswith(scheme):
+            return "waiver_registry_forbidden_pattern:remote_url:" + scheme
+    for tok in RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_SHELL_TOKENS:
+        if tok in value:
+            return "waiver_registry_forbidden_pattern:shell_token"
+    for prefix in RUNTIME_WAIVER_FORBIDDEN_EVIDENCE_REF_PREFIXES:
+        if value.startswith(prefix):
+            return "waiver_registry_forbidden_pattern:forbidden_root:" + prefix.rstrip("/")
+    if not value.startswith("artifacts/"):
+        return "waiver_registry_forbidden_pattern:not_under_artifacts"
+    return None
+
+
+def _validate_runtime_waiver_scope(scope: Any) -> Optional[str]:
+    if not isinstance(scope, dict):
+        return "waiver_registry_invalid_scope_shape:not_object"
+    extras = set(scope.keys()) - {"type", "value"}
+    if extras:
+        return "waiver_registry_unknown_waiver_field:scope." + sorted(extras)[0]
+    s_type = scope.get("type")
+    s_value = scope.get("value")
+    if s_type not in RUNTIME_WAIVER_SUPPORTED_SCOPE_TYPES:
+        return "waiver_registry_unknown_enum_value:scope.type=" + str(s_type)
+    if not isinstance(s_value, str):
+        return "waiver_registry_invalid_scope_shape:value_not_string"
+    if s_value in RUNTIME_WAIVER_FORBIDDEN_SCOPE_VALUES_WILDCARD or s_value.strip("*/") == "":
+        return "waiver_registry_forbidden_pattern:wildcard_only_scope"
+    if s_value in RUNTIME_WAIVER_FORBIDDEN_SCOPE_VALUES_BROAD:
+        return "waiver_registry_forbidden_pattern:broad_repo_wide_waiver"
+    return None
+
+
+def load_runtime_waiver_registry(
+    path: Path,
+) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Load and validate a TASK-1042 runtime waiver registry.
+
+    Returns a tuple ``(registry, error_envelope)``. On success the
+    error envelope is None and the registry dict is returned. On any
+    validation failure the registry is None and an error envelope of
+    the form ``{"error": "waiver_registry_load_failed", "reason_code": ...}``
+    is returned.
+    """
+    if not path.is_file():
+        return None, _waiver_registry_load_error(
+            "waiver_registry_missing:" + str(path).replace("\\", "/")
+        )
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        return None, _waiver_registry_load_error("waiver_registry_malformed_json")
+    if not isinstance(data, dict):
+        return None, _waiver_registry_load_error("waiver_registry_malformed_json")
+
+    schema_version = data.get("schema_version")
+    if schema_version != RUNTIME_WAIVER_REGISTRY_SCHEMA_VERSION:
+        return None, _waiver_registry_load_error(
+            "waiver_registry_schema_version_mismatch:" + str(schema_version)
+        )
+
+    for required in RUNTIME_WAIVER_REGISTRY_REQUIRED_TOP_FIELDS:
+        if required not in data:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_missing_required_field:" + required
+            )
+
+    for present in data.keys():
+        if present not in RUNTIME_WAIVER_REGISTRY_ALLOWED_TOP_FIELDS:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_unknown_top_level_field:" + str(present)
+            )
+
+    if data.get("runtime_consumption_authorized") is not True:
+        return None, _waiver_registry_load_error(
+            "waiver_registry_runtime_consumption_not_authorized"
+        )
+
+    waivers = data.get("waivers")
+    if not isinstance(waivers, list):
+        return None, _waiver_registry_load_error("waiver_registry_waivers_not_array")
+
+    seen_ids: Dict[str, Dict[str, Any]] = {}
+    active_target_keys: Dict[Tuple[str, str], str] = {}
+
+    for entry in waivers:
+        if not isinstance(entry, dict):
+            return None, _waiver_registry_load_error(
+                "waiver_registry_waiver_entry_not_object"
+            )
+        for required in RUNTIME_WAIVER_ENTRY_REQUIRED_FIELDS:
+            if required not in entry:
+                return None, _waiver_registry_load_error(
+                    "waiver_registry_missing_required_field:" + required
+                )
+        for present in entry.keys():
+            if present not in RUNTIME_WAIVER_ENTRY_ALLOWED_FIELDS:
+                return None, _waiver_registry_load_error(
+                    "waiver_registry_unknown_waiver_field:" + str(present)
+                )
+        for str_field in (
+            "waiver_id",
+            "rule_id",
+            "target",
+            "reason_code",
+            "owner",
+            "created_by_task",
+            "created_at",
+            "status",
+        ):
+            value = entry.get(str_field)
+            if not isinstance(value, str) or not value.strip():
+                return None, _waiver_registry_load_error(
+                    "waiver_registry_missing_required_field:" + str_field
+                )
+        if entry["status"] not in RUNTIME_WAIVER_ALLOWED_STATUSES:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_unknown_enum_value:status=" + str(entry["status"])
+            )
+        if entry["rule_id"] not in RUNTIME_WAIVER_SUPPORTED_RULE_IDS:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_unknown_enum_value:rule_id=" + str(entry["rule_id"])
+            )
+        expires_at = entry.get("expires_at")
+        if not isinstance(expires_at, str) or not expires_at:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_missing_required_field:expires_at"
+            )
+        if not _EXPIRES_AT_PATTERN.match(expires_at):
+            return None, _waiver_registry_load_error(
+                "waiver_registry_invalid_expires_at:" + expires_at
+            )
+        scope_err = _validate_runtime_waiver_scope(entry.get("scope"))
+        if scope_err is not None:
+            return None, _waiver_registry_load_error(scope_err)
+        evidence_err = _validate_runtime_waiver_evidence_ref(entry.get("evidence_ref"))
+        if evidence_err is not None:
+            return None, _waiver_registry_load_error(evidence_err)
+        wid = entry["waiver_id"]
+        if wid in seen_ids:
+            return None, _waiver_registry_load_error(
+                "waiver_registry_pair_uniqueness_violation:" + wid
+            )
+        seen_ids[wid] = entry
+        if entry["status"] == "active":
+            key = (entry["rule_id"], entry["target"])
+            if key in active_target_keys:
+                return None, _waiver_registry_load_error(
+                    "waiver_registry_qc_sync_001_conflict:" + entry["target"]
+                )
+            active_target_keys[key] = wid
+
+    return data, None
+
+
+def find_runtime_waiver_for_target(
+    rule_id: str,
+    target: str,
+    runtime_waivers: List[Dict[str, Any]],
+    today_date: str,
+) -> Optional[Dict[str, Any]]:
+    """Return the first matching valid active unexpired runtime waiver, else None."""
+    for w in runtime_waivers:
+        if w.get("rule_id") != rule_id:
+            continue
+        if w.get("status") != "active":
+            continue
+        if w.get("target") != target:
+            continue
+        expires_at = w.get("expires_at", "")
+        if not isinstance(expires_at, str) or today_date > expires_at:
+            continue
+        scope = w.get("scope") or {}
+        s_type = scope.get("type")
+        s_value = scope.get("value")
+        if s_type in ("path", "pair") and s_value == target:
+            return w
+    return None
+
+
+# ---------------------------------------------------------------------------
 # QC-SYNC-001 source/template baseline-aware enforcement
 # ---------------------------------------------------------------------------
 
@@ -204,10 +517,16 @@ def _classify_current(current_src_sha: Optional[str], current_tpl_sha: Optional[
 
 
 def run_qc_sync_001(
-    repo_root: Path, baseline: Dict[str, Any], policy: Dict[str, Any], today_iso: str
+    repo_root: Path,
+    baseline: Dict[str, Any],
+    policy: Dict[str, Any],
+    today_iso: str,
+    runtime_waivers: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     pairs = baseline.get("source_template_pairs", []) or []
     waivers = policy.get("waivers", []) or []
+    runtime_waivers = runtime_waivers or []
+    today_date = today_iso[:10]
     checks: List[Dict[str, Any]] = []
 
     baseline_src_paths: set = set()
@@ -255,21 +574,33 @@ def run_qc_sync_001(
             check["status"] = "pass"
             check["reason_code"] = "baseline_existing"
         else:
-            applicable = find_applicable_waivers("QC-SYNC-001", src_rel, waivers)
-            valid, invalid_reasons = select_valid_waivers(applicable, today_iso)
-            if valid:
+            runtime_match = find_runtime_waiver_for_target(
+                "QC-SYNC-001", src_rel, runtime_waivers, today_date
+            )
+            if runtime_match is not None:
                 check["status"] = "skipped_with_reason_code"
                 check["reason_code"] = (
-                    "waivered_until:" + valid[0].get("expires_at", "")
+                    "waiver_active_until:"
+                    + runtime_match.get("waiver_id", "")
+                    + ":"
+                    + runtime_match.get("expires_at", "")
                 )
             else:
-                check["status"] = "fail"
-                if invalid_reasons:
-                    check["reason_code"] = "waiver_invalid:" + ";".join(invalid_reasons)
-                elif baseline_status not in ("drift", "missing_template", "missing_source"):
-                    check["reason_code"] = "new_or_modified_drift_after_baseline"
+                applicable = find_applicable_waivers("QC-SYNC-001", src_rel, waivers)
+                valid, invalid_reasons = select_valid_waivers(applicable, today_iso)
+                if valid:
+                    check["status"] = "skipped_with_reason_code"
+                    check["reason_code"] = (
+                        "waivered_until:" + valid[0].get("expires_at", "")
+                    )
                 else:
-                    check["reason_code"] = "baseline_drift_changed_without_waiver"
+                    check["status"] = "fail"
+                    if invalid_reasons:
+                        check["reason_code"] = "waiver_invalid:" + ";".join(invalid_reasons)
+                    elif baseline_status not in ("drift", "missing_template", "missing_source"):
+                        check["reason_code"] = "new_or_modified_drift_after_baseline"
+                    else:
+                        check["reason_code"] = "baseline_drift_changed_without_waiver"
         checks.append(check)
 
     # ------------------- Pass 2: post-baseline new pairs -------------------
@@ -297,28 +628,40 @@ def run_qc_sync_001(
             check["status"] = "pass"
             check["reason_code"] = "post_baseline_new_pair_in_sync"
         else:
-            applicable = find_applicable_waivers("QC-SYNC-001", src_rel, waivers)
-            valid, invalid_reasons = select_valid_waivers(applicable, today_iso)
-            if valid:
+            runtime_match = find_runtime_waiver_for_target(
+                "QC-SYNC-001", src_rel, runtime_waivers, today_date
+            )
+            if runtime_match is not None:
                 check["status"] = "skipped_with_reason_code"
                 check["reason_code"] = (
-                    "post_baseline_new_pair_waivered_until:"
-                    + valid[0].get("expires_at", "")
+                    "post_baseline_new_pair_waiver_active_until:"
+                    + runtime_match.get("waiver_id", "")
+                    + ":"
+                    + runtime_match.get("expires_at", "")
                 )
             else:
-                check["status"] = "fail"
-                if invalid_reasons:
+                applicable = find_applicable_waivers("QC-SYNC-001", src_rel, waivers)
+                valid, invalid_reasons = select_valid_waivers(applicable, today_iso)
+                if valid:
+                    check["status"] = "skipped_with_reason_code"
                     check["reason_code"] = (
-                        "post_baseline_new_pair_waiver_invalid:" + ";".join(invalid_reasons)
+                        "post_baseline_new_pair_waivered_until:"
+                        + valid[0].get("expires_at", "")
                     )
-                elif current_status == "missing_template":
-                    check["reason_code"] = "post_baseline_new_pair_missing_template"
-                elif current_status == "missing_source":
-                    check["reason_code"] = "post_baseline_new_pair_missing_source"
-                elif current_status == "drift":
-                    check["reason_code"] = "post_baseline_new_pair_drift"
                 else:
-                    check["reason_code"] = "post_baseline_new_pair_unknown_status"
+                    check["status"] = "fail"
+                    if invalid_reasons:
+                        check["reason_code"] = (
+                            "post_baseline_new_pair_waiver_invalid:" + ";".join(invalid_reasons)
+                        )
+                    elif current_status == "missing_template":
+                        check["reason_code"] = "post_baseline_new_pair_missing_template"
+                    elif current_status == "missing_source":
+                        check["reason_code"] = "post_baseline_new_pair_missing_source"
+                    elif current_status == "drift":
+                        check["reason_code"] = "post_baseline_new_pair_drift"
+                    else:
+                        check["reason_code"] = "post_baseline_new_pair_unknown_status"
         checks.append(check)
 
     return checks
@@ -551,9 +894,10 @@ def run_all_gates(
     baseline: Dict[str, Any],
     policy: Dict[str, Any],
     today_iso: str,
+    runtime_waivers: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     checks: List[Dict[str, Any]] = []
-    checks.extend(run_qc_sync_001(repo_root, baseline, policy, today_iso))
+    checks.extend(run_qc_sync_001(repo_root, baseline, policy, today_iso, runtime_waivers))
     checks.extend(run_qc_schema_001(repo_root))
     checks.extend(run_qc_import_001(repo_root, baseline, policy))
     checks.extend(run_qc_golden_001(repo_root, baseline))
@@ -572,8 +916,10 @@ def build_result(
     checks: List[Dict[str, Any]],
     today_iso: str,
     self_check: bool,
+    waiver_policy_path: Optional[Path] = None,
+    runtime_waiver_count: int = 0,
 ) -> Dict[str, Any]:
-    return {
+    result: Dict[str, Any] = {
         "schema_version": "quality-gate-result/v1",
         "task_id": "TASK-1025",
         "generated_at": today_iso,
@@ -588,8 +934,16 @@ def build_result(
             "Waiver discovery uses policy.waivers array; no global waiver registry in v3.5.0.",
             "Baseline-existing drift is allowed when sha256 unchanged from baseline.",
             "QC-IMPORT-001 first cycle treats unlisted candidates as advisory.",
+            "TASK-1042 adds optional --waiver-policy <path> for explicit runtime waiver registry consumption applied to QC-SYNC-001 only.",
         ],
+        "waiver_policy_ref": (
+            str(waiver_policy_path).replace("\\", "/")
+            if waiver_policy_path is not None
+            else None
+        ),
+        "runtime_waiver_count": runtime_waiver_count,
     }
+    return result
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -599,6 +953,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument("--baseline", default=None, help="path to quality-baseline.v3.5.json")
     parser.add_argument("--policy", default=None, help="path to quality-gate-policy.v3.5.json")
+    parser.add_argument(
+        "--waiver-policy",
+        default=None,
+        help=(
+            "TASK-1042 explicit waiver registry path (waiver-policy-registry/v1). "
+            "Applied to QC-SYNC-001 findings only. Without this flag the runner "
+            "behaves identically to TASK-1025/TASK-1037 default mode."
+        ),
+    )
     parser.add_argument("--format", choices=["json"], default="json")
     parser.add_argument(
         "--self-check",
@@ -638,8 +1001,30 @@ def main(argv: Optional[List[str]] = None) -> int:
     policy = load_json(policy_path)
     today_iso = now_taipei_iso()
 
-    checks = run_all_gates(repo_root, baseline, policy, today_iso)
-    result = build_result(repo_root, baseline_path, policy_path, checks, today_iso, args.self_check)
+    runtime_waivers: List[Dict[str, Any]] = []
+    waiver_policy_path: Optional[Path] = None
+    if args.waiver_policy is not None:
+        waiver_policy_path = Path(args.waiver_policy)
+        if not waiver_policy_path.is_absolute():
+            waiver_policy_path = repo_root / waiver_policy_path
+        registry, load_err = load_runtime_waiver_registry(waiver_policy_path)
+        if load_err is not None:
+            print(json.dumps(load_err, ensure_ascii=False))
+            return 2
+        if registry is not None:
+            runtime_waivers = list(registry.get("waivers", []) or [])
+
+    checks = run_all_gates(repo_root, baseline, policy, today_iso, runtime_waivers)
+    result = build_result(
+        repo_root,
+        baseline_path,
+        policy_path,
+        checks,
+        today_iso,
+        args.self_check,
+        waiver_policy_path,
+        len(runtime_waivers),
+    )
 
     if args.output and not args.self_check:
         out_path = Path(args.output)

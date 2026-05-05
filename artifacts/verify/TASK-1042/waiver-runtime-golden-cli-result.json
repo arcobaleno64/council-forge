@@ -566,6 +566,9 @@
   ],
   "cache_audit": {
     "scanned_root": "C:/Users/arcobaleno/Documents/Code/consilium-fabri/artifacts/verify/TASK-1042/fixtures",
+    "pycache_created": false,
+    "unexpected_cache_paths": [],
+    "python_b_flag_used": true,
     "pycache_dirs_found": 0,
     "pyc_files_found": 0,
     "pycache_dir_samples": [],

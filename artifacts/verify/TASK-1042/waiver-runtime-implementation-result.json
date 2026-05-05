@@ -41,5 +41,23 @@
     "case_manifest": "artifacts/verify/TASK-1042/waiver-runtime-case-manifest.json",
     "golden_cli_result": "artifacts/verify/TASK-1042/waiver-runtime-golden-cli-result.json"
   },
+  "implementation_verification": {
+    "explicit_waiver_policy_activation": true,
+    "fail_closed_semantics_verified": true,
+    "evidence_ref_validation_verified": true,
+    "qc_sync_only_suppression": true,
+    "no_task_1043_plus_artifacts": true,
+    "default_behavior_preserved": true,
+    "runtime_consumption_authorized": true,
+    "implementation_authorized": true,
+    "runner_pair_byte_identical": true,
+    "production_validator_test_files_unchanged": true,
+    "production_governance_policies_unchanged": true,
+    "task_1039_1040_1041_artifacts_unchanged": true,
+    "run_precommit_check_unmodified": true,
+    "pcacc_not_expanded": true,
+    "ac_to_verify_not_activated": true,
+    "validator_split_not_performed": true
+  },
   "overall_status": "pass"
 }

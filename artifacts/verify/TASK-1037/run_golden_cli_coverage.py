@@ -705,6 +705,27 @@ def find_check(checks: List[Dict[str, Any]], **filters: str) -> Optional[Dict[st
     return None
 
 
+# Observed CLI status classifier. Separates the runner/harness CLI outcome from
+# the golden case assertion status; the latter lives in actual_status and is
+# constrained to {pass, skipped_with_reason_code, advisory}.
+def classify_observed_cli_status(
+    rc: int,
+    overall: Optional[str],
+    envelope_error: Optional[str] = None,
+) -> str:
+    if rc == 0 and overall == "pass":
+        return "pass"
+    if rc == 1 and overall == "fail":
+        return "fail"
+    if rc == 2:
+        if envelope_error == "evidence_ref_registry_load_failed":
+            return "exit_2_load_failed"
+        if envelope_error == "invalid_task_id":
+            return "exit_2_invalid_task_id"
+        return "exit_2_unknown"
+    return "drift"
+
+
 # ---------------------------------------------------------------------------
 # Case definitions
 # ---------------------------------------------------------------------------
@@ -731,6 +752,7 @@ def case_default_001(repo: Path) -> Dict[str, Any]:
         and err.strip() == ""
         and actual_codes == expected_codes
     )
+    observed_cli = classify_observed_cli_status(rc, overall)
     return _case_record(
         case_id="GCLI-PRECOMMIT-DEFAULT-001",
         group_id="GCLI-PRECOMMIT-DEFAULT",
@@ -749,7 +771,10 @@ def case_default_001(repo: Path) -> Dict[str, Any]:
             "schema_version": (payload or {}).get("schema_version"),
             "overall_status": overall,
         },
-        expected_status="pass", actual_status="pass" if passed else "fail",
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status="pass",
+        observed_cli_status=observed_cli,
         expected_reason_code="all_four_pcacc_pass",
         actual_reason_code=";".join(k + "=" + v for k, v in actual_codes.items()),
         passed=passed,
@@ -768,6 +793,7 @@ def _evref_pcacc_002(
     expected_exit_code: int,
     expected_overall: str,
     expected_pcacc_002_status: str,
+    expected_cli_status: str,
     expected_reason_literal: Optional[str] = None,
     expected_reason_prefix: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -776,7 +802,7 @@ def _evref_pcacc_002(
     actual_check = None
     if payload:
         actual_check = find_check(payload.get("checks") or [], check_id="PCACC-002")
-    actual_status = (actual_check or {}).get("status")
+    actual_check_status = (actual_check or {}).get("status")
     actual_reason = (actual_check or {}).get("reason_code", "")
     overall = (payload or {}).get("overall_status")
     reason_ok: bool
@@ -790,9 +816,10 @@ def _evref_pcacc_002(
         rc == expected_exit_code
         and err.strip() == ""
         and overall == expected_overall
-        and actual_status == expected_pcacc_002_status
+        and actual_check_status == expected_pcacc_002_status
         and reason_ok
     )
+    observed_cli = classify_observed_cli_status(rc, overall)
     return _case_record(
         case_id=case_id,
         group_id="GCLI-PRECOMMIT-EVREF",
@@ -807,11 +834,13 @@ def _evref_pcacc_002(
         stderr_contract={"empty_required": True, "stderr_len": len(err)},
         json_contract={
             "overall_status": overall,
-            "pcacc_002.status": actual_status,
+            "pcacc_002.status": actual_check_status,
             "pcacc_002.reason_code": actual_reason,
         },
-        expected_status=expected_overall,
-        actual_status=overall or "missing",
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status=expected_cli_status,
+        observed_cli_status=observed_cli,
         expected_reason_code=expected_reason_literal or ("prefix:" + (expected_reason_prefix or "")),
         actual_reason_code=actual_reason,
         passed=passed,
@@ -828,6 +857,7 @@ def case_evref_001(repo: Path) -> Dict[str, Any]:
         use_evref=True,
         expected_exit_code=0, expected_overall="pass",
         expected_pcacc_002_status="pass",
+        expected_cli_status="pass",
         expected_reason_literal="evidence_refs_resolved",
     )
 
@@ -840,6 +870,7 @@ def case_evref_002(repo: Path) -> Dict[str, Any]:
         use_evref=True,
         expected_exit_code=0, expected_overall="pass",
         expected_pcacc_002_status="skipped_with_reason_code",
+        expected_cli_status="pass",
         expected_reason_literal="evidence_refs_optional_per_orc_1",
     )
 
@@ -852,6 +883,7 @@ def case_evref_003(repo: Path) -> Dict[str, Any]:
         use_evref=True,
         expected_exit_code=1, expected_overall="fail",
         expected_pcacc_002_status="fail",
+        expected_cli_status="fail",
         expected_reason_prefix="malformed_refs:https://",
     )
 
@@ -864,6 +896,7 @@ def case_evref_004(repo: Path) -> Dict[str, Any]:
         use_evref=True,
         expected_exit_code=1, expected_overall="fail",
         expected_pcacc_002_status="fail",
+        expected_cli_status="fail",
         expected_reason_prefix="malformed_refs:../",
     )
 
@@ -876,6 +909,7 @@ def case_evref_005(repo: Path) -> Dict[str, Any]:
         use_evref=False,
         expected_exit_code=1, expected_overall="fail",
         expected_pcacc_002_status="fail",
+        expected_cli_status="fail",
         expected_reason_literal=NEG_002_REASON_CODE,
     )
 
@@ -888,6 +922,7 @@ def case_evref_006(repo: Path) -> Dict[str, Any]:
         use_evref=False,
         expected_exit_code=1, expected_overall="fail",
         expected_pcacc_002_status="fail",
+        expected_cli_status="fail",
         expected_reason_literal=NEG_003_REASON_CODE,
     )
 
@@ -911,6 +946,7 @@ def _failclosed(
         and actual_error == "evidence_ref_registry_load_failed"
         and actual_reason == expected_reason_code
     )
+    observed_cli = classify_observed_cli_status(rc, None, envelope_error=actual_error)
     return _case_record(
         case_id=case_id, group_id="GCLI-PRECOMMIT-FAILCLOSED",
         surface_id="CLI-PRECOMMIT", title=title,
@@ -926,8 +962,10 @@ def _failclosed(
             "error": actual_error,
             "reason_code": actual_reason,
         },
-        expected_status="exit_2_load_failed",
-        actual_status=("exit_2_load_failed" if rc == 2 and actual_error == "evidence_ref_registry_load_failed" else "drift"),
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status="exit_2_load_failed",
+        observed_cli_status=observed_cli,
         expected_reason_code=expected_reason_code,
         actual_reason_code=str(actual_reason),
         passed=passed,
@@ -978,6 +1016,7 @@ def _lifecycle_pcacc_check(
     expected_exit_code: int,
     expected_overall: str,
     expected_check_status: str,
+    expected_cli_status: str,
     expected_reason_literal: Optional[str] = None,
     expected_reason_prefix: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -986,7 +1025,7 @@ def _lifecycle_pcacc_check(
     check = None
     if payload:
         check = find_check(payload.get("checks") or [], check_id=check_id)
-    actual_status = (check or {}).get("status")
+    actual_check_status = (check or {}).get("status")
     actual_reason = (check or {}).get("reason_code", "")
     overall = (payload or {}).get("overall_status")
     if expected_reason_literal is not None:
@@ -999,9 +1038,10 @@ def _lifecycle_pcacc_check(
         rc == expected_exit_code
         and err.strip() == ""
         and overall == expected_overall
-        and actual_status == expected_check_status
+        and actual_check_status == expected_check_status
         and reason_ok
     )
+    observed_cli = classify_observed_cli_status(rc, overall)
     return _case_record(
         case_id=case_id, group_id="GCLI-PRECOMMIT-LIFECYCLE",
         surface_id="CLI-PRECOMMIT", title=title,
@@ -1014,10 +1054,13 @@ def _lifecycle_pcacc_check(
         stderr_contract={"empty_required": True, "stderr_len": len(err)},
         json_contract={
             "overall_status": overall,
-            check_id + ".status": actual_status,
+            check_id + ".status": actual_check_status,
             check_id + ".reason_code": actual_reason,
         },
-        expected_status=expected_overall, actual_status=overall or "missing",
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status=expected_cli_status,
+        observed_cli_status=observed_cli,
         expected_reason_code=expected_reason_literal or ("prefix:" + (expected_reason_prefix or "")),
         actual_reason_code=actual_reason,
         passed=passed,
@@ -1033,6 +1076,7 @@ def case_lifecycle_001(repo: Path) -> Dict[str, Any]:
         repo, "TASK-90021", "PCACC-001",
         expected_exit_code=1, expected_overall="fail",
         expected_check_status="fail",
+        expected_cli_status="fail",
         expected_reason_prefix="lifecycle_missing:",
     )
 
@@ -1044,6 +1088,7 @@ def case_lifecycle_002(repo: Path) -> Dict[str, Any]:
         repo, "TASK-90022", "PCACC-003",
         expected_exit_code=1, expected_overall="fail",
         expected_check_status="fail",
+        expected_cli_status="fail",
         expected_reason_prefix="non_canonical:",
     )
 
@@ -1055,6 +1100,7 @@ def case_lifecycle_003(repo: Path) -> Dict[str, Any]:
         repo, "TASK-90023", "PCACC-004",
         expected_exit_code=1, expected_overall="fail",
         expected_check_status="fail",
+        expected_cli_status="fail",
         expected_reason_literal="review_equal_to_evidence_not_strictly_after",
     )
 
@@ -1066,6 +1112,7 @@ def case_lifecycle_004(repo: Path) -> Dict[str, Any]:
         repo, "TASK-90024", "PCACC-004",
         expected_exit_code=1, expected_overall="fail",
         expected_check_status="fail",
+        expected_cli_status="fail",
         expected_reason_literal="review_before_evidence",
     )
 
@@ -1081,6 +1128,7 @@ def case_lifecycle_005(repo: Path) -> Dict[str, Any]:
         and actual_error == "invalid_task_id"
         and actual_value == "NOT-A-TASK"
     )
+    observed_cli = classify_observed_cli_status(rc, None, envelope_error=actual_error)
     return _case_record(
         case_id="GCLI-PRECOMMIT-LIFECYCLE-005",
         group_id="GCLI-PRECOMMIT-LIFECYCLE",
@@ -1095,8 +1143,10 @@ def case_lifecycle_005(repo: Path) -> Dict[str, Any]:
         },
         stderr_contract={"empty_required": True, "stderr_len": len(err)},
         json_contract={"error": actual_error, "value": actual_value},
-        expected_status="exit_2_invalid_task_id",
-        actual_status=("exit_2_invalid_task_id" if rc == 2 and actual_error == "invalid_task_id" else "drift"),
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status="exit_2_invalid_task_id",
+        observed_cli_status=observed_cli,
         expected_reason_code="invalid_task_id",
         actual_reason_code=str(actual_error),
         passed=passed,
@@ -1111,6 +1161,7 @@ def _quality_check_assert(
     gate_id: str,
     expected_exit_code: int,
     expected_overall: str,
+    expected_cli_status: str,
     target_relpath: Optional[str] = None,
     expected_check_status: Optional[str] = None,
     expected_reason_literal: Optional[str] = None,
@@ -1129,7 +1180,7 @@ def _quality_check_assert(
                     break
         else:
             selected = candidates[0] if candidates else None
-    actual_status = (selected or {}).get("status")
+    actual_check_status = (selected or {}).get("status")
     actual_reason = (selected or {}).get("reason_code", "")
     if expected_reason_literal is not None:
         reason_ok = actual_reason == expected_reason_literal
@@ -1137,7 +1188,7 @@ def _quality_check_assert(
         reason_ok = actual_reason.startswith(expected_reason_prefix)
     else:
         reason_ok = True
-    status_ok = actual_status == expected_check_status if expected_check_status is not None else True
+    status_ok = actual_check_status == expected_check_status if expected_check_status is not None else True
     passed = (
         rc == expected_exit_code
         and err.strip() == ""
@@ -1145,6 +1196,7 @@ def _quality_check_assert(
         and status_ok
         and reason_ok
     )
+    observed_cli = classify_observed_cli_status(rc, overall)
     return _case_record(
         case_id=case_id, group_id=group_id, surface_id="CLI-QUALITY-GATES",
         title=title, cmd_args=args, env_keys=env_keys,
@@ -1157,10 +1209,13 @@ def _quality_check_assert(
         stderr_contract={"empty_required": True, "stderr_len": len(err)},
         json_contract={
             "overall_status": overall,
-            gate_id + ".status": actual_status,
+            gate_id + ".status": actual_check_status,
             gate_id + ".reason_code": actual_reason,
         },
-        expected_status=expected_overall, actual_status=overall or "missing",
+        expected_status="pass",
+        actual_status="pass" if passed else "drift",
+        expected_cli_status=expected_cli_status,
+        observed_cli_status=observed_cli,
         expected_reason_code=expected_reason_literal or ("prefix:" + (expected_reason_prefix or "")),
         actual_reason_code=actual_reason,
         passed=passed,
@@ -1175,6 +1230,7 @@ def case_quality_sync_001(repo: Path) -> Dict[str, Any]:
         "Baseline-existing pair byte-identical -> reason_code=in_sync; exit 0",
         repo, gate_id="QC-SYNC-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="artifacts/scripts/case_pair.py",
         expected_check_status="pass", expected_reason_literal="in_sync",
     )
@@ -1186,6 +1242,7 @@ def case_quality_sync_002(repo: Path) -> Dict[str, Any]:
         "Baseline-existing drift unchanged -> reason_code=baseline_existing; exit 0",
         repo, gate_id="QC-SYNC-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="artifacts/scripts/case_pair.py",
         expected_check_status="pass", expected_reason_literal="baseline_existing",
     )
@@ -1197,6 +1254,7 @@ def case_quality_sync_004(repo: Path) -> Dict[str, Any]:
         "Post-baseline new pair drift -> reason_code=post_baseline_new_pair_drift; exit 1",
         repo, gate_id="QC-SYNC-001",
         expected_exit_code=1, expected_overall="fail",
+        expected_cli_status="fail",
         target_relpath="artifacts/scripts/post_baseline_new.py",
         expected_check_status="fail",
         expected_reason_literal="post_baseline_new_pair_drift",
@@ -1209,6 +1267,7 @@ def case_quality_schema_001(repo: Path) -> Dict[str, Any]:
         "All schema targets valid -> reason_code=schema_and_keys_ok; exit 0",
         repo, gate_id="QC-SCHEMA-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="artifacts/governance/quality-baseline.v3.5.json",
         expected_check_status="pass", expected_reason_literal="schema_and_keys_ok",
     )
@@ -1220,6 +1279,7 @@ def case_quality_schema_002(repo: Path) -> Dict[str, Any]:
         "schema_version mismatch on quality-baseline -> reason_code=schema_version_mismatch; exit 1",
         repo, gate_id="QC-SCHEMA-001",
         expected_exit_code=1, expected_overall="fail",
+        expected_cli_status="fail",
         target_relpath="artifacts/governance/quality-baseline.v3.5.json",
         expected_check_status="fail",
         expected_reason_literal="schema_version_mismatch",
@@ -1232,6 +1292,7 @@ def case_quality_import_003(repo: Path) -> Dict[str, Any]:
         "Unlisted dirty module -> first_cycle_observation_dirty_import advisory",
         repo, gate_id="QC-IMPORT-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="artifacts/scripts/dirty_module.py",
         expected_check_status="advisory",
         expected_reason_literal="first_cycle_observation_dirty_import",
@@ -1244,6 +1305,7 @@ def case_quality_golden_001(repo: Path) -> Dict[str, Any]:
         "Deferred capture_policy -> post_task_evidence_only_capture_deferred skipped_with_reason_code",
         repo, gate_id="QC-GOLDEN-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="FX-CLI-0001",
         expected_check_status="skipped_with_reason_code",
         expected_reason_literal="post_task_evidence_only_capture_deferred",
@@ -1256,6 +1318,7 @@ def case_quality_ruff_001(repo: Path) -> Dict[str, Any]:
         "RUFF advisory contract -> status=advisory reason_code=advisory_only_in_v3.5.0",
         repo, gate_id="QC-RUFF-001",
         expected_exit_code=0, expected_overall="pass",
+        expected_cli_status="pass",
         target_relpath="ruff_config",
         expected_check_status="advisory",
         expected_reason_literal="advisory_only_in_v3.5.0",
@@ -1280,6 +1343,8 @@ def _case_record(
     json_contract: Dict[str, Any],
     expected_status: str,
     actual_status: str,
+    expected_cli_status: str,
+    observed_cli_status: str,
     expected_reason_code: str,
     actual_reason_code: str,
     passed: bool,
@@ -1300,6 +1365,8 @@ def _case_record(
         "json_contract": json_contract,
         "expected_status": expected_status,
         "actual_status": actual_status,
+        "expected_cli_status": expected_cli_status,
+        "observed_cli_status": observed_cli_status,
         "expected_reason_code": expected_reason_code,
         "actual_reason_code": actual_reason_code,
         "pass": passed,
@@ -1484,6 +1551,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "Quality runner Pass-2 detects the runner self-pair as post_baseline_new_pair_in_sync; harness asserts QC-SYNC-001 case-specific check by target path to avoid coupling to the runner self-pair.",
             "QC-SCHEMA-001 reads minimum_required_targets from fixed paths under repo root; per-case fixture provides deterministic stubs to make the gate well-defined.",
             "Cache audit only blames cache files that appear under artifacts/verify/TASK-1037/. Pre-existing __pycache__ under artifacts/scripts/ from prior v3.4 / v3.5 chains is recorded but not attributed to TASK-1037.",
+            "Per-case status semantics (TASK-1037 repair): expected_status / actual_status encode the golden case assertion status (allowed values: pass / skipped_with_reason_code / advisory). expected_cli_status / observed_cli_status encode the runner CLI outcome and may carry pass / fail / skipped_with_reason_code / advisory / exit_2_load_failed / exit_2_invalid_task_id. Negative CLI cases legitimately observe fail or exit_2_*; the golden assertion still asserts pass=true when expected and observed CLI outcomes match.",
         ],
     }
 

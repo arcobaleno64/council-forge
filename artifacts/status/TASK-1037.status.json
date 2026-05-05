@@ -5,7 +5,7 @@
   "project_adapter": "docs-spec",
   "current_owner": "Claude",
   "next_agent": "Codex",
-  "last_updated": "2026-05-05T03:35:00+08:00",
+  "last_updated": "2026-05-05T18:00:00+08:00",
   "verification_readiness": "mvp",
   "open_verification_debts": [],
   "required_artifacts": ["task", "plan", "decision", "verify", "status"],
@@ -191,5 +191,42 @@
   "follow_up_candidates_listed_in_decision_only": true,
   "follow_up_candidates_lifecycle_artifact_created_by_task_1037": false,
   "follow_up_candidate_ids_advisory": ["TASK-1038"],
-  "next_agent_action": "Codex post-commit PASS/FAIL verification per agent_roles.negative_tester"
+  "next_agent_action": "Codex post-commit PASS/FAIL verification per agent_roles.negative_tester",
+  "previous_closure_result": "v3.5.5 deep closure review FAIL on schema/contract: actual_status carried negative CLI outcome values (fail / exit_2_load_failed / exit_2_invalid_task_id) instead of being restricted to the assertion-status enum {pass, skipped_with_reason_code, advisory}",
+  "repair_history": [
+    {
+      "repair_id": "TASK-1037-REPAIR-001",
+      "repair_type": "schema_semantics_separation",
+      "repair_timestamp": "2026-05-05T18:00:00+08:00",
+      "repair_summary": "Separate per-case golden assertion status (actual_status / expected_status) from observed runner CLI outcome (observed_cli_status / expected_cli_status); actual_status restricted to {pass, skipped_with_reason_code, advisory}; observed_cli_status preserves former negative CLI outcomes (fail / exit_2_load_failed / exit_2_invalid_task_id).",
+      "files_modified": [
+        "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+        "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+        "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+        "artifacts/verify/TASK-1037.verify.md",
+        "artifacts/status/TASK-1037.status.json"
+      ],
+      "production_runner_modified_by_repair": false,
+      "production_validator_modified_by_repair": false,
+      "production_governance_policy_modified_by_repair": false,
+      "task_1023_to_1036_lifecycle_modified_by_repair": false,
+      "task_1038_plus_artifact_created_by_repair": false
+    }
+  ],
+  "repair_result": "pass",
+  "status_semantics_repaired": true,
+  "actual_status_enum_compliant": true,
+  "expected_status_enum_compliant": true,
+  "observed_cli_status_present_on_every_case": true,
+  "expected_cli_status_present_on_every_case": true,
+  "negative_cli_outcomes_preserved_under_observed_cli_status": true,
+  "observed_cli_status_distribution": {
+    "pass": 9,
+    "fail": 10,
+    "exit_2_load_failed": 4,
+    "exit_2_invalid_task_id": 1
+  },
+  "actual_status_distribution_post_repair": {
+    "pass": 24
+  }
 }

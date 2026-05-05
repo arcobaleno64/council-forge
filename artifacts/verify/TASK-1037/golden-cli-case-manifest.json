@@ -498,6 +498,15 @@
       "implementation_status": "implemented"
     }
   ],
+  "case_status_semantics": {
+    "actual_status_semantics": "golden case assertion status; describes whether the golden assertion held. Allowed values: pass, skipped_with_reason_code, advisory.",
+    "expected_status_semantics": "expected golden case assertion status; same allowed enum as actual_status.",
+    "observed_cli_status_semantics": "observed runner / harness CLI outcome classification for the case. Allowed values: pass, fail, skipped_with_reason_code, advisory, exit_2_load_failed, exit_2_invalid_task_id.",
+    "expected_cli_status_semantics": "expected observed CLI outcome for the case; same allowed enum as observed_cli_status.",
+    "case_pass_semantics": "boolean true iff observed CLI behavior matched the golden contract (exit code, json subset, reason_code, stderr, expected_cli_status).",
+    "negative_cases_may_observe_fail_or_exit_2": true,
+    "repair_history": "v3.5.5 closure review FAIL: actual_status formerly carried negative CLI outcomes (fail / exit_2_load_failed / exit_2_invalid_task_id). TASK-1037 repair separates assertion status from CLI outcome status: actual_status now restricted to {pass, skipped_with_reason_code, advisory}; observed_cli_status / expected_cli_status added to preserve negative CLI outcomes."
+  },
   "output_contract_strategy": {
     "preferred_contracts": [
       "stable schema_version literal lock (precommit-check-result/v1, quality-gate-result/v1)",
@@ -587,6 +596,7 @@
     "Quality runner Pass-2 discover_current_pairs detects the runner self-pair as post_baseline_new_pair_in_sync; harness asserts case-specific QC-SYNC-001 check by target path to avoid coupling to the runner self-pair.",
     "QC-SCHEMA-001 reads minimum_required_targets from fixed paths under repo root; per-case fixture provides deterministic stubs for all six required JSON targets to keep the gate well-defined.",
     "ORC marker matching is substring against verify text (`evidence_refs_optional_per_orc_<id>`); future tightening into a structured heading would require both runner and harness to re-anchor.",
-    "Result JSON production_preservation block reports sha256 prefix only (first 16 hex chars); full 64-char comparison is not duplicated here."
+    "Result JSON production_preservation block reports sha256 prefix only (first 16 hex chars); full 64-char comparison is not duplicated here.",
+    "TASK-1037 repair (status semantics): per-case schema separates assertion status (actual_status / expected_status; allowed pass / skipped_with_reason_code / advisory) from CLI outcome status (observed_cli_status / expected_cli_status; allowed pass / fail / skipped_with_reason_code / advisory / exit_2_load_failed / exit_2_invalid_task_id). Negative CLI cases preserve former fail / exit_2_* observations under observed_cli_status; pass=true iff observed CLI behavior matched the golden contract."
   ]
 }

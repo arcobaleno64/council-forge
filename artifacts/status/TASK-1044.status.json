@@ -1,0 +1,15 @@
+{
+  "task_id": "TASK-1044",
+  "state": "done",
+  "current_owner": "Claude",
+  "next_agent": "Claude",
+  "required_artifacts": ["status", "task", "verify"],
+  "available_artifacts": ["code", "improvement", "status", "task", "verify"],
+  "missing_artifacts": [],
+  "assurance_level": "poc",
+  "project_adapter": "docs-spec",
+  "verification_readiness": "poc",
+  "open_verification_debts": [],
+  "blocked_reason": "",
+  "last_updated": "2026-05-05T21:00:00+08:00"
+}

@@ -1000,6 +1000,99 @@ TASK-964 is the canonical example of a `baseline_known_debt` entry:
 - This annotation does NOT modify TASK-964.verify.md or upgrade its maturity.
 - Production canonical drill for TASK-964 scope belongs to TASK-1010 (Prompt 4).
 
+## 5.13 v2 Governance Extension（TASK-1045 schema clarification）
+
+> Authoritative since: 2026-05-05 (TASK-1045). Decision ref: artifacts/decisions/TASK-1045.decision.md
+
+### 5.13.1 動機
+
+v3.5.x governance repair chain 自 TASK-1037 起，task / plan / decision / verify artifacts 漸演成 v2 格式：task 用 `## Title` / `## Description` / `## Non Goals` 取代 `## Objective` / `## Constraints` / `## Out of Scope`；decision 帶 YAML frontmatter `schema_version: decision/v2`，用 `# Decision:` headline 與 `## Context` / `## Decision` / `## Consequences` H2，採 `governance-*` Decision Class，commit-anchored Expiry；verify 用 `- [x] AC-N: criterion text` inline 形式並允許多段落 evidence。v1 schema（§5.1 / §5.6 / §5.7）為原始基準；v2 為附加擴充，互不取代。validator 兼容雙版，artifact 作者可繼續以 v1 為預設並按需採 v2。
+
+### 5.13.2 v2 Task Allowed Alternatives
+
+| v1 必填 | v2 任一可代 |
+|---|---|
+| `## Objective` | `## Description` |
+| `## Constraints` | `## Non Goals`、`## Authorized Production Surface` |
+
+`## Acceptance Criteria` 仍為硬必填，不可省。其餘 v1 欄位（Background / Inputs / Dependencies / Out of Scope / Assurance Level / Project Adapter / Current Status Summary）建議保留；v2 task 通常以 `## Description` 提供 background 等敘事。
+
+### 5.13.3 v2 Decision Allowed Alternatives
+
+| v1 必填 | v2 任一可代 |
+|---|---|
+| `# Decision Log:` | `# Decision:` |
+| `## Issue` | `## Context` |
+| `## Chosen Option` | `## Decision`（h2，非 frontmatter title） |
+| `## Reasoning` | `## Consequences` |
+| `## Linked Artifacts` | `## Evidence Refs`、`## Follow Up`（governance class only） |
+
+YAML frontmatter `schema_version: decision/v2` 為選填。若帶 frontmatter，validator 會自 frontmatter 抽取 `decision_class` 作為 `## Decision Class` H2 缺失時之來源；v1 H2 若同時存在則 H2 優先。
+
+### 5.13.4 v2 Decision Class Family
+
+`Decision Class` 接受兩類：
+
+- **canonical 5 v1 classes**：`scope-drift-waiver` / `risk-acceptance` / `defer` / `reject` / `conflict-resolution`
+- **governance-* family**：任一 `governance-` 前綴 + 非空 subclass token（例：`governance-attestation`、`governance-snapshot`、`governance-waiver-runtime-implementation`）
+
+僅前綴而 subclass 為空（如 `governance-`）視為非法。
+
+對 governance-* class，validator 放寬以下檢查：
+
+- **Affected Gate**：可為 `None` / `N/A` / `Gate_X` / 任一非空字串；不強制 `Gate_A..Gate_E` 模式。
+- **Expiry**：可為 commit-anchored 或 plan-version-anchored prose（如 `Decision is anchored at HEAD <sha>`），不強制 ISO 8601。
+- **Linked Artifacts**：可由 `## Evidence Refs` 或 `## Follow Up` 取代。
+
+對 canonical 5 classes 則維持 v1 嚴格檢查：Affected Gate 須符 `Gate_A..Gate_E`、Expiry 須 ISO 8601 +08:00、Linked Artifacts 須存在。
+
+### 5.13.5 v2 Plan Allowed Alternatives
+
+| v1 必填 | v2 任一可代 |
+|---|---|
+| `## Scope` | `## Goal` |
+| `## Proposed Changes` | `## Approach` |
+| `## Validation Strategy` | `## Premortem`、`## Build Guarantee`、`## TAO Trace` |
+| `## Ready For Coding`（yes/no 宣告） | 偵測為 v2 plan 時放免；implementation authorisation 由 decision artifact 承載 |
+| `## Verification Obligations`（mvp/production 必填） | 偵測為 v2 plan 時放免；驗證義務由 plan 之 Acceptance Criteria + Premortem + Build Guarantee 承載 |
+
+`## Files Likely Affected` 與 `## Risks` 仍為硬必填。
+
+v2 plan 偵測規則（任一成立即視為 v2）：
+
+- 含 `## Authorization Boundary` H2
+- 含 `## TAO Trace` H2
+- 含 `## Premortem` H2 而不含 `## Validation Strategy` H2
+
+### 5.13.6 v2 Verify Multi-Paragraph Evidence Parsing
+
+v2 verify artifact 之 `## Acceptance Criteria Checklist` 採 `- [ ] AC-N:` / `- [x] AC-N:` line-anchored item-start 邊界（亦可用其他 `- [x] ID:` 風格）。每 item 可橫跨多段落 evidence；validator 以 item-start regex 為邊界切塊，避免空行誤分。若 section 內無任一 AC-N 起始 marker，validator fallback 至 v1 之空行邊界 splitter，確保歷史 verify 不破。
+
+### 5.13.7 v2 Inline-Light AC Items
+
+v2 verify 允許將 criterion 直接寫於 item 起始行：
+
+```md
+- [x] AC-1: TASK-XYZ lifecycle artifacts schema 一致
+  - result: verified, reviewer: arcobaleno, timestamp: 2026-05-05T12:00:00+08:00
+```
+
+此 inline-light 形式中，`method` / `evidence` 為選填；criterion 行本身即作為 evidence anchor。validator 對 inline-light item 僅檢 `criterion`、`result` 與其餘 reviewer / timestamp 欄位（如 assurance level 要求）。非 inline-light item（即用 `- criterion:` 顯式分行）仍維持完整欄位要求。
+
+### 5.13.8 v2 Governance Attestation Code Substitution
+
+v2 governance attestation tasks（典型為 snapshot / closure / decision-only lifecycles）可不產 `code` artifact，改以 `decision` artifact 承載實作授權與證據。`docs-spec` adapter 在 `testing` / `verifying` / `done` state 釋 `code` 必要性；其他 adapter 仍依各自 profile 要求 code。
+
+### 5.13.9 對既有 artifact 之相容性
+
+- v1 artifact 不需任何修改即繼續通過 validator。所有 markers / fields / sections 皆 backward-compatible。
+- v2 artifact 一旦採 alternates 後，validator 即依 §5.13 規則寬放對應檢查；混用 v1+v2 markers 之 hybrid artifact 亦合法。
+- 文件作者偏好仍以 v1 為新 task 之預設範本；governance-attestation chain 始採 v2。
+
+### 5.13.10 後續演進
+
+未來 schema v3+ 應以同一原則處理：附加 marker tuples、prefix-family taxonomy、條件嚴格檢查、parser fallback。每一條 alternate 必於本 §5.13 顯式登錄；不得隱式擴張。
+
 ---
 
 ## 6. 合法性檢查規則

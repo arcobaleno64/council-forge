@@ -106,6 +106,26 @@ DECISION_CLASSES = (
     "conflict-resolution",
 )
 
+GOVERNANCE_DECISION_CLASS_PREFIX = "governance-"
+
+
+def is_governance_decision_class(value: str) -> bool:
+    """Return True iff `value` is a governance-family Decision Class (v2 schema).
+
+    A governance-family class is any string that starts with `governance-`
+    (case-insensitive) and carries a non-empty subclass token after the prefix.
+    Empty subclass (just `governance-` or `governance-   `) is rejected.
+
+    See docs/artifact_schema.md §5.13 for the v2 governance extension.
+    """
+    if not isinstance(value, str):
+        return False
+    lowered = value.strip().lower()
+    if not lowered.startswith(GOVERNANCE_DECISION_CLASS_PREFIX):
+        return False
+    subclass = lowered[len(GOVERNANCE_DECISION_CLASS_PREFIX):].strip()
+    return bool(subclass)
+
 IMPROVEMENT_PROFILES = (
     "gate-e",
     "retrospective",
@@ -223,9 +243,9 @@ PROJECT_ADAPTER_RULES = {
     "docs-spec": {
         "inherits": "generic",
         "artifact_overrides_by_state": {
-            "testing": {"test": False},
-            "verifying": {"test": False},
-            "done": {"test": False},
+            "testing": {"test": False, "code": False},
+            "verifying": {"test": False, "code": False},
+            "done": {"test": False, "code": False},
         },
         "verify_section_overrides": set(),
         "verify_field_overrides": set(),

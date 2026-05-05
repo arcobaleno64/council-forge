@@ -4054,7 +4054,12 @@ def _write_markdown_artifact(tmp_path, task_id, atype, extra_content=""):
     allowed = gsv.ARTIFACT_ALLOWED_STATUSES.get(atype, {"drafted"})
     status_val = next(iter(sorted(allowed)))
 
-    lines = [markers[0] + f" {task_id}"]
+    def _first_alt(m):
+        # MARKERS may contain tuple-of-alternatives (v2 governance extension); the
+        # test fixture only needs one valid alternative. See docs/artifact_schema.md §5.13.
+        return m[0] if isinstance(m, tuple) else m
+
+    lines = [_first_alt(markers[0]) + f" {task_id}"]
     lines.append("## Metadata")
     lines.append(f"- Artifact Type: {atype}")
     lines.append(f"- Task ID: {task_id}")
@@ -4064,7 +4069,8 @@ def _write_markdown_artifact(tmp_path, task_id, atype, extra_content=""):
     lines.append("")
 
     # Add all remaining markers as sections (skip those provided in extra_content)
-    for marker in markers[1:]:
+    for raw_marker in markers[1:]:
+        marker = _first_alt(raw_marker)
         if marker.startswith("## "):
             if extra_content and marker in extra_content:
                 continue

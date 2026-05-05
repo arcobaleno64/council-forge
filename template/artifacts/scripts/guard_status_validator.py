@@ -24,6 +24,7 @@ from workflow_constants import (
     DEFAULT_ASSURANCE_LEVEL,
     DEFAULT_PROJECT_ADAPTER,
     IMPROVEMENT_PROFILES,
+    is_governance_decision_class,
     PROJECT_ADAPTERS,
     resolve_verification_policy,
     STRUCTURED_CHECKLIST_FIELDS as POLICY_STRUCTURED_CHECKLIST_FIELDS,
@@ -86,15 +87,97 @@ STATE_REQUIRED_ARTIFACTS = {
     "blocked": {"task", "status"},
 }
 MARKERS = {
-    "task": ("# Task:", "## Metadata", "Task ID:", "Artifact Type: task", "## Objective", "## Constraints", "## Acceptance Criteria"),
+    "task": (
+        "# Task:",
+        "## Metadata",
+        "Task ID:",
+        "Artifact Type: task",
+        ("## Objective", "## Description"),
+        ("## Constraints", "## Non Goals", "## Authorized Production Surface"),
+        "## Acceptance Criteria",
+    ),
     "research": ("# Research:", "## Metadata", "Artifact Type: research", "## Research Questions", "## Confirmed Facts", "## Relevant References", "## Uncertain Items", "## Constraints For Implementation"),
-    "plan": ("# Plan:", "## Metadata", "Artifact Type: plan", "## Scope", "## Files Likely Affected", "## Proposed Changes", "## Validation Strategy", "## Ready For Coding"),
+    "plan": (
+        "# Plan:",
+        "## Metadata",
+        "Artifact Type: plan",
+        ("## Scope", "## Goal"),
+        "## Files Likely Affected",
+        ("## Proposed Changes", "## Approach"),
+        ("## Validation Strategy", "## Premortem", "## Build Guarantee", "## TAO Trace"),
+    ),
     "code": ("# Code Result:", "## Metadata", "Artifact Type: code", "## Files Changed", "## Summary Of Changes", "## Mapping To Plan"),
     "test": ("# Test Report:", "## Metadata", "Artifact Type: test", "## Test Scope", "## Commands Executed", "## Result Summary"),
     "verify": ("# Verification:", "## Metadata", "Artifact Type: verify", "## Acceptance Criteria Checklist", "## Pass Fail Result", "## Build Guarantee"),
-    "decision": ("# Decision Log:", "## Metadata", "Artifact Type: decision", "## Issue", "## Chosen Option", "## Reasoning"),
+    "decision": (
+        ("# Decision Log:", "# Decision:"),
+        "## Metadata",
+        "Artifact Type: decision",
+        ("## Issue", "## Context"),
+        ("## Chosen Option", "## Decision"),
+        ("## Reasoning", "## Consequences"),
+    ),
     "improvement": ("# Process Improvement", "## Metadata", "Artifact Type: improvement", "Source Task:", "Trigger Type:", "## 1. What Happened", "## 2. Why It Was Not Prevented", "## 3. Failure Classification", "## 5. Preventive Action (System Level)", "## 6. Validation", "## 8. Final Rule", "## 9. Status"),
 }
+
+
+def _marker_present(text: str, marker: str) -> bool:
+    """Test whether a required marker is present in `text`.
+
+    Heading markers (starting with '#') are matched line-anchored to avoid
+    false positives like '## Decision' matching '## Decision Class'. Markers
+    ending in ':' allow trailing content on the same line; pure headings
+    must stand alone (allowing trailing whitespace only). Non-heading markers
+    (e.g. 'Task ID:', 'Artifact Type: task') keep the simple substring
+    semantics used by the v1 validator.
+
+    See docs/artifact_schema.md §5.13 for the v2 governance extension.
+    """
+    if marker.startswith("#"):
+        if marker.endswith(":"):
+            pattern = rf"^{re.escape(marker)}(\s|$)"
+        else:
+            pattern = rf"^{re.escape(marker)}\s*$"
+        return re.search(pattern, text, re.MULTILINE) is not None
+    return marker in text
+
+
+def _is_v2_plan(text: str) -> bool:
+    """Detect v2 governance plan format.
+
+    v2 plans use '## Goal' / '## Approach' / '## Authorization Boundary' /
+    '## Premortem' / '## Build Guarantee' / '## TAO Trace' instead of v1's
+    '## Scope' / '## Proposed Changes' / '## Out of Scope' /
+    '## Validation Strategy' / '## Ready For Coding'. Detection succeeds when
+    any v2-only section is present, or when the v2 risk pattern (## Premortem
+    without ## Validation Strategy) appears.
+
+    See docs/artifact_schema.md §5.13 for the v2 governance extension.
+    """
+    if "## Authorization Boundary" in text:
+        return True
+    if "## TAO Trace" in text:
+        return True
+    return "## Premortem" in text and "## Validation Strategy" not in text
+
+
+def _required_markers_missing(text: str, required: Sequence) -> List[str]:
+    """Compute the list of missing markers for an artifact body.
+
+    Each entry of `required` is either a string (single required marker) or a
+    tuple of strings (any-of alternatives). For tuples, the marker is satisfied
+    if at least one alternative is present. Returns human-readable labels for
+    missing markers; tuple alternatives are rendered as 'A / B / C'.
+    """
+    missing: List[str] = []
+    for marker in required:
+        if isinstance(marker, tuple):
+            if not any(_marker_present(text, alt) for alt in marker):
+                missing.append(" / ".join(marker))
+        else:
+            if not _marker_present(text, marker):
+                missing.append(marker)
+    return missing
 ARTIFACT_ALLOWED_STATUSES = {
     "task": {"drafted", "approved", "blocked", "done"},
     "research": {"in_progress", "ready", "blocked", "superseded"},
@@ -1317,27 +1400,61 @@ def validate_improvement_artifact(text: str, path: Path, task_id: str) -> Valida
     return ValidationResult(errors, warnings)
 
 
+def _extract_v2_frontmatter_decision_class(text: str) -> str:
+    """Return decision_class from YAML frontmatter at the top of a v2 decision
+    artifact, or '' when no frontmatter or no decision_class line is found.
+
+    See docs/artifact_schema.md §5.13 for the v2 governance extension.
+    """
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        return ""
+    frontmatter = text[4:end]
+    match = re.search(r"^decision_class:\s*(.+)$", frontmatter, re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
 def validate_decision_artifact(text: str, path: Path) -> ValidationResult:
     errors: List[str] = []
     warnings: List[str] = []
     decision_class = extract_single_line_section(text, "Decision Class")
+    if not decision_class:
+        decision_class = _extract_v2_frontmatter_decision_class(text)
+    is_governance = is_governance_decision_class(decision_class) if decision_class else False
     if decision_class:
-        if decision_class.lower() not in DECISION_CLASSES:
-            errors.append(f"{path.name}: Decision Class must be one of {list(DECISION_CLASSES)}")
+        if decision_class.lower() not in DECISION_CLASSES and not is_governance:
+            errors.append(
+                f"{path.name}: Decision Class must be one of {list(DECISION_CLASSES)} "
+                f"or a governance-* family value (see docs/artifact_schema.md §5.13)"
+            )
     else:
         warnings.append(f"{path.name}: missing ## Decision Class; legacy decision artifact kept for compatibility")
     affected_gate = extract_single_line_section(text, "Affected Gate")
     if affected_gate:
-        if not DECISION_GATE_PATTERN.match(affected_gate):
+        if is_governance:
+            # v2 governance decisions allow free-form Affected Gate (including 'None' for snapshot-only records).
+            pass
+        elif not DECISION_GATE_PATTERN.match(affected_gate):
             errors.append(f"{path.name}: Affected Gate must use Gate_A..Gate_E format")
-    elif decision_class:
+    elif decision_class and not is_governance:
         warnings.append(f"{path.name}: missing ## Affected Gate")
     expiry = extract_single_line_section(text, "Expiry")
     if expiry and expiry.strip().lower() not in {"none", "n/a"}:
-        errors.extend(validate_taipei_timestamp(expiry, f"{path.name} Expiry"))
+        if is_governance:
+            # v2 governance decisions allow commit-anchored or plan-version-anchored Expiry prose.
+            pass
+        else:
+            errors.extend(validate_taipei_timestamp(expiry, f"{path.name} Expiry"))
     linked_artifacts = extract_section(text, "Linked Artifacts")
     if decision_class and not linked_artifacts:
-        warnings.append(f"{path.name}: missing ## Linked Artifacts")
+        # v2 governance decisions may track linked artifacts under ## Evidence Refs
+        # or ## Follow Up instead of ## Linked Artifacts. See docs/artifact_schema.md §5.13.
+        if is_governance and (extract_section(text, "Evidence Refs") or extract_section(text, "Follow Up")):
+            pass
+        else:
+            warnings.append(f"{path.name}: missing ## Linked Artifacts")
     return ValidationResult(errors, warnings)
 
 
@@ -1360,23 +1477,84 @@ def validate_code_mapping_to_plan(text: str, path: Path) -> ValidationResult:
     return ValidationResult([], warnings)
 
 
+def _split_inline_checklist_fields(value: str) -> Dict[str, str]:
+    """Split 'first_value, key2: value2, key3: value3' into separate fields.
+
+    Used for v2 verify artifacts that pack multiple checklist fields onto one
+    line (e.g. '- result: verified, reviewer: arcobaleno, timestamp: ...').
+    Recognises only fields named in POLICY_STRUCTURED_CHECKLIST_FIELDS so that
+    timestamp values containing ':' are not misparsed.
+    """
+    field_alt = "|".join(re.escape(f) for f in POLICY_STRUCTURED_CHECKLIST_FIELDS)
+    pattern = re.compile(rf",\s*({field_alt})\s*:\s*", re.IGNORECASE)
+    matches = list(pattern.finditer(value))
+    if not matches:
+        return {}
+    parsed: Dict[str, str] = {"__first__": value[:matches[0].start()].strip()}
+    for index, match in enumerate(matches):
+        key = match.group(1).lower()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(value)
+        parsed[key] = value[match.end():end].strip()
+    return parsed
+
+
 def parse_structured_checklist_fields(block_text: str) -> Dict[str, str]:
     fields: Dict[str, str] = {}
+    ac_inline = re.compile(r"^- \[[ x]\]\s+(\S+):\s*(.*)$")
     for raw_line in block_text.splitlines():
         line = raw_line.strip()
+        if not line:
+            continue
+        ac_match = ac_inline.match(line)
+        if ac_match:
+            criterion_text = ac_match.group(2).strip()
+            if criterion_text:
+                fields.setdefault("criterion", criterion_text)
+                fields.setdefault("__inline_criterion__", "true")
+            continue
         match = re.match(r"^- \*\*([^*]+)\*\*:\s*(.+)$", line)
         if not match:
             match = re.match(r"^- ([^:]+):\s*(.+)$", line)
-        if match:
-            fields[match.group(1).strip().lower()] = match.group(2).strip()
+        if not match:
+            continue
+        key = match.group(1).strip().lower()
+        value = match.group(2).strip()
+        inline = _split_inline_checklist_fields(value) if key in POLICY_STRUCTURED_CHECKLIST_FIELDS else {}
+        if inline:
+            fields[key] = inline.pop("__first__", value)
+            for sub_key, sub_value in inline.items():
+                fields.setdefault(sub_key, sub_value)
+        else:
+            fields[key] = value
     return fields
 
 
 def parse_verify_checklist_items(section_text: str) -> List[Dict[str, str]]:
+    """Split a verify ## Acceptance Criteria Checklist section into structured items.
+
+    The preferred boundary is a checklist item header line, line-anchored, of
+    the form '- [ ] AC-N:' or '- [x] AC-N:' (or any '- [ ] ID:' style). This
+    correctly groups multi-paragraph evidence values that v2 governance verify
+    artifacts produce. When no such header is present, the splitter preserves
+    the v1 blank-line-boundary semantics so older verify artifacts continue
+    to parse unchanged.
+
+    See docs/artifact_schema.md §5.13 for the v2 multi-paragraph evidence rule.
+    """
     items: List[Dict[str, str]] = []
     if not section_text:
         return items
-    blocks = [block.strip() for block in re.split(r"\n\s*\n", section_text) if block.strip()]
+    item_start = re.compile(r"^- \[[ x]\]\s+\S+:", re.MULTILINE)
+    starts = [m.start() for m in item_start.finditer(section_text)]
+    if starts:
+        blocks: List[str] = []
+        for index, start in enumerate(starts):
+            end = starts[index + 1] if index + 1 < len(starts) else len(section_text)
+            block = section_text[start:end].strip()
+            if block:
+                blocks.append(block)
+    else:
+        blocks = [block.strip() for block in re.split(r"\n\s*\n", section_text) if block.strip()]
     for block in blocks:
         fields = parse_structured_checklist_fields(block)
         if not fields:
@@ -1441,7 +1619,16 @@ def validate_verify_checklist_schema(
 
     for fields in checklist_items:
         item_label = fields.get("criterion") or fields.get("method") or "<unnamed criterion>"
-        for field in sorted(required_fields):
+        # v2 inline-light AC items carry the criterion on the '- [x] AC-N:' header
+        # itself; the criterion line is the evidence anchor and method/evidence
+        # are optional supplements rather than required separate lines. Items
+        # that don't use the AC-inline form continue to require the full
+        # configured field set. See docs/artifact_schema.md §5.13.
+        is_inline_light = fields.get("__inline_criterion__") == "true"
+        effective_required_fields = (
+            required_fields - {"method", "evidence"} if is_inline_light else required_fields
+        )
+        for field in sorted(effective_required_fields):
             if not fields.get(field):
                 missing_target.append(
                     f"{path.name}: Acceptance Criteria Checklist structured item '{item_label}' missing {field} field"
@@ -1526,7 +1713,7 @@ def validate_markdown_artifact(path: Path, artifact_type: str, task_id: str) -> 
             _task_flags_for_assurance.get("assurance_level")
             or extract_single_line_section(text, "Assurance Level")
         )
-    missing_markers = [marker for marker in MARKERS[artifact_type] if marker not in text]
+    missing_markers = _required_markers_missing(text, MARKERS[artifact_type])
     if missing_markers:
         errors.append(f"{path.name} missing required markers: {missing_markers}")
     if f"Task ID: {task_id}" not in text:
@@ -1546,7 +1733,7 @@ def validate_markdown_artifact(path: Path, artifact_type: str, task_id: str) -> 
         errors.append(f"{path.name} missing non-empty Last Updated field")
     else:
         errors.extend(validate_taipei_timestamp(updated_match.group(1).strip(), f"{path.name} Last Updated"))
-    if artifact_type == "plan" and not re.search(r"## Ready For Coding\s+\n?\s*(yes|no)\b", text, re.IGNORECASE):
+    if artifact_type == "plan" and not _is_v2_plan(text) and not re.search(r"## Ready For Coding\s+\n?\s*(yes|no)\b", text, re.IGNORECASE):
         errors.append(f"{path.name} does not clearly declare Ready For Coding as yes/no")
     if artifact_type == "verify" and not re.search(r"## Pass Fail Result\s+\n?\s*(pass|fail)\b", text, re.IGNORECASE):
         errors.append(f"{path.name} does not clearly declare Pass Fail Result as pass/fail")
@@ -1575,7 +1762,12 @@ def validate_markdown_artifact(path: Path, artifact_type: str, task_id: str) -> 
                     )
             except GuardError:
                 pass
-    if artifact_type == "plan" and assurance_level in {"mvp", "production"} and "## Verification Obligations" not in text:
+    if (
+        artifact_type == "plan"
+        and assurance_level in {"mvp", "production"}
+        and "## Verification Obligations" not in text
+        and not _is_v2_plan(text)
+    ):
         errors.append(f"{path.name}: missing ## Verification Obligations for assurance level '{assurance_level}'")
     if artifact_type == "research":
         result = validate_research_artifact(task_id, text, path)
@@ -2115,7 +2307,7 @@ def validate_artifact_presence(
     if state in {"coding", "testing", "verifying", "done"}:
         plan_path = artifact_path(artifacts_root, task_id, "plan")
         task_path = artifact_path(artifacts_root, task_id, "task")
-        if plan_path.exists() and not plan_ready_for_coding(plan_path):
+        if plan_path.exists() and not _is_v2_plan(load_text(plan_path)) and not plan_ready_for_coding(plan_path):
             errors.append(f"Plan artifact is not Ready For Coding = yes: {plan_path.name}")
         if plan_path.exists():
             premortem_result = validate_premortem(plan_path, task_path if task_path.exists() else None)

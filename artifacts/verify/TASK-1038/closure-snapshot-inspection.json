@@ -1,0 +1,184 @@
+{
+  "schema_version": "closure-snapshot-inspection/v1",
+  "task_id": "TASK-1038",
+  "generated_at": "2026-05-05T20:25:00+08:00",
+  "snapshot_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md",
+  "index_ref": "artifacts/governance/v3.5.x-governance-closure-index.json",
+  "overall_status": "pass",
+  "summary": {
+    "total_checks": 18,
+    "pass_count": 18,
+    "skipped_with_reason_code_count": 0,
+    "advisory_count": 0,
+    "fail_count": 0
+  },
+  "checks": [
+    {
+      "check_id": "lifecycle-artifacts-exist",
+      "target": "TASK-1038 lifecycle artifact set",
+      "expected": "task / plan / decision / verify / status all present under artifacts/{tasks,plans,decisions,verify,status}/TASK-1038.*",
+      "actual": "artifacts/tasks/TASK-1038.task.md, artifacts/plans/TASK-1038.plan.md, artifacts/decisions/TASK-1038.decision.md, artifacts/verify/TASK-1038.verify.md, artifacts/status/TASK-1038.status.json all present at commit time",
+      "status": "pass",
+      "evidence_ref": "artifacts/tasks/TASK-1038.task.md;artifacts/plans/TASK-1038.plan.md;artifacts/decisions/TASK-1038.decision.md;artifacts/verify/TASK-1038.verify.md;artifacts/status/TASK-1038.status.json",
+      "reason_code": "lifecycle_artifacts_present"
+    },
+    {
+      "check_id": "snapshot-markdown-exists",
+      "target": "artifacts/governance/v3.5.x-governance-closure-snapshot.md",
+      "expected": "human-readable snapshot exists with thirteen required sections",
+      "actual": "snapshot present; sections 1..13 (Purpose / Source of truth / Closure timeline / Major governance capabilities / Evidence Ref policy registry chain / Golden CLI coverage chain / TASK-1037 repair summary / Protected production surfaces / Explicit non-authorization boundaries / Known unrelated local noise / Next candidate lifecycle tasks / Operator guidance / Closure conclusion) all present",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md",
+      "reason_code": "snapshot_markdown_present"
+    },
+    {
+      "check_id": "closure-index-json-exists",
+      "target": "artifacts/governance/v3.5.x-governance-closure-index.json",
+      "expected": "schema_version=v3.5.x-governance-closure-index/v1; created_by_task=TASK-1038; plan_version_range=v3.5.0..v3.5.5",
+      "actual": "schema_version=v3.5.x-governance-closure-index/v1; created_by_task=TASK-1038; plan_version_range=v3.5.0..v3.5.5; JSON parses cleanly under standard library json module",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json",
+      "reason_code": "closure_index_present_and_well_formed"
+    },
+    {
+      "check_id": "inspection-evidence-exists",
+      "target": "artifacts/verify/TASK-1038/closure-snapshot-inspection.json",
+      "expected": "schema_version=closure-snapshot-inspection/v1; task_id=TASK-1038; overall_status=pass",
+      "actual": "this very file; schema_version=closure-snapshot-inspection/v1; task_id=TASK-1038; overall_status=pass",
+      "status": "pass",
+      "evidence_ref": "artifacts/verify/TASK-1038/closure-snapshot-inspection.json",
+      "reason_code": "inspection_evidence_present"
+    },
+    {
+      "check_id": "closure-status-covers-v3-5-0-through-v3-5-5",
+      "target": "closure_status entries in closure index",
+      "expected": "entries for v3.5.0, v3.5.1, v3.5.2, v3.5.3, v3.5.4, v3.5.5; v3.5.5 status=closed_verified_after_repair; others closed_verified",
+      "actual": "closure_status length=6; versions=[v3.5.0, v3.5.1, v3.5.2, v3.5.3, v3.5.4, v3.5.5]; v3.5.5.status=closed_verified_after_repair; v3.5.0..v3.5.4.status=closed_verified",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json#closure_status",
+      "reason_code": "closure_status_complete"
+    },
+    {
+      "check_id": "task-1037-repair-represented",
+      "target": "snapshot markdown §7 + closure index task_groups[TASK-1037-repair]",
+      "expected": "snapshot describes the actual_status / observed_cli_status semantic split; index task_groups includes TASK-1037-repair with status=closed_verified_after_repair",
+      "actual": "snapshot §7 documents the split (actual_status / expected_status restricted to {pass, skipped_with_reason_code, advisory}; observed_cli_status / expected_cli_status carry CLI outcomes including {fail, exit_2_load_failed, exit_2_invalid_task_id}); index task_groups[6].group_id=TASK-1037-repair with status=closed_verified_after_repair",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md;artifacts/governance/v3.5.x-governance-closure-index.json#task_groups",
+      "reason_code": "repair_semantics_recorded"
+    },
+    {
+      "check_id": "task-groups-cover-required-set",
+      "target": "closure index task_groups",
+      "expected": "seven groups: TASK-1023..TASK-1027, TASK-1028..TASK-1032, TASK-1033..TASK-1034, TASK-1035, TASK-1036, TASK-1037, TASK-1037-repair",
+      "actual": "task_groups length=7 with group_ids [TASK-1023..TASK-1027, TASK-1028..TASK-1032, TASK-1033..TASK-1034, TASK-1035, TASK-1036, TASK-1037, TASK-1037-repair]",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json#task_groups",
+      "reason_code": "task_groups_complete"
+    },
+    {
+      "check_id": "capabilities-cover-fourteen-required",
+      "target": "closure index capabilities",
+      "expected": "fourteen capability_id entries enumerated in prompt §9.3",
+      "actual": "capabilities length=14 with ids [quality_baseline, quality_gates, qc_sync_post_baseline_coverage, minimal_pcacc, artifact_obligation_matrix, negative_case_proving, validator_characterization, policy_registry_extraction_design, evidence_ref_registry_prototype, evidence_ref_runtime_extraction_plan, evidence_ref_controlled_runtime_extraction, golden_cli_coverage_plan, golden_cli_coverage_implementation, golden_cli_status_semantics_repair]",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json#capabilities",
+      "reason_code": "capabilities_complete"
+    },
+    {
+      "check_id": "protected-surfaces-listed",
+      "target": "snapshot markdown §8 + closure index protected_surfaces",
+      "expected": "nine protected production surfaces (two PCACC runners, two quality runners + their template mirrors, five validator/test files); each entry has path, protection_reason, modification_requires_explicit_task",
+      "actual": "snapshot §8 enumerates the nine paths with sha prefixes; index protected_surfaces length=9; each entry carries path + protection_reason + modification_requires_explicit_task=true",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md;artifacts/governance/v3.5.x-governance-closure-index.json#protected_surfaces",
+      "reason_code": "protected_surfaces_complete"
+    },
+    {
+      "check_id": "non-authorization-boundaries-listed",
+      "target": "snapshot markdown §9 + closure index non_authorization",
+      "expected": "every required non-authorization key carries false (task_1039_plus_authorized, new_runtime_registry_extraction_authorized, pcacc_active_check_expansion_authorized, pcacc_005_authorized, ac_to_verify_authorized, validator_split_authorized, production_validator_modification_authorized, production_runner_modification_authorized, new_golden_cli_expansion_authorized, reasoning_or_saver_surfaces_authorized)",
+      "actual": "non_authorization carries 20 keys, all literal false; the ten required keys plus ten additional explicit boundaries (production_governance_policy_modification_authorized, prior_task_artifact_modification_authorized, exact_sync_files_extension_authorized, document_generation_pipeline_authorized, bootstrap_prompt_skill_modification_authorized, v3_5_plan_or_manifest_modification_authorized, v3_5_1_plan_or_manifest_modification_authorized, quality_baseline_refresh_authorized, qb_drift_0001_remediation_or_waiver_authorized, golden_cli_harness_modification_authorized)",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "non_authorization_complete"
+    },
+    {
+      "check_id": "known-local-noise-listed",
+      "target": "snapshot markdown §10 + closure index known_local_noise",
+      "expected": "snapshot lists .obsidian, .omc, .tmp, .pytest-basetemp, __pycache__ patterns as non-blocking",
+      "actual": "snapshot §10 enumerates seven paths (.obsidian/core-plugins.json, .obsidian/workspace.json, .omc/, .pytest-basetemp/, .tmp/, artifacts/scripts/__pycache__/, template/artifacts/scripts/__pycache__/); index known_local_noise length=7; each carries blocking=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md;artifacts/governance/v3.5.x-governance-closure-index.json#known_local_noise",
+      "reason_code": "local_noise_listed"
+    },
+    {
+      "check_id": "next-candidates-non-authorized",
+      "target": "closure index next_candidate_lifecycles",
+      "expected": "every candidate has authorized=false; at least five candidates",
+      "actual": "next_candidate_lifecycles length=6; candidate_ids=[TASK-1039, TASK-1040, TASK-1041, TASK-1042, TASK-1043, candidate_baseline_refresh]; every authorized=false",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json#next_candidate_lifecycles",
+      "reason_code": "candidates_non_authorized"
+    },
+    {
+      "check_id": "production-runners-unchanged",
+      "target": "artifacts/scripts/run_precommit_check.py + run_quality_gates.py + their template mirrors",
+      "expected": "TASK-1038 staging set does not include any production runner path; pre-commit git diff --cached --name-only shows zero modification of run_precommit_check.py or run_quality_gates.py or their template mirrors",
+      "actual": "TASK-1038 plan §Files Likely Affected lists production runner paths under Forbidden; pre-commit staged-set inspection planned at commit time; production_runner_modification_authorized=false in non_authorization",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1038.plan.md#files-likely-affected;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "production_runners_unchanged_by_design"
+    },
+    {
+      "check_id": "production-validator-test-files-unchanged",
+      "target": "artifacts/scripts/{guard_status_validator,guard_contract_validator,workflow_constants,run_red_team_suite,test_guard_units}.py + their template mirrors",
+      "expected": "TASK-1038 staging set does not include any of the five validator/test files; pre-commit git diff --cached --name-only shows zero modification",
+      "actual": "TASK-1038 plan §Files Likely Affected lists these files under Forbidden; production_validator_modification_authorized=false in non_authorization",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1038.plan.md#files-likely-affected;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "validator_test_files_unchanged_by_design"
+    },
+    {
+      "check_id": "prior-task-artifacts-unchanged",
+      "target": "artifacts/{tasks,plans,decisions,verify,status}/TASK-{1023..1037}.* and their evidence subdirectories",
+      "expected": "TASK-1038 staging set does not include any TASK-1023..TASK-1037 path; pre-commit git diff --cached --name-only shows zero modification",
+      "actual": "TASK-1038 plan §Files Likely Affected lists TASK-1023..TASK-1037 lifecycle artifacts and deliverables under Forbidden; prior_task_artifact_modification_authorized=false in non_authorization; pre-commit staged-set inspection planned at commit time",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1038.plan.md#files-likely-affected;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "prior_task_artifacts_unchanged_by_design"
+    },
+    {
+      "check_id": "no-task-1039-plus-artifacts",
+      "target": "artifacts/{tasks,plans,decisions,verify,status}/TASK-103[9]* and TASK-104*..TASK-105*",
+      "expected": "no TASK-1039+ lifecycle artifact exists at commit time; candidate ids appear only as strings in next_candidate_lifecycles",
+      "actual": "Glob over artifacts/{tasks,plans,decisions,verify,status}/TASK-103[9]* and TASK-104* returns zero hits at commit time; candidate ids TASK-1039..TASK-1043 appear only as strings in closure index next_candidate_lifecycles[*].candidate_id",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-index.json#next_candidate_lifecycles",
+      "reason_code": "no_task_1039_plus_artifacts_created"
+    },
+    {
+      "check_id": "no-new-registry-extraction",
+      "target": "artifacts/governance/*.json (post-TASK-1037 baseline)",
+      "expected": "TASK-1038 does not introduce a new policy registry under artifacts/governance/; only the closure-snapshot markdown and the closure-index JSON are added under artifacts/governance/",
+      "actual": "TASK-1038 staging set under artifacts/governance/ is exactly v3.5.x-governance-closure-snapshot.md + v3.5.x-governance-closure-index.json; new_runtime_registry_extraction_authorized=false in non_authorization",
+      "status": "pass",
+      "evidence_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md;artifacts/governance/v3.5.x-governance-closure-index.json;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "no_new_registry_extracted"
+    },
+    {
+      "check_id": "golden-cli-harness-and-evidence-unchanged",
+      "target": "artifacts/verify/TASK-1037/run_golden_cli_coverage.py + golden-cli-case-manifest.json + golden-cli-coverage-result.json + fixtures/",
+      "expected": "TASK-1038 does not modify the existing TASK-1037 harness, case manifest, result JSON, or fixture tree",
+      "actual": "TASK-1038 plan §Files Likely Affected lists TASK-1037 evidence under Forbidden; golden_cli_harness_modification_authorized=false in non_authorization; new_golden_cli_expansion_authorized=false; pre-commit staged-set inspection planned at commit time to confirm no TASK-1037 path is staged",
+      "status": "pass",
+      "evidence_ref": "artifacts/plans/TASK-1038.plan.md#files-likely-affected;artifacts/governance/v3.5.x-governance-closure-index.json#non_authorization",
+      "reason_code": "golden_cli_evidence_unchanged_by_design"
+    }
+  ],
+  "limitations": [
+    "Inspection is a snapshot self-attestation written at TASK-1038 commit time; Codex performs the post-commit PASS/FAIL re-verification against the live working tree per agent_roles.negative_tester",
+    "Pre-commit staged-set inspection is recorded in the verify markdown Build Guarantee block; this JSON only declares the design-time intent",
+    "Snapshot reflects HEAD 05083d1; subsequent commits may add evidence not represented here"
+  ]
+}

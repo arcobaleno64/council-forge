@@ -1,0 +1,520 @@
+{
+  "schema_version": "v3.5.x-governance-closure-index/v1",
+  "created_by_task": "TASK-1038",
+  "generated_at": "2026-05-05T20:20:00+08:00",
+  "snapshot_ref": "artifacts/governance/v3.5.x-governance-closure-snapshot.md",
+  "plan_version_range": "v3.5.0..v3.5.5",
+  "snapshot_head_short": "05083d1",
+  "source_of_truth": [
+    "artifacts/tasks/TASK-1023.task.md",
+    "artifacts/tasks/TASK-1024.task.md",
+    "artifacts/tasks/TASK-1025.task.md",
+    "artifacts/tasks/TASK-1026.task.md",
+    "artifacts/tasks/TASK-1027.task.md",
+    "artifacts/tasks/TASK-1028.task.md",
+    "artifacts/tasks/TASK-1029.task.md",
+    "artifacts/tasks/TASK-1030.task.md",
+    "artifacts/tasks/TASK-1031.task.md",
+    "artifacts/tasks/TASK-1032.task.md",
+    "artifacts/tasks/TASK-1033.task.md",
+    "artifacts/tasks/TASK-1034.task.md",
+    "artifacts/tasks/TASK-1035.task.md",
+    "artifacts/tasks/TASK-1036.task.md",
+    "artifacts/tasks/TASK-1037.task.md",
+    "artifacts/status/TASK-1023.status.json",
+    "artifacts/status/TASK-1024.status.json",
+    "artifacts/status/TASK-1025.status.json",
+    "artifacts/status/TASK-1026.status.json",
+    "artifacts/status/TASK-1027.status.json",
+    "artifacts/status/TASK-1028.status.json",
+    "artifacts/status/TASK-1029.status.json",
+    "artifacts/status/TASK-1030.status.json",
+    "artifacts/status/TASK-1031.status.json",
+    "artifacts/status/TASK-1032.status.json",
+    "artifacts/status/TASK-1033.status.json",
+    "artifacts/status/TASK-1034.status.json",
+    "artifacts/status/TASK-1035.status.json",
+    "artifacts/status/TASK-1036.status.json",
+    "artifacts/status/TASK-1037.status.json",
+    "artifacts/verify/TASK-1037.verify.md",
+    "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+    "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+    "artifacts/verify/TASK-1035/registry-regression-result.json",
+    "artifacts/verify/TASK-1035/evidence-ref-runtime-extraction-result.json",
+    "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+    "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+    "artifacts/governance/quality-baseline.v3.5.json",
+    "artifacts/governance/quality-gate-policy.v3.5.json",
+    "artifacts/governance/precommit-check-policy.v3.5.json",
+    "artifacts/governance/artifact-obligation-matrix.v3.5.json"
+  ],
+  "closure_status": [
+    {
+      "version": "v3.5.0",
+      "status": "closed_verified",
+      "evidence_basis": "TASK-1023 (a40f6bc), TASK-1024 (249d26f), TASK-1025 (ea8d09a + 6da55ed), TASK-1026 (a3aaeec + 4ecafd8), TASK-1027 (d6d878b); all status state=done, verify_result=pass",
+      "limitations": "QB-DRIFT-0001 recorded as baseline_existing without remediation or waiver; deferred to a separate decision-artifact lifecycle"
+    },
+    {
+      "version": "v3.5.1",
+      "status": "closed_verified",
+      "evidence_basis": "TASK-1028 (c46a6f7), TASK-1029 (c75c3fe), TASK-1030 (bd60076), TASK-1031 (bafe079), TASK-1032 (d126cbb); all status state=done, verify_result=pass; v3.5.1 closure four-pillars satisfied per TASK-1032 status",
+      "limitations": "validator monolith readiness=not_ready_for_split per TASK-1031; validator split deferred to v3.6"
+    },
+    {
+      "version": "v3.5.2",
+      "status": "closed_verified",
+      "evidence_basis": "TASK-1033 (8ef3fb6), TASK-1034 (09d5069); all status state=done, verify_result=pass; prototype design-only and runtime extraction planning-only",
+      "limitations": "remaining RC slices RC-A..RC-D and RC-F..RC-I deferred to v3.6"
+    },
+    {
+      "version": "v3.5.3",
+      "status": "closed_verified",
+      "evidence_basis": "TASK-1035 (ce9c072); status state=done, verify_result=pass; runtime_extraction_overall_status=pass; registry_regression_overall_status=pass; default-mode TASK-1030 NEG-002 / NEG-003 anchors preserved",
+      "limitations": "extraction completed for evidence_ref subdomain only; remaining RC slices not authorized"
+    },
+    {
+      "version": "v3.5.4",
+      "status": "closed_verified",
+      "evidence_basis": "TASK-1036 (ba3a1ce); status state=done, verify_result=pass; coverage matrix planning-only; nine case groups; thirty-six planned cases",
+      "limitations": "implementation_authorized=false at TASK-1036; deferred to TASK-1037"
+    },
+    {
+      "version": "v3.5.5",
+      "status": "closed_verified_after_repair",
+      "evidence_basis": "TASK-1037 implementation (a9f951c) + TASK-1037 status semantics repair (05083d1); status state=done, verify_result=pass, repair_result=pass; result JSON overall_status=pass with 24/24 implemented cases",
+      "limitations": "twelve matrix cases recorded with implementation_status=implemented_with_limitations in case manifest; advisory follow-up only"
+    }
+  ],
+  "task_groups": [
+    {
+      "group_id": "TASK-1023..TASK-1027",
+      "tasks": ["TASK-1023", "TASK-1024", "TASK-1025", "TASK-1026", "TASK-1027"],
+      "purpose": "v3.5.0 baseline / governance controls: quality control surface introduction; quality baseline audit; quality gate bootstrap with post-baseline source/template sync coverage; minimal PCACC; artifact obligation matrix",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/governance/quality-baseline.v3.5.json",
+        "artifacts/governance/quality-gate-policy.v3.5.json",
+        "artifacts/scripts/run_quality_gates.py",
+        "artifacts/governance/precommit-check-policy.v3.5.json",
+        "artifacts/scripts/run_precommit_check.py",
+        "artifacts/governance/artifact-obligation-matrix.v3.5.json",
+        "consilium-fabri-governance-repair-plan-v3.5.md",
+        "governance-repair-manifest.v3.5.json"
+      ],
+      "limitations": "QB-DRIFT-0001 recorded as baseline_existing without remediation or waiver; PCACC active surface bounded to PCACC-001..PCACC-004"
+    },
+    {
+      "group_id": "TASK-1028..TASK-1032",
+      "tasks": ["TASK-1028", "TASK-1029", "TASK-1030", "TASK-1031", "TASK-1032"],
+      "purpose": "v3.5.1 gate proving / characterization / extraction design: v3.5.1 gate proving plan; QC-SYNC-001 controlled negative test; PCACC controlled negative test; validator/test monolith characterization; policy registry extraction design decision",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/governance/v3.5.1-gate-proving-plan.md",
+        "governance-repair-manifest.v3.5.1.json",
+        "artifacts/verify/TASK-1029/qc-sync-negative-test-result.json",
+        "artifacts/verify/TASK-1030/pcacc-negative-test-result.json",
+        "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+        "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+        "artifacts/governance/policy-registry-extraction-decision-matrix.v3.5.1.json"
+      ],
+      "limitations": "validator readiness=not_ready_for_split; recommendation=split_design_into_smaller_followups; validator split deferred to v3.6"
+    },
+    {
+      "group_id": "TASK-1033..TASK-1034",
+      "tasks": ["TASK-1033", "TASK-1034"],
+      "purpose": "v3.5.2 Evidence Ref prototype and runtime extraction plan: design-only registry prototype; runtime extraction planning-only (eleven regression cases planned)",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+        "artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md",
+        "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.md",
+        "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json"
+      ],
+      "limitations": "runtime_consumption_authorized=false at TASK-1033; implementation_authorized=false at TASK-1034; both deferred to TASK-1035"
+    },
+    {
+      "group_id": "TASK-1035",
+      "tasks": ["TASK-1035"],
+      "purpose": "v3.5.3 controlled Evidence Ref runtime extraction: production registry installed; --evidence-ref-policy flag added to PCACC runner; default behavior preserved; explicit registry-mode failures fail-closed",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+        "artifacts/scripts/run_precommit_check.py",
+        "template/artifacts/scripts/run_precommit_check.py",
+        "artifacts/verify/TASK-1035/registry-regression-result.json",
+        "artifacts/verify/TASK-1035/evidence-ref-runtime-extraction-result.json"
+      ],
+      "limitations": "extraction scope is evidence_ref subdomain only; remaining RC slices RC-A..RC-D and RC-F..RC-I deferred to v3.6; PCACC runner sha changed from 5d1fcd1f96948028 to 4dbb8a219093cc12 (template mirror byte-identical); quality baseline PCACC runner entry refresh deferred to a separate baseline refresh task"
+    },
+    {
+      "group_id": "TASK-1036",
+      "tasks": ["TASK-1036"],
+      "purpose": "v3.5.4 golden CLI coverage plan: planning-only matrix and human-readable expansion plan; nine case groups; thirty-six planned cases; eleven future-task acceptance criteria",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+        "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+        "artifacts/verify/TASK-1036/golden-cli-coverage-plan-inspection.json"
+      ],
+      "limitations": "implementation_authorized=false; golden_test_implementation_authorized=false; deferred to TASK-1037"
+    },
+    {
+      "group_id": "TASK-1037",
+      "tasks": ["TASK-1037"],
+      "purpose": "v3.5.5 golden CLI coverage implementation: standard-library-only test harness; isolated fixture tree; 24 implemented cases / 24 pass; cache audit clean; production preservation across nine targets",
+      "status": "closed_verified",
+      "primary_artifacts": [
+        "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+        "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+        "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+        "artifacts/verify/TASK-1037/fixtures/"
+      ],
+      "limitations": "twelve matrix cases recorded as implementation_status=implemented_with_limitations (SYNC-003 / 005 / 006, SCHEMA-003 / 004, IMPORT-001 / 002 / 004, GOLDEN-002, RUFF-002); deferred to a future coverage extension lifecycle"
+    },
+    {
+      "group_id": "TASK-1037-repair",
+      "tasks": ["TASK-1037"],
+      "purpose": "v3.5.5 status semantics repair (2026-05-05): separate per-case golden assertion status (actual_status / expected_status restricted to {pass, skipped_with_reason_code, advisory}) from observed runner CLI outcome (observed_cli_status / expected_cli_status carrying runner outcomes including {fail, exit_2_load_failed, exit_2_invalid_task_id})",
+      "status": "closed_verified_after_repair",
+      "primary_artifacts": [
+        "artifacts/verify/TASK-1037.verify.md",
+        "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+        "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+        "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+        "artifacts/status/TASK-1037.status.json"
+      ],
+      "limitations": "repair scope strictly TASK-1037 evidence; production runners, production validators, governance policies, prior task artifacts, and TASK-1038+ scope not touched"
+    }
+  ],
+  "capabilities": [
+    {
+      "capability_id": "quality_baseline",
+      "introduced_by": "TASK-1024",
+      "evidence_refs": [
+        "artifacts/governance/quality-baseline.v3.5.json",
+        "artifacts/status/TASK-1024.status.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "QB-DRIFT-0001 (template mirror drift on test_guard_units.py) recorded as baseline_existing without remediation or waiver; refresh / waiver requires a separate decision-artifact lifecycle"
+    },
+    {
+      "capability_id": "quality_gates",
+      "introduced_by": "TASK-1025",
+      "evidence_refs": [
+        "artifacts/governance/quality-gate-policy.v3.5.json",
+        "artifacts/scripts/run_quality_gates.py",
+        "template/artifacts/scripts/run_quality_gates.py",
+        "artifacts/verify/TASK-1025/quality-gate-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Active P0 surface bounded to QC-SYNC-001 / QC-SCHEMA-001 / QC-IMPORT-001 / QC-GOLDEN-001 with QC-RUFF-001 advisory; expansion or modification not authorized by this snapshot"
+    },
+    {
+      "capability_id": "qc_sync_post_baseline_coverage",
+      "introduced_by": "TASK-1025 (Pass-2 repair)",
+      "evidence_refs": [
+        "artifacts/scripts/run_quality_gates.py",
+        "artifacts/verify/TASK-1025/quality-gate-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "post_baseline_new_pair classification surface is anchored by TASK-1037 GCLI-QUALITY-SYNC golden cases; modification not authorized by this snapshot"
+    },
+    {
+      "capability_id": "minimal_pcacc",
+      "introduced_by": "TASK-1026",
+      "evidence_refs": [
+        "artifacts/governance/precommit-check-policy.v3.5.json",
+        "artifacts/scripts/run_precommit_check.py",
+        "template/artifacts/scripts/run_precommit_check.py"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Active PCACC surface bounded to PCACC-001 / PCACC-002 / PCACC-003 / PCACC-004; PCACC-005 introduction or active expansion not authorized; AC-to-verify coverage remains excluded"
+    },
+    {
+      "capability_id": "artifact_obligation_matrix",
+      "introduced_by": "TASK-1027",
+      "evidence_refs": [
+        "artifacts/governance/artifact-obligation-matrix.v3.5.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Eleven rules (AOM-001..AOM-011); waiver mechanism is decision_artifact_only; standalone waiver registry not introduced in v3.5.x; SRS / RTM / design spec / threat model / release note / migration note / user guide / operation runbook content are forbidden_content_classes"
+    },
+    {
+      "capability_id": "negative_case_proving",
+      "introduced_by": "TASK-1029, TASK-1030",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1029/qc-sync-negative-test-result.json",
+        "artifacts/verify/TASK-1029/run_negative_tests.py",
+        "artifacts/verify/TASK-1030/pcacc-negative-test-result.json",
+        "artifacts/verify/TASK-1030/run_pcacc_negative_tests.py"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "TASK-1030 NEG-002 (malformed_refs:garbage_token_not_a_known_prefix) and NEG-003 (evidence_refs_section_empty) anchor reason_codes are byte-identically preserved at the CLI boundary by TASK-1037 EVREF-005 / EVREF-006; modifications to these anchors are not authorized"
+    },
+    {
+      "capability_id": "validator_characterization",
+      "introduced_by": "TASK-1031",
+      "evidence_refs": [
+        "artifacts/governance/validator-test-monolith-characterization.v3.5.1.json",
+        "artifacts/verify/TASK-1031/characterization-result.json",
+        "artifacts/verify/TASK-1031/run_characterization_inventory.py"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Readiness=not_ready_for_split; RC-1, RC-3, RC-7, RC-9 followups required before v3.6 split; validator module split deferred to v3.6"
+    },
+    {
+      "capability_id": "policy_registry_extraction_design",
+      "introduced_by": "TASK-1032",
+      "evidence_refs": [
+        "artifacts/governance/policy-registry-extraction-design.v3.5.1.md",
+        "artifacts/governance/policy-registry-extraction-decision-matrix.v3.5.1.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Recommendation=split_design_into_smaller_followups; nine JSON registry candidates RC-A..RC-I; only RC-E (Evidence Ref) progressed to runtime in v3.5.x; remaining slices deferred to v3.6"
+    },
+    {
+      "capability_id": "evidence_ref_registry_prototype",
+      "introduced_by": "TASK-1033",
+      "evidence_refs": [
+        "artifacts/governance/prototypes/evidence-ref-policy-registry.prototype.v3.5.2.json",
+        "artifacts/governance/evidence-ref-policy-registry-prototype-design.v3.5.2.md",
+        "artifacts/verify/TASK-1033/evidence-ref-policy-prototype-inspection.json"
+      ],
+      "current_status": "superseded_by_runtime_extraction",
+      "non_authorization_notes": "Prototype was design-only with runtime_consumption_authorized=false; runtime consumption authorized only by TASK-1035; further prototype refactors not authorized by this snapshot"
+    },
+    {
+      "capability_id": "evidence_ref_runtime_extraction_plan",
+      "introduced_by": "TASK-1034",
+      "evidence_refs": [
+        "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.md",
+        "artifacts/governance/evidence-ref-policy-runtime-extraction-plan.v3.5.2.json",
+        "artifacts/verify/TASK-1034/runtime-extraction-plan-inspection.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Eleven planned regression cases all materialized in TASK-1035 registry-regression-result.json; new runtime extraction plans for other RC slices not authorized by this snapshot"
+    },
+    {
+      "capability_id": "evidence_ref_controlled_runtime_extraction",
+      "introduced_by": "TASK-1035",
+      "evidence_refs": [
+        "artifacts/governance/evidence-ref-policy.v3.5.3.json",
+        "artifacts/scripts/run_precommit_check.py",
+        "template/artifacts/scripts/run_precommit_check.py",
+        "artifacts/verify/TASK-1035/registry-regression-result.json",
+        "artifacts/verify/TASK-1035/evidence-ref-runtime-extraction-result.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Default mode preserves TASK-1030 NEG-002 / NEG-003 anchors; explicit --evidence-ref-policy mode is fail-closed with stable JSON envelope; further runtime registry extraction for the remaining RC slices not authorized by this snapshot"
+    },
+    {
+      "capability_id": "golden_cli_coverage_plan",
+      "introduced_by": "TASK-1036",
+      "evidence_refs": [
+        "artifacts/governance/golden-cli-coverage-matrix.v3.5.4.json",
+        "artifacts/governance/golden-cli-coverage-expansion-plan.v3.5.4.md",
+        "artifacts/verify/TASK-1036/golden-cli-coverage-plan-inspection.json"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "Two CLI surfaces (CLI-PRECOMMIT, CLI-QUALITY-GATES); nine case groups; thirty-six planned cases; eleven future-task acceptance criteria; expansion of the matrix not authorized by this snapshot"
+    },
+    {
+      "capability_id": "golden_cli_coverage_implementation",
+      "introduced_by": "TASK-1037",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+        "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+        "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+        "artifacts/verify/TASK-1037/fixtures/"
+      ],
+      "current_status": "closed_verified",
+      "non_authorization_notes": "24 implemented cases / 24 pass / 0 failed; cache_audit.pycache_created=false; production_preservation.all_targets_unchanged=true; modification of the existing harness, case manifest, or result JSON not authorized by this snapshot; new test implementation against the live runner not authorized by this snapshot"
+    },
+    {
+      "capability_id": "golden_cli_status_semantics_repair",
+      "introduced_by": "TASK-1037 (repair commit 05083d1)",
+      "evidence_refs": [
+        "artifacts/verify/TASK-1037.verify.md",
+        "artifacts/verify/TASK-1037/run_golden_cli_coverage.py",
+        "artifacts/verify/TASK-1037/golden-cli-coverage-result.json",
+        "artifacts/verify/TASK-1037/golden-cli-case-manifest.json",
+        "artifacts/status/TASK-1037.status.json"
+      ],
+      "current_status": "closed_verified_after_repair",
+      "non_authorization_notes": "expected_status / actual_status enum restricted to {pass, skipped_with_reason_code, advisory}; expected_cli_status / observed_cli_status enum allows {pass, fail, skipped_with_reason_code, advisory, exit_2_load_failed, exit_2_invalid_task_id}; any future golden-CLI-coverage extension must inherit this corrected schema; pre-repair conflated schema must not be reintroduced"
+    }
+  ],
+  "protected_surfaces": [
+    {
+      "path": "artifacts/scripts/run_precommit_check.py",
+      "protection_reason": "Production PCACC runner. Sha prefix 4dbb8a219093cc12 post-TASK-1035; modification changes the active PCACC surface and breaks the TASK-1037 golden CLI lock.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "template/artifacts/scripts/run_precommit_check.py",
+      "protection_reason": "Template mirror of production PCACC runner. Sha prefix 4dbb8a219093cc12 post-TASK-1035; required to be byte-identical to the live runner.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/run_quality_gates.py",
+      "protection_reason": "Production quality gate runner. Sha prefix 456b8328482b18a5; modification changes the active P0 quality gate surface and breaks the TASK-1037 golden CLI lock.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "template/artifacts/scripts/run_quality_gates.py",
+      "protection_reason": "Template mirror of production quality gate runner. Sha prefix 456b8328482b18a5; required to be byte-identical to the live runner.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/guard_status_validator.py",
+      "protection_reason": "Production status validator. Sha prefix d58a41f6ca49ccfe; module split deferred to v3.6 per TASK-1031 readiness=not_ready_for_split.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/guard_contract_validator.py",
+      "protection_reason": "Production contract validator. Sha prefix 7a38af7e2e0af5b7; module split deferred to v3.6.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/workflow_constants.py",
+      "protection_reason": "Production workflow constants module. Sha prefix e1f09d2100b5685f; carries the assurance / adapter resolver pipeline; modification requires careful regression characterization.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/run_red_team_suite.py",
+      "protection_reason": "Production red-team suite runner. Sha prefix 77540c3b29f6ece6; modification requires red-team scorecard re-anchoring.",
+      "modification_requires_explicit_task": true
+    },
+    {
+      "path": "artifacts/scripts/test_guard_units.py",
+      "protection_reason": "Production guard unit tests. Sha prefix 5c7228c9997edffd; template mirror carries QB-DRIFT-0001 (recorded as baseline_existing without remediation or waiver).",
+      "modification_requires_explicit_task": true
+    }
+  ],
+  "non_authorization": {
+    "task_1039_plus_authorized": false,
+    "new_runtime_registry_extraction_authorized": false,
+    "pcacc_active_check_expansion_authorized": false,
+    "pcacc_005_authorized": false,
+    "ac_to_verify_authorized": false,
+    "validator_split_authorized": false,
+    "production_validator_modification_authorized": false,
+    "production_runner_modification_authorized": false,
+    "new_golden_cli_expansion_authorized": false,
+    "reasoning_or_saver_surfaces_authorized": false,
+    "production_governance_policy_modification_authorized": false,
+    "prior_task_artifact_modification_authorized": false,
+    "exact_sync_files_extension_authorized": false,
+    "document_generation_pipeline_authorized": false,
+    "bootstrap_prompt_skill_modification_authorized": false,
+    "v3_5_plan_or_manifest_modification_authorized": false,
+    "v3_5_1_plan_or_manifest_modification_authorized": false,
+    "quality_baseline_refresh_authorized": false,
+    "qb_drift_0001_remediation_or_waiver_authorized": false,
+    "golden_cli_harness_modification_authorized": false
+  },
+  "known_local_noise": [
+    {
+      "path": ".obsidian/core-plugins.json",
+      "category": "obsidian_workspace_state",
+      "blocking": false,
+      "note": "Local Obsidian editor state; ignored via .gitignore where applicable"
+    },
+    {
+      "path": ".obsidian/workspace.json",
+      "category": "obsidian_workspace_state",
+      "blocking": false,
+      "note": "Local Obsidian workspace UI state"
+    },
+    {
+      "path": ".omc/",
+      "category": "omc_runtime_state",
+      "blocking": false,
+      "note": "oh-my-claudecode runtime state; ignored via .gitignore (commit 14214a8)"
+    },
+    {
+      "path": ".pytest-basetemp/",
+      "category": "pytest_local_workspace",
+      "blocking": false,
+      "note": "Local pytest base temp; ignored from commit"
+    },
+    {
+      "path": ".tmp/",
+      "category": "local_scratch",
+      "blocking": false,
+      "note": "Local scratch; not tracked"
+    },
+    {
+      "path": "artifacts/scripts/__pycache__/",
+      "category": "python_bytecode_cache",
+      "blocking": false,
+      "note": "Pre-existing __pycache__ from prior v3.4 / v3.5 chains; not attributed to any v3.5.x lifecycle; recorded by TASK-1037 as cache_audit.pre_existing_pycache_under_artifacts_scripts"
+    },
+    {
+      "path": "template/artifacts/scripts/__pycache__/",
+      "category": "python_bytecode_cache",
+      "blocking": false,
+      "note": "Pre-existing template-side __pycache__; non-blocking"
+    }
+  ],
+  "next_candidate_lifecycles": [
+    {
+      "candidate_id": "TASK-1039",
+      "title": "Closure Snapshot Verification / Index Refinement",
+      "purpose": "Verify or refine the v3.5.x closure snapshot/index produced by TASK-1038; optionally add cross-references to commit hashes or short summaries of inspection results",
+      "authorized": false,
+      "risk_level": "low",
+      "notes": "Advisory only; numbering is a candidate convention; user retains authority to assign a different ID when authorizing"
+    },
+    {
+      "candidate_id": "TASK-1040",
+      "title": "Waiver Policy Registry Prototype",
+      "purpose": "Begin design-only phase of an RC slice that introduces a waiver policy registry (AOM v3.5.0 currently uses decision artifact only as the waiver mechanism)",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; numbering is a candidate convention; deferred to v3.6 unless explicitly authorized"
+    },
+    {
+      "candidate_id": "TASK-1041",
+      "title": "Status Lifecycle Policy Registry Prototype",
+      "purpose": "Begin design-only phase of an RC slice that registers status workflow rules currently embedded in workflow_constants.py / guard_status_validator.py",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; numbering is a candidate convention; deferred to v3.6 unless explicitly authorized"
+    },
+    {
+      "candidate_id": "TASK-1042",
+      "title": "Validator Split Candidate Plan",
+      "purpose": "Begin a split readiness plan for the validator monolith characterized in TASK-1031 (RC-1, RC-3, RC-7, RC-9 followups required before v3.6 split)",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; numbering is a candidate convention; deferred to v3.6 unless explicitly authorized"
+    },
+    {
+      "candidate_id": "TASK-1043",
+      "title": "Golden CLI Coverage Expansion Phase 2",
+      "purpose": "Implement the twelve matrix cases recorded as implementation_status=implemented_with_limitations in the TASK-1037 case manifest (SYNC-003 / 005 / 006, SCHEMA-003 / 004, IMPORT-001 / 002 / 004, GOLDEN-002, RUFF-002)",
+      "authorized": false,
+      "risk_level": "medium",
+      "notes": "Advisory only; numbering is a candidate convention; must inherit the TASK-1037 repair schema (split actual_status / observed_cli_status); pre-repair conflated schema must not be reintroduced"
+    },
+    {
+      "candidate_id": "candidate_baseline_refresh",
+      "title": "Quality Baseline Refresh",
+      "purpose": "Refresh quality-baseline.v3.5.json PCACC runner entry to sha 4dbb8a219093cc12 and address QB-DRIFT-0001 with explicit decision artifact",
+      "authorized": false,
+      "risk_level": "low",
+      "notes": "Advisory only; not numbered; requires its own decision artifact under a separate lifecycle"
+    }
+  ],
+  "limitations": [
+    "Snapshot is a frozen view at HEAD 05083d1; it does not auto-update on future commits",
+    "Closure status fields use only enum values closed_verified or closed_verified_after_repair; closed_verified_after_repair is reserved for v3.5.5 because TASK-1037 status records repair_result=pass",
+    "Commit hashes are short hashes (seven to eight characters) read from git log; full hashes require git rev-parse",
+    "Deferred lifecycles are recorded as advisory candidates only; numbering is a candidate convention and the user retains authority to assign different IDs",
+    "QB-DRIFT-0001 status (template_mirror_drift on test_guard_units.py) is preserved as baseline_existing across the v3.5.x chain; remediation is deferred to a separate decision-artifact lifecycle",
+    "PCACC runner sha drifted from 5d1fcd1f96948028 (v3.5.0 introduction) to 4dbb8a219093cc12 (post-TASK-1035 controlled runtime extraction); quality baseline PCACC runner entry refresh deferred to a separate baseline refresh task",
+    "The closure snapshot does not enumerate every passing test case; counts are recorded with references to the source result JSONs"
+  ]
+}

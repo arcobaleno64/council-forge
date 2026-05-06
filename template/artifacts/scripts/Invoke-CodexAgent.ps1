@@ -59,29 +59,25 @@ $RegexPattern = ($RetryPatterns | ForEach-Object { [regex]::Escape($_) }) -join 
 function Get-TaskScaleProfile {
     param([string]$Scale)
 
+    # TASK-1053 Layer 4: tier ladder v2 -- 3 tiers x effort=high.
+    # Mapping of legacy 8-value ValidateSet preserved for backward compat.
     switch ($Scale) {
         { $_ -in @("tiny", "docs-only") } {
             return @{
-                Effort = "low"
-                Models = @("gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.4")
+                Effort = "high"
+                Models = @("gpt-5.4-mini", "gpt-5.4", "gpt-5.5")
             }
         }
         "standard" {
             return @{
-                Effort = "medium"
-                Models = @("gpt-5.3-codex", "gpt-5.4", "gpt-5.4-mini")
+                Effort = "high"
+                Models = @("gpt-5.4", "gpt-5.5", "gpt-5.4-mini")
             }
         }
-        { $_ -in @("high-risk", "cross-module") } {
+        { $_ -in @("high-risk", "cross-module", "critical", "security", "architecture") } {
             return @{
                 Effort = "high"
-                Models = @("gpt-5.4", "gpt-5.3-codex", "gpt-5.4-mini")
-            }
-        }
-        { $_ -in @("critical", "security", "architecture") } {
-            return @{
-                Effort = "xhigh"
-                Models = @("gpt-5.4", "gpt-5.3-codex", "gpt-5.4-mini")
+                Models = @("gpt-5.5", "gpt-5.4", "gpt-5.4-mini")
             }
         }
     }
@@ -103,33 +99,44 @@ Write-Host "  -> Task Scale: $TaskScale; Model Policy: $ModelPolicy; Reasoning E
 
 $IsSuccess = $false
 $FinalOutput = ""
+# TASK-1053: track last attempt's stdout for best-effort capture even when all
+# tiers exhaust. Lets callers (e.g. Invoke-CodexReview.ps1) preserve content
+# Codex actually produced even though the wrapper marked the dispatch failed.
+$BestEffortOutput = ""
 
 foreach ($model in $Models) {
     Write-Host "  -> Active Model Tier: $model" -ForegroundColor Cyan
 
     for ($attempt = 0; $attempt -le $MaxRetriesPerTier; $attempt++) {
-        
-        # Construct args
-        $processArgs = @("exec", "-m", $model)
-        if ($ApprovalMode -eq "full-auto") {
-            $processArgs += "--full-auto"
-        } else {
-            $processArgs += "-a", $ApprovalMode
-        }
+
+        # TASK-1053 Layer 3: top-level -a never -s workspace-write replace deprecated --full-auto.
+        # Order matters: -a / -s are top-level flags and must precede the `exec` subcommand.
+        # ApprovalMode param retained as backward-compat no-op.
+        $processArgs = @("-a", "never", "-s", "workspace-write", "exec", "-m", $model)
         if (![string]::IsNullOrWhiteSpace($EffectiveReasoningEffort)) {
             $processArgs += "-c", "model_reasoning_effort=`"$EffectiveReasoningEffort`""
         }
-        $processArgs += $Prompt
-        Write-Host "    [*] Attempt $($attempt+1)/$($MaxRetriesPerTier+1)..." -ForegroundColor Gray
-        
+
+        # TASK-1053 Layer 1: switch to stdin pipe when prompt exceeds 7000 chars
+        # to bypass Windows cmd.exe 8191-char command-line limit.
+        $useStdinPipe = $Prompt.Length -gt 7000
+        if (-not $useStdinPipe) {
+            $processArgs += $Prompt
+        }
+        Write-Host "    [*] Attempt $($attempt+1)/$($MaxRetriesPerTier+1) (stdin_pipe=$useStdinPipe, prompt_size=$($Prompt.Length))..." -ForegroundColor Gray
+
         $output = $null
         $errText = ""
         $combinedText = ""
         $lastExitCode = 1
-        
+
         try {
-            $procOutput = $null | & $Executable $processArgs 2>&1
-            
+            if ($useStdinPipe) {
+                $procOutput = $Prompt | & $Executable $processArgs 2>&1
+            } else {
+                $procOutput = $null | & $Executable $processArgs 2>&1
+            }
+
             $stdOutLines = @()
             $stdErrLines = @()
             foreach ($line in $procOutput) {
@@ -139,20 +146,36 @@ foreach ($model in $Models) {
                     $stdOutLines += $line
                 }
             }
-            
+
             $outText = $stdOutLines -join "`n"
             $errText = $stdErrLines -join "`n"
             $lastExitCode = $LASTEXITCODE
 
             $combinedText = "$outText`n$errText"
-            
-            # Check outcome
+
+            # TASK-1053: remember the best-effort stdout (any non-trivial content from
+            # any attempt) so the caller can recover Codex output even when the wrapper
+            # ultimately decides the dispatch failed.
+            if (![string]::IsNullOrWhiteSpace($outText) -and $outText.Length -gt $BestEffortOutput.Length) {
+                $BestEffortOutput = $outText
+            }
+
+            # Check outcome -- codex CLI 0.128 exit code is the source of truth.
+            # The retry-pattern check stays only as a guard for transient errors
+            # that might leak through with exit 0 (rare).
             if ($lastExitCode -eq 0 -and -not ($combinedText -match $RegexPattern)) {
                 $IsSuccess = $true
                 $FinalOutput = $outText
                 break
             } else {
                 Write-Host "    [!] Intercepted API/Execution Error (ExitCode: $lastExitCode)" -ForegroundColor Yellow
+                # TASK-1053 Layer 2: dump last 30 lines of combined stdout/stderr so the
+                # underlying CLI error is visible before retry/escalation.
+                if (![string]::IsNullOrWhiteSpace($combinedText)) {
+                    $tailLines = ($combinedText -split "`n" | Select-Object -Last 30) -join "`n"
+                    Write-Host "    [stderr tail]" -ForegroundColor DarkRed
+                    Write-Host $tailLines -ForegroundColor DarkRed
+                }
             }
 
         } catch {
@@ -246,6 +269,12 @@ if ($IsSuccess) {
     Write-Output $FinalOutput
     exit 0
 } else {
+    # TASK-1053: emit best-effort stdout (if any) before the FATAL marker so
+    # callers like Invoke-CodexReview.ps1 still capture review text even when
+    # the wrapper considers the dispatch failed.
+    if (![string]::IsNullOrWhiteSpace($BestEffortOutput)) {
+        Write-Output $BestEffortOutput
+    }
     Write-Error "__FATAL:[Blocked] All fallback models exhausted for Codex CLI.__`nReview terminal logs or quota statuses."
     exit 1
 }

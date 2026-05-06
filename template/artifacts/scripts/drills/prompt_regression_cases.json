@@ -300,14 +300,13 @@
         "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
         "must_contain_all": [
           "gemini-3.1-flash-lite-preview",
-          "gemini-3-flash-preview",
-          "gemini-3.1-pro-preview"
+          "gemini-3-flash-preview"
         ],
         "must_not_contain_any": [
           "gemini-2.0",
           "gemini-2.5"
         ],
-        "note": "Gemini wrapper must not fall back to 2.x models."
+        "note": "Gemini wrapper progresses breadth (flash-lite) -> depth (flash-preview); pro removed from auto-fallback per TASK-1053 Layer 5 (user account not entitled). Pro still allowed in ALLOWED_GEMINI_MODELS for manual ad-hoc dispatch."
       }
     ]
   },
@@ -626,9 +625,10 @@
           "ModelPolicy",
           "model_reasoning_effort",
           "gpt-5.4-mini",
-          "gpt-5.3-codex"
+          "gpt-5.4",
+          "gpt-5.5"
         ],
-        "note": "Codex wrapper must expose task-scale model policy and reasoning effort."
+        "note": "Codex wrapper exposes task-scale model policy and reasoning effort; tier ladder v2 (mini / 5.4 / 5.5) per TASK-1053 Layer 4. CODEX.md doc-side row still pins legacy 5.3-codex pending TASK-1056."
       }
     ]
   },

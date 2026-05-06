@@ -46,10 +46,14 @@ $RetryPatterns = @(
 $RegexPattern = ($RetryPatterns | ForEach-Object { [regex]::Escape($_) }) -join '|'
 
 # Models Progression
+# TASK-1053 Layer 5: gemini-3.1-pro-preview removed from auto-fallback (user account
+# is not entitled to that model and previously wasted 2 retries per dispatch).
+# Pro is still allowed in guard_contract_validator's ALLOWED_GEMINI_MODELS for ad-hoc
+# manual dispatch, but the wrapper progresses through breadth (flash-lite) -> depth
+# (flash-preview) only.
 $Models = @(
     "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview",
-    "gemini-3.1-pro-preview"
+    "gemini-3-flash-preview"
 )
 
 $IsSuccess = $false
@@ -100,6 +104,13 @@ foreach ($model in $Models) {
                 break
             } else {
                 Write-Host "    [!] Intercepted API/Execution Error (ExitCode: $lastExitCode)" -ForegroundColor Yellow
+                # TASK-1053 Layer 2: dump last 30 lines of combined stdout/stderr so the
+                # underlying CLI error is visible before retry/escalation.
+                if (![string]::IsNullOrWhiteSpace($combinedText)) {
+                    $tailLines = ($combinedText -split "`n" | Select-Object -Last 30) -join "`n"
+                    Write-Host "    [stderr tail]" -ForegroundColor DarkRed
+                    Write-Host $tailLines -ForegroundColor DarkRed
+                }
             }
 
         } catch {

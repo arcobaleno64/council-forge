@@ -30,8 +30,15 @@ param (
 
     [int]$MaxRetriesPerTier = 2,
     [int]$BaseBackoffSeconds = 2,
-    
-    [string]$Executable = "codex.cmd"
+
+    [string]$Executable = "codex.cmd",
+
+    # Layer A of TASK-1057 sub-agent write scope guard.
+    # Empty array (default) = guard skipped, backward compatible.
+    # Element ending in '/' = directory prefix match; else exact file match.
+    # Paths use forward slash (git convention).
+    [string[]]$AllowedPaths = @(),
+    [switch]$AutoRestore = $false
 )
 
 # Core Error Patterns to Catch
@@ -170,6 +177,69 @@ foreach ($model in $Models) {
     if ($IsSuccess) { break }
     Write-Host "  -> Exhausted retries for $model. Escalating tier (fallback)..." -ForegroundColor Magenta
 } # End Model Loop
+
+# Layer A: post-dispatch write scope guard (TASK-1057).
+# Runs whether dispatch succeeded or failed; reports unexpected file changes.
+# Empty AllowedPaths = skip (backward compatible).
+function Test-PathInAllowed {
+    param(
+        [string]$Path,
+        [string[]]$Allowed
+    )
+    foreach ($a in $Allowed) {
+        $aNorm = $a -replace '\\', '/'
+        if ($aNorm.EndsWith('/')) {
+            if ($Path.StartsWith($aNorm)) { return $true }
+        } else {
+            if ($Path -eq $aNorm) { return $true }
+        }
+    }
+    return $false
+}
+
+if ($AllowedPaths.Count -eq 0) {
+    Write-Host "[GUARD] skipped (no AllowedPaths configured)" -ForegroundColor DarkGray
+} else {
+    Write-Host "[GUARD] Post-dispatch write scope check..." -ForegroundColor Cyan
+    $rawStatus = & git status --porcelain 2>&1
+    $changedPaths = @()
+    foreach ($line in $rawStatus) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $rest = $line.Substring([Math]::Min(3, $line.Length))
+        if ($rest -match ' -> ') { $rest = ($rest -split ' -> ')[-1] }
+        $rest = $rest.Trim().Trim('"')
+        $rest = $rest -replace '\\', '/'
+        if ($rest) { $changedPaths += $rest }
+    }
+    $violations = @()
+    foreach ($p in $changedPaths) {
+        if (-not (Test-PathInAllowed -Path $p -Allowed $AllowedPaths)) {
+            $violations += $p
+        }
+    }
+    if ($violations.Count -gt 0) {
+        Write-Host "[GUARD] Post-dispatch detected unexpected file changes:" -ForegroundColor Red
+        foreach ($v in $violations) { Write-Host "  - $v" -ForegroundColor Red }
+        if ($AutoRestore) {
+            foreach ($v in $violations) {
+                & git ls-files --error-unmatch $v 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    & git checkout HEAD -- $v 2>$null | Out-Null
+                    Write-Host "  Restored tracked: $v" -ForegroundColor Yellow
+                } else {
+                    if (Test-Path $v) {
+                        Remove-Item -Path $v -Force -ErrorAction SilentlyContinue
+                        Write-Host "  Deleted untracked: $v" -ForegroundColor Yellow
+                    }
+                }
+            }
+        }
+        Write-Error "__GUARD_VIOLATION:[TASK-1057] Sub-agent wrote files outside AllowedPaths.__"
+        exit 2
+    } else {
+        Write-Host "[GUARD] Post-dispatch check OK; all changes within allowed paths." -ForegroundColor Green
+    }
+}
 
 # Wrap up
 if ($IsSuccess) {

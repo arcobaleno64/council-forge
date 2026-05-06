@@ -703,5 +703,38 @@
         "note": "Claude must route to Gemini for RACI Auditor and Architecture Synthesizer under specific triggers."
       }
     ]
+  },
+  {
+    "id": "PR-027",
+    "title": "Codex Write Scope Discipline",
+    "description": "CODEX.md must declare Write Scope Discipline binding sub-agent file writes to plan Files Likely Affected, with wrapper enforcement reference.",
+    "assertions": [
+      {
+        "file": "CODEX.md",
+        "must_contain_all": [
+          "Write Scope Discipline",
+          "Files Likely Affected",
+          "Invoke-CodexAgent.ps1 -AllowedPaths",
+          "AutoRestore"
+        ],
+        "note": "Codex implementation contract must enforce write-scope discipline at both prompt and wrapper layers."
+      }
+    ]
+  },
+  {
+    "id": "PR-028",
+    "title": "Gemini Write Scope Discipline",
+    "description": "GEMINI.md must declare Write Scope Discipline binding sub-agent file writes to dispatch-prompt-named target artifact, with wrapper enforcement reference.",
+    "assertions": [
+      {
+        "file": "GEMINI.md",
+        "must_contain_all": [
+          "Write Scope Discipline",
+          "Invoke-GeminiAgent.ps1 -AllowedPaths",
+          "AutoRestore"
+        ],
+        "note": "Gemini research contract must enforce write-scope discipline at both prompt and wrapper layers."
+      }
+    ]
   }
 ]

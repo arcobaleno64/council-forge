@@ -65,6 +65,15 @@ Codex CLI 可依 task scale 選擇 model 與 reasoning effort，但不得自行�
 - 不得讓多個 subagents 同時修改同一組檔案
 - 不得在當前任務中夾帶無關 refactoring
 
+## Write Scope Discipline
+
+執行時 file write 嚴禁超出 plan artifact `## Files Likely Affected` 列出之路徑：
+
+- 不得新增 plan 未列之檔案（含 `artifacts/research/`、`docs/`、`template/`、`.github/` 等任何位置）
+- 不得修改 plan 未列之既有檔（lifecycle artifacts 自身——即本批之 `task / research / plan / code / test / verify / status` 七類——可不受此限）
+- 違者：立 `artifacts/decisions/<TASK_ID>.decision.md` 說明越界原因；不得自行擴張 scope，亦不得以「順便」「相鄰整理」為由附加變更
+- Wrapper 之強制層：`Invoke-CodexAgent.ps1 -AllowedPaths [string[]] -AutoRestore` 於 dispatch 完成後自動偵測；`-AllowedPaths` 為空時 skip guard，後向相容；違規 exit 2 與既有 API failure exit 1 區分
+
 ## Premortem 檢查
 
 開始 coding 前，先確認 plan 的 `## Risks` 區段存在，且包含結構化風險條目（R1, R2, ...），每條都要有 Risk / Trigger / Detection / Mitigation / Severity 欄位。若 premortem 缺失或內容含糊，必須 STOP 並回報 blocked。

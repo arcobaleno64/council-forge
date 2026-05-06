@@ -36,6 +36,15 @@
 - 不得宣告 memory-bank 最終寫入決策
 - 不得在 Tavily CLI 不可用時捏造來源或用未驗證內容補洞
 
+## Write Scope Discipline
+
+執行時 file write 嚴禁超出 dispatch prompt 明示之目標 artifact 路徑（通常為 `artifacts/research/<TASK_ID>.research.md` 單一檔）：
+
+- 不得新增 dispatch prompt 未明示之新檔（含 `REMEMBER_*.md`、`*.tavily_raw.md`、其他 task 之 research artifact 等）
+- 不得修改 dispatch prompt 未明示之既有檔
+- 違者：dispatch 視為失敗；Claude 將以 `git checkout HEAD --` 還原並要求 redo
+- Wrapper 之強制層：`Invoke-GeminiAgent.ps1 -AllowedPaths [string[]] -AutoRestore` 於 dispatch 完成後自動偵測；`-AllowedPaths` 為空時 skip guard，後向相容；違規 exit 2 與既有 API failure exit 1 區分
+
 ## Tavily-assisted Research 模式
 
 只有 dispatch prompt 明確要求或允許時，Gemini 才可間接呼叫本機 Tavily CLI。

@@ -30,6 +30,7 @@ class TemplateInfo:
     version: str
     applicable_agents: list[str]
     applicable_stages: list[str]
+    applicable_scale: list[str]
     prerequisites: list[str]
     path: str
 
@@ -43,9 +44,21 @@ def parse_frontmatter(md_path: Path) -> dict:
     return yaml.safe_load(parts[1]) or {}
 
 
+def _normalize_scale(value) -> list[str]:
+    """Normalize applicable_scale frontmatter value to list[str]; missing key → ['all']."""
+    if value is None:
+        return ["all"]
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [str(v) for v in value]
+    return ["all"]
+
+
 def discover(
     agent: Optional[str] = None,
     stage: Optional[str] = None,
+    scale: Optional[str] = None,
     templates_dir: Path = TEMPLATES_DIR,
 ) -> List[TemplateInfo]:
     """Scan templates_dir/*/TEMPLATE.md and return matching TemplateInfo list."""
@@ -64,6 +77,16 @@ def discover(
             stages = [s.lower() for s in fm.get("applicable_stages", [])]
             if stage.lower() not in stages and "any" not in stages:
                 continue
+        scales = _normalize_scale(fm.get("applicable_scale"))
+        # Scale filter (respect 'all' / 'both' as wildcards; 'all' as query disables filter)
+        if scale and scale.lower() != "all":
+            scales_lower = [s.lower() for s in scales]
+            if (
+                scale.lower() not in scales_lower
+                and "all" not in scales_lower
+                and "both" not in scales_lower
+            ):
+                continue
         results.append(
             TemplateInfo(
                 name=fm["name"],
@@ -71,6 +94,7 @@ def discover(
                 version=fm.get("version", ""),
                 applicable_agents=fm.get("applicable_agents", []),
                 applicable_stages=fm.get("applicable_stages", []),
+                applicable_scale=scales,
                 prerequisites=fm.get("prerequisites", []),
                 path=str(template_md),
             )
@@ -84,11 +108,15 @@ def main() -> None:
     )
     parser.add_argument("--agent", help="Filter by agent (e.g. 'Codex CLI')")
     parser.add_argument("--stage", help="Filter by stage (e.g. 'coding')")
+    parser.add_argument(
+        "--scale",
+        help="Filter by applicable_scale (lightweight | standard | full | both | all). 'all' disables scale filtering.",
+    )
     parser.add_argument("--templates-dir", default=str(TEMPLATES_DIR))
     parser.add_argument("--json", action="store_true", help="JSON output")
     args = parser.parse_args()
 
-    results = discover(args.agent, args.stage, Path(args.templates_dir))
+    results = discover(args.agent, args.stage, args.scale, Path(args.templates_dir))
 
     if args.json:
         print(json.dumps([asdict(r) for r in results], indent=2))
@@ -100,6 +128,7 @@ def main() -> None:
                 print(f"  {r.name} ({r.path})")
                 print(f"    agents: {', '.join(r.applicable_agents)}")
                 print(f"    stages: {', '.join(r.applicable_stages)}")
+                print(f"    scale:  {', '.join(r.applicable_scale)}")
 
 
 if __name__ == "__main__":

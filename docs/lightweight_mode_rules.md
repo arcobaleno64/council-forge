@@ -38,6 +38,27 @@ auto-classify 只保留為入口便利與升級判定；required artifacts、ver
 > 「可精簡」是指 verify artifact 的內容可以簡短，而不是整份文件不存在。
 > verify checklist 的 `result` / `reason_code` / `Overall Maturity` 仍必須遵守 resolved policy，只是 `POC + generic` 的 required fields 較少。
 
+## 3.5 範本規模適用矩陣
+
+下表定義依工作型態 × 規模之必填範本（屬 docs convention，不擴 `guard_status_validator.py` 之 required_artifacts policy）。
+
+允許之 scale 值：`lightweight | standard | full | both | all`。`both` 與 `all` 為 wildcard（`discover_templates.py --scale` 視為對所有 scale 命中）。
+
+| 工作型態 | lightweight 必填 | standard 加增 | full 加增 |
+|---|---|---|---|
+| Bug fix | task + code + verify + Bug report | + Debug runbook | + RTM（影響範圍 ≥3 模組時） |
+| Feature | task + plan + code + verify + Feature request + PR description | + SRS（lightweight subset）+ ADR（若架構變動） | + SRS（full）+ RTM |
+| PR (對外) | task + code + verify + PR description | + decision（若架構變動） | + ADR |
+| Refactor | task + plan + code + verify | + ADR（若架構變動） | + RTM（影響範圍重新計算） |
+
+說明：
+
+- 「lightweight 必填」指任一工作型態於 lightweight scale 下不可缺之最小範本集。
+- 「+ X」表示由前一級 scale 加上之新範本，不重列前級已含項目。
+- ADR 適用於跨多 task 之長期架構決策；單 task 內之 gate-blocking 決策請改用 `artifacts/decisions/{{TASK_ID}}.decision.md`。
+- Debug runbook 為事件中 transient 紀錄，事件結束後須轉為 improvement artifact 留底。
+- SRS / RTM 之 full 形式適用於跨模組功能；lightweight 形式可省略 SRS（task §AC 即足）並省略 RTM。
+
 ## 4. 不可省略
 
 - acceptance criteria

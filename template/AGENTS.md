@@ -14,9 +14,20 @@
 
 | File | 用途 | ~Tokens | 載入時機 |
 |---|---|---|---|
-| `docs/orchestration.md` | 系統提示：目標、原則、流程階段、gate、同步規範 | 2200 | Claude：session 開始；sync contract 判定前 |
-| `docs/artifact_schema.md` | 8 種 artifact schema（§5.1-§5.8） | 3300 | 寫任何 artifact 前 |
-| `docs/subagent_roles.md` | 7 種 agent 角色定義（§3-§9） | 3000 | 派發 subagent 前 |
+| `docs/orchestration.md` | 系統提示骨幹：目標、原則（§1-§2.8） | 1100 | Claude：session 開始
+| `docs/orchestration-workflow.md` | workflow/gate/PDCA 細節與 sync contract（§3+） | 1400 | Claude：流程與 gate 判定前 |
+| `docs/artifact_schema.md` | schema 入口與通用規則（§1-§4 + §5索引） | 900 | 寫任何 artifact 前
+| `docs/schemas/artifact-spec-task.md` | Task schema（原 §5.1） | 450 | 撰寫 task artifact 前
+| `docs/schemas/artifact-spec-research.md` | Research schema（原 §5.2） | 650 | 撰寫 research artifact 前
+| `docs/schemas/artifact-spec-plan.md` | Plan schema（原 §5.3） | 550 | 撰寫 plan artifact 前
+| `docs/schemas/artifact-spec-code.md` | Code schema（原 §5.4） | 900 | 撰寫 code artifact 前
+| `docs/schemas/artifact-spec-test.md` | Test schema（原 §5.5） | 350 | 撰寫 test artifact 前
+| `docs/schemas/artifact-spec-verify.md` | Verify schema（原 §5.6） | 800 | 撰寫 verify artifact 前
+| `docs/schemas/artifact-spec-decision.md` | Decision schema（原 §5.7） | 700 | 撰寫 decision artifact 前
+| `docs/schemas/artifact-spec-status.md` | Status schema（原 §5.8） | 500 | 更新 status artifact 前
+| `docs/schemas/artifact-gallery.md` | 跨類型範例集（源自 §5） | 250 | 需要快速對照範例時 |
+| `docs/subagent_roles.md` | 角色責任敘述（§1, §3-§9） | 2200 | 派發 subagent 前
+| `docs/raci-matrix.md` | RACI 與 capability 矩陣（原 §2） | 900 | 派發 subagent 前 |
 | `docs/workflow_state_machine.md` | 8 個狀態 + 合法轉移 | 600 | 狀態轉移前 |
 | `docs/premortem_rules.md` | 風險分析格式 + 品質護欄 | 1900 | 進入 coding gate 前 |
 | `docs/red_team_runbook.md` | 紅隊演練 runbook：靜態攻擊、live drill、復盤流程 | 1500 | 紅隊演練前 |
@@ -43,12 +54,12 @@
 |---|---|---|---|---|
 | **Intake** | P (pre-Plan) | `docs/orchestration.md` | -- | -- |
 | **Research** | P (Plan 前準備) | `docs/subagent_roles.md` §4, `docs/subagent_task_templates.md`, `docs/templates/` | (GEMINI.md has all needed rules) | -- |
-| **Planning** | P (Plan，含 premortem) | `docs/artifact_schema.md` §5.3, `docs/workflow_state_machine.md`, `docs/premortem_rules.md` | -- | -- |
+| **Planning** | P (Plan，含 premortem) | `docs/schemas/artifact-spec-plan.md` §5.3, `docs/workflow_state_machine.md`, `docs/premortem_rules.md` | -- | -- |
 | **Coding** | D (Do；微觀內含 TAO) | `docs/subagent_roles.md` §5, `docs/subagent_task_templates.md`, `docs/templates/` | -- | (CODEX.md has all needed rules) |
-| **Verification** | C (Check) | `docs/artifact_schema.md` §5.5-§5.6, `docs/workflow_state_machine.md` | -- | -- |
+| **Verification** | C (Check) | `docs/schemas/artifact-spec-test.md` §5.5 + `docs/schemas/artifact-spec-verify.md` §5.6, `docs/workflow_state_machine.md` | -- | -- |
 | **Closure** | A (Act；Gate E + 回灌) | `docs/workflow_state_machine.md`, `.github/prompts/remember-capture.prompt.md` | Memory Bank Curator 模式時讀 `docs/templates/memory-curator/TEMPLATE.md` | -- |
 | **Red Team Exercise** | C (Check 衍生) | `docs/red_team_runbook.md`, `docs/red_team_scorecard.md`, `docs/red_team_backlog.md` | -- | -- |
-| **Sync Contract** | meta | `docs/orchestration.md` §9 | -- | -- |
+| **Sync Contract** | meta | `docs/orchestration-workflow.md` §9 | -- | -- |
 
 兩層架構詳見 [docs/orchestration.md §2.8](docs/orchestration.md)：管理層 PDCA 對應上表「PDCA 階段」欄；執行層 TAO/ReAct 內含於 Coding 階段內 subagent dispatch（詳見 [docs/agentic_execution_layer.md](docs/agentic_execution_layer.md)，Phase 2 提供）。
 
@@ -62,7 +73,12 @@
 ## 章節速查
 
 ### docs/artifact_schema.md
-- §5.1 Task / §5.2 Research / §5.3 Plan / §5.4 Code / §5.5 Test / §5.6 Verify / §5.7 Decision / §5.8 Status
+- §1-§4 通用規則 / §5 索引
+
+### docs/schemas/*
+- artifact-spec-task.md(§5.1) / artifact-spec-research.md(§5.2) / artifact-spec-plan.md(§5.3)
+- artifact-spec-code.md(§5.4) / artifact-spec-test.md(§5.5) / artifact-spec-verify.md(§5.6)
+- artifact-spec-decision.md(§5.7) / artifact-spec-status.md(§5.8) / artifact-gallery.md
 
 ### docs/subagent_roles.md
 - §3 Claude Code / §4 Gemini CLI（含 Memory Bank Curator 模式） / §5 Codex CLI / §6 Implementer / §7 Tester / §8 Verifier / §9 Reviewer

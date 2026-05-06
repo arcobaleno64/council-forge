@@ -30,6 +30,9 @@
 - `Decision Registry` → `artifacts/registry/decision_registry.json`
 - `Metrics` → `artifacts/metrics/`
 - `Red Team Runbook` → `docs/red_team_runbook.md`
+- `Workflow Orchestration Details` → `docs/orchestration-workflow.md`
+- `RACI Matrix` → `docs/raci-matrix.md`
+- `Artifact Specs` → `docs/schemas/`
 
 ## 同步範圍
 

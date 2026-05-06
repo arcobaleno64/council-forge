@@ -20,7 +20,7 @@
 4. 若啟用 Tavily-assisted research，先確認本機 Tavily CLI 可用；記錄 command、query、retrieved date、URLs；不可用時回報 blocked / UNVERIFIED
 5. 若是 Memory Bank Curator，只能產出 Remember Capture draft，不得寫入 `.github/memory-bank/`
 GEMINI.md 的規則：【embed key rules】
-完成後輸出 Research artifact（see docs/artifact_schema.md §5.2）
+完成後輸出 Research artifact（see docs/schemas/artifact-spec-research.md §5.2）
 ```
 
 Tavily 結果只能放在 research artifact draft 的 `## Tavily Cache` / `## Source Cache`；是否沉澱到 memory-bank 必須由 Claude/Codex 透過 Remember Capture 篩選。memory-bank 只收長期、可追蹤、非顯而易見、非短期排障且未過時的知識。
@@ -42,7 +42,7 @@ Model / Effort: 【model】 / 【reasoning effort】
 要求：
 1. 實作【功能描述】
 2. 通過【測試條件】
-3. 輸出 Code artifact（see docs/artifact_schema.md §5.4），必須含 Execution Profile 與 Subagent Plan
+3. 輸出 Code artifact（see docs/schemas/artifact-spec-code.md §5.4），必須含 Execution Profile 與 Subagent Plan
 4. 輸出 Verify artifact with Build Guarantee
 5. 若使用 Codex subagent，scope check、test planning、implementation、regression verification 必須分工清楚；未使用時寫 `Subagent Plan: None` 與理由
 範圍：【明確不做什麼】
@@ -84,7 +84,7 @@ Guard validator 或流程中常見的結構化輸出範本。
 BLOCKED: TASK-XXX cannot proceed.
 Missing artifact: artifacts/plans/TASK-XXX.plan.md
 Required for: coding phase gate check
-Action: Complete planning phase first (see docs/artifact_schema.md §5.3)
+Action: Complete planning phase first (see docs/schemas/artifact-spec-plan.md §5.3)
 ```
 
 ### Scope 漂移

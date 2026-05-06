@@ -2,22 +2,37 @@
   {
     "id": "PR-001",
     "title": "Violation Input Handling",
-    "description": "Malicious or ambiguous input must force STOP/blocked behavior instead of optimistic continuation.",
+    "description": "Malicious or ambiguous input must force STOP/blocked behavior instead of optimistic continuation. (sync TASK-1048)",
     "assertions": [
       {
         "file": "CLAUDE.md",
         "all_of_any": [
-          ["scope 不清楚", "scope unclear"],
-          ["STOP"],
-          ["decision artifact", "decision log"]
+          [
+            "scope 不清楚",
+            "scope unclear"
+          ],
+          [
+            "STOP"
+          ],
+          [
+            "decision artifact",
+            "decision log"
+          ]
         ],
         "note": "Claude must stop and route ambiguity into decision artifacts."
       },
       {
         "file": "CODEX.md",
         "all_of_any": [
-          ["何時回報 Blocked", "回報 Blocked"],
-          ["Plan artifact 缺失", "Plan 的 `Ready For Coding` 不是 `yes`", "必要的 research artifact 缺失"]
+          [
+            "何時回報 Blocked",
+            "回報 Blocked"
+          ],
+          [
+            "Plan artifact 缺失",
+            "Plan 的 `Ready For Coding` 不是 `yes`",
+            "必要的 research artifact 缺失"
+          ]
         ],
         "note": "Codex must explicitly declare blocked triggers."
       }
@@ -31,25 +46,47 @@
       {
         "file": "CLAUDE.md",
         "all_of_any": [
-          ["只能有一個 agent 可以修改程式碼", "single agent can modify code"],
-          ["Gemini CLI", "Gemini"],
-          ["Codex CLI", "Codex"]
+          [
+            "只能有一個 agent 可以修改程式碼",
+            "single agent can modify code"
+          ],
+          [
+            "Gemini CLI",
+            "Gemini"
+          ],
+          [
+            "Codex CLI",
+            "Codex"
+          ]
         ],
         "note": "Claude must enforce single-writer and role split."
       },
       {
         "file": "GEMINI.md",
         "all_of_any": [
-          ["不得修改程式碼", "Do not modify code", "No code changes"],
-          ["不得決定 implementation approach", "不得設計 solution"]
+          [
+            "不得修改程式碼",
+            "Do not modify code",
+            "No code changes"
+          ],
+          [
+            "不得決定 implementation approach",
+            "不得設計 solution"
+          ]
         ],
         "note": "Gemini must remain read-only and non-implementation."
       },
       {
         "file": "CODEX.md",
         "all_of_any": [
-          ["不得超出 plan 擴張範圍", "Do NOT modify files outside plan scope"],
-          ["不得在當前任務中夾帶無關 refactoring", "Do NOT perform large refactors not specified"]
+          [
+            "不得超出 plan 擴張範圍",
+            "Do NOT modify files outside plan scope"
+          ],
+          [
+            "不得在當前任務中夾帶無關 refactoring",
+            "Do NOT perform large refactors not specified"
+          ]
         ],
         "note": "Codex must stay inside approved plan scope."
       }
@@ -63,13 +100,25 @@
       {
         "file": "GEMINI.md",
         "all_of_any": [
-          ["Inline citations", "inline citations"],
-          ["No fabrication", "不得捏造"],
-          ["UNVERIFIED", "Uncertain Items"]
+          [
+            "Inline citations",
+            "inline citations"
+          ],
+          [
+            "No fabrication",
+            "不得捏造"
+          ],
+          [
+            "UNVERIFIED",
+            "Uncertain Items"
+          ]
         ],
         "near": [
           {
-            "terms": ["claim", "citation"],
+            "terms": [
+              "claim",
+              "citation"
+            ],
             "max_chars": 450
           }
         ],
@@ -78,8 +127,14 @@
       {
         "file": "CLAUDE.md",
         "all_of_any": [
-          ["具體 claim", "claim"],
-          ["支撐來源", "source"]
+          [
+            "具體 claim",
+            "claim"
+          ],
+          [
+            "支撐來源",
+            "source"
+          ]
         ],
         "note": "Claude must require evidence on every concrete claim."
       }
@@ -93,12 +148,21 @@
       {
         "file": "GEMINI.md",
         "all_of_any": [
-          ["Isolate truth source", "truth source"],
-          ["不得從 local fork 反推 upstream", "must come from directly upstream evidence"]
+          [
+            "Isolate truth source",
+            "truth source"
+          ],
+          [
+            "不得從 local fork 反推 upstream",
+            "must come from directly upstream evidence"
+          ]
         ],
         "near": [
           {
-            "terms": ["upstream", "local fork"],
+            "terms": [
+              "upstream",
+              "local fork"
+            ],
             "max_chars": 450
           }
         ],
@@ -286,7 +350,7 @@
     "description": "Workflow contract must define when a decision artifact is mandatory for conflicts, tradeoffs, and validation failures.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-decision.md",
         "must_contain_all": [
           "何時必須建立 decision artifact：",
           "研究結果互相衝突",
@@ -305,7 +369,7 @@
     "description": "Decision artifacts must preserve the full chain from issue to follow-up, not just a conclusion line.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-decision.md",
         "must_contain_all": [
           "# Decision Log: TASK-001",
           "## Issue",
@@ -339,7 +403,7 @@
     "description": "Workflow contract must require an explicit decision waiver before --allow-scope-drift can downgrade scope failures.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-decision.md",
         "must_contain_all": [
           "使用 `--allow-scope-drift` 將 drift 降級為 warning",
           "## Guard Exception",
@@ -357,7 +421,7 @@
     "description": "Workflow contract must define commit-range diff evidence for clean-task historical reconstruction.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-code.md",
         "must_contain_all": [
           "## Diff Evidence",
           "Evidence Type: commit-range",
@@ -376,7 +440,7 @@
     "description": "Workflow contract must require immutable commit pinning and snapshot checksums for historical diff evidence.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-code.md",
         "must_contain_all": [
           "Base Commit:",
           "Head Commit:",
@@ -394,7 +458,7 @@
     "description": "Workflow contract should define GitHub PR files evidence, API base override, and token boundary for provider-backed replay.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-code.md",
         "must_contain_all": [
           "Evidence Type: github-pr",
           "Repository:",
@@ -408,9 +472,18 @@
       {
         "file": "README.md",
         "all_of_any": [
-          ["github-pr", "GitHub PR files"],
-          ["GITHUB_TOKEN", "GH_TOKEN"],
-          ["provider-backed", "provider backed"]
+          [
+            "github-pr",
+            "GitHub PR files"
+          ],
+          [
+            "GITHUB_TOKEN",
+            "GH_TOKEN"
+          ],
+          [
+            "provider-backed",
+            "provider backed"
+          ]
         ],
         "note": "Repository README should surface GitHub provider-backed evidence for operators."
       }
@@ -422,7 +495,7 @@
     "description": "Workflow contract should define archive-backed fallback and archive integrity checks when git objects are no longer available.",
     "assertions": [
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-code.md",
         "must_contain_all": [
           "Archive Path:",
           "Archive SHA256:",
@@ -434,9 +507,18 @@
       {
         "file": "README.md",
         "all_of_any": [
-          ["archive fallback", "archive-backed fallback"],
-          ["Archive Path", "Archive SHA256"],
-          ["git objects", "retention"]
+          [
+            "archive fallback",
+            "archive-backed fallback"
+          ],
+          [
+            "Archive Path",
+            "Archive SHA256"
+          ],
+          [
+            "git objects",
+            "retention"
+          ]
         ],
         "note": "Repository README should surface the retention / archive fallback policy."
       }
@@ -567,7 +649,7 @@
         "note": "Gemini Tavily mode must be explicit, draft-only, and blocked when Tavily is unavailable."
       },
       {
-        "file": "docs/artifact_schema.md",
+        "file": "docs/schemas/artifact-spec-research.md",
         "must_contain_all": [
           "Tavily Cache",
           "Source Cache",

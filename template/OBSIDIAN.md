@@ -8,7 +8,7 @@
 - 專有名詞、檔名、CLI 指令、環境變數、placeholder、schema literal、狀態值保留英文原字。
 - 不得更動會被 agent、validator、腳本依賴的精確字串，例如 `## Metadata`、`Task ID`、`Artifact Type`、`Owner`、`Status`、`Last Updated`。
 - 所有紀錄時間、`Last Updated` 與相關時間戳一律使用 `Asia/Taipei`，採 ISO 8601 並帶 `+08:00`。
-- 本 repo 屬於 downstream terminal repo，只維護 root 文件與 `OBSIDIAN.md`；若回到 source template repo，才需要另外維護 `template/` 對應文件。
+- source template repo 中，root、`template/` 與 Obsidian 入口文件必須保持語義一致；由 `template/` 複製出的 downstream terminal repo 只維護 root 文件與 `OBSIDIAN.md`。
 
 ## 建議閱讀順序
 
@@ -30,12 +30,14 @@
 - `Decision Registry` → `artifacts/registry/decision_registry.json`
 - `Metrics` → `artifacts/metrics/`
 - `Red Team Runbook` → `docs/red_team_runbook.md`
+- `Workflow Orchestration Details` → `docs/orchestration-workflow.md`
+- `RACI Matrix` → `docs/raci-matrix.md`
+- `Artifact Specs` → `docs/schemas/`
 
 ## 同步範圍
 
 - downstream terminal repo 只維護 root 文件與 `OBSIDIAN.md`。
-- 需同步：入口檔（含 `START_HERE.md`）、`docs/*.md`、README、Obsidian 入口、`artifacts/scripts/guard_status_validator.py`、`artifacts/scripts/guard_contract_validator.py`、`artifacts/scripts/run_red_team_suite.py`。
-- downstream terminal repo 不再建立新的 `template/`。
+- workflow 與 prompt 變更時，同步更新 root 文件與 prompt regression cases，且不再建立新的 `template/`。
 - 不追溯改寫：`artifacts/` 內歷史任務記錄、`template/experiments/` 產出、外部 repo 與備份目錄中的 Markdown。
 
 ## Workflow 摘要
@@ -52,6 +54,7 @@
 - README 結構規則（見 `docs/orchestration.md` §10）：新專案必須同時產生 README.md 與 README.zh-TW.md，結構須遵循 template 並只調整內容；`guard_contract_validator.py` 提供 `--check-readme` 檢查合規性。
 - plan/code scope drift 預設由 status guard 視為 fail；若 task 專屬檔案位於 dirty worktree，guard 會直接比對實際 git changed files；若 task 已 clean，則可用帶有 pinned commits、Changed Files Snapshot 與 Snapshot SHA256 的 `commit-range` diff evidence 重放 historical diff、在 git objects 遺失時改走 archive fallback，或用 `github-pr` evidence 透過 GitHub PR files API 重建 changed files。private / rate-limited GitHub 存取可使用 `GITHUB_TOKEN` / `GH_TOKEN`；只有附顯式 decision waiver 時才可使用 `--allow-scope-drift`，且僅能降級真正的 drift。
 - `CLAUDE.md` / `GEMINI.md` / `CODEX.md` 有變更時，必須同步更新 `artifacts/scripts/drills/prompt_regression_cases.json`。
+- 本 repo 不建立 nested `template/`。
 - downstream terminal repo 的 workflow 規則變更後，只維護 root 文件與 `OBSIDIAN.md`，並通過 contract guard。
 - 紅隊演練入口是 `docs/red_team_runbook.md`，重跑命令是 `python artifacts/scripts/run_red_team_suite.py`；靜態案例現新增邊界版本測試（如 RT-004B）確保防治邏輯合理。
 - `python artifacts/scripts/run_red_team_suite.py` 預設會在每次執行後清理 `.codex-red-team/` fixture；若需要保留現場供除錯，可加上 `--keep-temp`。
@@ -73,5 +76,4 @@
 ## GitHub / Template 對應
 
 - GitHub 對外入口：`START_HERE.md`、`README.md`、`README.zh-TW.md`
-- Source repo template 對應：僅在 source template repo 中存在
 - 本 repo 不建立 nested `template/`

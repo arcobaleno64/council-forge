@@ -53,7 +53,7 @@ Prompt:
 
 ### 2. 依賴與先決條件
 - Artifact 依賴：plan TASK-950 已含 premortem (R1-R4)
-- 文件引用：docs/artifact_schema.md §5.4, §5.6
+- 文件引用：docs/schemas/artifact-spec-code.md §5.4, §5.6
 - 外部依賴：pytest, GitHub API (GITHUB_TOKEN)
 
 ### 3. 關鍵規則

@@ -57,10 +57,10 @@ Claude Code 預設優先使用 CLI。只有當使用者明確在 VS Code / Copil
 | 階段 | 必讀 | 可選 |
 |---|---|---|
 | **Intake** | AGENTS.md, docs/orchestration.md | BOOTSTRAP_PROMPT.md |
-| **Research** | docs/artifact_schema.md §5.2 | docs/subagent_task_templates.md |
-| **Planning** | docs/artifact_schema.md §5.3, docs/premortem_rules.md | — |
-| **Coding** | docs/artifact_schema.md §5.4, docs/premortem_rules.md | 見 .github/memory-bank/ |
-| **Verify** | docs/artifact_schema.md §5.5-6 | — |
+| **Research** | docs/schemas/artifact-spec-research.md §5.2 | docs/subagent_task_templates.md |
+| **Planning** | docs/schemas/artifact-spec-plan.md §5.3, docs/premortem_rules.md | — |
+| **Coding** | docs/schemas/artifact-spec-code.md §5.4, docs/premortem_rules.md | 見 .github/memory-bank/ |
+| **Verify** | docs/schemas/artifact-spec-test.md §5.5 + docs/schemas/artifact-spec-verify.md §5.6 | — |
 
 詳見 **AGENTS.md §「階段載入矩陣」**
 
@@ -108,7 +108,7 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 1. 讀 AGENTS.md（索引）
 2. 讀 docs/orchestration.md（overview）
 3. 檢查 artifacts/tasks/TASK-XXX.task.md 是否存在
-4. 不存在 → 建立 task artifact（見 docs/artifact_schema.md §5.1）
+4. 不存在 → 建立 task artifact（見 docs/schemas/artifact-spec-task.md §5.1）
 5. 進入 Intake 流程
 ```
 
@@ -118,7 +118,7 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 1. 準備 dispatch prompt，包含：
    - 問題敘述
    - GEMINI.md 的規則條文
-   - 預期輸出格式（見 docs/artifact_schema.md §5.2）
+   - 預期輸出格式（見 docs/schemas/artifact-spec-research.md §5.2）
 2. 執行 `gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "..."` 或 `artifacts/scripts/Invoke-GeminiAgent.ps1`
 3. 接收 research artifact，驗證 `## Sources` 有 ≥2 條 + URL
 ```
@@ -193,7 +193,7 @@ workflow files: CLAUDE.md、GEMINI.md、CODEX.md、AGENTS.md、docs/*、BOOTSTRA
 
 由 `template/` 複製出去的新專案屬於 downstream terminal repo，不得再建立新的 `template/`，而是只維護 root 文件與 `OBSIDIAN.md`。
 
-詳見 docs/orchestration.md §9
+詳見 docs/orchestration-workflow.md §9
 
 ## 常用查詢
 

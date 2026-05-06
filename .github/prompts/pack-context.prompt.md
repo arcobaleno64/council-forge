@@ -65,7 +65,7 @@ applyTo: "**"
 - artifacts/research/TASK-903.research.md
 
 涉及的 docs：
-- docs/artifact_schema.md §5.6（verify schema）
+- docs/schemas/artifact-spec-verify.md §5.6（verify schema）
 - docs/premortem_rules.md（風險）
 
 請先幫我整理上下文。

@@ -56,7 +56,7 @@ ELSE:
 
 任何 blocked 任務恢復前必須通過 Gate E：
 
-- 必有 [improvement artifact](../../artifacts/improvement/) 且 `Status: applied`（見 [docs/artifact_schema.md §5.9](../../docs/artifact_schema.md)）
+- 必有 [improvement artifact](../../artifacts/improvement/) 且 `Status: applied`（見 [docs/schemas/artifact-spec-improvement.md](../../docs/schemas/artifact-spec-improvement.md)）
 - improvement artifact 必含 `## What Happened`、`## Why It Was Not Prevented`、`## Preventive Action (System Level)`
 - status.json 之 `Gate_E_evidence` 須引用 improvement / decision artifact 路徑
 - status.json 之 `Gate_E_timestamp` 必填

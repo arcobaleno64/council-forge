@@ -78,7 +78,7 @@ mini-PDCA 子循環為 [orchestration.md §2.8](orchestration.md) 所定義之�
 - Next-Step Decision: continue（§2.8 已就位，下一 step 處理 §5 標籤）
 
 ### Step 2
-- Thought Log: 讀 plan §Phase 1.2，判定須對 docs/artifact_schema.md §5.1-5.9 各章節加 PDCA 標籤。假設每節之首行下加一行 `> PDCA Stage: X` blockquote 即可。
+- Thought Log: 讀 plan §Phase 1.2，判定須對 docs/schemas/artifact-spec-task.md §5.1-5.9 各章節加 PDCA 標籤。假設每節之首行下加一行 `> PDCA Stage: X` blockquote 即可。
 - Action Step: 對 §5.1, §5.2, §5.3, §5.4, §5.5, §5.6, §5.7, §5.8, §5.9 共 9 節分別執行 Edit，加入對應 PDCA 標籤。
 - Observation: 9 個 Edit 全成；grep 驗證 9 行 `> PDCA Stage:` 已加；既有欄位順序未動。
 - Next-Step Decision: continue
@@ -133,8 +133,8 @@ mini-PDCA 子循環為 [orchestration.md §2.8](orchestration.md) 所定義之�
 ## 9. 與其他文件之交叉引用
 
 - 兩層架構總覽：[docs/orchestration.md §2.8](orchestration.md)
-- code artifact schema：[docs/artifact_schema.md §5.4](artifact_schema.md)
-- verify artifact schema：[docs/artifact_schema.md §5.6](artifact_schema.md)
+- code artifact schema：[docs/schemas/artifact-spec-code.md §5.4](artifact_schema.md)
+- verify artifact schema：[docs/schemas/artifact-spec-verify.md §5.6](artifact_schema.md)
 - subagent 角色：[docs/subagent_roles.md](subagent_roles.md)
 - subagent dispatch templates：[docs/subagent_task_templates.md](subagent_task_templates.md)
 - premortem 與 mini-PDCA 觸發：[docs/premortem_rules.md](premortem_rules.md)

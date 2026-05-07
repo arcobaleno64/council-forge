@@ -609,8 +609,8 @@
         "must_contain_all": [
           "Model / Effort Policy",
           "gpt-5.4-mini",
-          "gpt-5.3-codex",
           "gpt-5.4",
+          "gpt-5.5",
           "Execution Profile",
           "Subagent Plan",
           "Scope check",
@@ -628,7 +628,7 @@
           "gpt-5.4",
           "gpt-5.5"
         ],
-        "note": "Codex wrapper exposes task-scale model policy and reasoning effort; tier ladder v2 (mini / 5.4 / 5.5) per TASK-1053 Layer 4. CODEX.md doc-side row still pins legacy 5.3-codex pending TASK-1056."
+        "note": "Codex wrapper exposes task-scale model policy and reasoning effort; tier ladder v2 (mini / 5.4 / 5.5) per TASK-1053 Layer 4. CODEX.md doc-side is aligned to the v2 ladder per TASK-1056."
       }
     ]
   },

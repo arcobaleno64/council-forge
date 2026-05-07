@@ -15,10 +15,11 @@ Codex CLI 可依 task scale 選擇 model 與 reasoning effort，但不得自行�
 
 | Task Scale | 預設 model | 預設 effort | 適用情境 |
 |---|---|---|---|
-| tiny / docs-only | `gpt-5.4-mini` | `low` 或 `medium` | 單檔 typo、低風險 docs、明確小修 |
-| standard implementation | `gpt-5.3-codex` | `medium` | 一般程式修改、測試補強、局部 refactor |
-| high-risk / cross-module | `gpt-5.4` | `high` | 跨模組、跨多檔、需要深度推理或多階段驗證 |
-| critical / security / architecture | `gpt-5.4` | `xhigh` | security、架構決策、高 blast radius 或資料/schema 風險 |
+| tiny / docs-only | `gpt-5.4-mini` | `high` | 單檔 typo、低風險 docs、明確小修 |
+| standard implementation | `gpt-5.4` | `high` | 一般程式修改、測試補強、局部 refactor |
+| high-risk / cross-module / critical / security / architecture | `gpt-5.5` | `high` | 跨模組、高風險、security、架構決策，或需要深度推理與多階段驗證 |
+
+Wrapper `-TaskScale` 的 8 個允許值會折疊到上述 3 層：`tiny`、`docs-only` → `gpt-5.4-mini`；`standard`（文件中的 `standard implementation`）→ `gpt-5.4`；`high-risk`、`cross-module`、`critical`、`security`、`architecture` → `gpt-5.5`。
 
 若 Claude dispatch 已指定 model / effort，以 dispatch 為準；若執行中發現 task scale 被低估，必須回報 blocked 或要求 decision，不得自行擴張修改範圍。
 

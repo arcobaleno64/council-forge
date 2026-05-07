@@ -48,15 +48,15 @@ Workflow template 位於：【填入 artifact-harness repo clone 路徑，或直
 
 - Orchestrator：Claude Code（你；CLI-first，預設負責 orchestration、決策、驗收與最後整合）
 - Research / Memory Curator agent：Gemini CLI
-  - 模型：gemini-3.1-flash-lite-preview（預設），有問題時可升級至 gemini-3-flash-preview，若仍無法解決則動用 gemini-3.1-pro-preview
-  - 只允許上述 3-step allowlist，不得降回 2.x 或其他更舊模型
+  - 模型：`gemini-3.1-flash-lite-preview`（預設），有問題時可升級至 `gemini-3-flash-preview`；`gemini-3.1-pro-preview` 僅保留為 allowlist 內的 ad-hoc dispatch，不再列為 auto-fallback
+  - 只允許上述 allowlist，不得降回 2.x 或其他更舊模型
   - 認證方式：由 CLI 內部 OAuth 處理，不依賴 `GEMINI_API_KEY` 環境變數（若未登入請先執行 `gemini auth`）
   - 呼叫方式：gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"
   - 入口檔：GEMINI.md（品質硬規則與 Memory Bank Curator draft-only 邊界已內嵌，不需額外載入）
 - Tavily-assisted research：只有 dispatch 明確允許時才能由 Gemini 間接使用本機 Tavily CLI；需先確認 CLI 可用並記錄 command、query、retrieved date、URLs；不可用時標記 blocked / UNVERIFIED
 - Implementation agent：Codex CLI（已規劃實作、測試補強、跨檔 workflow docs 預設交給 Codex）
   - 入口檔：CODEX.md
-  - Task scale / model policy：tiny/docs-only → gpt-5.4-mini low/medium；standard implementation → gpt-5.3-codex medium；high-risk/cross-module → gpt-5.4 high；critical/security/architecture → gpt-5.4 xhigh
+  - Task scale / model policy：`tiny` / `docs-only` → `gpt-5.4-mini` `high`；`standard`（文件中的 `standard implementation`）→ `gpt-5.4` `high`；`high-risk` / `cross-module` / `critical` / `security` / `architecture` → `gpt-5.5` `high`
   - Code artifact 必須記錄 `Execution Profile` 與 `Subagent Plan`
 
 ## 5. 工作規範

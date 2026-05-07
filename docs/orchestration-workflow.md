@@ -273,6 +273,8 @@ active workflow files 中只允許以下 Gemini allowlist：
 - `gemini-3-flash-preview`
 - `gemini-3.1-pro-preview`
 
+auto-fallback 僅限前兩個 flash tiers；`gemini-3.1-pro-preview` 保留為 allowlist 內的 ad-hoc dispatch。
+
 `guard_contract_validator.py` 會掃描 `CLAUDE.md`、`BOOTSTRAP_PROMPT.md`、`docs/subagent_roles.md`、`Invoke-GeminiAgent.ps1` 及其 template 對應檔。任何 `2.x` 或未列入 allowlist 的型號都視為 contract violation。
 
 ### 9.5 責任歸屬

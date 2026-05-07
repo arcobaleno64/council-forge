@@ -149,7 +149,7 @@ Claude Code 的成功不是「自己做完」，而是：
 
 ## 4. Gemini CLI
 
-預設模型：`gemini-3.1-flash-lite-preview`（低成本、快速）。有問題時可升級至 `gemini-3-flash-preview`，若仍無法解決則動用 `gemini-3.1-pro-preview`。不得降回 `2.x` 或其他未列入 allowlist 的舊模型。
+預設模型：`gemini-3.1-flash-lite-preview`（低成本、快速）。有問題時可升級至 `gemini-3-flash-preview`；`gemini-3.1-pro-preview` 僅保留為 allowlist 內的 ad-hoc dispatch，不再列為 auto-fallback。不得降回 `2.x` 或其他未列入 allowlist 的舊模型。
 認證方式：授權登入不依賴 `GEMINI_API_KEY` 環境變數，由 CLI 內部 OAuth 處理（若未登入請先執行 `gemini auth` 類似指令）。
 呼叫方式：`gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"`
 
@@ -261,9 +261,9 @@ Gemini draft 必須包含：
 
 ## 5. Codex CLI
 
-預設模型：`gpt-5.4`（旗艦，最強推理與 agentic 能力）。有問題時可降級至 `gpt-5.3-codex`（專業 coding 模型），若仍無法解決則動用 `gpt-5.4-mini`（輕量高效）。
+預設模型：`gpt-5.4`（standard implementation 預設）。`tiny` / `docs-only` 使用 `gpt-5.4-mini`；`high-risk` / `cross-module` / `critical` / `security` / `architecture` 使用 `gpt-5.5`。
 認證方式：授權登入不依賴 `OPENAI_API_KEY` 環境變數，由 CLI 內部 OAuth 處理（若未登入請先執行 `codex login`）。
-呼叫方式：`codex -m gpt-5.4 --full-auto -p "<prompt>"`
+呼叫方式：`codex -m <model> -a never -s workspace-write -p "<prompt>"`
 
 ### 5.1 職責
 
@@ -279,10 +279,9 @@ Codex CLI 是 implementation lead，負責：
 
 | Task Scale | 預設 model | 預設 effort |
 |---|---|---|
-| tiny / docs-only | `gpt-5.4-mini` | `low` 或 `medium` |
-| standard implementation | `gpt-5.3-codex` | `medium` |
-| high-risk / cross-module | `gpt-5.4` | `high` |
-| critical / security / architecture | `gpt-5.4` | `xhigh` |
+| tiny / docs-only | `gpt-5.4-mini` | `high` |
+| standard implementation | `gpt-5.4` | `high` |
+| high-risk / cross-module / critical / security / architecture | `gpt-5.5` | `high` |
 
 Claude dispatch 若指定 model / effort，以 dispatch 為準；Codex 發現 task scale 被低估時，必須 blocked 或要求 decision，不得自行擴張修改範圍。
 
@@ -292,6 +291,15 @@ Claude dispatch 若指定 model / effort，以 dispatch 為準；Codex 發現 ta
 - Scope check、test planning、implementation、regression verification 不得由同一輪自我驗收完全取代。
 - 中高風險或 context cost >= M 時，至少要把 verification/review 與 implementation 分離。
 - 多個 subagents 的 write scope 必須互斥。
+
+### 5.1.3 Council Reviewer 次角色
+
+- `Invoke-CodexReview.ps1` 會並行 dispatch 3 個 Codex CLI reviewer：`gpt-5.4-mini`、`gpt-5.4`、`gpt-5.5`，reasoning effort 一律為 `high`。
+- R：各 reviewer 對同一份 git diff 產出獨立 review notes（3 model votes）。
+- A：Claude 透過 `/codex-review` slash command 做 triage、採納與後續 action 判定。
+- 輸入：git diff（可來自 staged / unstaged / all / `HEAD`）。
+- 輸出：`artifacts/reviews/<timestamp>-<safeModel>.md`。
+- implementer：`artifacts/scripts/Invoke-CodexReview.ps1` 負責 dispatch 與 reviewer artifact 命名；wrapper 不聚合最終結論。
 
 ### 5.2 允許輸入
 

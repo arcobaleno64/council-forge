@@ -755,5 +755,23 @@
         "note": "Wrapper enforces stash-based baseline; helpers + stash msg prefix + deprecated flag pinned per TASK-1059. Gemini wrapper kept identical via EXACT_SYNC_FILES SHA-256 mirror; only Codex pinned here to avoid double-coupled literals."
       }
     ]
+  },
+  {
+    "id": "PR-030",
+    "title": "Wrapper Pytest Fake-Exe Shim Pin (TASK-1054)",
+    "description": "Wrapper-level pytest must use fake-exe shim via -Executable param injection; cross-platform fixture must skip on no-PowerShell environments.",
+    "assertions": [
+      {
+        "file": "artifacts/scripts/conftest.py",
+        "must_contain_all": [
+          "fake_codex_exe",
+          "fake_gemini_exe",
+          "tmp_repo",
+          "run_wrapper",
+          "PowerShell unavailable"
+        ],
+        "note": "Conftest defines cross-platform fake exe shim; pytest skips on POSIX without pwsh."
+      }
+    ]
   }
 ]

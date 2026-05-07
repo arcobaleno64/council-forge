@@ -736,5 +736,24 @@
         "note": "Gemini research contract must enforce write-scope discipline at both prompt and wrapper layers."
       }
     ]
+  },
+  {
+    "id": "PR-029",
+    "title": "Wrapper Stash-Based Pre-Dispatch Baseline (TASK-1059)",
+    "description": "Codex wrapper must use stash-based pre-dispatch snapshot to avoid destroying user pre-existing modifications; -AutoRestoreLegacy is the deprecated forward path for backward-compat.",
+    "assertions": [
+      {
+        "file": "artifacts/scripts/Invoke-CodexAgent.ps1",
+        "must_contain_all": [
+          "Save-PreDispatchState",
+          "Restore-PostDispatchDelta",
+          "Pop-PreDispatchState",
+          "git stash push -u -m",
+          "TASK-1057 pre-dispatch",
+          "AutoRestoreLegacy"
+        ],
+        "note": "Wrapper enforces stash-based baseline; helpers + stash msg prefix + deprecated flag pinned per TASK-1059. Gemini wrapper kept identical via EXACT_SYNC_FILES SHA-256 mirror; only Codex pinned here to avoid double-coupled literals."
+      }
+    ]
   }
 ]

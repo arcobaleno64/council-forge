@@ -28,7 +28,10 @@ param (
     # Element ending in '/' = directory prefix match; else exact file match.
     # Paths use forward slash (git convention).
     [string[]]$AllowedPaths = @(),
-    [switch]$AutoRestore = $false
+    [switch]$AutoRestore = $false,
+    # TASK-1059: deprecated forward of -AutoRestore for backward-compat;
+    # caller should migrate to -AutoRestore. Removed in a later task.
+    [switch]$AutoRestoreLegacy = $false
 )
 
 # Core Error Patterns to Catch
@@ -45,6 +48,106 @@ $RetryPatterns = @(
 )
 $RegexPattern = ($RetryPatterns | ForEach-Object { [regex]::Escape($_) }) -join '|'
 
+# region TASK-1059 helpers: stash-based pre-dispatch baseline (Option B per
+# artifacts/decisions/TASK-1057.decision.md). Replaces the prior git-status-only
+# baseline that destroyed user pre-existing modifications.
+
+function Test-PathInAllowed {
+    param(
+        [string]$Path,
+        [string[]]$Allowed
+    )
+    foreach ($a in $Allowed) {
+        $aNorm = $a -replace '\\', '/'
+        if ($aNorm.EndsWith('/')) {
+            if ($Path.StartsWith($aNorm)) { return $true }
+        } else {
+            if ($Path -eq $aNorm) { return $true }
+        }
+    }
+    return $false
+}
+
+function Save-PreDispatchState {
+    # Stash tracked-modified + untracked files so dispatch runs on a clean tree
+    # and post-dispatch git status reflects only sub-agent writes.
+    # Returns the stash ref string, or $null if nothing was stashed.
+    $rawStatus = & git status --porcelain --untracked-files=all 2>&1
+    $hasChanges = $false
+    foreach ($line in $rawStatus) {
+        if (-not [string]::IsNullOrWhiteSpace($line)) { $hasChanges = $true; break }
+    }
+    if (-not $hasChanges) {
+        Write-Host "[GUARD] Pre-dispatch: working tree clean; no stash needed." -ForegroundColor DarkGray
+        return $null
+    }
+    $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
+    $stashMsg = "TASK-1057 pre-dispatch $timestamp"
+    & git stash push -u -m $stashMsg 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[GUARD] FATAL: git stash push -u failed (exit=$LASTEXITCODE); aborting dispatch." -ForegroundColor Red
+        Write-Error "__GUARD_FATAL:[TASK-1057] Pre-dispatch stash failed; cannot establish baseline.__"
+        exit 4
+    }
+    $stashListLine = (& git stash list --max-count=1) | Select-Object -First 1
+    if ([string]::IsNullOrWhiteSpace($stashListLine)) {
+        Write-Host "[GUARD] WARN: stash push reported success but stash list empty; treating as no-stash." -ForegroundColor DarkYellow
+        return $null
+    }
+    $stashRef = ($stashListLine -split ': ', 2)[0]
+    Write-Host "[GUARD] Pre-dispatch state stashed at $stashRef" -ForegroundColor DarkCyan
+    return $stashRef
+}
+
+function Restore-PostDispatchDelta {
+    # Targeted restore for the supplied violations list only; never operates on
+    # the full repo (root cause of the TASK-1057 destruction incident).
+    param(
+        [string[]]$Violations
+    )
+    foreach ($v in $Violations) {
+        & git ls-files --error-unmatch $v 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            & git checkout HEAD -- $v 2>$null | Out-Null
+            Write-Host "  Restored tracked (sub-agent write): $v" -ForegroundColor Yellow
+        } else {
+            if (Test-Path $v) {
+                Remove-Item -Path $v -Force -Recurse -ErrorAction SilentlyContinue
+                Write-Host "  Deleted untracked (sub-agent write): $v" -ForegroundColor Yellow
+            }
+        }
+    }
+}
+
+function Pop-PreDispatchState {
+    # Restore user pre-dispatch state from stash. Conflict -> exit 3 fail-safe;
+    # stash entry is preserved (not dropped) for manual resolution.
+    param([string]$StashRef)
+    if ([string]::IsNullOrWhiteSpace($StashRef)) { return 0 }
+    $popOutput = & git stash pop $StashRef 2>&1
+    $popExit = $LASTEXITCODE
+    $hasConflict = ($popOutput | Out-String) -match 'CONFLICT \('
+    if ($popExit -ne 0 -or $hasConflict) {
+        Write-Host "[FATAL] git stash pop conflict (exit=$popExit); user pre-dispatch state preserved at $StashRef." -ForegroundColor Red
+        Write-Host "        Manual resolution: git stash list ; then git stash apply $StashRef ; resolve conflicts ; git stash drop $StashRef" -ForegroundColor Red
+        return 3
+    }
+    Write-Host "[GUARD] User pre-dispatch state restored from $StashRef." -ForegroundColor DarkCyan
+    return 0
+}
+
+# endregion TASK-1059 helpers
+
+# TASK-1059: forward deprecated -AutoRestoreLegacy to -AutoRestore.
+if ($AutoRestoreLegacy) {
+    if ($AutoRestore) {
+        Write-Host "[DEPRECATED] -AutoRestore and -AutoRestoreLegacy both set; -AutoRestore wins." -ForegroundColor DarkYellow
+    } else {
+        Write-Host "[DEPRECATED] -AutoRestoreLegacy maps to -AutoRestore for backward-compat; expect removal in a later task." -ForegroundColor DarkYellow
+        $AutoRestore = $true
+    }
+}
+
 # Models Progression
 # TASK-1053 Layer 5: gemini-3.1-pro-preview removed from auto-fallback (user account
 # is not entitled to that model and previously wasted 2 retries per dispatch).
@@ -58,6 +161,13 @@ $Models = @(
 
 $IsSuccess = $false
 $FinalOutput = ""
+
+# TASK-1059: snapshot user pre-dispatch state so post-dispatch git status
+# reflects only sub-agent writes, never user pre-existing modifications.
+$preDispatchStashRef = $null
+if ($AllowedPaths.Count -gt 0) {
+    $preDispatchStashRef = Save-PreDispatchState
+}
 
 foreach ($model in $Models) {
     Write-Host "  -> Active Model Tier: $model" -ForegroundColor Cyan
@@ -139,30 +249,16 @@ foreach ($model in $Models) {
     Write-Host "  -> Exhausted retries for $model. Escalating tier (fallback)..." -ForegroundColor Magenta
 } # End Model Loop
 
-# Layer A: post-dispatch write scope guard (TASK-1057).
-# Runs whether dispatch succeeded or failed; reports unexpected file changes.
-# Empty AllowedPaths = skip (backward compatible).
-function Test-PathInAllowed {
-    param(
-        [string]$Path,
-        [string[]]$Allowed
-    )
-    foreach ($a in $Allowed) {
-        $aNorm = $a -replace '\\', '/'
-        if ($aNorm.EndsWith('/')) {
-            if ($Path.StartsWith($aNorm)) { return $true }
-        } else {
-            if ($Path -eq $aNorm) { return $true }
-        }
-    }
-    return $false
-}
-
+# Layer A: post-dispatch write scope guard (TASK-1057, baseline-fixed by TASK-1059).
+# With Save-PreDispatchState stashed user state, git status reflects only sub-agent
+# writes. Empty AllowedPaths = skip (backward compatible).
+$violationsFound = $false
+$violationCount = 0
 if ($AllowedPaths.Count -eq 0) {
     Write-Host "[GUARD] skipped (no AllowedPaths configured)" -ForegroundColor DarkGray
 } else {
-    Write-Host "[GUARD] Post-dispatch write scope check..." -ForegroundColor Cyan
-    $rawStatus = & git status --porcelain 2>&1
+    Write-Host "[GUARD] Post-dispatch write scope check (stash-based baseline)..." -ForegroundColor Cyan
+    $rawStatus = & git status --porcelain --untracked-files=all 2>&1
     $changedPaths = @()
     foreach ($line in $rawStatus) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
@@ -179,27 +275,29 @@ if ($AllowedPaths.Count -eq 0) {
         }
     }
     if ($violations.Count -gt 0) {
-        Write-Host "[GUARD] Post-dispatch detected unexpected file changes:" -ForegroundColor Red
+        $violationsFound = $true
+        $violationCount = $violations.Count
+        Write-Host "[GUARD] Post-dispatch detected sub-agent writes outside AllowedPaths:" -ForegroundColor Red
         foreach ($v in $violations) { Write-Host "  - $v" -ForegroundColor Red }
         if ($AutoRestore) {
-            foreach ($v in $violations) {
-                & git ls-files --error-unmatch $v 2>$null | Out-Null
-                if ($LASTEXITCODE -eq 0) {
-                    & git checkout HEAD -- $v 2>$null | Out-Null
-                    Write-Host "  Restored tracked: $v" -ForegroundColor Yellow
-                } else {
-                    if (Test-Path $v) {
-                        Remove-Item -Path $v -Force -ErrorAction SilentlyContinue
-                        Write-Host "  Deleted untracked: $v" -ForegroundColor Yellow
-                    }
-                }
-            }
+            Restore-PostDispatchDelta -Violations $violations
+        } else {
+            Write-Host "[GUARD] Detect-only mode (-AutoRestore not set); violations reported but not restored." -ForegroundColor DarkYellow
         }
-        Write-Error "__GUARD_VIOLATION:[TASK-1057] Sub-agent wrote files outside AllowedPaths.__"
-        exit 2
     } else {
         Write-Host "[GUARD] Post-dispatch check OK; all changes within allowed paths." -ForegroundColor Green
     }
+}
+
+# TASK-1059: restore user pre-dispatch state. Conflict -> exit 3 fail-safe.
+$popExit = Pop-PreDispatchState -StashRef $preDispatchStashRef
+if ($popExit -eq 3) { exit 3 }
+
+# TASK-1059: re-emit violation error after stash pop so guard exit reflects
+# the violation outcome (not the dispatch outcome).
+if ($violationsFound -and $AutoRestore) {
+    Write-Error "__GUARD_VIOLATION:[TASK-1057] Sub-agent wrote $violationCount files outside AllowedPaths.__"
+    exit 2
 }
 
 # Wrap up

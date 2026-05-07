@@ -73,6 +73,7 @@ Codex CLI 可依 task scale 選擇 model 與 reasoning effort，但不得自行�
 - 不得修改 plan 未列之既有檔（lifecycle artifacts 自身——即本批之 `task / research / plan / code / test / verify / status` 七類——可不受此限）
 - 違者：立 `artifacts/decisions/<TASK_ID>.decision.md` 說明越界原因；不得自行擴張 scope，亦不得以「順便」「相鄰整理」為由附加變更
 - Wrapper 之強制層：`Invoke-CodexAgent.ps1 -AllowedPaths [string[]] -AutoRestore` 於 dispatch 完成後自動偵測；`-AllowedPaths` 為空時 skip guard，後向相容；違規 exit 2 與既有 API failure exit 1 區分
+- `-AutoRestore` 安全模式（TASK-1059）：wrapper 採 stash-based pre-dispatch snapshot；guard 僅對 sub-agent 真實寫入之 delta 執行 restore，不破壞 user 既有 working tree 之 modifications。default `$false`（detect 模式：印 violations 但 exit 0）；caller 顯式 `-AutoRestore` 時觸發 enforcement。`-AutoRestoreLegacy` 為 deprecated forward 之過渡 flag，未來移除
 
 ## Premortem 檢查
 

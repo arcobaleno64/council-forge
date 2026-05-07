@@ -1,0 +1,71 @@
+name: Quarterly Threat Model Reminder
+
+on:
+  schedule:
+    - cron: '30 5 1 1,4,7,10 *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: quarterly-threat-model-${{ github.repository }}-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  create-reminder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Create quarterly threat model reminder issue
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const now = new Date();
+            const year = now.getUTCFullYear();
+            const month = now.getUTCMonth() + 1;
+            const day = now.getUTCDate();
+            const quarterMap = { 1: 1, 4: 2, 7: 3, 10: 4 };
+            const quarter = quarterMap[month] || Math.ceil(month / 3);
+            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const title = `[Quarterly Threat Model] ${year}-Q${quarter} — ${dateStr}`;
+            const body = [
+              '> Automated quarterly reminder issued by `.github/workflows/quarterly-threat-model.yml`.',
+              '',
+              `## ${year}-Q${quarter} Threat Model Exercise`,
+              '',
+              'Cadence governance per `docs/security_cadence.md` requires a quarterly threat model exercise.',
+              'This issue is the trigger; the actual exercise artifact is produced by following the runbook.',
+              '',
+              '### Action Items',
+              '',
+              '- [ ] Read `docs/red_team_runbook.md` for the exercise procedure.',
+              '- [ ] Read `docs/red_team_scorecard.md` for the scoring matrix.',
+              '- [ ] Run the exercise and produce the artifact under `artifacts/red_team/` (path per runbook).',
+              '- [ ] File any follow-up backlog items per `docs/red_team_backlog.md`.',
+              '- [ ] Close this issue with a link to the produced artifact.',
+              '',
+              '### Deadline',
+              '',
+              `Complete by end of ${year}-Q${quarter} (within 30 days of this issue).`,
+              '',
+              '### References',
+              '',
+              '- Cadence spec: `docs/security_cadence.md`',
+              '- Runbook: `docs/red_team_runbook.md`',
+              '- Scorecard: `docs/red_team_scorecard.md`',
+              '- Backlog: `docs/red_team_backlog.md`',
+              '',
+              '---',
+              '_If this issue was created in error or already addressed for this quarter, close it with a brief note._'
+            ].join('\n');
+            const labels = ['security', 'cadence', 'quarterly'];
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: labels
+            });
+            core.info(`Created quarterly threat model issue: ${title}`);

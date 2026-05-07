@@ -472,3 +472,13 @@ repository profile 由 `guard_contract_validator.py` 驗證：
 - 本地 experiments、工具腳本、專案特定 artifacts 絕不進入 upstream PR 分支（`external/{{REPO_NAME}}-upstream-pr/`）。
 - upstream PR 必須可獨立 review，不依賴本地 fork 的任何未合併變更。
 - 送出 upstream PR 前，必須確認 `external/{{REPO_NAME}}-upstream-pr/` 的 commit history 與 upstream 主分支完全一致，除了本次 PR 的變更。
+
+## 14. Security Cadence
+
+Security / governance cadence 之單一真實來源為 [`docs/security_cadence.md`](security_cadence.md)。彙整三層 cadence：
+
+- **Weekly Claude routine review**：每週對 master 過去 7 commits 執行 risk-tagged review；prompt source 為 `.github/prompts/weekly-claude-audit.prompt.md`。
+- **Quarterly threat model**：每季首日由 `.github/workflows/quarterly-threat-model.yml` 自動建 reminder issue；exercise artifact 由 user 依 `docs/red_team_runbook.md` 產出。
+- **Continuous SAST**：pip-audit / repo-secrets-scan / repo-static-scan 由 `.github/workflows/security-scan.yml` 於 PR / push 觸發。
+
+cadence drift recovery 流程詳見 cadence doc 之同名段。

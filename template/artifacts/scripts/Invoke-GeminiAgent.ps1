@@ -31,7 +31,13 @@ param (
     [switch]$AutoRestore = $false,
     # TASK-1059: deprecated forward of -AutoRestore for backward-compat;
     # caller should migrate to -AutoRestore. Removed in a later task.
-    [switch]$AutoRestoreLegacy = $false
+    [switch]$AutoRestoreLegacy = $false,
+
+    # TASK-1060: opt-in to include 7 lifecycle dirs in pre-dispatch stash baseline.
+    # Default $false = exclude lifecycle from stash so sub-agent sees prereq artifacts;
+    # set $true only for wrapper-self-test or strict-enforcement callers that have
+    # committed lifecycle artifacts and want full-stash semantics.
+    [switch]$IncludeLifecycleInBaseline = $false
 )
 
 # Core Error Patterns to Catch
@@ -52,6 +58,20 @@ $RegexPattern = ($RetryPatterns | ForEach-Object { [regex]::Escape($_) }) -join 
 # artifacts/decisions/TASK-1057.decision.md). Replaces the prior git-status-only
 # baseline that destroyed user pre-existing modifications.
 
+function Get-LifecyclePathPrefixes {
+    # TASK-1060: 7 dirs whose contents must remain visible to sub-agents during
+    # dispatch so they can read prereq task / research / plan artifacts.
+    return @(
+        'artifacts/tasks/',
+        'artifacts/research/',
+        'artifacts/plans/',
+        'artifacts/code/',
+        'artifacts/test/',
+        'artifacts/verify/',
+        'artifacts/status/'
+    )
+}
+
 function Test-PathInAllowed {
     param(
         [string]$Path,
@@ -71,7 +91,12 @@ function Test-PathInAllowed {
 function Save-PreDispatchState {
     # Stash tracked-modified + untracked files so dispatch runs on a clean tree
     # and post-dispatch git status reflects only sub-agent writes.
+    # TASK-1060: when -IncludeLifecycle is $false (default), exclude 7 lifecycle
+    # dirs from the stash so sub-agents see prereq artifacts.
     # Returns the stash ref string, or $null if nothing was stashed.
+    param(
+        [bool]$IncludeLifecycle = $false
+    )
     $rawStatus = & git status --porcelain --untracked-files=all 2>&1
     $hasChanges = $false
     foreach ($line in $rawStatus) {
@@ -83,18 +108,36 @@ function Save-PreDispatchState {
     }
     $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
     $stashMsg = "TASK-1057 pre-dispatch $timestamp"
-    & git stash push -u -m $stashMsg 2>&1 | Out-Null
+    if ($IncludeLifecycle) {
+        & git stash push -u -m $stashMsg 2>&1 | Out-Null
+    } else {
+        # TASK-1060: keep 7 lifecycle dirs visible to sub-agent during dispatch.
+        $excludePathspecs = @()
+        foreach ($prefix in (Get-LifecyclePathPrefixes)) {
+            $excludePathspecs += ":(exclude)$prefix"
+        }
+        & git stash push -u -m $stashMsg -- @excludePathspecs 2>&1 | Out-Null
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[GUARD] FATAL: git stash push -u failed (exit=$LASTEXITCODE); aborting dispatch." -ForegroundColor Red
         Write-Error "__GUARD_FATAL:[TASK-1057] Pre-dispatch stash failed; cannot establish baseline.__"
         exit 4
     }
-    $stashListLine = (& git stash list --max-count=1) | Select-Object -First 1
-    if ([string]::IsNullOrWhiteSpace($stashListLine)) {
-        Write-Host "[GUARD] WARN: stash push reported success but stash list empty; treating as no-stash." -ForegroundColor DarkYellow
+    # TASK-1060 R2 mitigation: match stash entry by exact msg literal so a
+    # user pre-existing stash@{0} cannot be misclaimed when the exclude filter
+    # leaves no changes to save (smoke-B: "No local changes to save" + exit 0).
+    $stashList = & git stash list 2>&1
+    $stashRef = $null
+    foreach ($entry in $stashList) {
+        if ($entry -match "^(stash@\{\d+\}):\s.*$([regex]::Escape($stashMsg))\s*$") {
+            $stashRef = $matches[1]
+            break
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($stashRef)) {
+        Write-Host "[GUARD] Pre-dispatch: stash msg '$stashMsg' not found (no non-lifecycle delta); proceeding without stash." -ForegroundColor DarkGray
         return $null
     }
-    $stashRef = ($stashListLine -split ': ', 2)[0]
     Write-Host "[GUARD] Pre-dispatch state stashed at $stashRef" -ForegroundColor DarkCyan
     return $stashRef
 }
@@ -166,7 +209,7 @@ $FinalOutput = ""
 # reflects only sub-agent writes, never user pre-existing modifications.
 $preDispatchStashRef = $null
 if ($AllowedPaths.Count -gt 0) {
-    $preDispatchStashRef = Save-PreDispatchState
+    $preDispatchStashRef = Save-PreDispatchState -IncludeLifecycle:$IncludeLifecycleInBaseline
 }
 
 foreach ($model in $Models) {

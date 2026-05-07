@@ -739,8 +739,8 @@
   },
   {
     "id": "PR-029",
-    "title": "Wrapper Stash-Based Pre-Dispatch Baseline (TASK-1059)",
-    "description": "Codex wrapper must use stash-based pre-dispatch snapshot to avoid destroying user pre-existing modifications; -AutoRestoreLegacy is the deprecated forward path for backward-compat.",
+    "title": "Wrapper Stash-Based Pre-Dispatch Baseline (TASK-1059) + Lifecycle Exclusion (TASK-1060)",
+    "description": "Codex wrapper must use stash-based pre-dispatch snapshot to avoid destroying user pre-existing modifications; -AutoRestoreLegacy is the deprecated forward path for backward-compat; -IncludeLifecycleInBaseline opts in to legacy full-stash semantics while default excludes 7 lifecycle dirs so sub-agents see prereq artifacts.",
     "assertions": [
       {
         "file": "artifacts/scripts/Invoke-CodexAgent.ps1",
@@ -750,9 +750,10 @@
           "Pop-PreDispatchState",
           "git stash push -u -m",
           "TASK-1057 pre-dispatch",
-          "AutoRestoreLegacy"
+          "AutoRestoreLegacy",
+          "IncludeLifecycleInBaseline"
         ],
-        "note": "Wrapper enforces stash-based baseline; helpers + stash msg prefix + deprecated flag pinned per TASK-1059. Gemini wrapper kept identical via EXACT_SYNC_FILES SHA-256 mirror; only Codex pinned here to avoid double-coupled literals."
+        "note": "Wrapper enforces stash-based baseline; helpers + stash msg prefix + deprecated flag + lifecycle exclusion pinned per TASK-1059 / TASK-1060. Gemini wrapper kept identical via EXACT_SYNC_FILES SHA-256 mirror; only Codex pinned here to avoid double-coupled literals."
       }
     ]
   },

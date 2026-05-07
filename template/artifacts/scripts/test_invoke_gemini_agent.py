@@ -1,9 +1,59 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 
 
 WRAPPER = Path(__file__).resolve().parent / "Invoke-GeminiAgent.ps1"
+
+
+def _build_lifecycle_inspector_exe(tmp_path: Path, command_name: str) -> tuple[Path, str]:
+    directory = tmp_path / f"inspector-{command_name}"
+    directory.mkdir()
+    script_path = directory / f"{command_name}_inspector.py"
+    marker_name = f"{command_name}_lifecycle_marker.txt"
+    script_path.write_text(
+        textwrap.dedent(f"""
+        from __future__ import annotations
+        import sys
+        from pathlib import Path
+        cwd = Path.cwd()
+        task_path = cwd / "artifacts" / "tasks" / "TASK-fake.task.md"
+        plan_path = cwd / "artifacts" / "plans" / "TASK-fake.plan.md"
+        marker = cwd / "{marker_name}"
+        lines = [
+            f"task_visible={{int(task_path.exists())}}",
+            f"plan_visible={{int(plan_path.exists())}}",
+        ]
+        marker.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+        sys.exit(0)
+        """).strip(),
+        encoding="utf-8",
+    )
+    if os.name == "nt":
+        exe_path = directory / f"{command_name}.cmd"
+        exe_path.write_text(
+            f'@echo off\r\n"{sys.executable}" "{script_path}" %*\r\nexit /b %ERRORLEVEL%\r\n',
+            encoding="utf-8",
+        )
+    else:
+        exe_path = directory / command_name
+        exe_path.write_text(
+            f'#!/usr/bin/env sh\nexec "{sys.executable}" "{script_path}" "$@"\n',
+            encoding="utf-8",
+        )
+        exe_path.chmod(0o755)
+    return exe_path, marker_name
+
+
+def _seed_lifecycle_artifacts(repo: Path) -> None:
+    (repo / "artifacts" / "tasks").mkdir(parents=True, exist_ok=True)
+    (repo / "artifacts" / "plans").mkdir(parents=True, exist_ok=True)
+    (repo / "artifacts" / "tasks" / "TASK-fake.task.md").write_text("fake task\n", encoding="utf-8")
+    (repo / "artifacts" / "plans" / "TASK-fake.plan.md").write_text("fake plan\n", encoding="utf-8")
 
 
 def _models_from_calls(calls: list[dict]) -> list[str]:
@@ -77,3 +127,73 @@ def test_auto_fallback_models_array_does_not_include_pro(fake_gemini_exe, run_wr
     )
     assert result.returncode == 1
     assert "gemini-3.1-pro-preview" not in _models_from_calls(fake_gemini_exe.calls())
+
+
+# region TASK-1060: lifecycle exclusion in pre-dispatch stash baseline
+
+
+class TestGeminiLifecycleExclusion:
+    def test_default_exclude_keeps_lifecycle_visible_during_dispatch(self, tmp_path, tmp_repo, run_wrapper):
+        _seed_lifecycle_artifacts(tmp_repo)
+        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "gemini")
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hello",
+            "-Executable", str(exe_path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "out.research.md",
+        )
+        assert result.returncode == 0, result.combined_output
+        marker_path = tmp_repo / marker_name
+        assert marker_path.exists(), f"inspector marker missing; wrapper output:\n{result.combined_output}"
+        marker_text = marker_path.read_text(encoding="utf-8")
+        assert "task_visible=1" in marker_text, marker_text
+        assert "plan_visible=1" in marker_text, marker_text
+        assert "Pre-dispatch state stashed at" in result.combined_output
+
+    def test_opt_in_include_stashes_lifecycle_during_dispatch(self, tmp_path, tmp_repo, run_wrapper):
+        _seed_lifecycle_artifacts(tmp_repo)
+        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "gemini")
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hello",
+            "-Executable", str(exe_path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "out.research.md",
+            "-IncludeLifecycleInBaseline",
+        )
+        assert result.returncode == 0, result.combined_output
+        marker_path = tmp_repo / marker_name
+        assert marker_path.exists(), f"inspector marker missing; wrapper output:\n{result.combined_output}"
+        marker_text = marker_path.read_text(encoding="utf-8")
+        assert "task_visible=0" in marker_text, marker_text
+        assert "plan_visible=0" in marker_text, marker_text
+        assert "Pre-dispatch state stashed at" in result.combined_output
+
+    def test_user_pre_existing_stash_not_misclaimed(self, tmp_path, tmp_repo, run_wrapper, fake_gemini_exe):
+        subprocess.run(
+            ["git", "stash", "push", "-u", "-m", "user-pre-existing"],
+            cwd=tmp_repo, check=True, capture_output=True, text=True,
+        )
+        _seed_lifecycle_artifacts(tmp_repo)
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hello",
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "out.research.md",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "stash msg" in result.combined_output and "not found" in result.combined_output, result.combined_output
+        list_result = subprocess.run(
+            ["git", "stash", "list"],
+            cwd=tmp_repo, capture_output=True, text=True, check=True,
+        )
+        assert "user-pre-existing" in list_result.stdout, list_result.stdout
+
+
+# endregion TASK-1060

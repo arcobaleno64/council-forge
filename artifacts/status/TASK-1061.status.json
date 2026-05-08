@@ -1,0 +1,15 @@
+{
+  "task_id": "TASK-1061",
+  "state": "planned",
+  "current_owner": "Claude",
+  "next_agent": "Codex",
+  "required_artifacts": ["plan", "research", "status", "task"],
+  "available_artifacts": ["plan", "research", "status", "task"],
+  "missing_artifacts": [],
+  "assurance_level": "mvp",
+  "project_adapter": "generic",
+  "verification_readiness": "mvp",
+  "open_verification_debts": [],
+  "blocked_reason": "",
+  "last_updated": "2026-05-08T04:00:00+08:00"
+}

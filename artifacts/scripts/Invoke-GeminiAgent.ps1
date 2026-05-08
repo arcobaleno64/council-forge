@@ -307,17 +307,28 @@ foreach ($model in $Models) {
         if (![string]::IsNullOrWhiteSpace($Profile)) {
             $processArgs += "--profile", $Profile
         }
-        $processArgs += "-p", $Prompt
 
-        Write-Host "    [*] Attempt $($attempt+1)/$($MaxRetriesPerTier+1)..." -ForegroundColor Gray
-        
+        # TASK-1062 Bug B fix (Gemini side, completing AC-3 dual-wrapper parity):
+        # always pipe prompt via stdin instead of `-p $Prompt` native argv to avoid
+        # Windows cmd.exe batch parser truncating multiline prompts at the first
+        # LF/CR (gemini.cmd would otherwise see only the first line, causing the
+        # sub-agent to receive an effectively empty prompt and reply with a generic
+        # initialization message). gemini CLI reads stdin as the prompt when no
+        # `-p` flag is present.
+        $useStdinPipe = $true
+        Write-Host "    [*] Attempt $($attempt+1)/$($MaxRetriesPerTier+1) (stdin_pipe=$useStdinPipe, prompt_size=$($Prompt.Length))..." -ForegroundColor Gray
+
         $output = $null
         $errText = ""
         $combinedText = ""
         $lastExitCode = 1
-        
+
         try {
-            $procOutput = $null | & $Executable $processArgs 2>&1
+            if ($useStdinPipe) {
+                $procOutput = $Prompt | & $Executable $processArgs 2>&1
+            } else {
+                $procOutput = $null | & $Executable $processArgs 2>&1
+            }
             
             $stdOutLines = @()
             $stdErrLines = @()

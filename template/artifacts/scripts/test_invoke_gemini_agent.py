@@ -199,9 +199,12 @@ class TestGeminiLifecycleExclusion:
 # endregion TASK-1060
 
 
-# region TASK-1062: Bug A (lifecycle untracked classification)
-# Note: Bug B (always-stdin) for the Gemini wrapper is deferred to a
-# follow-up task per artifacts/decisions/TASK-1062.decision.md (Option A).
+# region TASK-1062: Bug A (lifecycle untracked classification) + Bug B (stdin always)
+# AC-3 dual-wrapper parity completed in TASK-1062 reopen pass; Option A scope
+# shrinkage in artifacts/decisions/TASK-1062.decision.md superseded after the
+# new gemini.cmd stdin-without-`-p` smoke test confirmed pure-stdin pipe is
+# viable (gemini CLI reads stdin as the prompt; help-text "Defaults to
+# interactive mode" reflects an empty-stdin default, not a hard requirement).
 
 
 class TestGeminiBugAClassification:
@@ -289,6 +292,68 @@ class TestGeminiBugAClassification:
             f"task artifact not restored to pre-dispatch content; got:\n{task_path.read_text(encoding='utf-8')}"
         )
         assert "Restored lifecycle untracked (pre-dispatch blob)" in result.combined_output
+
+
+class TestGeminiBugBStdinAlways:
+    """TASK-1062 Bug B (Gemini side, completing AC-3 dual-wrapper parity):
+    wrapper always pipes prompt via stdin to avoid Windows cmd.exe batch-parser
+    truncating multiline prompts at the first LF/CR. gemini CLI reads stdin as
+    the prompt when no `-p` flag is present."""
+
+    def test_multiline_prompt_under_threshold_is_piped_via_stdin(self, fake_gemini_exe, run_wrapper):
+        # G-3 (Bug B reverse): 5000-char multiline prompt must arrive at the
+        # sub-agent intact via stdin, not via -p arg (which previously caused
+        # gemini.cmd to receive only the first line of multi-line prompts and
+        # reply with a generic "I am ready" initialization message).
+        body_lines = ["[ROLE]"] + ["payload line " + str(i).rjust(4, "0") for i in range(450)]
+        prompt = "\n".join(body_lines)
+        while len(prompt) < 5000:
+            prompt += "\nfiller " + str(len(prompt))
+        prompt = prompt[:5000]
+        assert "\n" in prompt and len(prompt) == 5000
+
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "(stdin_pipe=True, prompt_size=5000)" in result.combined_output
+        calls = fake_gemini_exe.calls()
+        assert calls, "fake exe was never called"
+        last = calls[-1]
+        # Prompt must NOT appear as an argv element (no -p $Prompt path).
+        assert prompt not in last["args"], "prompt leaked into argv (cmdline truncation risk)"
+        # Prompt MUST arrive via stdin, in full, with newlines intact.
+        stdin_seen = last.get("stdin", "")
+        assert prompt.rstrip("\n") in stdin_seen, (
+            f"prompt not present in fake exe stdin (got {len(stdin_seen)} chars)"
+        )
+        assert stdin_seen.count("\n") >= 5, (
+            f"newlines lost in stdin transport (got {stdin_seen.count(chr(10))})"
+        )
+
+    def test_short_single_line_prompt_still_dispatches(self, fake_gemini_exe, run_wrapper):
+        # G-4 (Bug B regression smoke): short single-line prompt still works
+        # under the always-stdin path; wrapper exit 0; stdin echo present.
+        prompt = "x" * 100
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "(stdin_pipe=True, prompt_size=100)" in result.combined_output
+        last = fake_gemini_exe.calls()[-1]
+        assert prompt not in last["args"], "prompt leaked into argv"
+        stdin_seen = last.get("stdin", "")
+        assert prompt in stdin_seen, "prompt missing from stdin"
 
 
 # endregion TASK-1062

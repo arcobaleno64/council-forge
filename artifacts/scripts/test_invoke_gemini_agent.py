@@ -197,3 +197,98 @@ class TestGeminiLifecycleExclusion:
 
 
 # endregion TASK-1060
+
+
+# region TASK-1062: Bug A (lifecycle untracked classification)
+# Note: Bug B (always-stdin) for the Gemini wrapper is deferred to a
+# follow-up task per artifacts/decisions/TASK-1062.decision.md (Option A).
+
+
+class TestGeminiBugAClassification:
+    """TASK-1062 Bug A: lifecycle pre-existing untracked artifacts must not be
+    misclassified as sub-agent writes when the post-dispatch guard runs."""
+
+    def test_lifecycle_untracked_preserved_when_unchanged(self, tmp_path, tmp_repo, run_wrapper, fake_gemini_exe):
+        # C-1 (Bug A reverse): seed pre-dispatch lifecycle untracked artifacts
+        # outside AllowedPaths, dispatch with a fake exe that does not touch
+        # them, and assert they survive post-dispatch (no false-positive
+        # violation, no Restore-PostDispatchDelta deletion).
+        _seed_lifecycle_artifacts(tmp_repo)
+        (tmp_repo / "artifacts" / "status").mkdir(parents=True, exist_ok=True)
+        status_path = tmp_repo / "artifacts" / "status" / "TASK-fake.status.json"
+        status_path.write_text('{"task_id": "TASK-fake"}\n', encoding="utf-8")
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hello",
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "artifacts/research/TASK-fake.research.md",
+            "-AutoRestore",
+        )
+        assert result.returncode == 0, result.combined_output
+        task_path = tmp_repo / "artifacts" / "tasks" / "TASK-fake.task.md"
+        plan_path = tmp_repo / "artifacts" / "plans" / "TASK-fake.plan.md"
+        assert task_path.exists(), f"task artifact deleted; output:\n{result.combined_output}"
+        assert plan_path.exists(), f"plan artifact deleted; output:\n{result.combined_output}"
+        assert status_path.exists(), f"status artifact deleted; output:\n{result.combined_output}"
+        assert "Lifecycle pre-existing untracked (unchanged)" in result.combined_output
+
+    def test_lifecycle_untracked_modified_by_subagent_is_restored(self, tmp_path, tmp_repo, run_wrapper):
+        # C-2 (Bug A forward): sub-agent modifies a pre-dispatch lifecycle
+        # untracked artifact outside AllowedPaths -> wrapper detects violation
+        # and restores via git cat-file blob to pre-dispatch content.
+        _seed_lifecycle_artifacts(tmp_repo)
+        task_path = tmp_repo / "artifacts" / "tasks" / "TASK-fake.task.md"
+        original_content = task_path.read_text(encoding="utf-8")
+
+        # Build an inspector exe that mutates the lifecycle file during dispatch.
+        directory = tmp_path / "mutator-gemini"
+        directory.mkdir()
+        script_path = directory / "gemini_mutator.py"
+        script_path.write_text(
+            textwrap.dedent("""
+            from __future__ import annotations
+            import sys
+            from pathlib import Path
+            cwd = Path.cwd()
+            target = cwd / "artifacts" / "tasks" / "TASK-fake.task.md"
+            target.write_text("MUTATED BY SUB-AGENT\\n", encoding="utf-8")
+            sys.exit(0)
+            """).strip(),
+            encoding="utf-8",
+        )
+        if os.name == "nt":
+            exe_path = directory / "gemini.cmd"
+            exe_path.write_text(
+                f'@echo off\r\n"{sys.executable}" "{script_path}" %*\r\nexit /b %ERRORLEVEL%\r\n',
+                encoding="utf-8",
+            )
+        else:
+            exe_path = directory / "gemini"
+            exe_path.write_text(
+                f'#!/usr/bin/env sh\nexec "{sys.executable}" "{script_path}" "$@"\n',
+                encoding="utf-8",
+            )
+            exe_path.chmod(0o755)
+
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hello",
+            "-Executable", str(exe_path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "artifacts/research/TASK-fake.research.md",
+            "-AutoRestore",
+        )
+        # Wrapper exits 2 because the sub-agent wrote outside AllowedPaths.
+        assert result.returncode == 2, result.combined_output
+        assert task_path.exists(), "task artifact deleted instead of restored"
+        assert task_path.read_text(encoding="utf-8") == original_content, (
+            f"task artifact not restored to pre-dispatch content; got:\n{task_path.read_text(encoding='utf-8')}"
+        )
+        assert "Restored lifecycle untracked (pre-dispatch blob)" in result.combined_output
+
+
+# endregion TASK-1062

@@ -64,7 +64,7 @@
 
 - 不可只有連結或文件名，必須有整理後結論。
 - 不可把推測寫進 `Confirmed Facts`。
-- `Confirmed Facts` 的每一條 claim 都必須在同一條目內附上 inline citation（URL、`gh api` 指令或 artifact / doc path）。
+- `Confirmed Facts` 的每一條 claim 都必須在同一條目內附上 inline citation（URL、`gh api` 指令或 artifact / doc path）。合法 inline citation 形態：(a) backtick-wrapped path 例如 `` `docs/X.md:42` ``；(b) 中文括號 wrap 例如 `（source: docs/X.md）`；(c) ASCII 括號 wrap 例如 `(see artifacts/scripts/Y.py)`；(d) 裸 `path:line` 例如 `per artifacts/scripts/Y.py:100`；(e) URL 例如 `https://...`；(f) `gh api repos/...` 指令。`Sources` 段亦可採 repo path 替代 URL，例如 `[3] council-forge. "research spec." docs/schemas/artifact-spec-research.md (2026-05-08 retrieved)`。
 - `Uncertain Items` 若非 `None`，每條都必須以 `UNVERIFIED:` 開頭並說明原因。
 - Tavily CLI 不可用、來源擷取失敗或日期不明時，不得用未驗證內容補洞；必須寫入 `Uncertain Items`，例如 `UNVERIFIED: Tavily CLI unavailable`。
 - `Source Cache` / `Tavily Cache` 只是 research artifact draft cache；Claude/Codex 篩選後才可透過 Remember Capture 流程進入 `.github/memory-bank/`。

@@ -4,7 +4,16 @@ from __future__ import annotations
 import re
 from typing import List, Sequence
 
-CITATION_PATTERN = re.compile(r"(https?://\S+|`gh api [^`]+`|`[^`\n]+\.(?:md|json|txt|py|ps1|csproj)[^`\n]*`)", re.IGNORECASE)
+CITATION_PATTERN = re.compile(
+    r"(?:"
+    r"https?://\S+"
+    r"|`gh api [^`]+`"
+    r"|`[^`\n]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)[^`\n]*`"
+    r"|[（(](?:[Ss]ource:\s*)?[^)）\n]*?[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?[^)）\n]*[)）]"
+    r"|\b[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?\b"
+    r")",
+    re.IGNORECASE,
+)
 
 __all__ = [
     "CITATION_PATTERN",

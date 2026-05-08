@@ -134,7 +134,16 @@ ARTIFACT_ALLOWED_STATUSES = {
 
 TASK_ID_PATTERN = re.compile(r"^TASK(?:-LITE)?-\d{3,}$")
 TAIPEI_TIMESTAMP_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+08:00$")
-CITATION_PATTERN = re.compile(r"(https?://\S+|`gh api [^`]+`|`[^`\n]+\.(?:md|json|txt|py|ps1|csproj)[^`\n]*`)", re.IGNORECASE)
+CITATION_PATTERN = re.compile(
+    r"(?:"
+    r"https?://\S+"
+    r"|`gh api [^`]+`"
+    r"|`[^`\n]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)[^`\n]*`"
+    r"|[（(](?:[Ss]ource:\s*)?[^)）\n]*?[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?[^)）\n]*[)）]"
+    r"|\b[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?\b"
+    r")",
+    re.IGNORECASE,
+)
 LIST_ITEM_PATTERN = re.compile(r"^(?:- |\d+\. )")
 TASK_INLINE_FLAG_PATTERN = re.compile(r"^\s*(?:-\s*)?([A-Za-z_][A-Za-z0-9_\- ]*)\s*:\s*(.+?)\s*$")
 GITHUB_REPO_REF_PATTERNS = (
@@ -162,7 +171,9 @@ LEGACY_STATE_ALIASES = {
     "code_ready": "coding",
     "verify_ready": "verifying",
 }
-RESEARCH_SOURCES_ENTRY_PATTERN = re.compile(r"^\[(\d+)\]\s+.+\..+https?://\S+\s+\(\d{4}-\d{2}-\d{2}\s+retrieved\)$")
+RESEARCH_SOURCES_ENTRY_PATTERN = re.compile(
+    r"^\[(\d+)\]\s+.+\..+(?:https?://\S+|[A-Za-z0-9_./\\-]+\.[A-Za-z0-9]{1,10})\s+\(\d{4}-\d{2}-\d{2}\s+retrieved\)$"
+)
 RESEARCH_SOURCES_URL_PATTERN = re.compile(r"https?://\S+")
 RESEARCH_SOURCES_PARTIAL_DATE_PATTERN = re.compile(r"\((\d{4}(?:-\d{2})?(?:-\d{2})?)\s+retrieved\)$")
 MAPPING_TO_PLAN_ENTRY_PATTERN = re.compile(

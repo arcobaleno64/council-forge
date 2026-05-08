@@ -40,7 +40,14 @@ def case_rt_002() -> CaseResult:
         research_path = artifacts_root / "research" / "TASK-961.research.md"
         text = research_path.read_text(encoding="utf-8")
         text = text.replace("- `guard_status_validator.py` 專責 task / artifact / state 驗證，會檢查 metadata、research fact-only 契約、premortem 與 Gate E", "- status validator 專責 task / artifact / state 驗證，會檢查 metadata、research fact-only 契約、premortem 與 Gate E", 1)
-        text = re.sub(r"[（(]source:[^)）]+[)）]\.", ".", text, count=1)
+        cf_match = re.search(r"(## Confirmed Facts\n)(.*?)(\n##\s)", text, re.DOTALL)
+        if cf_match:
+            stripped = re.sub(
+                r"[（(][^)）\n]*[)）]\.?|`[^`\n]+`|https?://\S+|\b[A-Za-z0-9_./\\-]+\.[A-Za-z0-9]{1,10}(?::\d+)?\b",
+                "",
+                cf_match.group(2),
+            )
+            text = text[:cf_match.start(2)] + stripped + text[cf_match.end(2):]
         research_path.write_text(text, encoding="utf-8")
         return run_status_case(
             "TASK-961",

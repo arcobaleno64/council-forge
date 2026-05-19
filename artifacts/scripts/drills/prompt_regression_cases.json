@@ -793,5 +793,42 @@
         "note": "Doc literal pins routing rule branches and threshold."
       }
     ]
+  },
+  {
+    "id": "PR-032",
+    "title": "Wrapper Prompt-Size Bounds-Check (TASK-1067)",
+    "description": "Three dispatch wrappers must enforce prompt size bounds: Codex/Gemini warn @ 500 chars and reject @ 5000 chars; review wrapper warn @ 100000 / reject @ 200000. -SuppressSizeWarn switch bypasses enforcement. Builds on TASK-1064 docs/dispatch_prompt_discipline.md.",
+    "assertions": [
+      {
+        "file": "artifacts/scripts/Invoke-CodexAgent.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "5000",
+          "500",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Codex dispatch wrapper enforces TASK-1064 500-char threshold via warn / reject."
+      },
+      {
+        "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "5000",
+          "500",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Gemini dispatch wrapper enforces same threshold as Codex."
+      },
+      {
+        "file": "artifacts/scripts/Invoke-CodexReview.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "200000",
+          "100000",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Review wrapper enforces generous bounds for diff-driven prompts."
+      }
+    ]
   }
 ]

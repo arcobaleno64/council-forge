@@ -90,6 +90,8 @@ grep -rE "prompt_size=[0-9]+|prompt[^a-z]*= ?[0-9]+ chars" artifacts/
 
 自動化 enforcement（CI-side 強制 reject > 500 char dispatch）未列入本規範範圍；屬未來 task。當前 enforcement 為 caller 之自律 + PR-031 之 doc 字面 anchor 偵測。
 
+Wrapper-side enforcement（自 TASK-1067）：三 wrapper（`Invoke-CodexAgent` / `Invoke-GeminiAgent` / `Invoke-CodexReview`）於 prompt size 超過閾值時自動 warn 或 reject（dispatch wrapper warn @ 500 / reject @ 5000 chars，exit 4；review wrapper warn @ 100000 / reject @ 200000 chars，diff-driven 故較寬鬆）；caller 可傳 `-SuppressSizeWarn` 暫時繞過。PR-032 anchor 守 wrapper 字面之 bounds 設定。
+
 ## 6. Cross-references
 
 - `memory/feedback_dispatch_prompt_discipline.md`：本規範之 origin memory；4 條 how-to-apply 細則之原文出處。

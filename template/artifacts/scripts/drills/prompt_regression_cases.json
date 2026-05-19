@@ -774,5 +774,24 @@
         "note": "Conftest defines cross-platform fake exe shim; pytest skips on POSIX without pwsh."
       }
     ]
+  },
+  {
+    "id": "PR-031",
+    "title": "Dispatch Prompt Discipline Codification (TASK-1064)",
+    "description": "Caller-side dispatch prompt token-cost governance is codified at docs/dispatch_prompt_discipline.md; routing rule defines inline (<=500 chars) vs path-reference (>500 chars) vs temp file (dynamic context) vs fabrication-prone (always inline + UNVERIFIED).",
+    "assertions": [
+      {
+        "file": "docs/dispatch_prompt_discipline.md",
+        "must_contain_all": [
+          "dispatch_prompt_discipline.md",
+          "500",
+          "path-reference",
+          "inline",
+          "temp file",
+          "fabrication"
+        ],
+        "note": "Doc literal pins routing rule branches and threshold."
+      }
+    ]
   }
 ]

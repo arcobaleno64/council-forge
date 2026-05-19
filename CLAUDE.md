@@ -123,6 +123,8 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 3. 接收 research artifact，驗證 `## Sources` 有 ≥2 條 + URL
 ```
 
+> Prompt token-cost 慣例（inline vs path-reference vs temp file vs fabrication-prone）：詳見 `docs/dispatch_prompt_discipline.md`。
+
 ### 派發 Memory Bank Curator
 
 ```
@@ -147,6 +149,8 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 4. 接收 code artifact 與 verify artifact
 5. 檢查 `## Files Changed` ⊆ plan 的 `## Files Likely Affected`
 ```
+
+> Prompt token-cost 慣例（inline vs path-reference vs temp file vs fabrication-prone）：詳見 `docs/dispatch_prompt_discipline.md`。
 
 ### 完成任務
 

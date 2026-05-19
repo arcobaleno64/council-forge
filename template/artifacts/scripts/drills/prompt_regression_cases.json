@@ -539,14 +539,14 @@
         "note": "Gemini can curate draft memory entries but must not write repo-tracked memory-bank files."
       },
       {
-        "file": "CLAUDE.md",
+        "file": "docs/sop/dispatch_memory_curator.md",
         "must_contain_all": [
           "Memory Bank Curator",
           "Gemini 不得改檔",
           "Claude 或 Codex",
           "Claude 最終驗收"
         ],
-        "note": "Claude owns routing and approval for memory-bank writes."
+        "note": "Memory bank curator SOP migrated from CLAUDE.md to docs/sop/ per TASK-1055; Claude still owns routing/approval via the SOP doc."
       },
       {
         "file": "docs/subagent_roles.md",

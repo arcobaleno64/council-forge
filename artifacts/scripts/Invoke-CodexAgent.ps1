@@ -47,8 +47,22 @@ param (
     # Default $false = exclude lifecycle from stash so sub-agent sees prereq artifacts;
     # set $true only for wrapper-self-test or strict-enforcement callers that have
     # committed lifecycle artifacts and want full-stash semantics.
-    [switch]$IncludeLifecycleInBaseline = $false
+    [switch]$IncludeLifecycleInBaseline = $false,
+
+    # TASK-1067: prompt size bounds-check opt-out switch.
+    [switch]$SuppressSizeWarn = $false
 )
+
+# TASK-1067 prompt size bounds-check (warn @ 500 / reject @ 5000; per docs/dispatch_prompt_discipline.md)
+if (-not $SuppressSizeWarn) {
+    $_promptSize = $Prompt.Length
+    if ($_promptSize -gt 5000) {
+        [Console]::Error.WriteLine("Prompt size $_promptSize exceeds reject limit 5000 chars (per docs/dispatch_prompt_discipline.md). Use -SuppressSizeWarn to bypass or rewrite as path-reference.")
+        exit 4
+    } elseif ($_promptSize -gt 500) {
+        [Console]::Error.WriteLine("WARNING: Prompt size $_promptSize exceeds soft limit 500 chars (per docs/dispatch_prompt_discipline.md). Consider path-reference form. Use -SuppressSizeWarn to silence.")
+    }
+}
 
 # Core Error Patterns to Catch
 $RetryPatterns = @(
@@ -126,15 +140,55 @@ function Test-PathInAllowed {
     return $false
 }
 
+function Get-LifecycleUntrackedSnapshot {
+    # TASK-1062 Bug A fix: snapshot pre-dispatch untracked files inside the 7
+    # lifecycle dirs so the post-dispatch guard can distinguish "user
+    # pre-existing untracked" (do not delete) from "sub-agent dispatch-time
+    # writes" (still subject to AllowedPaths enforcement).
+    # `git hash-object -w` writes the blob into .git/objects so Restore-
+    # PostDispatchDelta can later cat-file blob the original content back.
+    # Returns hashtable @{ <forward-slash-path> = <sha1-hex>; ... }.
+    $snapshot = @{}
+    $prefixes = Get-LifecyclePathPrefixes
+    $lsArgs = @('ls-files', '--others', '--exclude-standard', '--')
+    foreach ($prefix in $prefixes) {
+        $lsArgs += $prefix
+    }
+    $untracked = & git @lsArgs 2>$null
+    if ($LASTEXITCODE -ne 0) { return $snapshot }
+    foreach ($line in $untracked) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $relPath = $line.Trim() -replace '\\', '/'
+        if ([string]::IsNullOrWhiteSpace($relPath)) { continue }
+        $hash = & git hash-object -w -- $relPath 2>$null
+        if ($LASTEXITCODE -ne 0) { continue }
+        if ($hash -is [array]) { $hash = $hash[0] }
+        $hashStr = ([string]$hash).Trim()
+        if ([string]::IsNullOrWhiteSpace($hashStr)) { continue }
+        $snapshot[$relPath] = $hashStr
+    }
+    return ,$snapshot
+}
+
 function Save-PreDispatchState {
     # Stash tracked-modified + untracked files so dispatch runs on a clean tree
     # and post-dispatch git status reflects only sub-agent writes.
     # TASK-1060: when -IncludeLifecycle is $false (default), exclude 7 lifecycle
     # dirs from the stash so sub-agents see prereq artifacts.
-    # Returns the stash ref string, or $null if nothing was stashed.
+    # TASK-1062: also returns LifecycleUntrackedSnapshot so post-dispatch guard
+    # can classify lifecycle untracked files as user pre-existing vs sub-agent
+    # writes via blob hash comparison.
+    # Returns [PSCustomObject] @{ StashRef = <ref|null>; LifecycleUntrackedSnapshot = <hashtable> }.
     param(
         [bool]$IncludeLifecycle = $false
     )
+    # TASK-1062: capture lifecycle untracked snapshot before any stash so the
+    # blob hashes reflect the exact pre-dispatch on-disk state.
+    $lifecycleSnapshot = @{}
+    if (-not $IncludeLifecycle) {
+        $lifecycleSnapshot = Get-LifecycleUntrackedSnapshot
+        if ($null -eq $lifecycleSnapshot) { $lifecycleSnapshot = @{} }
+    }
     $rawStatus = & git status --porcelain --untracked-files=all 2>&1
     $hasChanges = $false
     foreach ($line in $rawStatus) {
@@ -142,7 +196,10 @@ function Save-PreDispatchState {
     }
     if (-not $hasChanges) {
         Write-Host "[GUARD] Pre-dispatch: working tree clean; no stash needed." -ForegroundColor DarkGray
-        return $null
+        return [PSCustomObject]@{
+            StashRef = $null
+            LifecycleUntrackedSnapshot = $lifecycleSnapshot
+        }
     }
     $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
     $stashMsg = "TASK-1057 pre-dispatch $timestamp"
@@ -174,19 +231,51 @@ function Save-PreDispatchState {
     }
     if ([string]::IsNullOrWhiteSpace($stashRef)) {
         Write-Host "[GUARD] Pre-dispatch: stash msg '$stashMsg' not found (no non-lifecycle delta); proceeding without stash." -ForegroundColor DarkGray
-        return $null
+        return [PSCustomObject]@{
+            StashRef = $null
+            LifecycleUntrackedSnapshot = $lifecycleSnapshot
+        }
     }
     Write-Host "[GUARD] Pre-dispatch state stashed at $stashRef" -ForegroundColor DarkCyan
-    return $stashRef
+    return [PSCustomObject]@{
+        StashRef = $stashRef
+        LifecycleUntrackedSnapshot = $lifecycleSnapshot
+    }
 }
 
 function Restore-PostDispatchDelta {
     # Targeted restore for the supplied violations list only; never operates on
     # the full repo (root cause of the TASK-1057 destruction incident).
+    # TASK-1062: when a violation path appears in $LifecycleSnapshot, recover
+    # the pre-dispatch content from the .git/objects blob (written by
+    # Get-LifecycleUntrackedSnapshot via `git hash-object -w`) instead of
+    # deleting the file -- this preserves user pre-existing untracked
+    # lifecycle artifacts that the sub-agent modified.
     param(
-        [string[]]$Violations
+        [string[]]$Violations,
+        [hashtable]$LifecycleSnapshot = @{}
     )
     foreach ($v in $Violations) {
+        if ($LifecycleSnapshot -and $LifecycleSnapshot.ContainsKey($v)) {
+            $blobHash = $LifecycleSnapshot[$v]
+            $parentDir = Split-Path -Path $v -Parent
+            if (-not [string]::IsNullOrWhiteSpace($parentDir) -and -not (Test-Path $parentDir)) {
+                New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
+            }
+            $absPath = Join-Path (Get-Location) $v
+            # Byte-exact restore: invoke `git cat-file blob <hash>` via
+            # Start-Process with -RedirectStandardOutput so the blob bytes
+            # land on disk verbatim (trailing newlines / encoding preserved),
+            # bypassing PowerShell's line-stripping text pipeline.
+            $proc = Start-Process -FilePath 'git' `
+                -ArgumentList @('cat-file', 'blob', $blobHash) `
+                -RedirectStandardOutput $absPath `
+                -NoNewWindow -Wait -PassThru
+            if ($proc.ExitCode -eq 0) {
+                Write-Host "  Restored lifecycle untracked (pre-dispatch blob): $v" -ForegroundColor Yellow
+                continue
+            }
+        }
         & git ls-files --error-unmatch $v 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0) {
             & git checkout HEAD -- $v 2>$null | Out-Null
@@ -252,9 +341,19 @@ $BestEffortOutput = ""
 
 # TASK-1059: snapshot user pre-dispatch state so post-dispatch git status
 # reflects only sub-agent writes, never user pre-existing modifications.
+# TASK-1062: also capture lifecycle untracked snapshot so post-dispatch guard
+# can classify "user pre-existing untracked lifecycle" (do not delete) vs
+# "sub-agent dispatch-time write" (still subject to AllowedPaths enforcement).
 $preDispatchStashRef = $null
+$lifecycleSnapshot = @{}
 if ($AllowedPaths.Count -gt 0) {
-    $preDispatchStashRef = Save-PreDispatchState -IncludeLifecycle:$IncludeLifecycleInBaseline
+    $preDispatchState = Save-PreDispatchState -IncludeLifecycle:$IncludeLifecycleInBaseline
+    if ($null -ne $preDispatchState) {
+        $preDispatchStashRef = $preDispatchState.StashRef
+        if ($null -ne $preDispatchState.LifecycleUntrackedSnapshot) {
+            $lifecycleSnapshot = $preDispatchState.LifecycleUntrackedSnapshot
+        }
+    }
 }
 
 foreach ($model in $Models) {
@@ -272,10 +371,12 @@ foreach ($model in $Models) {
 
         # TASK-1053 Layer 1: switch to stdin pipe when prompt exceeds 7000 chars
         # to bypass Windows cmd.exe 8191-char command-line limit.
-        $useStdinPipe = $Prompt.Length -gt 7000
-        if (-not $useStdinPipe) {
-            $processArgs += $Prompt
-        }
+        # TASK-1062 Bug B fix: always pipe via stdin to also avoid the cmd.exe
+        # batch-parser truncating multiline prompts at the first LF/CR (codex.cmd
+        # would otherwise see only the first line of a multi-line prompt). The
+        # 7000-char threshold remains a documented lower-bound rationale, not a
+        # cutover condition. Variable name kept for log parity / PR-029 anchors.
+        $useStdinPipe = $true
         Write-Host "    [*] Attempt $($attempt+1)/$($MaxRetriesPerTier+1) (stdin_pipe=$useStdinPipe, prompt_size=$($Prompt.Length))..." -ForegroundColor Gray
 
         $output = $null
@@ -379,13 +480,35 @@ if ($AllowedPaths.Count -eq 0) {
             $violations += $p
         }
     }
+    # TASK-1062 Bug A fix: filter out lifecycle untracked paths whose post-
+    # dispatch blob hash matches the pre-dispatch snapshot -- these are user
+    # pre-existing untracked artifacts the sub-agent did not modify, so they
+    # must not be classified as violations (which would lead to deletion).
+    if ($violations.Count -gt 0 -and $lifecycleSnapshot -and $lifecycleSnapshot.Count -gt 0) {
+        $filtered = @()
+        foreach ($p in $violations) {
+            if ($lifecycleSnapshot.ContainsKey($p) -and (Test-Path $p)) {
+                $postHashRaw = & git hash-object -- $p 2>$null
+                if ($LASTEXITCODE -eq 0) {
+                    if ($postHashRaw -is [array]) { $postHashRaw = $postHashRaw[0] }
+                    $postHash = ([string]$postHashRaw).Trim()
+                    if ($postHash -eq $lifecycleSnapshot[$p]) {
+                        Write-Host "  [GUARD] Lifecycle pre-existing untracked (unchanged): $p" -ForegroundColor DarkGray
+                        continue
+                    }
+                }
+            }
+            $filtered += $p
+        }
+        $violations = $filtered
+    }
     if ($violations.Count -gt 0) {
         $violationsFound = $true
         $violationCount = $violations.Count
         Write-Host "[GUARD] Post-dispatch detected sub-agent writes outside AllowedPaths:" -ForegroundColor Red
         foreach ($v in $violations) { Write-Host "  - $v" -ForegroundColor Red }
         if ($AutoRestore) {
-            Restore-PostDispatchDelta -Violations $violations
+            Restore-PostDispatchDelta -Violations $violations -LifecycleSnapshot $lifecycleSnapshot
         } else {
             Write-Host "[GUARD] Detect-only mode (-AutoRestore not set); violations reported but not restored." -ForegroundColor DarkYellow
         }

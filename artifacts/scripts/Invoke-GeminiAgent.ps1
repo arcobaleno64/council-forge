@@ -281,14 +281,12 @@ if ($AutoRestoreLegacy) {
 }
 
 # Models Progression
-# TASK-1053 Layer 5: gemini-3.1-pro-preview removed from auto-fallback (user account
-# is not entitled to that model and previously wasted 2 retries per dispatch).
-# Pro is still allowed in guard_contract_validator's ALLOWED_GEMINI_MODELS for ad-hoc
-# manual dispatch, but the wrapper progresses through breadth (flash-lite) -> depth
-# (flash-preview) only.
+# Tier 1 (breadth) -> Tier 2 (depth) -> Tier 3 (pro).
+# Pro re-enabled after user subscribed to Gemini AI Pro (2026-05-25).
 $Models = @(
     "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview"
+    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview"
 )
 
 $IsSuccess = $false

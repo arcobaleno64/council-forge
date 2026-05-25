@@ -108,10 +108,10 @@ def test_flash_lite_capacity_failure_falls_back_to_flash_preview(fake_gemini_exe
     assert models[3] == "gemini-3-flash-preview"
 
 
-def test_auto_fallback_models_array_does_not_include_pro(fake_gemini_exe, run_wrapper):
+def test_auto_fallback_models_array_includes_pro(fake_gemini_exe, run_wrapper):
     text = WRAPPER.read_text(encoding="utf-8")
     models_block = text.split("$Models = @(", 1)[1].split(")", 1)[0]
-    assert "gemini-3.1-pro-preview" not in models_block
+    assert "gemini-3.1-pro-preview" in models_block
 
     fake_gemini_exe.configure(stdout="429 MODEL_CAPACITY_EXHAUSTED", exit_code=1)
     result = run_wrapper(
@@ -126,7 +126,7 @@ def test_auto_fallback_models_array_does_not_include_pro(fake_gemini_exe, run_wr
         "0",
     )
     assert result.returncode == 1
-    assert "gemini-3.1-pro-preview" not in _models_from_calls(fake_gemini_exe.calls())
+    assert "gemini-3.1-pro-preview" in _models_from_calls(fake_gemini_exe.calls())
 
 
 # region TASK-1060: lifecycle exclusion in pre-dispatch stash baseline

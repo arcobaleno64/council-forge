@@ -477,7 +477,7 @@ repository profile 由 `guard_contract_validator.py` 驗證：
 
 Security / governance cadence 之單一真實來源為 [`docs/security_cadence.md`](security_cadence.md)。彙整三層 cadence：
 
-- **Weekly Claude routine review**：每週對 master 過去 7 commits 執行 risk-tagged review；prompt source 為 `.github/prompts/weekly-claude-audit.prompt.md`。
+- **Weekly Codex Council audit**：每週對 master 過去 7 commits 之合併 diff 執行 Council-of-models review（三 tier `gpt-5.4-mini` / `gpt-5.4` / `gpt-5.5`）；workflow source 為 `.github/workflows/weekly-council-audit.yml`，driver script 為 `artifacts/scripts/Invoke-CodexReview.ps1`。
 - **Quarterly threat model**：每季首日由 `.github/workflows/quarterly-threat-model.yml` 自動建 reminder issue；exercise artifact 由 user 依 `docs/red_team_runbook.md` 產出。
 - **Continuous SAST**：pip-audit / repo-secrets-scan / repo-static-scan 由 `.github/workflows/security-scan.yml` 於 PR / push 觸發。
 

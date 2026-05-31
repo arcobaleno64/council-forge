@@ -108,6 +108,7 @@ def test_stdin_pipe_threshold_uses_wrapper_side_log(fake_codex_exe, run_wrapper)
         "0",
         "-BaseBackoffSeconds",
         "0",
+        "-SuppressSizeWarn",
     )
     long_result = run_wrapper(
         WRAPPER,
@@ -119,6 +120,7 @@ def test_stdin_pipe_threshold_uses_wrapper_side_log(fake_codex_exe, run_wrapper)
         "0",
         "-BaseBackoffSeconds",
         "0",
+        "-SuppressSizeWarn",
     )
 
     assert short_result.returncode == 0, short_result.combined_output
@@ -390,3 +392,66 @@ class TestCodexBugBStdinAlways:
 
 
 # endregion TASK-1062
+
+
+class TestCodexBoundsCheck:
+    """TASK-1067: wrapper enforces prompt size bounds — warn @ 500, reject @ 5000.
+    -SuppressSizeWarn opts out (bypass both warn and reject). Aligns with
+    docs/dispatch_prompt_discipline.md 500-char threshold."""
+
+    def test_prompt_under_warn_threshold_dispatches_silently(self, fake_codex_exe, run_wrapper):
+        fake_codex_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "x" * 300
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_codex_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "exceeds soft limit" not in result.combined_output
+        assert "exceeds reject limit" not in result.combined_output
+
+    def test_prompt_in_warn_range_emits_warning_but_dispatches(self, fake_codex_exe, run_wrapper):
+        fake_codex_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "y" * 600
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_codex_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        normalized = " ".join(result.combined_output.split())
+        assert "exceeds soft limit 500" in normalized
+
+    def test_prompt_over_reject_threshold_exits_four(self, fake_codex_exe, run_wrapper):
+        fake_codex_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "z" * 6000
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_codex_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 4, result.combined_output
+        normalized = " ".join(result.combined_output.split())
+        assert "exceeds reject limit 5000" in normalized
+
+    def test_suppress_size_warn_bypasses_reject(self, fake_codex_exe, run_wrapper):
+        fake_codex_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "w" * 6000
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_codex_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-SuppressSizeWarn",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "exceeds reject limit" not in result.combined_output
+        assert "exceeds soft limit" not in result.combined_output

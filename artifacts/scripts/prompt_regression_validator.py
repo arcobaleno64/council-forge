@@ -23,6 +23,7 @@ class CaseResult:
     title: str
     passed: bool
     failures: List[AssertionFailure]
+    skipped: bool = False
 
 
 def normalize_text(text: str) -> str:
@@ -55,6 +56,21 @@ def load_cases(cases_path: Path) -> List[dict]:
     if not isinstance(payload, list):
         raise RuntimeError("Cases payload must be a list")
     return payload
+
+
+def detect_repo_mode(root: Path) -> str:
+    """Source repos carry the .council-forge-source-repo sentinel; others are downstream terminal repos."""
+    return "source" if (root / ".council-forge-source-repo").exists() else "downstream"
+
+
+def case_applies(case: dict, mode: str) -> bool:
+    """A case runs when its optional ``applies_to`` is absent/"all" or matches the repo mode.
+
+    Source-only cases (e.g. the source/template sync split) assert template/ files that a
+    downstream terminal repo deliberately lacks, so they are skipped in downstream mode.
+    """
+    applies = str(case.get("applies_to", "all")).strip().lower()
+    return applies in ("all", mode)
 
 
 def evaluate_case(case: dict, root: Path, cache: Dict[str, str]) -> CaseResult:
@@ -163,7 +179,8 @@ def render_report(results: Sequence[CaseResult]) -> str:
         "|---|---|---|---:|",
     ]
     for result in results:
-        lines.append(f"| `{result.case_id}` | {result.title} | {'pass' if result.passed else 'fail'} | {len(result.failures)} |")
+        outcome = "skip" if result.skipped else ("pass" if result.passed else "fail")
+        lines.append(f"| `{result.case_id}` | {result.title} | {outcome} | {len(result.failures)} |")
 
     lines.append("")
     lines.append("## Failure Details")
@@ -216,7 +233,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             return 1
 
     cache: Dict[str, str] = {}
-    results = [evaluate_case(case, root, cache) for case in cases]
+    mode = detect_repo_mode(root)
+    results: List[CaseResult] = []
+    for case in cases:
+        if case_applies(case, mode):
+            results.append(evaluate_case(case, root, cache))
+        else:
+            results.append(
+                CaseResult(
+                    case_id=str(case.get("id", "")),
+                    title=str(case.get("title", "")),
+                    passed=True,
+                    failures=[],
+                    skipped=True,
+                )
+            )
     report = render_report(results)
     print(report, end="")
 

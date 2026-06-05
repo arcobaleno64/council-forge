@@ -8,6 +8,10 @@
 - Owner: Claude
 - Status: applied
 - Last Updated: 2026-04-11T11:00:00+08:00
+- Improvement Profile: retrospective
+
+## Risk Analysis (新增)
+None
 
 ## 1. What Happened
 這個 live drill 刻意模擬 research overreach 與 code-over-plan。前者可透過 research fact-only guard 收斂，後者則主要依賴 decision artifact、verify evidence 與人工 review。

@@ -241,6 +241,7 @@
   },
   {
     "id": "PR-009",
+    "applies_to": "source",
     "title": "Source Downstream Sync Split",
     "description": "Workflow prompt must distinguish source template repos from downstream terminal repos, including template sync only in source mode.",
     "assertions": [

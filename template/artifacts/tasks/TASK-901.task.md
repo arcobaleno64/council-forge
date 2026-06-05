@@ -49,5 +49,11 @@
 - Actual wiring for `preview` or `notifications` in this task
 - Broad refactors outside the mail rendering security pipeline
 
+## Assurance Level
+POC
+
+## Project Adapter
+generic
+
 ## Current Status Summary
 Intake completed. Research dispatch attempted via `template/artifacts/scripts/Invoke-GeminiAgent.ps1` but is currently blocked because the environment does not provide `GEMINI_API_KEY` or `GEMINI_FALLBACK_API_KEY`.

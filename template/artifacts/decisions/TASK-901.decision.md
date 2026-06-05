@@ -7,6 +7,15 @@
 - Status: done
 - Last Updated: 2026-04-10T15:21:52.4196845+08:00
 
+## Decision Class
+risk-acceptance
+
+## Affected Gate
+Gate_A
+
+## Scope
+Current task artifact governance and exception handling.
+
 ## Issue
 `TASK-901` research phase was required to run through `template/artifacts/scripts/Invoke-GeminiAgent.ps1`, but the wrapper failed both inside and outside the sandbox because neither `GEMINI_API_KEY` nor `GEMINI_FALLBACK_API_KEY` was available in the environment.
 
@@ -27,7 +36,18 @@ The project workflow explicitly requires Gemini CLI as the research agent for th
 - Planning and coding gates remain closed
 - The next required action is to make Gemini credentials available in the execution environment and rerun the research dispatch
 
+## Expiry
+None
+
+## Linked Artifacts
+- `artifacts/tasks/TASK-901.task.md`
+- `artifacts/status/TASK-901.status.json`
+
 ## Follow Up
+[WARN] migrated default: Decision Class defaulted to risk-acceptance.
 - Provide `GEMINI_API_KEY` or `GEMINI_FALLBACK_API_KEY` in the environment used by `template/artifacts/scripts/Invoke-GeminiAgent.ps1`
 - Re-run the Gemini wrapper for `TASK-901`
 - Once a valid `artifacts/research/TASK-901.research.md` is produced with `Status: ready`, update status from `blocked` to `researched`
+
+## Guard Exception
+None

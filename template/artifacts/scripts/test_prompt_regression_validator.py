@@ -811,6 +811,40 @@ class TestPrvRenderReportDeeper:
         assert "## Failure Details" in report
 
 
+class TestPrvModeGating:
+    """TASK-1073: source-only cases (e.g. PR-009) are skipped in downstream terminal repos."""
+
+    def test_detect_repo_mode_source(self, tmp_path):
+        (tmp_path / ".council-forge-source-repo").write_text("x", encoding="utf-8")
+        assert prv.detect_repo_mode(tmp_path) == "source"
+
+    def test_detect_repo_mode_downstream(self, tmp_path):
+        assert prv.detect_repo_mode(tmp_path) == "downstream"
+
+    def test_case_applies_default_all(self):
+        assert prv.case_applies({"id": "X"}, "downstream") is True
+        assert prv.case_applies({"id": "X"}, "source") is True
+
+    def test_case_applies_source_only(self):
+        case = {"id": "PR-009", "applies_to": "source"}
+        assert prv.case_applies(case, "source") is True
+        assert prv.case_applies(case, "downstream") is False
+
+    def test_main_skips_source_only_case_in_downstream(self, tmp_path, capsys):
+        cases = [{
+            "id": "S-ONLY", "applies_to": "source", "title": "src",
+            "assertions": [{"file": "template/CLAUDE.md", "must_contain_all": ["x"]}],
+        }]
+        cases_path = tmp_path / "artifacts" / "scripts" / "drills" / "cases.json"
+        cases_path.parent.mkdir(parents=True, exist_ok=True)
+        cases_path.write_text(json.dumps(cases), encoding="utf-8")
+        # downstream (no sentinel): the source-only case is skipped, so the missing
+        # template/ target does not fail the run.
+        code = prv.main(["--root", str(tmp_path), "--cases", "artifacts/scripts/drills/cases.json"])
+        assert code == 0
+        assert "skip" in capsys.readouterr().out
+
+
 # ─────────────────────────────────────────────
 # guard_status_validator — deeper coverage
 # ─────────────────────────────────────────────

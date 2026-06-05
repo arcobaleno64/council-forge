@@ -71,6 +71,7 @@ class ScaffoldConfig:
     topics: Optional[str] = None
     git_init: bool = False
     force: bool = False
+    retrofit: bool = False
 
 
 @dataclass
@@ -154,17 +155,43 @@ def copy_template(template_root: Path, target: Path, force: bool) -> int:
     return len(iter_files(target))
 
 
+def overlay_template(template_root: Path, target: Path) -> List[Path]:
+    """Additively copy only the template files the target lacks (never overwrite).
+
+    Returns the newly-added target paths. Idempotent: a second run adds nothing
+    because existing files (including those added by a prior overlay) are skipped.
+    This is the brownfield/retrofit primitive — it must never touch an existing
+    file, so a frozen downstream's own content is left exactly as-is.
+    """
+    if not template_root.is_dir():
+        raise FileNotFoundError(f"template_root does not exist: {template_root}")
+    added: List[Path] = []
+    for src in iter_files(template_root):
+        dst = target / src.relative_to(template_root)
+        if dst.exists():
+            continue
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        added.append(dst)
+    return added
+
+
 def apply_substitutions(
-    target: Path, mapping: Dict[str, str]
+    target: Path, mapping: Dict[str, str], only_files: Optional[List[Path]] = None
 ) -> Tuple[int, Dict[str, List[str]]]:
-    """Substitute instantiation keys in every eligible file under target.
+    """Substitute instantiation keys in eligible files under target.
 
     Returns ``(substituted_file_count, leftovers)`` where ``leftovers`` maps a
-    POSIX-relative path to the list of instantiation keys still present.
+    POSIX-relative path to the list of instantiation keys still present. When
+    ``only_files`` is given (retrofit), only those files are touched — existing
+    brownfield files are left byte-for-byte unchanged.
     """
+    scope = set(only_files) if only_files is not None else None
     substituted = 0
     leftovers: Dict[str, List[str]] = {}
     for path in iter_files(target):
+        if scope is not None and path not in scope:
+            continue
         if not should_substitute(path):
             continue
         original = path.read_text(encoding="utf-8")
@@ -216,16 +243,26 @@ def git_init(target: Path) -> int:
 
 
 def scaffold(config: ScaffoldConfig) -> ScaffoldResult:
-    """Orchestrate the full greenfield scaffold against config.target."""
+    """Orchestrate the scaffold against config.target (greenfield or retrofit overlay)."""
     result = ScaffoldResult(target=config.target)
-    result.copied_files = copy_template(config.template_root, config.target, config.force)
+    mapping = build_substitution_map(config)
+
+    if config.retrofit:
+        # Brownfield: add only the anchors the target lacks; substitute only those,
+        # so existing (possibly frozen) files are never read-modified-written.
+        added = overlay_template(config.template_root, config.target)
+        result.copied_files = len(added)
+        result.substituted_files, result.leftovers = apply_substitutions(
+            config.target, mapping, only_files=added
+        )
+    else:
+        result.copied_files = copy_template(config.template_root, config.target, config.force)
+        result.substituted_files, result.leftovers = apply_substitutions(config.target, mapping)
 
     sentinel = config.target / SOURCE_REPO_SENTINEL
-    if sentinel.exists():  # defensive: template must never carry the source marker
+    if sentinel.exists():  # defensive: a downstream terminal repo is never a source
         sentinel.unlink()
 
-    mapping = build_substitution_map(config)
-    result.substituted_files, result.leftovers = apply_substitutions(config.target, mapping)
     if result.has_leftovers:
         return result  # caller maps this to EXIT_LEFTOVER_PLACEHOLDER
 
@@ -270,6 +307,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--template-root", default="", help="Override the template/ source dir.")
     parser.add_argument("--git-init", action="store_true", help="git init the target after scaffold.")
     parser.add_argument("--force", action="store_true", help="Overwrite a non-empty target.")
+    parser.add_argument("--retrofit", action="store_true", help="Overlay council-forge anchors onto an existing brownfield repo; never overwrites existing files.")
     parser.add_argument("--dry-run", action="store_true", help="Preview without writing or running guards.")
     return parser.parse_args(argv)
 
@@ -294,6 +332,7 @@ def config_from_args(args: argparse.Namespace) -> ScaffoldConfig:
         topics=args.topics,
         git_init=args.git_init,
         force=args.force,
+        retrofit=args.retrofit,
     )
 
 
@@ -304,17 +343,24 @@ def run(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.dry_run:
         total, would_sub = dry_run_preview(config.template_root, mapping)
-        print(f"[DRY-RUN] template={config.template_root}")
-        print(f"[DRY-RUN] would copy {total} files; would substitute {would_sub} files")
-        print(f"[DRY-RUN] target {config.target} NOT created")
+        mode = "retrofit" if config.retrofit else "greenfield"
+        print(f"[DRY-RUN] mode={mode} template={config.template_root}")
+        print(f"[DRY-RUN] template has {total} files; up to {would_sub} would be substituted")
+        print(f"[DRY-RUN] target {config.target} NOT modified")
         return EXIT_OK
 
-    if config.target.exists() and any(config.target.iterdir()) and not config.force:
-        print(f"[FAIL] target is not empty: {config.target} (use --force to overwrite)", file=sys.stderr)
+    target_nonempty = config.target.exists() and any(config.target.iterdir())
+    if config.retrofit:
+        if not target_nonempty:
+            print(f"[FAIL] --retrofit target must be an existing non-empty repo: {config.target} (use greenfield for a new repo)", file=sys.stderr)
+            return EXIT_TARGET_NOT_EMPTY
+    elif target_nonempty and not config.force:
+        print(f"[FAIL] target is not empty: {config.target} (use --force to overwrite, or --retrofit to overlay)", file=sys.stderr)
         return EXIT_TARGET_NOT_EMPTY
 
     result = scaffold(config)
-    print(f"[OK] copied {result.copied_files} files into {result.target}")
+    verb = "overlaid" if config.retrofit else "copied"
+    print(f"[OK] {verb} {result.copied_files} files into {result.target}")
     print(f"[OK] substituted instantiation placeholders in {result.substituted_files} files")
 
     if result.has_leftovers:
@@ -327,6 +373,14 @@ def run(argv: Optional[Sequence[str]] = None) -> int:
     for name, code in result.guard_results.items():
         status = "OK" if code == 0 else "FAIL"
         print(f"[{status}] downstream guard '{name}' exit={code}")
+
+    if config.retrofit:
+        # Brownfield: pre-council-forge artifacts are expected to be non-conforming.
+        # The guard output above is an informational conformance-gap report to map,
+        # not a pass/fail gate for the overlay itself.
+        if not result.guards_ok:
+            print("[NOTE] retrofit overlay succeeded; downstream guards above are an informational conformance-gap report (not a gate).")
+        return EXIT_OK
 
     if not result.guards_ok:
         return EXIT_GUARD_FAILED

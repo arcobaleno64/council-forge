@@ -242,7 +242,7 @@ def test_config_from_args_default_chains():
     args = argparse.Namespace(
         target="t", project_name="P", repo_name="r", project_summary="s",
         owner="", upstream_org="up", author="", year="", topics=None,
-        template_root="", git_init=False, force=False,
+        template_root="", git_init=False, force=False, retrofit=False,
     )
     cfg = sd.config_from_args(args)
     assert cfg.owner == "up"  # owner falls back to upstream_org
@@ -319,3 +319,94 @@ def test_run_guard_fail_exit4(tmp_path, monkeypatch):
     monkeypatch.setattr(sd, "run_downstream_guards", lambda t: {"contract": 1})
     code = sd.run(_base_argv(target, template))
     assert code == sd.EXIT_GUARD_FAILED
+
+
+# --------------------------------------------------------------------------- #
+# retrofit (brownfield additive overlay) — TASK-1073
+# --------------------------------------------------------------------------- #
+def _make_brownfield(root: Path) -> Path:
+    """An existing downstream repo: its own CLAUDE.md (must survive byte-for-byte,
+    including a literal placeholder) plus a native non-council-forge file."""
+    bf = root / "brown"
+    bf.mkdir()
+    (bf / "CLAUDE.md").write_text("EXISTING downstream CLAUDE for {{PROJECT_NAME}}\n", encoding="utf-8")
+    (bf / "existing.txt").write_text("native content\n", encoding="utf-8")
+    return bf
+
+
+def test_overlay_template_copies_only_missing(tmp_path):
+    template = _make_mini_template(tmp_path)
+    target = tmp_path / "brown"
+    target.mkdir()
+    (target / "README.md").write_text("ALREADY HERE\n", encoding="utf-8")
+    added = sd.overlay_template(template, target)
+    rels = {p.relative_to(target).as_posix() for p in added}
+    assert "README.md" not in rels  # existed -> not overwritten
+    assert "docs/templates/adr/TEMPLATE.md" in rels  # missing -> added
+    assert (target / "README.md").read_text(encoding="utf-8") == "ALREADY HERE\n"
+
+
+def test_overlay_template_idempotent(tmp_path):
+    template = _make_mini_template(tmp_path)
+    target = tmp_path / "brown"
+    target.mkdir()
+    assert sd.overlay_template(template, target)  # first run adds
+    assert sd.overlay_template(template, target) == []  # second run adds nothing
+
+
+def test_overlay_template_missing_source(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        sd.overlay_template(tmp_path / "nope", tmp_path / "t")
+
+
+def test_apply_substitutions_only_files(tmp_path):
+    target = tmp_path / "t"
+    target.mkdir()
+    a = target / "a.md"
+    a.write_text("{{PROJECT_NAME}}\n", encoding="utf-8")
+    b = target / "b.md"
+    b.write_text("{{PROJECT_NAME}}\n", encoding="utf-8")
+    subbed, leftovers = sd.apply_substitutions(target, {"{{PROJECT_NAME}}": "S"}, only_files=[a])
+    assert subbed == 1
+    assert a.read_text(encoding="utf-8") == "S\n"
+    assert b.read_text(encoding="utf-8") == "{{PROJECT_NAME}}\n"  # untouched
+
+
+def test_scaffold_retrofit_preserves_existing(tmp_path, monkeypatch):
+    template = _make_mini_template(tmp_path)
+    bf = _make_brownfield(tmp_path)
+    before = (bf / "CLAUDE.md").read_text(encoding="utf-8")
+    monkeypatch.setattr(sd, "run_repository_profile", lambda config: 0)
+    monkeypatch.setattr(sd, "run_downstream_guards", lambda t: {"contract": 1})
+    result = sd.scaffold(_config(bf, template, retrofit=True))
+    # existing files byte-unchanged (incl. their literal {{PROJECT_NAME}})
+    assert (bf / "CLAUDE.md").read_text(encoding="utf-8") == before
+    assert (bf / "existing.txt").read_text(encoding="utf-8") == "native content\n"
+    # missing anchors added and substituted
+    assert (bf / "README.md").exists()
+    assert "Sentinel" in (bf / "README.md").read_text(encoding="utf-8")
+    assert result.copied_files >= 1
+
+
+def test_run_retrofit_guards_informational(tmp_path, monkeypatch):
+    template = _make_mini_template(tmp_path)
+    bf = _make_brownfield(tmp_path)
+    monkeypatch.setattr(sd, "run_repository_profile", lambda config: 0)
+    monkeypatch.setattr(sd, "run_downstream_guards", lambda t: {"contract": 1})
+    code = sd.run(_base_argv(bf, template) + ["--retrofit"])
+    assert code == sd.EXIT_OK  # guard nonconformance is informational, not a gate
+
+
+def test_run_retrofit_requires_nonempty(tmp_path):
+    template = _make_mini_template(tmp_path)
+    empty = tmp_path / "empty"
+    code = sd.run(_base_argv(empty, template) + ["--retrofit"])
+    assert code == sd.EXIT_TARGET_NOT_EMPTY
+
+
+def test_run_retrofit_dry_run(tmp_path, capsys):
+    template = _make_mini_template(tmp_path)
+    bf = _make_brownfield(tmp_path)
+    code = sd.run(_base_argv(bf, template) + ["--retrofit", "--dry-run"])
+    assert code == sd.EXIT_OK
+    assert "retrofit" in capsys.readouterr().out

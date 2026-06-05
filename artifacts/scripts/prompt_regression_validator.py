@@ -63,6 +63,19 @@ def detect_repo_mode(root: Path) -> str:
     return "source" if (root / ".council-forge-source-repo").exists() else "downstream"
 
 
+def is_brownfield(root: Path) -> bool:
+    """A brownfield downstream (retrofitted onto an existing repo) keeps its own
+    project CLAUDE.md / README; assertions targeting those project-owned files are
+    skipped for it, because that content is guaranteed by the EXACT_SYNC docs and the
+    overlaid GEMINI/CODEX prompts instead."""
+    return (root / ".council-forge-brownfield").exists()
+
+
+# Files a brownfield downstream owns (its own project versions); council-forge's prompt
+# assertions targeting these are skipped for brownfield repos.
+BROWNFIELD_PROJECT_OWNED_FILES = {"CLAUDE.md", "README.md", "README.zh-TW.md"}
+
+
 def case_applies(case: dict, mode: str) -> bool:
     """A case runs when its optional ``applies_to`` is absent/"all" or matches the repo mode.
 
@@ -77,6 +90,7 @@ def evaluate_case(case: dict, root: Path, cache: Dict[str, str]) -> CaseResult:
     case_id = str(case.get("id", ""))
     title = str(case.get("title", ""))
     failures: List[AssertionFailure] = []
+    brownfield = is_brownfield(root)
 
     assertions = case.get("assertions", [])
     if not isinstance(assertions, list) or not assertions:
@@ -88,6 +102,11 @@ def evaluate_case(case: dict, root: Path, cache: Dict[str, str]) -> CaseResult:
         note = str(assertion.get("note", "")).strip()
         if not file_name:
             failures.append(AssertionFailure(file="(case)", message="Assertion missing file", note=note))
+            continue
+        if brownfield and file_name in BROWNFIELD_PROJECT_OWNED_FILES:
+            # Brownfield downstream owns its project CLAUDE.md / README; council-forge's
+            # orchestrator + product-README content is guaranteed via the EXACT_SYNC docs
+            # and the overlaid GEMINI/CODEX prompts instead.
             continue
 
         if file_name not in cache:

@@ -844,6 +844,25 @@ class TestPrvModeGating:
         assert code == 0
         assert "skip" in capsys.readouterr().out
 
+    def test_is_brownfield(self, tmp_path):
+        assert prv.is_brownfield(tmp_path) is False
+        (tmp_path / ".council-forge-brownfield").write_text("x", encoding="utf-8")
+        assert prv.is_brownfield(tmp_path) is True
+
+    def test_brownfield_skips_project_owned_assertions(self, tmp_path):
+        # TASK-1074: a brownfield downstream owns its README.md / CLAUDE.md, so council-forge
+        # assertions on those are skipped (content guaranteed via EXACT_SYNC docs instead).
+        (tmp_path / ".council-forge-brownfield").write_text("x", encoding="utf-8")
+        case = {
+            "id": "X", "title": "t",
+            "assertions": [
+                {"file": "README.md", "must_contain_all": ["a-council-forge-only-phrase"]},
+                {"file": "CLAUDE.md", "must_contain_all": ["another-cf-only-phrase"]},
+            ],
+        }
+        result = prv.evaluate_case(case, tmp_path, {})
+        assert result.passed  # both project-owned assertions skipped
+
 
 # ─────────────────────────────────────────────
 # guard_status_validator — deeper coverage

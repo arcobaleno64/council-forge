@@ -386,6 +386,8 @@ def test_scaffold_retrofit_preserves_existing(tmp_path, monkeypatch):
     assert (bf / "README.md").exists()
     assert "Sentinel" in (bf / "README.md").read_text(encoding="utf-8")
     assert result.copied_files >= 1
+    # retrofit drops the brownfield marker so guards relax README/CLAUDE checks
+    assert (bf / sd.BROWNFIELD_SENTINEL).exists()
 
 
 def test_run_retrofit_guards_informational(tmp_path, monkeypatch):

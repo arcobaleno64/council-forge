@@ -46,6 +46,7 @@ INSTANTIATION_KEYS: Tuple[str, ...] = (
 )
 
 SOURCE_REPO_SENTINEL = ".council-forge-source-repo"
+BROWNFIELD_SENTINEL = ".council-forge-brownfield"
 
 LEFTOVER_RE = re.compile(r"\{\{(" + "|".join(INSTANTIATION_KEYS) + r")\}\}")
 
@@ -254,6 +255,12 @@ def scaffold(config: ScaffoldConfig) -> ScaffoldResult:
         result.copied_files = len(added)
         result.substituted_files, result.leftovers = apply_substitutions(
             config.target, mapping, only_files=added
+        )
+        # Mark as brownfield so the guards relax their product-template README/CLAUDE
+        # structural checks for this repo's own README.md / CLAUDE.md.
+        (config.target / BROWNFIELD_SENTINEL).write_text(
+            "Retrofitted onto an existing repo; council-forge relaxes README/CLAUDE structural checks here.\n",
+            encoding="utf-8",
         )
     else:
         result.copied_files = copy_template(config.template_root, config.target, config.force)

@@ -12,6 +12,7 @@ import guard_status_validator as gsv
 from workflow_constants import REQUIRED_TOPICS, TOPIC_PATTERN, validate_workflow_rule_tables
 
 SOURCE_REPO_SENTINEL = ".council-forge-source-repo"
+BROWNFIELD_SENTINEL = ".council-forge-brownfield"
 SOURCE_REPO_MODE = "source"
 DOWNSTREAM_REPO_MODE = "downstream"
 
@@ -387,6 +388,16 @@ def detect_repo_mode(root: Path) -> str:
     return SOURCE_REPO_MODE if sentinel_path.exists() else DOWNSTREAM_REPO_MODE
 
 
+def is_brownfield(root: Path) -> bool:
+    """A brownfield downstream is an existing repo retrofitted with council-forge
+    governance (marker `.council-forge-brownfield`). It keeps its own project
+    README.md and CLAUDE.md, so council-forge relaxes its product-template README
+    structure / bilingual requirement for it. The orchestrator prompt content
+    council-forge mandates is instead guaranteed by the EXACT_SYNC docs
+    (docs/orchestration.md), not the project's own CLAUDE.md."""
+    return (root / BROWNFIELD_SENTINEL).exists()
+
+
 def required_phrases_for_mode(mode: str) -> Dict[str, Sequence[str]]:
     if mode == SOURCE_REPO_MODE:
         return {**COMMON_REQUIRED_PHRASES, **SOURCE_REQUIRED_PHRASES}
@@ -582,7 +593,15 @@ def validate_markdown_contracts(root: Path) -> List[str]:
     mode = detect_repo_mode(root)
     errors: List[str] = []
 
-    for contract_group in (README_CONTRACTS[mode], OBSIDIAN_CONTRACTS[mode]):
+    # A brownfield downstream keeps its own project README; council-forge does not
+    # impose its product-README structure on it. The OBSIDIAN contract still applies
+    # (OBSIDIAN.md is council-forge-provided by the overlay).
+    contract_groups = (
+        (OBSIDIAN_CONTRACTS[mode],)
+        if is_brownfield(root)
+        else (README_CONTRACTS[mode], OBSIDIAN_CONTRACTS[mode])
+    )
+    for contract_group in contract_groups:
         for relative, contract in contract_group.items():
             path = root / relative
             if not path.exists():
@@ -606,6 +625,10 @@ def validate_readme_structure(root: Path) -> List[str]:
     """Validate README bilingual structure alongside the section-level contract."""
     mode = detect_repo_mode(root)
     errors: List[str] = []
+
+    if is_brownfield(root):
+        # Brownfield downstream owns its README; a single-language project README is fine.
+        return errors
 
     readme_en = root / "README.md"
     readme_zh = root / "README.zh-TW.md"

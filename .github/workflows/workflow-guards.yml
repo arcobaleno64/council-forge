@@ -37,7 +37,7 @@ jobs:
 
       - name: Unit Tests
         run: |
-          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py artifacts/scripts/test_scaffold_downstream.py artifacts/scripts/test_prompt_regression_validator.py -v \
+          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py artifacts/scripts/test_scaffold_downstream.py artifacts/scripts/test_prompt_regression_validator.py artifacts/scripts/test_drift_dashboard.py -v \
             --cov --cov-config=.coveragerc \
             --cov-report=term-missing \
             --cov-report=html:coverage-report \

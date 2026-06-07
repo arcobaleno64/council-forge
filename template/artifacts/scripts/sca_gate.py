@@ -32,6 +32,13 @@ EXIT_OK = 0
 EXIT_VULN = 1   # vulnerabilities found OR fail-closed (malformed/unexpected/empty)
 EXIT_USAGE = 2  # usage / IO error
 
+# Supported values of the dotnet ``--format json`` report ``version`` field. An unknown
+# version is failed CLOSED (not silently read as the version-1 schema): a future SDK
+# could keep ``projects`` a list while renaming/moving the ``vulnerabilities`` field,
+# which would otherwise read as "no vulnerabilities". Add a new value only after the
+# new schema has been verified and the parser updated.
+SUPPORTED_DOTNET_REPORT_VERSIONS = frozenset({1})
+
 
 def _fail(reason: str) -> Tuple[int, str]:
     return EXIT_VULN, reason
@@ -46,6 +53,14 @@ def evaluate_dotnet(payload: object) -> Tuple[int, str]:
         return _fail("unexpected schema: top-level is not an object")
     if "version" not in payload:
         return _fail("unexpected schema: missing 'version' field")
+    # Exact int typing BEFORE membership: Python treats ``True == 1``, so a bare
+    # ``payload["version"] in {1}`` would accept JSON ``true`` as version 1. ``type() is
+    # int`` excludes the ``bool`` subclass; a string "1" is rejected too. Unknown -> closed.
+    report_version = payload["version"]
+    if type(report_version) is not int or report_version not in SUPPORTED_DOTNET_REPORT_VERSIONS:
+        return _fail(
+            f"unsupported dotnet report version {report_version!r} — verify schema then update sca_gate"
+        )
     projects = payload.get("projects")
     if not isinstance(projects, list):
         return _fail("unexpected schema: 'projects' is not a list")

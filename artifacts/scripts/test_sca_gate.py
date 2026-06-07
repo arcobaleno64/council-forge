@@ -54,6 +54,24 @@ def test_eval_missing_version():
     assert sca_gate.evaluate_dotnet({"projects": []})[0] == sca_gate.EXIT_VULN
 
 
+def test_eval_unsupported_version_int():
+    # version 2 with an otherwise-clean structure must STILL fail closed (silent drift guard)
+    doc = _doc({"topLevelPackages": [{"id": "A", "vulnerabilities": []}]}, version=2)
+    code, msg = sca_gate.evaluate_dotnet(doc)
+    assert code == sca_gate.EXIT_VULN and "unsupported" in msg and "2" in msg
+
+
+def test_eval_version_true_failclosed():
+    # JSON `true` must NOT be accepted as version 1 via Python's True == 1
+    doc = _doc({"topLevelPackages": [{"id": "A", "vulnerabilities": []}]}, version=True)
+    assert sca_gate.evaluate_dotnet(doc)[0] == sca_gate.EXIT_VULN
+
+
+def test_eval_version_string_failclosed():
+    doc = _doc({"topLevelPackages": [{"id": "A", "vulnerabilities": []}]}, version="1")
+    assert sca_gate.evaluate_dotnet(doc)[0] == sca_gate.EXIT_VULN
+
+
 def test_eval_projects_not_list():
     assert sca_gate.evaluate_dotnet({"version": 1, "projects": {}})[0] == sca_gate.EXIT_VULN
 

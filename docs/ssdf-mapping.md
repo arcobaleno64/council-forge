@@ -36,12 +36,12 @@ https://doi.org/10.6028/NIST.SP.800-218
 | PS.3 | Archive and Protect Each Software Release | partial | artifacts/scripts/guard_status_validator.py | docs/artifact_schema.md | — |
 | PW.1 | Design Software to Meet Security Requirements | partial | docs/premortem_rules.md | CODEX.md | — |
 | PW.2 | Review the Software Design | covered | docs/orchestration.md | CLAUDE.md | — |
-| PW.4 | Reuse Existing, Well-Secured Software (SCA) | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
+| PW.4 | Reuse Existing, Well-Secured Software (SCA) | partial | .github/workflows/security-scan.yml | requirements.txt | — |
 | PW.5 | Create Source Code Adhering to Secure Coding Practices | partial | AGENTS.md | CODEX.md | — |
 | PW.6 | Configure the Compilation, Build, and Packaging Process | partial | artifacts/scripts/scaffold_downstream.py | .github/workflows/workflow-guards.yml | — |
 | PW.7 | Review and/or Analyze Human-Readable Code (SAST) | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
 | PW.8 | Test Executable Code | partial | artifacts/scripts/run_red_team_suite.py | docs/red_team_runbook.md | — |
 | PW.9 | Configure Software to Have Secure Settings by Default | partial | docs/orchestration.md | GEMINI.md | — |
-| RV.1 | Identify and Confirm Vulnerabilities (secret-scan/SCA/disclosure) | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
+| RV.1 | Identify and Confirm Vulnerabilities (secret-scan/SCA/disclosure) | partial | artifacts/scripts/repo_security_scan.py | .github/workflows/security-scan.yml | — |
 | RV.2 | Assess, Prioritize, and Remediate Vulnerabilities | partial | artifacts/scripts/guard_status_validator.py | docs/artifact_schema.md | — |
 | RV.3 | Analyze Vulnerabilities to Identify Root Causes | covered | docs/premortem_rules.md | artifacts/improvement/PROCESS_LEDGER.md | — |

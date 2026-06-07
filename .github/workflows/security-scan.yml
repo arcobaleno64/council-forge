@@ -29,16 +29,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install pip-audit
-        run: python -m pip install pip-audit
+      - name: Install pip-audit (pinned; bump periodically — see docs/templates/security/README.md)
+        run: python -m pip install pip-audit==2.7.3
 
-      - name: Run pip-audit
-        run: |
-          echo "::group::pip-audit JSON output"
-          python -m pip_audit -r requirements.txt --format=json --output=pip-audit-report.json || true
-          cat pip-audit-report.json
-          echo "::endgroup::"
-          python -m pip_audit -r requirements.txt --format=columns
+      - name: Run pip-audit (single enforcing step; no exit-masking)
+        # pip-audit exits non-zero when a vulnerability is found AND still writes the
+        # JSON report, so this one step both produces the artifact and fails the job.
+        # Deliberately enforcing: a vulnerable dependency MUST fail this step.
+        run: python -m pip_audit -r requirements.txt --format=json --output=pip-audit-report.json
 
   repo-secrets-scan:
     runs-on: ubuntu-latest

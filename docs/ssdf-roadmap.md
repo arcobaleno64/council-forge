@@ -132,12 +132,11 @@ P8-A (mapping+conformance guard, keystone)
 文本）。此使每一 gap 為**刻意、可稽核**之 backlog，而非無聲缺漏。各 marker 後附 owning
 phase 與理據。
 
-- `SSDF-Gap-Waiver: PW.4`
-  - owning phase: P8-B（SCA 依賴漏洞掃描：pip-audit / dotnet --vulnerable / cargo+pnpm audit）。
-  - 理據：council-forge 現無自動依賴漏洞掃描；P8-B 以最輕適足工具補，opt-in 至各營 CI/pre-commit。
-- `SSDF-Gap-Waiver: RV.1`
-  - owning phase: P8-B（secret-scan：gitleaks/trufflehog）+ P8-D（vuln-disclosure intake）。
-  - 理據：`repo_security_scan` 偏 secret/紅隊，無系統性 secret-scan gate 與 disclosure intake；P8-B/D 補。
+> **P8-B 校正（2026-06-07）**：勘得 council-forge 已有 enforcing 之 pip-audit（Python SCA）
+> 與 `repo_security_scan.py`（secret/static），故 **PW.4（SCA）與 RV.1（secret-scan）已於
+> P8-B 認列為 `partial`**（非 gap，亦非高估之 covered——下游語言 SCA 為 opt-in 模板、RV.1 之
+> vuln-disclosure intake 留 P8-D）。二者之 waiver marker 遂自本 registry 移除。
+
 - `SSDF-Gap-Waiver: PW.7`
   - owning phase: P8-C（SAST：CodeQL/semgrep；.NET analyzers；clippy 已有）。
   - 理據：無內建 SAST 關卡；語言相關、FP 較高，後於 P8-B，且初期可 advisory。

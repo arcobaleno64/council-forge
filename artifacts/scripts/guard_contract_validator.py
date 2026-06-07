@@ -29,6 +29,7 @@ EXACT_SYNC_FILES = [
     "artifacts/scripts/guard_contract_validator.py",
     "artifacts/scripts/prompt_regression_validator.py",
     "artifacts/scripts/run_red_team_suite.py",
+    "artifacts/scripts/sca_gate.py",
     "artifacts/scripts/drills/prompt_regression_cases.json",
     "artifacts/scripts/guard_status_validator.py",
     "artifacts/scripts/migrate_artifact_schema.py",

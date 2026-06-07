@@ -147,6 +147,15 @@ phase 與理據。
 > + waiver + per-language 序），須過雙審 gate。**SBOM（PS.2）由本階析出為 P8-C2**（SAST 與 SBOM
 > 分治），仍 gap、marker 留。
 
+> **P8-C2 校正（2026-06-07）**：P8-C2（TASK-1081）之 4-agent recon 逐字核 NIST SP 800-218 v1.1
+> 揭——**PS.2 verbatim 標題為「Provide a Mechanism for Verifying Software Release Integrity」，
+> 論雜湊/code-signing，非 SBOM；SBOM 實屬 PS.3.2 provenance**（居 PS.3）。故前文「SBOM（PS.2）」
+> 及 P8-A mapping 之「PS.2…(SBOM)」為**誤植，已正**：① SBOM 生成+驗證機制（`sbom_gate.py` +
+> `security-scan.yml` 之運行 `sbom` job，cyclonedx-py 由 resolved 環境生成）映 **PS.3**（仍
+> `partial`——生成+驗證+identity，未簽章/archive/交付 acquirer）；② **PS.2 復真義、status 仍
+> `gap`、owning phase 改 P8-D**（release 簽章/雜湊/integrity-verification info）。**SBOM 非 gap**
+> （已認列 PS.3.2 provenance），其 marker 不立於本 registry；下方 PS.2 marker 之義已正為簽章。
+
 - `SSDF-Gap-Waiver: PS.2`
-  - owning phase: P8-C2（SBOM：syft/cyclonedx，Rust+npm+.NET）。
-  - 理據：無 SBOM 生成；P8-C2 補並附 release。
+  - owning phase: P8-D（release-integrity：code-signing / 雜湊 / integrity-verification info 供 acquirer）。
+  - 理據：council-forge 尚無 release 簽章/雜湊機制供 acquirer 驗其完整性（**非** SBOM——SBOM 已於 P8-C2 認列為 PS.3.2 provenance，見上 P8-C2 校正）。

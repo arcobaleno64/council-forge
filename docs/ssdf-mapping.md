@@ -32,8 +32,8 @@ https://doi.org/10.6028/NIST.SP.800-218
 | PO.4 | Criteria for Software Security Checks | partial | docs/artifact_schema.md | .github/workflows/workflow-guards.yml | — |
 | PO.5 | Secure Software Development Environments | partial | CODEX.md | GEMINI.md | — |
 | PS.1 | Protect All Forms of Code | covered | artifacts/scripts/drift_dashboard.py | artifacts/scripts/propagate_downstream.py | — |
-| PS.2 | Provide a Mechanism to Verify Software Release Integrity (SBOM) | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
-| PS.3 | Archive and Protect Each Software Release | partial | artifacts/scripts/guard_status_validator.py | docs/artifact_schema.md | — |
+| PS.2 | Provide a Mechanism for Verifying Software Release Integrity | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
+| PS.3 | Archive and Protect Each Software Release | partial | artifacts/scripts/sbom_gate.py | .github/workflows/security-scan.yml | — |
 | PW.1 | Design Software to Meet Security Requirements | partial | docs/premortem_rules.md | CODEX.md | — |
 | PW.2 | Review the Software Design | covered | docs/orchestration.md | CLAUDE.md | — |
 | PW.4 | Reuse Existing, Well-Secured Software (SCA) | partial | .github/workflows/security-scan.yml | requirements.txt | — |
@@ -56,3 +56,20 @@ https://doi.org/10.6028/NIST.SP.800-218
 > 故 `partial`**。轉 enforcing（baseline + waiver + per-language 序）與 PW.7→`covered` 之升等
 > 為後階 governed task（見 `docs/ssdf-roadmap.md` §8 與該 task plan §Enforcement Transition），
 > 須過雙對抗審查 gate。
+
+> **PS.2/PS.3（SBOM）正名與侷限聲明（P8-C2，2026-06-07）**：4-agent recon 逐字核 NIST SP
+> 800-218 v1.1 揭——**PS.2 verbatim 標題＝「Provide a Mechanism for Verifying Software
+> Release Integrity」，論雜湊與 code-signing（PS.2.1 例皆 hash/CA-signing），非 SBOM**；
+> **SBOM 實屬 PS.3.2**（「...share provenance data... e.g., in a software bill of materials
+> [SBOM]」，居 PS.3「Archive and Protect Each Software Release」）。故 council-forge 前
+> 「PS.2…(SBOM)」為 **P8-A 誤植，已正**：① **PS.2** 復 verbatim 標題、status 仍 `gap`、改隸
+> **P8-D**（release 簽章/雜湊/integrity-verification info 供 acquirer，council-forge 尚無）；
+> ② **PS.3** 以 `sbom_gate.py` + `.github/workflows/security-scan.yml` 之運行中 `sbom` job
+> 強化（PS.3.2 provenance facet：cyclonedx-py 由 **resolved 環境**生成 SBOM、捕 transitive、
+> sbom_gate 驗之）。**PS.3 仍 `partial` 非 `covered`**：archive facet（PS.3.1）僅 via status/
+> commit anchor，**deferred** 簽章/sharing-to-acquirer→P8-D。**completeness 邊界（誠實）**：
+> sbom_gate **fail-closed** 驗 well-formedness + presence（`--min-components`）+ **直接依賴
+> identity**（`--require-components`）；**窮盡 transitive completeness vs 真實 dep graph 為
+> explicitly ACCEPTED RISK**——無 gate 能獨立斷（否則須自為生成器或另信一完整性同不可證之
+> enumerator，無限回歸），由 resolved-env 配方 + identity + 恆印 advisory 共治，殘留以
+> §Transitive-Completeness Follow-up 之非阻斷週期審計觀測。

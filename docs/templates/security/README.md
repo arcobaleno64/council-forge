@@ -6,15 +6,17 @@ auto-applied workflows** — a downstream copies the jobs it needs into its own 
 runs them via local/pre-commit for repos without a remote). council-forge's own
 `security-scan.yml` already enforces Python SCA (pip-audit) + secret/static scan.
 
-> **Scope**: secret-scan + SCA (P8-B) and **advisory SAST (P8-C)**. SBOM is P8-C2;
-> vuln-disclosure intake + release/IR are P8-D. This is why SSDF practices PW.4 (SCA),
-> RV.1 (secret-scan/vuln-id), and **PW.7 (SAST)** are mapped `partial`, not `covered`, in
-> `docs/ssdf-mapping.md` — see the **SAST** section below for why PW.7 is advisory, not enforced.
+> **Scope**: secret-scan + SCA (P8-B), **advisory SAST (P8-C)**, and **SBOM (P8-C2)**.
+> Release-integrity (PS.2: hashes / code-signing) + vuln-disclosure intake + release/IR are
+> P8-D. This is why SSDF practices PW.4 (SCA), RV.1 (secret-scan/vuln-id), **PW.7 (SAST)**, and
+> **PS.3 (SBOM provenance)** are mapped `partial`, not `covered`, in `docs/ssdf-mapping.md` —
+> see the **SAST** and **SBOM** sections below. (SBOM is PS.3.2, NOT PS.2 — see the SBOM section.)
 
 ## Files
 
 - `downstream-security-scan.yml` — the opt-in multi-language workflow (secret + Node/Rust/.NET SCA).
 - `downstream-sast.yml` — the opt-in SAST workflow (advisory Python SAST + native Rust clippy / .NET analyzers).
+- `downstream-sbom.yml` — the opt-in SBOM workflow (CycloneDX generation per ecosystem → fail-closed `sbom_gate.py`).
 - `action-pins.json` — manifest of approved GitHub Actions (identity → version + resolved SHA). Lint-enforced.
 
 ## Fail-closed & supply-chain guarantees (lint-enforced)
@@ -72,6 +74,48 @@ per-language order — the low-FP native analyzers (.NET, clippy) are already en
 Python regex SAST is enforced last via `sast_gate.py --enforce --min-level error` once a
 baseline exists. PW.7 becomes `covered` only when council-forge **and** the critical downstreams
 all enforce.
+
+## SBOM (P8-C2) — `downstream-sbom.yml`
+
+SBOM is a CycloneDX **provenance** mechanism — SSDF **PS.3.2** (`Collect ... provenance data
+... in a software bill of materials`), NOT PS.2. (PS.2 is release-integrity / hashes / code
+signing, deferred to P8-D; council-forge's earlier "PS.2 (SBOM)" was a misattribution, now
+corrected in `docs/ssdf-mapping.md` and `docs/ssdf-roadmap.md` §8.) Every ecosystem generator
+emits CycloneDX JSON, validated by the single tested **`sbom_gate.py`** (one gate, many
+generators — the same shape as `sast_gate.py` consuming any analyzer's SARIF).
+
+> council-forge runs the Python SBOM on **itself** in `.github/workflows/security-scan.yml`
+> (the `sbom` job). That operational job is the `evidence` for **PS.3** `partial` in
+> `docs/ssdf-mapping.md`.
+
+| Repo | Stack | SBOM generator | Enablement |
+|---|---|---|---|
+| council-forge | Python | `cyclonedx-py environment` (resolved venv) → `sbom_gate.py` | already operational in its own `security-scan.yml` (`sbom` job) |
+| Sentinel | .NET (frozen) | `dotnet-CycloneDX` → `sbom_gate.py` | **template-only while frozen — do NOT wire into CI; do NOT touch azure-pipelines.yml** |
+| LINE-BOT | .NET (active GitHub remote) | `dotnet-CycloneDX` → `sbom_gate.py` | opt-in: copy the `dotnet-sbom` job |
+| Verso | Tauri (Rust + pnpm, no remote) | `cargo-cyclonedx` (all members) + `@cyclonedx/cdxgen -t pnpm` → `sbom_gate.py` | local / pre-commit |
+| Vero | Tauri (Rust + pnpm, no remote) | `cargo-cyclonedx` (all members) + `@cyclonedx/cdxgen -t pnpm` → `sbom_gate.py` | local / pre-commit |
+
+**What the gate enforces (fail-closed)**: well-formedness (`bomFormat` const, supported
+`specVersion`, per-specVersion component-type allowlist, BOM `version`), **presence**
+(`--min-components`, default 1 — an empty SBOM fails), and **direct-dependency identity**
+(`--require-components`: the manifest's direct dependency names must be present — a count-only
+floor can be satisfied by unrelated components, so identity is checked). Each job derives the
+names from its manifest and `test -n "$REQ"` guards against a parser failure degrading to a
+count-only check. Name matching: `pep503` for PyPI; `exact` for npm / Cargo / NuGet
+(punctuation is part of identity).
+
+**Accepted risk — transitive completeness**: the gate verifies form + presence + DIRECT-dep
+identity. **Exhaustive transitive completeness vs the true dependency graph is an explicitly
+ACCEPTED RISK** — no gate can verify it without re-deriving the graph or trusting another
+enumerator whose own completeness is unverifiable (infinite regress). It is mitigated by
+**resolved-source generation recipes** (Python resolved-env captures transitive by
+construction; Rust validates ALL workspace members; Node uses `cdxgen` which reads
+`pnpm-lock.yaml` where `cyclonedx-npm` cannot), the gate's **unmissable advisory**, and a
+**non-blocking periodic audit** (a defined follow-up: compare the SBOM against an independent
+enumerator — `pipdeptree` / `cargo tree` / `pnpm list` — as a generator-efficacy feedback
+loop, observation not a hard gate). This is why **PS.3 is `partial`, not `covered`**, and why
+the advisory SBOM is not falsely claimed to be a complete bill of materials.
 
 ## Adoption
 

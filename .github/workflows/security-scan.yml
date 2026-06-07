@@ -96,3 +96,39 @@ jobs:
         # dropped (the reporting-not-control guard). It still FAILS CLOSED on malformed /
         # unknown-version / unknown-level SARIF: we will not "advise" on a broken report.
         run: python artifacts/scripts/sast_gate.py --sarif python-sast.sarif --summary-file "$GITHUB_STEP_SUMMARY"
+
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Generate CycloneDX SBOM from a resolved environment
+        # Generate from an INSTALLED (resolved) environment, not the unfrozen requirements
+        # manifest, so transitive dependencies are captured by construction. cyclonedx-py is
+        # a pure SBOM generator (no vuln scanning, no exit-code coupling); pinned like pip-audit.
+        run: |
+          python -m venv .sbom-venv
+          .sbom-venv/bin/python -m pip install -r requirements.txt
+          python -m pip install cyclonedx-bom==7.3.0
+          python -m cyclonedx_py environment .sbom-venv --output-format JSON --output-file sbom.cdx.json
+
+      - name: SBOM gate (well-formed + presence + direct-dependency identity)
+        # Fails closed on malformed / unknown-version / version-skewed type / below
+        # --min-components / a declared direct dependency missing from the SBOM (identity, not
+        # just a count). The guard fails the job BEFORE the gate when a non-empty manifest
+        # yields no names, so a parser failure cannot silently degrade to a count-only check.
+        # An unmissable well-formed-not-complete advisory is printed: exhaustive transitive
+        # completeness is an explicitly accepted risk (resolved-env recipe + advisory + audit).
+        run: |
+          REQ=$(python -c "import re;print(','.join(re.split(r'[<>=!~;\[ ]',l.strip())[0] for l in open('requirements.txt') if l.strip() and not l.lstrip().startswith(('#','-'))))")
+          test -n "$REQ"
+          python artifacts/scripts/sbom_gate.py --sbom sbom.cdx.json --min-components 1 --require-components "$REQ" --name-normalization pep503 --summary-file "$GITHUB_STEP_SUMMARY"

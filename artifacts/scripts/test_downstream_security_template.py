@@ -26,8 +26,10 @@ ROOT_WF = ROOT / ".github" / "workflows" / "security-scan.yml"
 TEMPLATE_WF = ROOT / "template" / ".github" / "workflows" / "security-scan.yml"
 DOWNSTREAM_WF = ROOT / "docs" / "templates" / "security" / "downstream-security-scan.yml"
 DOWNSTREAM_SAST_WF = ROOT / "docs" / "templates" / "security" / "downstream-sast.yml"
+DOWNSTREAM_SBOM_WF = ROOT / "docs" / "templates" / "security" / "downstream-sbom.yml"
 MANIFEST = ROOT / "docs" / "templates" / "security" / "action-pins.json"
 MAPPING_DOC = ROOT / "docs" / "ssdf-mapping.md"
+ROADMAP_DOC = ROOT / "docs" / "ssdf-roadmap.md"
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 MASKING_SUBSTRINGS = ("|| true", "|| :", "; true", "; :", "set +e", "set +o errexit")
@@ -93,14 +95,14 @@ def _all_run_text(wf: dict) -> str:
 # --------------------------------------------------------------------------- #
 # POSITIVE: the real shipped workflows must lint clean
 # --------------------------------------------------------------------------- #
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF])
 def test_real_workflow_action_pins_clean(wf_path: Path):
     manifest = load_manifest(MANIFEST)
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_action_pins(wf, manifest) == []
 
 
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF])
 def test_real_workflow_no_masking(wf_path: Path):
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_no_masking(wf) == []
@@ -243,3 +245,117 @@ def test_downstream_sast_wires_tested_gate_and_recognizes_native():
     assert "sast_gate.py --sarif" in text  # gated via the tested sast_gate, not raw output
     assert "clippy" in text and "-D warnings" in text  # recognize Rust native analyzer
     assert "warnaserror" in text  # recognize .NET native analyzer (TreatWarningsAsErrors)
+
+
+# --------------------------------------------------------------------------- #
+# P8-C2 SBOM: PS.2 misattribution correction, PS.3 evidence, identity/parser-fail invariant
+# --------------------------------------------------------------------------- #
+def test_ps2_corrected_to_verbatim_not_sbom():
+    """PS.2 must carry its verbatim NIST title (release-integrity / signing), NOT the P8-A
+    '(SBOM)' misattribution; it stays a gap owned by P8-D (codex/gemini/recon, P8-C2)."""
+    cells = _mapping_row("PS.2")  # [Practice, Title, Status, Mechanism, Evidence, Gap/Waiver]
+    assert "Verifying Software Release Integrity" in cells[1]
+    assert "(SBOM)" not in cells[1]
+    assert cells[2] == "gap"
+    lines = ROADMAP_DOC.read_text(encoding="utf-8").splitlines()
+    idx = next(i for i, line in enumerate(lines) if "SSDF-Gap-Waiver: PS.2" in line)
+    assert any("owning phase: P8-D" in line for line in lines[idx : idx + 4]), "PS.2 must be owned by P8-D"
+
+
+def test_ps3_evidence_is_operational_sbom_job():
+    """PS.3 (SBOM provenance, PS.3.2) is strengthened by the RUNNING council-forge sbom job,
+    which must actually generate (cyclonedx-py) + gate (sbom_gate) — not an opt-in template."""
+    cells = _mapping_row("PS.3")
+    assert cells[2] == "partial"
+    assert cells[3] == "artifacts/scripts/sbom_gate.py"
+    evidence = cells[4]
+    assert evidence == ".github/workflows/security-scan.yml"
+    wf = yaml.safe_load((ROOT / evidence).read_text(encoding="utf-8"))
+    assert "sbom" in _jobs(wf), "operational evidence workflow lacks the sbom job"
+    run_text = _job_run_text(wf, "sbom")
+    assert "cyclonedx_py environment" in run_text  # resolved-environment generation
+    assert "sbom_gate.py" in run_text
+
+
+def test_sbom_completeness_accepted_risk_documented():
+    """The transitive-completeness limit must be documented as an explicit ACCEPTED RISK in
+    the mapping footnote (no over-claim of full completeness)."""
+    text = MAPPING_DOC.read_text(encoding="utf-8")
+    assert "ACCEPTED RISK" in text
+    assert "transitive completeness" in text and "well-formedness" in text
+
+
+def _sbom_gate_steps(wf: dict) -> list:
+    """Yield (job_name, step_run) for every step whose run invokes sbom_gate.py."""
+    out = []
+    for job_name, _job, step in iter_steps(wf):
+        run = step.get("run")
+        if isinstance(run, str) and "sbom_gate.py" in run:
+            out.append((job_name, run))
+    return out
+
+
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_SBOM_WF])
+def test_sbom_gate_invocations_enforce_identity_and_parser_fail_guard(wf_path: Path):
+    """Every sbom_gate invocation — council-forge's own job AND every downstream stack — must
+    pass --require-components (identity, never a bare count-only --sbom), and its run block must
+    guard with `test -n` so a non-empty manifest yielding zero names fails BEFORE the gate
+    (no silent degrade to count-only). codex v6/v7/v8/v9."""
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    steps = _sbom_gate_steps(wf)
+    assert steps, f"{wf_path.name} has no sbom_gate invocation to check"
+    for job_name, run in steps:
+        for line in run.splitlines():
+            if "sbom_gate.py" in line:
+                assert "--require-components" in line, f"{wf_path.name}:{job_name} bare sbom_gate (count-only): {line!r}"
+        assert "test -n" in run, f"{wf_path.name}:{job_name} lacks a REQ-non-empty guard"
+
+
+def test_downstream_sbom_recipes_per_ecosystem():
+    text = DOWNSTREAM_SBOM_WF.read_text(encoding="utf-8")
+    assert "cyclonedx_py environment" in text  # Python: resolved environment (captures transitive)
+    assert "find . -name bom.json" in text  # Rust: validate ALL workspace members
+    assert "cdxgen -t pnpm" in text  # Node: pnpm via cdxgen (cyclonedx-npm cannot read pnpm-lock)
+    assert "-spv 1.6" not in text  # no forced spec-version downgrade (gate allows 1.2-1.7)
+
+
+def test_downstream_sbom_pins_generator_tools():
+    text = DOWNSTREAM_SBOM_WF.read_text(encoding="utf-8")
+    assert "cyclonedx-bom==7.3.0" in text
+    assert re.search(r"cargo-cyclonedx --version \d+\.\d+\.\d+", text)
+    assert re.search(r"@cyclonedx/cdxgen@\d+\.\d+\.\d+", text)
+    assert re.search(r"CycloneDX --version \d+\.\d+\.\d+", text)
+
+
+def test_council_forge_sbom_job_uses_resolved_recipe():
+    """The council-forge self sbom job must generate from a RESOLVED environment (captures
+    transitive), NOT from the unfrozen requirements manifest (codex v1 [high])."""
+    wf = yaml.safe_load(ROOT_WF.read_text(encoding="utf-8"))
+    run_text = _job_run_text(wf, "sbom")
+    assert "cyclonedx_py environment" in run_text
+    assert "cyclonedx_py requirements requirements.txt" not in run_text  # not the top-level-only path
+
+
+def test_sbom_generation_captures_transitive(tmp_path: Path):
+    """Generation-path regression (not just the gate parser, codex v2 [high]): generating from
+    a resolved environment must capture TRANSITIVE dependencies. The guard lane installs
+    cyclonedx-bom==7.3.0 so this runs (not skipped) in CI; importorskip is a local fallback."""
+    import subprocess
+    import sys
+
+    pytest.importorskip("cyclonedx_py")
+    out = tmp_path / "sbom.cdx.json"
+    result = subprocess.run(
+        [sys.executable, "-m", "cyclonedx_py", "environment", "--output-format", "JSON", "--output-file", str(out)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    names = {component.get("name", "").lower() for component in doc.get("components", [])}
+    assert "pluggy" in names, "resolved-env generation must capture pluggy (a transitive dep of pytest)"
+
+    import sbom_gate
+
+    code, _ = sbom_gate.evaluate(doc, min_components=1, required=frozenset(), normalization="exact")
+    assert code == sbom_gate.EXIT_OK

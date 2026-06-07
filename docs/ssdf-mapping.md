@@ -39,9 +39,20 @@ https://doi.org/10.6028/NIST.SP.800-218
 | PW.4 | Reuse Existing, Well-Secured Software (SCA) | partial | .github/workflows/security-scan.yml | requirements.txt | — |
 | PW.5 | Create Source Code Adhering to Secure Coding Practices | partial | AGENTS.md | CODEX.md | — |
 | PW.6 | Configure the Compilation, Build, and Packaging Process | partial | artifacts/scripts/scaffold_downstream.py | .github/workflows/workflow-guards.yml | — |
-| PW.7 | Review and/or Analyze Human-Readable Code (SAST) | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
+| PW.7 | Review and/or Analyze Human-Readable Code (SAST) | partial | artifacts/scripts/sast_gate.py | .github/workflows/security-scan.yml | — |
 | PW.8 | Test Executable Code | partial | artifacts/scripts/run_red_team_suite.py | docs/red_team_runbook.md | — |
 | PW.9 | Configure Software to Have Secure Settings by Default | partial | docs/orchestration.md | GEMINI.md | — |
 | RV.1 | Identify and Confirm Vulnerabilities (secret-scan/SCA/disclosure) | partial | artifacts/scripts/repo_security_scan.py | .github/workflows/security-scan.yml | — |
 | RV.2 | Assess, Prioritize, and Remediate Vulnerabilities | partial | artifacts/scripts/guard_status_validator.py | docs/artifact_schema.md | — |
 | RV.3 | Analyze Vulnerabilities to Identify Root Causes | covered | docs/premortem_rules.md | artifacts/improvement/PROCESS_LEDGER.md | — |
+
+> **PW.7（SAST）侷限聲明（P8-C，2026-06-07）**：`partial` 而非 `covered`。機制＝
+> `sast_gate.py`（fail-closed SARIF gate）；evidence＝`.github/workflows/security-scan.yml`
+> 之**運行中** `python-sast` job——`repo_security_scan.py sast` 跑 Python regex SAST，
+> findings 經 `sast_gate.py` durably 暴露於 `$GITHUB_STEP_SUMMARY` 供審。此為 **advisory
+> detection（visibility）**：SAST 運行且 findings 可審，**非 enforced remediation**——advisory
+> exit 0、不 fail CI、未全語言 enforcing（下游 .NET analyzers / Rust clippy 為各營 native
+> 機制，opt-in 模板見 `docs/templates/security/downstream-sast.yml`）。**正因 advisory-first
+> 故 `partial`**。轉 enforcing（baseline + waiver + per-language 序）與 PW.7→`covered` 之升等
+> 為後階 governed task（見 `docs/ssdf-roadmap.md` §8 與該 task plan §Enforcement Transition），
+> 須過雙對抗審查 gate。

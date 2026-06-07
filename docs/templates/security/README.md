@@ -6,13 +6,15 @@ auto-applied workflows** — a downstream copies the jobs it needs into its own 
 runs them via local/pre-commit for repos without a remote). council-forge's own
 `security-scan.yml` already enforces Python SCA (pip-audit) + secret/static scan.
 
-> **Scope (P8-B)**: secret-scan + SCA only. SAST + SBOM are P8-C; vuln-disclosure
-> intake + release/IR are P8-D. This is why SSDF practices PW.4 (SCA) and RV.1
-> (secret-scan/vuln-id) are mapped `partial`, not `covered`, in `docs/ssdf-mapping.md`.
+> **Scope**: secret-scan + SCA (P8-B) and **advisory SAST (P8-C)**. SBOM is P8-C2;
+> vuln-disclosure intake + release/IR are P8-D. This is why SSDF practices PW.4 (SCA),
+> RV.1 (secret-scan/vuln-id), and **PW.7 (SAST)** are mapped `partial`, not `covered`, in
+> `docs/ssdf-mapping.md` — see the **SAST** section below for why PW.7 is advisory, not enforced.
 
 ## Files
 
 - `downstream-security-scan.yml` — the opt-in multi-language workflow (secret + Node/Rust/.NET SCA).
+- `downstream-sast.yml` — the opt-in SAST workflow (advisory Python SAST + native Rust clippy / .NET analyzers).
 - `action-pins.json` — manifest of approved GitHub Actions (identity → version + resolved SHA). Lint-enforced.
 
 ## Fail-closed & supply-chain guarantees (lint-enforced)
@@ -39,6 +41,37 @@ runs them via local/pre-commit for repos without a remote). council-forge's own
 | LINE-BOT | .NET (active GitHub remote) | opt-in: copy into `.github/workflows/`. Most valuable here (AI provider keys, LINE channel secret) | secret-scan, dotnet-sca |
 | Verso | Tauri (Rust + Node, no remote) | local / pre-commit (no CI) — run the audit commands locally | secret-scan, node-sca, rust-sca |
 | Vero | Tauri (Rust + Node, no remote) | local / pre-commit (evidence-zip security model makes SCA especially relevant) | secret-scan, node-sca, rust-sca |
+
+## SAST (P8-C) — `downstream-sast.yml`
+
+SAST (SSDF **PW.7**) is **advisory-first**: the Python path runs `repo_security_scan.py sast`
+(curated, low-false-positive rules) → SARIF → the fail-closed `sast_gate.py`, which is
+**advisory by default** (exit 0 even with findings) so a false-positive avalanche cannot
+wedge CI. Findings are not dropped — they are durably appended to `$GITHUB_STEP_SUMMARY`.
+Rust and .NET need no new scanner: their **native, build-enforcing analyzers** (clippy
+`-D warnings`; Roslyn analyzers via `TreatWarningsAsErrors`) ARE the SAST mechanism.
+
+> council-forge runs the Python advisory SAST on **itself** in `.github/workflows/security-scan.yml`
+> (the `python-sast` job). That operational job — not this opt-in template — is the `evidence`
+> for PW.7 `partial` in `docs/ssdf-mapping.md`.
+
+| Repo | Stack | SAST mechanism | Enablement |
+|---|---|---|---|
+| council-forge | Python | `repo_security_scan.py sast` → `sast_gate.py` (advisory) | already operational in its own `security-scan.yml` (`python-sast` job) |
+| Sentinel | .NET (frozen) | Roslyn analyzers, `TreatWarningsAsErrors` (native, **enforcing**) | native build already enforces; **template-only while frozen — do NOT wire `dotnet-analyzers` into CI; do NOT touch azure-pipelines.yml** |
+| LINE-BOT | .NET (active GitHub remote) | Roslyn analyzers (native) + opt-in workflow | opt-in: copy `dotnet-analyzers` (and `python-sast` if any tooling scripts are Python) |
+| Verso | Tauri (Rust + Node, no remote) | `cargo clippy -- -D warnings` (native, **enforcing**) | local / pre-commit (clippy already in package.json scripts) |
+| Vero | Tauri (Rust + Node, no remote) | `cargo clippy -- -D warnings` (native, **enforcing**) | local / pre-commit |
+
+**Advisory → enforce transition.** The Python SAST is advisory on purpose; raising PW.7 from
+`partial` to `covered` is a **future governed task** (must pass the dual adversarial-review
+gate), not a flag flip. It requires: (1) triaging the advisory findings surfaced in the job
+summary; (2) a baseline + waiver schema (rule_id / path / reason / owner / expires, reusing
+the TASK-1042 runtime-waiver pattern) so the first enforcing run does not thrash; (3) a
+per-language order — the low-FP native analyzers (.NET, clippy) are already enforcing, so the
+Python regex SAST is enforced last via `sast_gate.py --enforce --min-level error` once a
+baseline exists. PW.7 becomes `covered` only when council-forge **and** the critical downstreams
+all enforce.
 
 ## Adoption
 

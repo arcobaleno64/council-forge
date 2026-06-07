@@ -25,7 +25,9 @@ ROOT = Path(__file__).resolve().parents[2]
 ROOT_WF = ROOT / ".github" / "workflows" / "security-scan.yml"
 TEMPLATE_WF = ROOT / "template" / ".github" / "workflows" / "security-scan.yml"
 DOWNSTREAM_WF = ROOT / "docs" / "templates" / "security" / "downstream-security-scan.yml"
+DOWNSTREAM_SAST_WF = ROOT / "docs" / "templates" / "security" / "downstream-sast.yml"
 MANIFEST = ROOT / "docs" / "templates" / "security" / "action-pins.json"
+MAPPING_DOC = ROOT / "docs" / "ssdf-mapping.md"
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 MASKING_SUBSTRINGS = ("|| true", "|| :", "; true", "; :", "set +e", "set +o errexit")
@@ -91,14 +93,14 @@ def _all_run_text(wf: dict) -> str:
 # --------------------------------------------------------------------------- #
 # POSITIVE: the real shipped workflows must lint clean
 # --------------------------------------------------------------------------- #
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF])
 def test_real_workflow_action_pins_clean(wf_path: Path):
     manifest = load_manifest(MANIFEST)
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_action_pins(wf, manifest) == []
 
 
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF])
 def test_real_workflow_no_masking(wf_path: Path):
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_no_masking(wf) == []
@@ -177,3 +179,67 @@ def test_lint_catches_run_masking(masked: str):
 def test_lint_clean_step_has_no_violation():
     wf = _wf_with_step({"run": "pnpm audit --audit-level=high"})
     assert check_no_masking(wf) == []
+
+
+# --------------------------------------------------------------------------- #
+# P8-C SAST: operational evidence + durable advisory exposure
+# --------------------------------------------------------------------------- #
+def _mapping_row(practice_id: str) -> list:
+    for line in MAPPING_DOC.read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith(f"| {practice_id} |"):
+            return [cell.strip() for cell in line.strip().strip("|").split("|")]
+    raise AssertionError(f"{practice_id} row not found in ssdf-mapping.md")
+
+
+def _job_run_text(wf: dict, job_name: str) -> str:
+    job = _jobs(wf).get(job_name, {})
+    return "\n".join(
+        step.get("run", "") for step in job.get("steps", []) or [] if isinstance(step.get("run"), str)
+    )
+
+
+def test_pw7_evidence_is_operational_workflow_not_template():
+    """PW.7 evidence must be the RUNNING council-forge workflow (operational control), and
+    that workflow must actually invoke the advisory scanner + the tested gate — so an opt-in
+    template can never be mistaken for the operational evidence (codex v2/v3)."""
+    cells = _mapping_row("PW.7")  # [Practice, Title, Status, Mechanism, Evidence, Gap/Waiver]
+    assert cells[2] == "partial"
+    assert cells[3] == "artifacts/scripts/sast_gate.py"
+    evidence = cells[4]
+    assert evidence == ".github/workflows/security-scan.yml"
+    wf = yaml.safe_load((ROOT / evidence).read_text(encoding="utf-8"))
+    assert "python-sast" in _jobs(wf), "operational evidence workflow lacks the python-sast job"
+    run_text = _job_run_text(wf, "python-sast")
+    assert "repo_security_scan.py --root . sast" in run_text
+    assert "sast_gate.py" in run_text
+
+
+def _sast_gate_invocations(wf: dict) -> list:
+    lines = []
+    for _job_name, _job, step in iter_steps(wf):
+        run = step.get("run")
+        if isinstance(run, str):
+            lines.extend(line for line in run.splitlines() if "sast_gate.py" in line)
+    return lines
+
+
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_SAST_WF])
+def test_advisory_sast_gate_durably_exposes_findings(wf_path: Path):
+    """Every advisory sast_gate invocation — in council-forge's own workflow AND the
+    downstream template — must bind --summary-file "$GITHUB_STEP_SUMMARY", so advisory
+    findings are durably surfaced rather than silently dropped (codex v4/v5)."""
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    invocations = _sast_gate_invocations(wf)
+    assert invocations, f"{wf_path.name} has no sast_gate invocation to check"
+    for line in invocations:
+        assert '--summary-file "$GITHUB_STEP_SUMMARY"' in line, (
+            f"advisory sast_gate must durably surface findings: {line!r}"
+        )
+
+
+def test_downstream_sast_wires_tested_gate_and_recognizes_native():
+    text = DOWNSTREAM_SAST_WF.read_text(encoding="utf-8")
+    assert "repo_security_scan.py --root . sast --format sarif" in text  # advisory scanner -> SARIF
+    assert "sast_gate.py --sarif" in text  # gated via the tested sast_gate, not raw output
+    assert "clippy" in text and "-D warnings" in text  # recognize Rust native analyzer
+    assert "warnaserror" in text  # recognize .NET native analyzer (TreatWarningsAsErrors)

@@ -137,9 +137,16 @@ phase 與理據。
 > P8-B 認列為 `partial`**（非 gap，亦非高估之 covered——下游語言 SCA 為 opt-in 模板、RV.1 之
 > vuln-disclosure intake 留 P8-D）。二者之 waiver marker 遂自本 registry 移除。
 
-- `SSDF-Gap-Waiver: PW.7`
-  - owning phase: P8-C（SAST：CodeQL/semgrep；.NET analyzers；clippy 已有）。
-  - 理據：無內建 SAST 關卡；語言相關、FP 較高，後於 P8-B，且初期可 advisory。
+> **P8-C 校正（2026-06-07）**：P8-C（TASK-1080）已建 advisory Python SAST（`repo_security_scan.py
+> sast` → SARIF → fail-closed `sast_gate.py`）並接入 council-forge 自身 `security-scan.yml` 之
+> 運行中 `python-sast` job，findings durably 暴露於 `$GITHUB_STEP_SUMMARY`；下游 native analyzers
+> （Sentinel .NET / Verso·Vero clippy）認列為機制，opt-in 模板見
+> `docs/templates/security/downstream-sast.yml`。故 **PW.7（SAST）已認列為 `partial`**——**advisory
+> detection（visibility）非 enforced remediation**（advisory-first、未全語言 enforcing），其 waiver
+> marker 遂自本 registry 移除。轉 enforcing 與 PW.7→`covered` 之升等為後階 governed task（baseline
+> + waiver + per-language 序），須過雙審 gate。**SBOM（PS.2）由本階析出為 P8-C2**（SAST 與 SBOM
+> 分治），仍 gap、marker 留。
+
 - `SSDF-Gap-Waiver: PS.2`
-  - owning phase: P8-C（SBOM：syft/cyclonedx，Rust+npm+.NET）。
-  - 理據：無 SBOM 生成；P8-C 補並附 release。
+  - owning phase: P8-C2（SBOM：syft/cyclonedx，Rust+npm+.NET）。
+  - 理據：無 SBOM 生成；P8-C2 補並附 release。

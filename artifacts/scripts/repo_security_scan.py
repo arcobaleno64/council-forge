@@ -168,6 +168,69 @@ STATIC_RULES = (
 )
 
 
+# --------------------------------------------------------------------------- #
+# Advisory Python SAST (TASK-1080 / P8-C). Curated, high-confidence, low-FP rules only,
+# kept deliberately small to avoid the false-positive avalanche that would make an enforcing
+# gate noise. These run ONLY via the `sast` subcommand and emit SARIF for the fail-closed
+# sast_gate.py; they do NOT touch the existing enforcing secrets/static rules. (assert-as-
+# validation is intentionally omitted: it is high-FP against the repo's own test files.
+# Patterns use escaped dots / an `ssl.` prefix so they do not match their own definitions.)
+# --------------------------------------------------------------------------- #
+PYTHON_SAST_RULES = (
+    StaticRule(
+        "sast-yaml-unsafe-load",
+        "high",
+        ("python",),
+        re.compile(r"\byaml\.(?:unsafe_load|full_load)\s*\(|\byaml\.load\s*\((?!.*Loader)"),
+        "yaml.load without SafeLoader can execute arbitrary objects; use yaml.safe_load",
+    ),
+    StaticRule(
+        "sast-insecure-deserialization",
+        "high",
+        ("python",),
+        re.compile(r"\b(?:pickle|marshal)\.loads?\s*\("),
+        "deserializing untrusted pickle/marshal data can execute arbitrary code",
+    ),
+    StaticRule(
+        "sast-insecure-tempfile",
+        "medium",
+        ("python",),
+        re.compile(r"\btempfile\.mktemp\s*\("),
+        "tempfile.mktemp is race-prone; use tempfile.mkstemp/NamedTemporaryFile",
+    ),
+    StaticRule(
+        "sast-weak-hash",
+        "low",
+        ("python",),
+        re.compile(r"\bhashlib\.(?:md5|sha1)\s*\("),
+        "md5/sha1 are weak for security use; prefer sha256 (ok for non-security checksums)",
+    ),
+    StaticRule(
+        "sast-bind-all-interfaces",
+        "low",
+        ("python",),
+        re.compile(r"""["']0\.0\.0\.0["']"""),
+        "binding 0.0.0.0 exposes the service on all interfaces; bind narrowly if possible",
+    ),
+    StaticRule(
+        "sast-ssl-no-verify",
+        "high",
+        ("python",),
+        re.compile(r"\bssl\.CERT_NONE\b"),
+        "ssl.CERT_NONE disables certificate verification (MITM risk)",
+    ),
+)
+
+# council-forge severity -> SARIF result.level (sast_gate validates these against the
+# SARIF-defined level set; an unmapped severity degrades to "warning", never dropped).
+SARIF_LEVEL_BY_SEVERITY = {
+    "critical": "error",
+    "high": "error",
+    "medium": "warning",
+    "low": "note",
+}
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Repo-local security scanner")
     parser.add_argument("--root", default=".", help="Repository root")
@@ -176,6 +239,13 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("secrets", help="Scan for high-confidence secrets")
     subparsers.add_parser("static", help="Scan for focused static control-plane risks")
+    sast_parser = subparsers.add_parser("sast", help="Advisory Python SAST (emits SARIF for sast_gate)")
+    sast_parser.add_argument(
+        "--format",
+        choices=["text", "json", "sarif"],
+        default="text",
+        help="Output format; 'sarif' feeds artifacts/scripts/sast_gate.py",
+    )
     return parser.parse_args(argv)
 
 
@@ -320,6 +390,22 @@ def scan_static(root: Path) -> list[Finding]:
     return dedupe_findings(findings)
 
 
+def scan_sast(root: Path) -> list[Finding]:
+    """Advisory Python SAST: apply PYTHON_SAST_RULES to Python sources only."""
+    findings: list[Finding] = []
+    for rel_path, path in iter_repo_files(root):
+        if detect_static_target(rel_path) != "python":
+            continue
+        text = read_text(path)
+        if text is None:
+            continue
+        for line_number, line in iter_lines(text):
+            for rule in PYTHON_SAST_RULES:
+                if rule.pattern.search(line):
+                    findings.append(build_finding(rule.rule_id, rule.severity, rel_path, line_number, rule.message, line))
+    return dedupe_findings(findings)
+
+
 def dedupe_findings(findings: Iterable[Finding]) -> list[Finding]:
     seen: set[tuple[str, str, int]] = set()
     ordered: list[Finding] = []
@@ -346,13 +432,62 @@ def render_findings(findings: Sequence[Finding], as_json: bool) -> str:
     return "\n".join(lines)
 
 
+def findings_to_sarif(findings: Sequence[Finding]) -> dict:
+    """Render findings as a SARIF 2.1.0 document (consumable by sast_gate.py)."""
+    rules: dict[str, str] = {}
+    results = []
+    for finding in findings:
+        rules.setdefault(finding.rule_id, finding.message)
+        results.append(
+            {
+                "ruleId": finding.rule_id,
+                "level": SARIF_LEVEL_BY_SEVERITY.get(finding.severity, "warning"),
+                "message": {"text": finding.message},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": finding.path},
+                            "region": {"startLine": finding.line},
+                        }
+                    }
+                ],
+            }
+        )
+    driver_rules = [
+        {"id": rule_id, "shortDescription": {"text": message}}
+        for rule_id, message in sorted(rules.items())
+    ]
+    return {
+        "version": "2.1.0",
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "runs": [
+            {
+                "tool": {"driver": {"name": "repo_security_scan-sast", "rules": driver_rules}},
+                "results": results,
+            }
+        ],
+    }
+
+
+def emit_sast(findings: Sequence[Finding], output_format: str) -> int:
+    """Print SAST findings in the requested format. Advisory: always returns 0
+    (sast_gate.py is the gate that decides pass/fail from the emitted SARIF)."""
+    if output_format == "sarif":
+        print(json.dumps(findings_to_sarif(findings), ensure_ascii=False, indent=2))
+    else:
+        print(render_findings(findings, output_format == "json"))
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     root = Path(args.root).resolve()
     if args.command == "secrets":
         findings = scan_secrets(root)
-    else:
+    elif args.command == "static":
         findings = scan_static(root)
+    else:  # sast — advisory: emit (SARIF/json/text) and exit 0; sast_gate.py gates findings
+        return emit_sast(scan_sast(root), args.format)
     print(render_findings(findings, args.json))
     return 1 if findings else 0
 

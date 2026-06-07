@@ -71,3 +71,28 @@ jobs:
 
       - name: Run focused static rules scan
         run: python artifacts/scripts/repo_security_scan.py --root . static
+
+  python-sast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Python SAST (advisory) -> SARIF
+        # repo_security_scan sast is ADVISORY (exit 0); it only PRODUCES the SARIF report.
+        run: python artifacts/scripts/repo_security_scan.py --root . sast --format sarif > python-sast.sarif
+
+      - name: SAST gate (advisory; durably surface findings to the job summary)
+        # sast_gate is advisory by DEFAULT (exit 0) — findings do NOT fail the job, but are
+        # durably appended to $GITHUB_STEP_SUMMARY so they are reviewable, not silently
+        # dropped (the reporting-not-control guard). It still FAILS CLOSED on malformed /
+        # unknown-version / unknown-level SARIF: we will not "advise" on a broken report.
+        run: python artifacts/scripts/sast_gate.py --sarif python-sast.sarif --summary-file "$GITHUB_STEP_SUMMARY"

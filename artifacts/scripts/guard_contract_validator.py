@@ -33,6 +33,7 @@ EXACT_SYNC_FILES = [
     "artifacts/scripts/sast_gate.py",
     "artifacts/scripts/sbom_gate.py",
     "artifacts/scripts/sca_gate.py",
+    "artifacts/scripts/security_txt_gate.py",
     "artifacts/scripts/drills/prompt_regression_cases.json",
     "artifacts/scripts/guard_status_validator.py",
     "artifacts/scripts/migrate_artifact_schema.py",

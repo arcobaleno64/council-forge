@@ -359,3 +359,54 @@ def test_sbom_generation_captures_transitive(tmp_path: Path):
 
     code, _ = sbom_gate.evaluate(doc, min_components=1, required=frozenset(), normalization="exact")
     assert code == sbom_gate.EXIT_OK
+
+
+# --------------------------------------------------------------------------- #
+# P8-D vuln-disclosure & response: RFC 9116 security.txt + operational job + honest mapping
+# --------------------------------------------------------------------------- #
+SECURITY_TXT = ROOT / ".well-known" / "security.txt"
+
+
+def test_council_forge_security_txt_is_valid():
+    """council-forge's own committed security.txt must pass the fail-closed RFC 9116 gate
+    (evaluated with a fixed now, so the test is deterministic regardless of the date)."""
+    import security_txt_gate
+    from datetime import datetime, timezone
+
+    text = SECURITY_TXT.read_text(encoding="utf-8")
+    now = datetime(2026, 6, 8, tzinfo=timezone.utc)
+    code, message = security_txt_gate.evaluate(text, now=now, max_validity_days=365)
+    assert code == security_txt_gate.EXIT_OK, message
+
+
+def test_security_txt_job_is_operational_and_scheduled():
+    """The security-txt job must invoke the gate, be guarded at STEP level by hashFiles (so a
+    downstream without the file skips rather than fails — codex v2), and the workflow must run on
+    a schedule so an expired security.txt is caught even with no code change."""
+    wf = yaml.safe_load(ROOT_WF.read_text(encoding="utf-8"))
+    assert "security-txt" in _jobs(wf), "security-scan.yml lacks the security-txt job"
+    steps = _jobs(wf)["security-txt"].get("steps", [])
+    gate_steps = [s for s in steps if isinstance(s.get("run"), str) and "security_txt_gate.py" in s["run"]]
+    assert gate_steps, "security-txt job does not invoke security_txt_gate.py"
+    for step in gate_steps:
+        cond = str(step.get("if", ""))
+        assert "hashFiles" in cond and ".well-known/security.txt" in cond, (
+            "gate step must be step-level presence-conditional on the security.txt"
+        )
+    # yaml.safe_load may parse the `on:` key as the boolean True (YAML 1.1)
+    on_block = wf.get("on", wf.get(True, {}))
+    assert on_block.get("schedule"), "security-scan.yml must run on a schedule (catch Expires lapse)"
+
+
+def test_rv_disclosure_mapping_is_honest():
+    """The RV footnote must document the disclosure intake + IR runbook, RV.1/RV.2 stay partial,
+    PS.2 stays a gap owned by P8-D2 (no over-claim; council-forge has no binaries)."""
+    mapping = MAPPING_DOC.read_text(encoding="utf-8")
+    assert "SECURITY.md" in mapping and ".well-known/security.txt" in mapping
+    assert "incident-response-runbook" in mapping
+    assert _mapping_row("RV.1")[2] == "partial"
+    assert _mapping_row("RV.2")[2] == "partial"
+    assert _mapping_row("PS.2")[2] == "gap"
+    lines = ROADMAP_DOC.read_text(encoding="utf-8").splitlines()
+    idx = next(i for i, line in enumerate(lines) if "SSDF-Gap-Waiver: PS.2" in line)
+    assert any("owning phase: P8-D2" in line for line in lines[idx : idx + 4]), "PS.2 must be owned by P8-D2"

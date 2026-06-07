@@ -156,6 +156,12 @@ phase 與理據。
 > `gap`、owning phase 改 P8-D**（release 簽章/雜湊/integrity-verification info）。**SBOM 非 gap**
 > （已認列 PS.3.2 provenance），其 marker 不立於本 registry；下方 PS.2 marker 之義已正為簽章。
 
+> **P8-D 校正（2026-06-08）**：P8-D（TASK-1082）聚焦 **vuln-disclosure & response**（RV.1.3/RV.2/
+> RV.3）——立運行中之 `SECURITY.md` + `.well-known/security.txt`（`security_txt_gate.py` per-PR+
+> schedule 守）+ IR-runbook，RV.1/RV.2 強化 evidence（仍 partial）、RV.3 covered（IR 骨架）。
+> **PS.2（release-integrity 簽章）析出為 P8-D2**：council-forge 無二進位 release→covered 結構不可
+> 達（下游 .NET/Tauri 之事），故 PS.2 **仍 gap**、marker owning 由 P8-D 改 **P8-D2**。
+
 - `SSDF-Gap-Waiver: PS.2`
-  - owning phase: P8-D（release-integrity：code-signing / 雜湊 / integrity-verification info 供 acquirer）。
-  - 理據：council-forge 尚無 release 簽章/雜湊機制供 acquirer 驗其完整性（**非** SBOM——SBOM 已於 P8-C2 認列為 PS.3.2 provenance，見上 P8-C2 校正）。
+  - owning phase: P8-D2（release-integrity：code-signing / 雜湊 / integrity-verification info 供 acquirer；council-forge 無 binaries→partial 上限為 policy+下游模板，covered 屬下游）。
+  - 理據：council-forge 尚無 release 簽章/雜湊機制供 acquirer 驗其完整性（**非** SBOM——SBOM 已於 P8-C2 認列為 PS.3.2 provenance；disclosure & response 已於 P8-D 立，見上 P8-D 校正）。

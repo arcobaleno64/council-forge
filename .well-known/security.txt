@@ -1,0 +1,10 @@
+# council-forge security.txt — RFC 9116 vulnerability disclosure intake.
+# Validated in CI by artifacts/scripts/security_txt_gate.py (per-PR + scheduled).
+# Renew Expires before it lapses; the scheduled gate run fails closed once it is in the past.
+
+Contact: https://github.com/arcobaleno64/council-forge/security/advisories/new
+Contact: mailto:security@arcobaleno64.users.noreply.github.com
+Expires: 2027-06-01T00:00:00Z
+Policy: https://github.com/arcobaleno64/council-forge/blob/master/SECURITY.md
+Canonical: https://raw.githubusercontent.com/arcobaleno64/council-forge/master/.well-known/security.txt
+Preferred-Languages: en, zh-Hant

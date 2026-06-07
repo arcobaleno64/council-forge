@@ -73,3 +73,19 @@ https://doi.org/10.6028/NIST.SP.800-218
 > explicitly ACCEPTED RISK**——無 gate 能獨立斷（否則須自為生成器或另信一完整性同不可證之
 > enumerator，無限回歸），由 resolved-env 配方 + identity + 恆印 advisory 共治，殘留以
 > §Transitive-Completeness Follow-up 之非阻斷週期審計觀測。
+
+> **RV.1/RV.2/RV.3（vuln-disclosure & response）強化（P8-D，2026-06-08）**：recon 逐字核 NIST——
+> **RV.1.3**＝「Have a policy that addresses vulnerability **disclosure** and remediation...」。
+> council-forge 立**運行中之 disclosure intake**：`SECURITY.md`（CVD policy：private intake /
+> best-effort ack / 90-day coordinated window / safe-harbor）+ `.well-known/security.txt`
+> （RFC 9116），由 `artifacts/scripts/security_txt_gate.py` 於 `.github/workflows/security-scan.yml`
+> 之 `security-txt` job **per-PR + 每週 schedule** fail-closed 驗（well-formed + 必備 field +
+> Expires 未過期）。**RV.1 仍 `partial`**（RV.1.2 之 code-analysis=SAST 為 advisory；強化 evidence
+> 非升 covered）。**RV.2**：`SECURITY.md` 載**自訂 patch-prioritization**（CVSS-tiered + CISA KEV
+> override，**明標非 NIST SP 800-218 數值**——NIST RV.2 為 risk-based 無定數）；仍 `partial`（policy
+> 非 enforced）。**RV.3**（covered）：`docs/incident-response-runbook.md`（NIST SP 800-61 detect→
+> triage→contain→eradicate→recover→**post-incident/root-cause**→PROCESS_LEDGER）為其操作骨架。
+> **誠實界**：security_txt_gate 驗檔之語法/結構/未過期，**不能**驗 Contact 真達責任人/URL 可達/
+> 非惡意（無網路 fetch）——**語義可信屬 human-review**（security.txt 變更之 PR review + policy
+> owner）。**release-integrity 簽章（PS.2）析出 P8-D2**（council-forge 無二進位 release→covered
+> 結構不可達；下游 .NET/Tauri 之事，見 roadmap §8）。映 `docs/security_cadence.md`（cross-ref）。

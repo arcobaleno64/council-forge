@@ -117,6 +117,29 @@ enumerator — `pipdeptree` / `cargo tree` / `pnpm list` — as a generator-effi
 loop, observation not a hard gate). This is why **PS.3 is `partial`, not `covered`**, and why
 the advisory SBOM is not falsely claimed to be a complete bill of materials.
 
+## Vulnerability disclosure (P8-D) — `security.txt` + `SECURITY.md`
+
+council-forge ships a fail-closed RFC 9116 gate (`artifacts/scripts/security_txt_gate.py`,
+EXACT_SYNC so downstreams get it) and runs it on **itself** via the `security-txt` job in
+`.github/workflows/security-scan.yml` (validating its own `.well-known/security.txt`). The job is
+**step-level presence-conditional** (`if: hashFiles('.well-known/security.txt') != ''`), so a
+downstream that copied `template/` but has **not** authored a `security.txt` simply skips it — it
+does **not** fail CI. The workflow also runs on a weekly `schedule` so an expired `Expires` is
+caught even with no code change.
+
+A downstream that wants a disclosure program:
+1. Author `SECURITY.md` (GitHub surfaces it under the Security tab) — a CVD policy: a private
+   intake channel, a best-effort acknowledgement (don't over-promise an SLA), a coordinated
+   disclosure window, and safe-harbor language. (council-forge's own `SECURITY.md` is a model.)
+2. Author `.well-known/security.txt` (RFC 9116): a `Contact:` (https/mailto) and a **non-expired**
+   `Expires:` (RFC 3339, < 1 year out) are required; `Policy:`/`Canonical:` etc. are optional URIs.
+3. Enable GitHub **private vulnerability reporting** (Settings → Advanced Security).
+
+The gate validates **syntax + URI structure + https-for-web + a non-expired Expires**. It does
+**not** verify that the Contact reaches a monitored party, that URLs resolve, or that a signature
+is valid — that is human review. SSDF mapping: this is the **RV.1.3** disclosure dimension (it
+stays `partial`, policy + verifiable intake). Release-integrity signing (PS.2) is **P8-D2**.
+
 ## Adoption
 
 1. Copy `downstream-security-scan.yml` into `.github/workflows/` (or run its `run:` commands locally for no-CI repos).

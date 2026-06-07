@@ -38,13 +38,25 @@ issue 自動建立後 30 天為建議 deadline；workflow 不執行實際 threat
 
 | 欄位 | 內容 |
 |---|---|
-| Trigger | `.github/workflows/security-scan.yml`（`on: pull_request, push to master, workflow_dispatch`） |
-| Cadence | per PR / per push to master / 手動 |
-| Artifact Destination | GitHub Actions log；pip-audit 之 `pip-audit-report.json` 落於 run 之 group output |
+| Trigger | `.github/workflows/security-scan.yml`（`on: pull_request, push to master, workflow_dispatch, schedule cron "0 6 * * 1"`） |
+| Cadence | per PR / per push to master / 手動 / 每週一 06:00 UTC（schedule） |
+| Artifact Destination | GitHub Actions log；pip-audit 之 `pip-audit-report.json`、SBOM `sbom.cdx.json`、SAST findings 之 `$GITHUB_STEP_SUMMARY` |
 | Owner | CI 自動 + PR reviewer |
-| Components | (a) `pip-audit` 掃 `requirements.txt` CVE；(b) `repo_security_scan.py secrets` 掃 hardcoded credentials；(c) `repo_security_scan.py static` 掃 focused static rules |
+| Components | (a) `pip-audit` 掃 `requirements.txt` CVE（SCA, PW.4）；(b) `repo_security_scan.py secrets`；(c) `repo_security_scan.py static`；(d) `python-sast`（advisory SAST → `sast_gate.py`，PW.7）；(e) `sbom`（`cyclonedx-py` resolved-env → `sbom_gate.py`，PS.3.2）；(f) `security-txt`（`security_txt_gate.py` 驗 RFC 9116 intake，RV.1.3；step-level present-only） |
 
-continuous 層由既有 workflow 落地（前置 task TASK-* 已建立），本 task 不變動。任何 hardening（fail-on-severity threshold / SBOM 整合 / license audit）屬 future task 範圍。
+continuous 層由既有 workflow 落地。**schedule cron 之要**：使 `security-txt` job 週期跑，於 `.well-known/security.txt` 之 `Expires` 無聲過期時 fail-closed（即便無 code 變動）。任何 hardening（fail-on-severity threshold / release-signing）屬 future task。
+
+## Vulnerability Disclosure & Response（P8-D）
+
+> **映而不疊**：本節為 cross-ref；內容主於各專檔，此處唯列其關聯與 cadence。
+
+| 維度 | 真實來源 | Cadence / Gate |
+|---|---|---|
+| Disclosure intake | [`.well-known/security.txt`](../.well-known/security.txt)（RFC 9116）+ GitHub private vulnerability reporting | `security-txt` job（per-PR + 每週 schedule），`security_txt_gate.py` fail-closed 驗 well-formed + 未過期 |
+| Disclosure policy | [`../SECURITY.md`](../SECURITY.md)（CVD：intake / best-effort ack / 90-day / safe-harbor / 自訂 patch-prioritization） | 文件（policy；human-review 守其語義） |
+| Incident response | [`incident-response-runbook.md`](incident-response-runbook.md)（NIST SP 800-61，RV.3 root-cause→PROCESS_LEDGER） | 文件（process） |
+
+SSDF 對應：RV.1.3（disclosure policy/intake）、RV.2（assess/prioritize，自訂非 NIST 數值）、RV.3（root-cause）——皆 `partial`/`covered` 見 [`ssdf-mapping.md`](ssdf-mapping.md)。release-integrity 簽章（PS.2）析出 **P8-D2**（council-forge 無二進位 release）。
 
 ## Setup Steps
 

@@ -37,11 +37,22 @@ jobs:
 
       - name: Unit Tests
         run: |
-          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py artifacts/scripts/test_scaffold_downstream.py artifacts/scripts/test_prompt_regression_validator.py artifacts/scripts/test_drift_dashboard.py artifacts/scripts/test_propagate_downstream.py -v \
+          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py artifacts/scripts/test_scaffold_downstream.py artifacts/scripts/test_prompt_regression_validator.py artifacts/scripts/test_drift_dashboard.py artifacts/scripts/test_propagate_downstream.py artifacts/scripts/test_ssdf_mapping_validator.py -v \
             --cov --cov-config=.coveragerc \
             --cov-report=term-missing \
             --cov-report=html:coverage-report \
             --cov-fail-under=90
+
+      - name: SSDF Mapping Integrity
+        # errexit-safe: validator exit 3 (valid-with-open-items) is acceptable; only an
+        # integrity violation (2) or usage/IO error (1) fails the gate. Without `set +e`
+        # the default errexit would abort the step on exit 3 before rc is captured.
+        run: |
+          set +e
+          python artifacts/scripts/ssdf_mapping_validator.py --mapping docs/ssdf-mapping.md
+          rc=$?
+          set -e
+          case "$rc" in 0|3) exit 0;; *) exit "$rc";; esac
 
       - name: Contract Guard
         run: python artifacts/scripts/guard_contract_validator.py --root .

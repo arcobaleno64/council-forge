@@ -48,7 +48,7 @@ Workflow template 位於：【填入 artifact-harness repo clone 路徑，或直
 
 - Orchestrator：Claude Code（你；CLI-first，預設負責 orchestration、決策、驗收與最後整合）
 - Research / Memory Curator agent：Gemini CLI
-  - 模型：`gemini-3.1-flash-lite-preview`（預設），有問題時可升級至 `gemini-3-flash-preview`；`gemini-3.1-pro-preview` 僅保留為 allowlist 內的 ad-hoc dispatch，不再列為 auto-fallback
+  - 模型：`gemini-3.1-flash-lite-preview`（預設），有問題時依序升級至 `gemini-3-flash-preview`、`gemini-3.1-pro-preview`（auto-fallback tier 3）
   - 只允許上述 allowlist，不得降回 2.x 或其他更舊模型
   - 認證方式：由 CLI 內部 OAuth 處理，不依賴 `GEMINI_API_KEY` 環境變數（若未登入請先執行 `gemini auth`）
   - 呼叫方式：gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"

@@ -114,49 +114,19 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 
 ### 派發 Research
 
-```
-1. 準備 dispatch prompt，包含：
-   - 問題敘述
-   - GEMINI.md 的規則條文
-   - 預期輸出格式（見 docs/schemas/artifact-spec-research.md §5.2）
-2. 執行 `gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "..."` 或 `artifacts/scripts/Invoke-GeminiAgent.ps1`
-3. 接收 research artifact，驗證 `## Sources` 有 ≥2 條 + URL
-```
+> 詳見 `docs/sop/dispatch_research.md`。Dispatch prompt token-cost 慣例見 `docs/dispatch_prompt_discipline.md`。
 
 ### 派發 Memory Bank Curator
 
-```
-1. Closure 或 memory capture 階段若有長期可重用 lesson，Claude 可派 Gemini 以 Memory Bank Curator 模式產生 `Remember Capture` draft。
-2. Dispatch prompt 只提供最小必要 context：任務摘要、可追蹤 source、目標 `.github/memory-bank/*.md` 讀取範圍、`.github/prompts/remember-capture.prompt.md`。
-3. Gemini 不得改檔；只能分類、查重、驗證來源與輸出 draft。
-4. 若 draft 的 `Action` 需要追加/更新/先整併，交由 Claude 或 Codex 在明確 write scope 下修改 `.github/memory-bank/`。
-5. Claude 最終驗收安全檢查、source、line count、是否排除 secrets / credential / 短期排障紀錄。
-```
+> 詳見 `docs/sop/dispatch_memory_curator.md`。
 
 ### 派發 Implementation
 
-```
-1. 驗證 plan artifact 已完成 premortem（R1-R4 都有）
-2. 準備 dispatch prompt，包含：
-   - CODEX.md 的規則條文
-   - plan artifact 的摘述
-   - Scope 限制（什麼不做）
-   - Routing inputs: task type、risk score、context cost
-   - Codex model/effort policy
-3. 執行 `artifacts/scripts/Invoke-CodexAgent.ps1`，依 task scale 指定 model policy
-4. 接收 code artifact 與 verify artifact
-5. 檢查 `## Files Changed` ⊆ plan 的 `## Files Likely Affected`
-```
+> 詳見 `docs/sop/dispatch_implementation.md`。Dispatch prompt token-cost 慣例見 `docs/dispatch_prompt_discipline.md`。
 
 ### 完成任務
 
-```
-1. 執行 reviewUnstaged / review 工具檢查程式碼
-2. 驗證所有 artifacts 都符合 schema
-3. 確認 verification evidence 到位
-4. 判斷是否需要 Memory Bank Curator draft；若需要寫入，先完成 Claude/Codex 窄範圍修改與 Claude 最終驗收
-5. 呼叫 task_complete 工具
-```
+> 詳見 `docs/sop/task_completion.md`：執行 review → 驗證 schema → 確認 verification evidence 到位 → 呼叫 task_complete 工具。
 
 ## 特殊情況
 

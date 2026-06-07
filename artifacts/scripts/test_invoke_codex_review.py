@@ -58,3 +58,18 @@ def test_review_outputs_include_current_frontmatter_fields(fake_codex_exe, run_w
         assert text.startswith("---\n")
         for field in ("model:", "effort:", "diff_source:", "commit_anchor:", "generated_at:", "exit_code:"):
             assert field in text
+
+
+def test_suppress_size_warn_switch_accepted(fake_codex_exe, run_wrapper):
+    """TASK-1067: -SuppressSizeWarn switch must parse without error in review wrapper.
+    Smoke test only; real bounds (100000 / 200000) require fake large diff, deferred."""
+    result = run_wrapper(
+        WRAPPER,
+        "-DryRun",
+        "-DiffSource",
+        "unstaged",
+        "-SuppressSizeWarn",
+        env=fake_codex_exe.env(),
+    )
+    assert result.returncode == 0, result.combined_output
+    assert "[DRY-RUN]" in result.stdout

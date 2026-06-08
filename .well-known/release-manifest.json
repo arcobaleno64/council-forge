@@ -252,7 +252,7 @@
     },
     {
       "path": ".github/workflows/workflow-guards.yml",
-      "sha256": "5110ce96ce1d0c2ba721341d594c47058a77080d029e9afceb97d54229975f41"
+      "sha256": "71d30768ac416096dfa1084db1373db07389198570056684540215f18805e806"
     },
     {
       "path": ".gitignore",
@@ -464,7 +464,7 @@
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
-      "sha256": "b4e162a83f203825b1cacd5d1e023d66d9fc1b15c8d04a052909326750de060b"
+      "sha256": "9f0a1c9f67120cd5adb3a0936b666fcd4a7ba23cb179feff59425fd346ae16ee"
     },
     {
       "path": "artifacts/scripts/guard_contract_validator.py",
@@ -508,7 +508,7 @@
     },
     {
       "path": "artifacts/scripts/publish-release.ps1",
-      "sha256": "c871dbbee548ddeff5af2c70d48728f4e31eeb1edabcdae2a407f349faa74382"
+      "sha256": "8c5d0694bc02a1a6a3e79237d2c3764563bb0fb29ae00e211b2823567ebb765e"
     },
     {
       "path": "artifacts/scripts/push-wiki.ps1",
@@ -923,5 +923,5 @@
       "sha256": "3057ed30441890243808d704f9ba759f1a499f4009d60f245d15eddd53afe9c7"
     }
   ],
-  "root": "404ca16208e5bf9f35160ff3296b06d59d7d7869f267c678094039c281703462"
+  "root": "0ce8f7747769c2ede897a199de4c364a3107fffd6030bdb9a61ce56130181bd2"
 }

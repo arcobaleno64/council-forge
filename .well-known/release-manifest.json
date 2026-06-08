@@ -468,7 +468,7 @@
     },
     {
       "path": "artifacts/scripts/guard_contract_validator.py",
-      "sha256": "07b02b41ec889c0a798d24758f0212ed3944762c0dadd0270f2daf9673948132"
+      "sha256": "96f42811913dccabed15761359d392df1f42ced62d15da7f69d79c6a501db406"
     },
     {
       "path": "artifacts/scripts/guard_helpers/__init__.py",
@@ -580,7 +580,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_contract_validator.py",
-      "sha256": "a7e8249ca250781ec4d4a51d905e38718ee1fb84de65b531a25d685512b4c0ed"
+      "sha256": "cf54bf9bd42b800ef293b4c70e7298cbb6150421b747bed782b14ca3f2ab81b7"
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_artifacts.py",
@@ -592,7 +592,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_state.py",
-      "sha256": "a885d28aa0118bfa67b85302d5a362e31d9e3dddc9436919f65be959f726f523"
+      "sha256": "bd3063830926cc4394f579f8ac5a050b49986d6bde887056d92464f6ad7be7e1"
     },
     {
       "path": "artifacts/scripts/test_guard_units.py",
@@ -923,5 +923,5 @@
       "sha256": "3057ed30441890243808d704f9ba759f1a499f4009d60f245d15eddd53afe9c7"
     }
   ],
-  "root": "0ce8f7747769c2ede897a199de4c364a3107fffd6030bdb9a61ce56130181bd2"
+  "root": "317b0f5d6c3285c9675b7d1b31deae5d215ffc06012f819355fa9dde217ee479"
 }

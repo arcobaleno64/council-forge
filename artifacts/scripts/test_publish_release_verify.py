@@ -50,7 +50,7 @@ def _call(body: str, *, env: dict | None = None) -> subprocess.CompletedProcess:
         run_env.update(env)
     return subprocess.run(
         [_pwsh_exe(), "-NoProfile", "-Command", script],
-        capture_output=True, text=True, env=run_env,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", env=run_env,
     )
 
 
@@ -90,7 +90,7 @@ def test_publish_release_script_binds_params_and_starts():
     env.pop("GITHUB_TOKEN", None)
     res = subprocess.run(
         [_pwsh_exe(), "-NoProfile", "-File", str(PUBLISH), "-Tag", "v0.0.0-cf-nonexistent", "-WhatIf"],
-        capture_output=True, text=True, env=env, cwd=str(REPO_ROOT),
+        capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, cwd=str(REPO_ROOT),
     )
     combined = res.stdout + res.stderr
     assert "defined multiple times" not in combined, combined

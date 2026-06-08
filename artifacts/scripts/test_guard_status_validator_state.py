@@ -686,62 +686,135 @@ class TestDetectPlanCodeScopeDrift:
 # ─────────────────────────────────────────────
 
 class TestDetectChangedFiles:
+    # TASK-1090: detect_changed_files now returns (is_repo, changed, errors) and decides repo-vs-
+    # non-repo via `git rev-parse --is-inside-work-tree` BEFORE the change-detection probes, so a
+    # non-git bootstrap is not conflated with a degraded detector.
     def test_not_a_git_repo(self, tmp_path):
-        # tmp_path is not a git repo; git commands should fail gracefully
-        available, changed = gcv.detect_changed_files(tmp_path)
-        assert isinstance(changed, set)
+        # tmp_path is not a git work tree -> is_repo False (non-git bootstrap context, not an error)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is False
+        assert isinstance(changed, set) and changed == set()
+        assert errors == []
 
     def test_git_not_installed(self, tmp_path, monkeypatch):
         def mock_run(*args, **kwargs):
             raise FileNotFoundError("git not found")
 
         monkeypatch.setattr(gcv.subprocess, "run", mock_run)
-        available, changed = gcv.detect_changed_files(tmp_path)
-        assert available is False
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is False                      # git missing -> non-git context
         assert changed == set()
+        assert errors == []
 
-    def test_successful_with_changes(self, tmp_path, monkeypatch):
-        call_count = 0
-
+    def test_rev_parse_nonzero_is_non_repo(self, tmp_path, monkeypatch):
         def mock_run(cmd, **kwargs):
-            nonlocal call_count
-            call_count += 1
-
             class Result:
-                returncode = 0
-                stdout = "CLAUDE.md\nGEMINI.md\n" if call_count == 1 else ""
-
+                returncode = 128                     # rev-parse says "not a work tree"
+                stdout = ""
             return Result()
 
         monkeypatch.setattr(gcv.subprocess, "run", mock_run)
-        available, changed = gcv.detect_changed_files(tmp_path)
-        assert available is True
-        assert "CLAUDE.md" in changed
-        assert "GEMINI.md" in changed
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is False
+        assert changed == set() and errors == []
 
-    def test_returncode_nonzero_skipped(self, tmp_path, monkeypatch):
+    def test_git_missing_in_repo_context_fails_closed(self, tmp_path, monkeypatch):
+        # a REAL repo (.git present) whose git BINARY is missing -> degraded, NOT a bootstrap skip
+        (tmp_path / ".git").mkdir()
+
+        def mock_run(*args, **kwargs):
+            raise FileNotFoundError("git not found")
+
+        monkeypatch.setattr(gcv.subprocess, "run", mock_run)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True                       # .git present -> repo context, not a bootstrap
+        assert changed == set()
+        assert len(errors) == 1 and "not found" in errors[0]
+
+    def test_rev_parse_failure_in_repo_context_fails_closed(self, tmp_path, monkeypatch):
+        # a REAL repo (.git present) where rev-parse fails (e.g. dubious ownership) -> degraded
+        (tmp_path / ".git").mkdir()
+
         def mock_run(cmd, **kwargs):
             class Result:
                 returncode = 128
                 stdout = ""
-
             return Result()
 
         monkeypatch.setattr(gcv.subprocess, "run", mock_run)
-        available, changed = gcv.detect_changed_files(tmp_path)
-        assert available is False
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
+        assert len(errors) == 1 and "rev-parse failed" in errors[0]
+
+    def test_successful_with_changes(self, tmp_path, monkeypatch):
+        def mock_run(cmd, **kwargs):
+            class Result:
+                returncode = 0
+                # rev-parse -> "true"; the diff HEAD probe carries the changes
+                stdout = "true" if "rev-parse" in cmd else ("CLAUDE.md\nGEMINI.md\n" if "HEAD" in cmd else "")
+            return Result()
+
+        monkeypatch.setattr(gcv.subprocess, "run", mock_run)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
+        assert errors == []
+        assert "CLAUDE.md" in changed and "GEMINI.md" in changed
+
+    def test_probe_failure_records_error_fail_closed(self, tmp_path, monkeypatch):
+        # rev-parse succeeds (a real work tree) but EVERY change-detection probe fails -> degraded.
+        # detect_changed_files must surface this via errors (so callers can fail closed). TASK-1090.
+        def mock_run(cmd, **kwargs):
+            class Result:
+                returncode = 0 if "rev-parse" in cmd else 128
+                stdout = "true" if "rev-parse" in cmd else ""
+            return Result()
+
+        monkeypatch.setattr(gcv.subprocess, "run", mock_run)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
         assert changed == set()
+        assert len(errors) == 3                      # all three probes failed
+
+    def test_probe_filenotfound_records_error(self, tmp_path, monkeypatch):
+        # git present for rev-parse but a probe raises FileNotFoundError (binary vanished mid-run)
+        # -> recorded as an error (fail-closed), never a silent skip.
+        def mock_run(cmd, **kwargs):
+            if "rev-parse" in cmd:
+                class R:
+                    returncode = 0
+                    stdout = "true"
+                return R()
+            raise FileNotFoundError("git vanished")
+
+        monkeypatch.setattr(gcv.subprocess, "run", mock_run)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
+        assert len(errors) == 3                      # all three probes raised
+
+    def test_partial_probe_failure_still_records_error(self, tmp_path, monkeypatch):
+        # rev-parse "true"; the FIRST probe (diff HEAD) fails but ls-files succeeds empty -> a
+        # tracked edit would be missed. errors must be non-empty (no "one probe ok so pass").
+        def mock_run(cmd, **kwargs):
+            class Result:
+                returncode = 128 if ("diff" in cmd and "HEAD" in cmd) else 0
+                stdout = "true" if "rev-parse" in cmd else ""
+            return Result()
+
+        monkeypatch.setattr(gcv.subprocess, "run", mock_run)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
+        assert len(errors) == 1                      # the diff HEAD probe failed
 
     def test_backslash_normalized(self, tmp_path, monkeypatch):
         def mock_run(cmd, **kwargs):
             class Result:
                 returncode = 0
-                stdout = "artifacts\\scripts\\test.py\n"
-
+                stdout = "true" if "rev-parse" in cmd else "artifacts\\scripts\\test.py\n"
             return Result()
 
         monkeypatch.setattr(gcv.subprocess, "run", mock_run)
-        _, changed = gcv.detect_changed_files(tmp_path)
+        is_repo, changed, errors = gcv.detect_changed_files(tmp_path)
+        assert is_repo is True
         assert "artifacts/scripts/test.py" in changed
 
 

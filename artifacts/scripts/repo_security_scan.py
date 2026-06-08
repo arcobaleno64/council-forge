@@ -5,13 +5,26 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
+import stat
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
 MAX_FILE_BYTES = 1_000_000
+
+
+class ScanReadError(RuntimeError):
+    """An in-scope file could not be traversed, stat'd, or read (OSError).
+
+    A genuine I/O failure on a file the scanner was meant to cover is a FAIL-CLOSED coverage
+    failure (TASK-1079 discipline / TASK-1088): it must abort the scan with a non-zero exit,
+    never a silent skip that could let the scan exit 0 "clean". This is DISTINCT from a
+    deliberate non-text skip (over MAX_FILE_BYTES, or NUL/binary content), which is reported
+    via the ``skipped`` accumulator and returns None from ``read_text``.
+    """
 
 TEXT_SUFFIXES = {
     ".cfg",
@@ -268,18 +281,47 @@ def is_text_candidate(path: Path) -> bool:
 
 
 def read_text(path: Path) -> str | None:
+    """Decoded text, or None for a DELIBERATE non-text skip (over MAX_FILE_BYTES, or
+    NUL/binary content). Raises ScanReadError on an OS read failure — a file the scanner was
+    meant to read but could not is fail-closed, not a silent skip (TASK-1088 / TASK-1079)."""
     try:
         raw = path.read_bytes()
-    except OSError:
-        return None
+    except OSError as exc:
+        raise ScanReadError(f"read failed: {path}: {exc}") from exc
     if len(raw) > MAX_FILE_BYTES or b"\x00" in raw[:4096]:
         return None
     return raw.decode("utf-8", errors="replace")
 
 
+def _raise_walk_error(error: OSError) -> None:
+    """os.walk onerror callback: a traversal (scandir/listdir) failure is fail-closed."""
+    raise ScanReadError(f"traversal failed: {error}") from error
+
+
+def _walk_repo(root: Path):
+    """Module-local traversal seam — ``os.walk`` with a fail-closed onerror. Patchable in tests
+    so a simulated traversal failure never mutates the process-global ``os.walk``."""
+    return os.walk(root, onerror=_raise_walk_error)
+
+
 def iter_repo_files(root: Path) -> Iterator[tuple[str, Path]]:
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or not is_text_candidate(path):
+    # _walk_repo surfaces scandir/listdir OSError (a silently-unwalked subtree would be a
+    # fail-OPEN coverage hole, TASK-1088). sorted() keeps output deterministic.
+    collected: list[Path] = []
+    for dirpath, _dirnames, filenames in _walk_repo(root):
+        for name in filenames:
+            collected.append(Path(dirpath) / name)
+    for path in sorted(collected):
+        if not is_text_candidate(path):
+            continue
+        # Path.is_file() SWALLOWS OSError (delegates to os.path.isfile -> False), which would
+        # silently skip an unreadable in-scope file (fail-OPEN). path.stat() RAISES on a stat
+        # failure -> fail-closed; a non-regular entry (symlink-to-dir, device, ...) is skipped.
+        try:
+            st = path.stat()
+        except OSError as exc:
+            raise ScanReadError(f"stat failed: {path}: {exc}") from exc
+        if not stat.S_ISREG(st.st_mode):
             continue
         rel_path = normalize_rel_path(path, root)
         if should_exclude_path(rel_path):
@@ -327,11 +369,13 @@ def build_finding(rule_id: str, severity: str, rel_path: str, line_number: int, 
     return Finding(rule_id=rule_id, severity=severity, path=rel_path, line=line_number, message=message, excerpt=excerpt.strip())
 
 
-def scan_secrets(root: Path) -> list[Finding]:
+def scan_secrets(root: Path, *, skipped: list[str] | None = None) -> list[Finding]:
     findings: list[Finding] = []
     for rel_path, path in iter_repo_files(root):
         text = read_text(path)
-        if text is None:
+        if text is None:  # deliberate non-text skip (oversize/binary) — surfaced, not silent
+            if skipped is not None:
+                skipped.append(rel_path)
             continue
 
         for rule_id, severity, pattern, message in STRUCTURED_SECRET_PATTERNS:
@@ -372,14 +416,16 @@ def detect_static_target(rel_path: str) -> str | None:
     return None
 
 
-def scan_static(root: Path) -> list[Finding]:
+def scan_static(root: Path, *, skipped: list[str] | None = None) -> list[Finding]:
     findings: list[Finding] = []
     for rel_path, path in iter_repo_files(root):
         target = detect_static_target(rel_path)
         if target is None:
             continue
         text = read_text(path)
-        if text is None:
+        if text is None:  # deliberate non-text skip (oversize/binary) — surfaced, not silent
+            if skipped is not None:
+                skipped.append(rel_path)
             continue
         for line_number, line in iter_lines(text):
             for rule in STATIC_RULES:
@@ -390,14 +436,16 @@ def scan_static(root: Path) -> list[Finding]:
     return dedupe_findings(findings)
 
 
-def scan_sast(root: Path) -> list[Finding]:
+def scan_sast(root: Path, *, skipped: list[str] | None = None) -> list[Finding]:
     """Advisory Python SAST: apply PYTHON_SAST_RULES to Python sources only."""
     findings: list[Finding] = []
     for rel_path, path in iter_repo_files(root):
         if detect_static_target(rel_path) != "python":
             continue
         text = read_text(path)
-        if text is None:
+        if text is None:  # deliberate non-text skip (oversize/binary) — surfaced, not silent
+            if skipped is not None:
+                skipped.append(rel_path)
             continue
         for line_number, line in iter_lines(text):
             for rule in PYTHON_SAST_RULES:
@@ -479,15 +527,45 @@ def emit_sast(findings: Sequence[Finding], output_format: str) -> int:
     return 0
 
 
+def _report_skipped(skipped: Sequence[str]) -> None:
+    """Surface deliberate non-text skips (oversize/binary) so they are never silent (auditability)."""
+    if skipped:
+        print(
+            f"[INFO] {len(skipped)} file(s) skipped (oversize/binary, not text-scanned): "
+            f"{', '.join(sorted(skipped))}",
+            file=sys.stderr,
+        )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
+    """Exit: 0 = clean / 1 = findings / 2 = scan error (fail-closed). A bad --root, or an
+    in-scope file that cannot be traversed / stat'd / read, aborts with exit 2 — never a silent
+    0 (TASK-1088 / TASK-1079). Deliberate non-text skips (oversize/binary) are reported, not
+    failed."""
     args = parse_args(argv)
-    root = Path(args.root).resolve()
-    if args.command == "secrets":
-        findings = scan_secrets(root)
-    elif args.command == "static":
-        findings = scan_static(root)
-    else:  # sast — advisory: emit (SARIF/json/text) and exit 0; sast_gate.py gates findings
-        return emit_sast(scan_sast(root), args.format)
+    try:
+        root = Path(args.root).resolve()
+    except OSError as exc:  # resolve-time filesystem error (e.g. symlink loop) -> fail-closed
+        print(f"[FAIL] cannot resolve scan root {args.root!r}: {exc}", file=sys.stderr)
+        return 2
+    if not root.is_dir():
+        print(f"[FAIL] scan root does not exist or is not a directory: {root}", file=sys.stderr)
+        return 2
+    skipped: list[str] = []
+    try:
+        if args.command == "secrets":
+            findings = scan_secrets(root, skipped=skipped)
+        elif args.command == "static":
+            findings = scan_static(root, skipped=skipped)
+        else:  # sast — advisory findings, but a READ FAILURE still fails closed (exit 2)
+            sast_findings = scan_sast(root, skipped=skipped)
+            _report_skipped(skipped)
+            return emit_sast(sast_findings, args.format)
+    except ScanReadError as exc:
+        _report_skipped(skipped)  # surface skips gathered before the abort (auditability on failure)
+        print(f"[FAIL] scan aborted — I/O error reading an in-scope file: {exc}", file=sys.stderr)
+        return 2
+    _report_skipped(skipped)
     print(render_findings(findings, args.json))
     return 1 if findings else 0
 

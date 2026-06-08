@@ -540,7 +540,7 @@
     },
     {
       "path": "artifacts/scripts/repo_security_scan.py",
-      "sha256": "6c1f0cd93ab313583f8c7a99f6e17fe07d9b0de2c2ee6c5210ae930093007118"
+      "sha256": "db0462655e567c0074d3486f0458164512a7444fa0f17a4cba4e11f0b4f5fae5"
     },
     {
       "path": "artifacts/scripts/run_precommit_check.py",
@@ -620,7 +620,7 @@
     },
     {
       "path": "artifacts/scripts/test_security_scans.py",
-      "sha256": "5fb33358b7f17f5e866b60595393bbd75617c5270f931199487f5f71e8824650"
+      "sha256": "c20ed720323b4199d322a00e0bc03b33a8651548927291ca5728241aa9f978f7"
     },
     {
       "path": "artifacts/scripts/test_validate_context_stack.py",
@@ -923,5 +923,5 @@
       "sha256": "3057ed30441890243808d704f9ba759f1a499f4009d60f245d15eddd53afe9c7"
     }
   ],
-  "root": "c54e168449bca19e03dd9edb50474451280dd66da4651c25fefc677c4b1feb4a"
+  "root": "404ca16208e5bf9f35160ff3296b06d59d7d7869f267c678094039c281703462"
 }

@@ -38,6 +38,29 @@ runs them via local/pre-commit for repos without a remote). council-forge's own
 
 ## Per-downstream enablement matrix
 
+> **Machine-readable SSOT**: [`enablement-matrix.json`](enablement-matrix.json) is the single
+> source of truth for the per-downstream enablement states. `ssdf_conformance_dashboard.py`
+> consumes it, and `test_downstream_security_template.py` lint-enforces that the **State
+> matrix** token table below matches it **exactly** (per repo × dimension). The prose table
+> that follows is the human-readable view; edit the JSON, not the tokens by hand.
+>
+> **Enablement state is *declared intent*, NOT observed runtime enforcement.** It says how a
+> downstream is *expected* to cover a dimension; it does not assert the mechanism is actually
+> present or running. For the actual mechanism-overlay status, run `ssdf_conformance_dashboard.py`
+> (a separate, honest view — `overlaid` ≠ enforced).
+
+### State matrix (mirrors `enablement-matrix.json` — lint-enforced)
+
+| Repo | secret-scan | sca | sast | sbom | release-integrity | disclosure |
+|---|---|---|---|---|---|---|
+| council-forge | enforced-self | enforced-self | enforced-self | enforced-self | enforced-self | enforced-self |
+| Sentinel | template-only-frozen | template-only-frozen | native-enforcing | template-only-frozen | template-only-frozen | template-only-frozen |
+| LINE-BOT | opt-in-ci | opt-in-ci | native-enforcing | opt-in-ci | opt-in-ci | opt-in-ci |
+| Verso | local-precommit | local-precommit | native-enforcing | local-precommit | local-precommit | n-a |
+| Vero | local-precommit | local-precommit | native-enforcing | local-precommit | local-precommit | n-a |
+
+### Enablement detail (prose; secret-scan + SCA focus)
+
 | Repo | Stack | Enablement | Jobs to keep |
 |---|---|---|---|
 | council-forge | Python | already enforced in its own `security-scan.yml` (pip-audit + secret/static) | n/a (this dir is for downstreams) |

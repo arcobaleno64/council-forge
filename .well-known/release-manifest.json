@@ -252,7 +252,7 @@
     },
     {
       "path": ".github/workflows/workflow-guards.yml",
-      "sha256": "750c8f74511391414e143d8709b944fbbe822f74b2fb3ed0ab5aebb31c913982"
+      "sha256": "1604eeb743e834236d371490febe8e4b221c36d79a47ef04da4f8cb2ed13bc71"
     },
     {
       "path": ".gitignore",
@@ -923,5 +923,5 @@
       "sha256": "3057ed30441890243808d704f9ba759f1a499f4009d60f245d15eddd53afe9c7"
     }
   ],
-  "root": "97ac45de37e3adfcda014041b3ee7241a03265473d155e7887e20a04173ef5e6"
+  "root": "55caab90864dacd9b1f79cd4e6113b6b3bb4e12cfe06ab2d785ead5cb4f1eedb"
 }

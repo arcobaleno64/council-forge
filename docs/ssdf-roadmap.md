@@ -65,9 +65,10 @@
   - schemas：code-signing（EV cert）、patch-SLA、vuln-disclosure（intake + 90-day）、IR-runbook、release-archive（checksum/簽章）。
   - DAST/fuzz 模板（選擇性，webhook/API 面）。
 
-- **P8-E（收束，TASK-1081）— 各營啟用 + conformance dashboard**
-  - 將 ssdf conformance 納 drift/health dashboard（per-downstream SSDF 覆蓋率視圖）。
-  - 各營啟用矩陣落地（見 §3）。
+- **P8-E（收束，TASK-1085）— 各營啟用 + conformance dashboard ✅ 竣（2026-06-08）**
+  - **machine-readable enablement SSOT** `docs/templates/security/enablement-matrix.json`（5 營 × 6 維度 × 受控詞彙 state；README state-token 矩陣 lint-enforced 與之 exact parity）。
+  - **per-downstream SSDF conformance dashboard** `artifacts/scripts/ssdf_conformance_dashboard.py`（source-only，reuse `parse_mapping` + `drift_dashboard.classify_file`；**三軸正交** applicability × actual-overlay × declared；**read-only 非認證**）。
+  - 各營啟用矩陣已機器化落地（見 §3）。詳見 §8 P8-E footnote。
 
 ## 3. 各營啟用策略（分治）
 
@@ -199,3 +200,20 @@ phase 與理據。
 > **defined follow-up（P8-D3 析出，非 blocking）**：**covered 之 operator gate**——operator 生 key + 簽 manifest +
 > 填 `EXPECTED_SIGNING_FINGERPRINT` + 刊布 `.well-known/release-signing.pub` + **out-of-band 刊 fingerprint** + 解
 > no-push → PS.2 方可議 flip `covered`（另 governed task，須過雙審）。
+
+> **P8-E 完成（2026-06-08，TASK-1085）— 各營啟用 SSOT + conformance dashboard（read-only、誠實非認證）**：P8 收束。
+> 產出二件（皆 **source-only**，不入 `template/`、不入 EXACT_SYNC，同 drift_dashboard/scaffold/propagate/ssdf_mapping_validator）：
+> ① **`docs/templates/security/enablement-matrix.json`**——5 營 × 6 維度（secret-scan/sca/sast/sbom/release-integrity/disclosure）×
+> 受控詞彙 state 之 machine-readable SSOT；README §Per-downstream enablement matrix 之「State matrix」token 表由
+> `test_downstream_security_template`/`test_ssdf_conformance_dashboard` **lint-enforced exact parity**（杜 prose 漂移）。
+> ② **`artifacts/scripts/ssdf_conformance_dashboard.py`**——per-downstream SSDF **mechanism-overlay** 視圖，reuse
+> `ssdf_mapping_validator.parse_mapping`（19 practice + mechanism ref）+ `drift_dashboard.classify_file`（避疊床架屋，不重造 parse/下游模型）。
+> **三軸正交**：applicability（mechanism 在 `template/` 否：source-only PS.1/PW.6 → `upstream-governed`）× actual-overlay
+> （reuse classify_file 全 6 verdict → `overlaid`/`project-owned`/`drifted`/`not-propagated`/`not-overlaid`；unknown verdict → hard fail）
+> × declared（SSOT，**獨立欄、永不覆蓋 actual**——native-enforcing 之營若 mechanism 缺仍誠實標 `not-propagated`）。
+> **誠實上限（樞）**：dashboard 報 mechanism-overlay 覆蓋，**非 SSDLC 認證**（status 無 `covered`；恆印 caveat；`overlaid` ≠ enforced）；
+> **不改任一 practice status**（mapping 不動、`ssdf_mapping_validator` 仍 exit 3、covered 5/partial 14/gap 0）。
+> 實跑四下游揭真相：P8 純安全 gate（PS.2 release_gate/PS.3 sbom_gate/PW.7 sast_gate）皆 `not-propagated`（四營 retrofit 2026-06-05
+> 早於 P8，**P8 層待 propagate**）；PW.4 之 `security-scan.yml` → `not-overlaid`（council-forge CI workflow by-design 不下傳，
+> `--fail-on-gap` 計入不靜默放過）。**雙審 gate 3 輪**（v1 codex 2high+2med / v2 codex 2high+1med [揪 optional-absent 靜默漏洞，gemini 未抓] /
+> v3 codex+gemini 皆 approve）。test 100% cov（198 stmts）。**defined follow-up**：對真營 `propagate_downstream --apply`（將 P8 安全層下傳，另 governed task）。

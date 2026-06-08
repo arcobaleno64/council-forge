@@ -75,8 +75,22 @@ artifacts, and templates). Downstream terminal repos generated from `template/` 
 own security policies; this repo's `docs/templates/security/` directory provides reusable
 templates (SCA / SAST / SBOM / security.txt) for them to adopt.
 
+## Release signing & integrity
+
+council-forge publishes a content-addressed integrity manifest of its release surface (the
+propagated `template/` SSOT snapshot) at
+[`.well-known/release-manifest.json`](.well-known/release-manifest.json), and a detached signature
+is verified in CI by the native `gpg --verify` step of the `release-integrity` job. The signing
+**public** key (when provisioned by the operator) is published at
+`.well-known/release-signing.pub`, and its **fingerprint** is the trust anchor pinned via
+`EXPECTED_SIGNING_FINGERPRINT`. Acquirers should obtain that fingerprint **out-of-band** (not from
+the same commit). The full key lifecycle — generation, out-of-repo storage, rotation, revocation,
+protection, and periodic review (SSDF PS.2.1 Example 2/3) — is documented in
+[`docs/security/release-signing.md`](docs/security/release-signing.md). No **private** key is ever
+committed to this repository.
+
 ## Cadence
 
 See [`docs/security_cadence.md`](docs/security_cadence.md) for how disclosure intake, the weekly
-Codex Council audit, the quarterly threat model, and the continuous SAST/SCA/SBOM/secret scans
-fit together.
+Codex Council audit, the quarterly threat model, the continuous SAST/SCA/SBOM/secret scans, and
+the release-integrity / signing review fit together.

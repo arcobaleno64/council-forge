@@ -179,3 +179,23 @@ phase 與理據。
 > **defined follow-up（P8-D2 析出，非 blocking）**：① 真簽章 + key-lifecycle（PS.2→covered）；② propagate
 > apply-phase cross-target staged-transaction rollback（誠實界：本階 per-file atomic 除損檔、preflight-detectable
 > 敗無半套用、apply-phase I/O 中斷殘餘以 git + idempotent 重跑 verified-recovery；全量 rollback 緩）。
+
+> **P8-D3 完成 — PS.2 signing 機制備齊（2026-06-08，TASK-1084）**：承 P8-D2 follow-up ①，**備齊且經測**之
+> release-signing 驗證機制——**PS.2 仍 `partial` 不 flip**（gap-waiver 已於 P8-D2 撤，本階不復立）。機制：①
+> `security-scan.yml` 之 `release-integrity` job 增 native `gpg --verify` step（隔離 GNUPGHOME + **VALIDSIG 簽章者
+> 綁定**：pin 先 40-hex 格式嚴驗，再 awk **精確 field 全等**（`$3`/`$NF` == pinned `EXPECTED_SIGNING_FINGERPRINT`，
+> fixed-string 非 substring/regex、非檔首 key）；`set -eo pipefail` + capture-then-check；`test -n` refuse-unpinned；
+> **`if` 唯 sentinel**，artifact presence 入 bash 之 **armed-triad**（pin/`.asc`/pubkey 全缺方 no-op；任一在即三件全須在否則
+> **fail-closed**——杜「provision 後刪簽/pubkey 無聲關驗」之 fail-open）；既有結構 step 維 sentinel-only·**恆跑**不條件於
+> `.asc`）；② `docs/security/release-signing.md`（key-lifecycle Example 2/3：
+> 生成 / 儲存出 repo / rotation / revocation / protection / **periodic review**）；③ pubkey/fingerprint 刊布槽
+> （`.well-known/release-signing.pub` + `EXPECTED_SIGNING_FINGERPRINT`，**現未填**）；④ **ephemeral-key 端到端測**
+> （`test_release_signing.py`：正向 / tamper→fail / **負向 multi-key attacker-in-bundle→fail**；gpg-gated；不 commit
+> key）。**誠實上限**：covered 之 load-bearing 三事（真 key 生成保管、真簽章、pubkey/fingerprint **out-of-band 刊布**
+> ＝須 push）**皆 operator 之舉、非寫碼者所能**——守 no-push 故 **mechanism-implemented（operator-action-dependent）**，
+> validator 仍 **exit 3**（covered 5/partial 14/gap 0，不偽升）。**殘餘**：同-repo fingerprint pin 僅及 repo 完整性，
+> 真 publisher trust 須 out-of-band（見 `docs/security/release-signing.md` §4）。
+>
+> **defined follow-up（P8-D3 析出，非 blocking）**：**covered 之 operator gate**——operator 生 key + 簽 manifest +
+> 填 `EXPECTED_SIGNING_FINGERPRINT` + 刊布 `.well-known/release-signing.pub` + **out-of-band 刊 fingerprint** + 解
+> no-push → PS.2 方可議 flip `covered`（另 governed task，須過雙審）。

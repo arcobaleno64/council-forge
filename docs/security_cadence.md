@@ -60,16 +60,17 @@ SSDF 對應：RV.1.3（disclosure policy/intake）、RV.2（assess/prioritize，
 
 ## Release Integrity（PS.2 / P8-D2）
 
-> **映而不疊**：本節為 cross-ref；機制主於 `release_gate.py`/`snapshot_manifest.py` 與 [`templates/security/README.md`](templates/security/README.md) 之「Release integrity」節。
+> **映而不疊**：本節為 cross-ref；機制主於 `release_gate.py`/`snapshot_manifest.py`、簽章 key-lifecycle 之 [`security/release-signing.md`](security/release-signing.md)，與 [`templates/security/README.md`](templates/security/README.md) 之「Release integrity」節。
 
 | 維度 | 真實來源 | Cadence / Gate |
 |---|---|---|
 | 自身 release surface（propagated `template/` snapshot） | [`../.well-known/release-manifest.json`](../.well-known/release-manifest.json)（content-addressed，`snapshot_manifest.py` 生）+ propagate 時寫入各下游之 `.council-forge/release-snapshot.json` | `release-integrity` job（per-PR + 每週 schedule，guarded by `.council-forge-source-repo`）：`snapshot_manifest.py verify` regenerate-diff + `release_gate.py` 結構驗 |
+| 簽章驗證（Example 2/3，P8-D3） | [`security/release-signing.md`](security/release-signing.md)（key-lifecycle）+ [`../.well-known/release-manifest.json.asc`](../.well-known/release-manifest.json.asc) + [`../.well-known/release-signing.pub`](../.well-known/release-signing.pub)（operator 刊布，現未填） | `release-integrity` job 之 native `gpg --verify` step（VALIDSIG **精確 field** 綁 `EXPECTED_SIGNING_FINGERPRINT`；`if` 唯 sentinel·**armed-triad**：pin/`.asc`/pubkey 全缺方 no-op，任一在則全須在否則 fail-closed）；**signing-process periodic review（Example 3）入本 cadence** |
 | 下游 release（.NET/Tauri） | [`templates/security/downstream-release-integrity.yml`](templates/security/downstream-release-integrity.yml)（native verify 主驗：`dotnet nuget verify`/`gh attestation verify`/`minisign -V`） | opt-in / local（map-don't-recreate；release_gate 為 offline 結構 pre-check） |
 
-SSDF 對應：**PS.2** 由 `gap` 升 **`partial`**（Example-1 刊布**可復現**雜湊供 acquirer）。**誠實上限 partial 非 covered**：真簽章 + key rotation/revocation/review（Example 2/3）為 path-to-covered，**defined follow-up**。**PS.2 ≠ PS.3.2（SBOM）不 double-count**。release_gate 驗結構非密碼學（簽章真驗交 native tool + human-review，accepted residual）。
+SSDF 對應：**PS.2** 由 `gap` 升 **`partial`**（Example-1 刊布**可復現**雜湊供 acquirer）。**誠實上限 partial 非 covered**：P8-D3 已**備齊且經測**之簽章驗證機制（native `gpg --verify` + fingerprint-pin + key-lifecycle policy Example 3 + ephemeral-key 端到端測），然 `covered` 唯繫 operator 行 key 生成 + 真簽章 + **out-of-band 刊布** pubkey/fingerprint + 首驗——**故 PS.2 仍 partial（mechanism-implemented, operator-action-dependent；不 flip）**。**PS.2 ≠ PS.3.2（SBOM）不 double-count**。release_gate 驗結構非密碼學（簽章真驗交 native gpg + human-review，accepted residual；同-repo fingerprint pin 之殘餘見 [`security/release-signing.md`](security/release-signing.md)）。
 
-continuous 層之 `release-integrity` job 以 **regenerate-diff** 防刊布 manifest 靜默漂移於其所述之樹（僅證 HEAD 一致）；schedule 使其週期受檢。任何 hardening（真簽章 / cross-target staged-transaction rollback）屬 future task。
+continuous 層之 `release-integrity` job 以 **regenerate-diff** 防刊布 manifest 靜默漂移於其所述之樹（僅證 HEAD 一致），並以 native `gpg --verify`（VALIDSIG 綁簽章者）驗簽章；schedule 使其週期受檢，**signing-process 之 Example-3 periodic review 入本 cadence**。covered 之 operator key 儀式（生 key / 真簽 / out-of-band 刊布 / 解 no-push）與 cross-target staged-transaction rollback 屬 future task。
 
 ## Setup Steps
 

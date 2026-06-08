@@ -418,19 +418,23 @@ def test_rv_disclosure_mapping_is_honest():
 # P8-D2 release integrity (PS.2): source-repo-guarded job, native-verify template, honesty
 # --------------------------------------------------------------------------- #
 def test_release_integrity_job_is_source_repo_guarded():
-    """The release-integrity job's steps must be STEP-level guarded on the SOURCE-REPO IDENTITY
-    sentinel (.council-forge-source-repo) — NOT on the manifest (which would mask a
-    missing-manifest regression as a skip) and NOT on a script path (which a downstream could
-    coincidentally carry). They must invoke snapshot_manifest verify + release_gate."""
+    """The release-integrity job's BASE structural steps must be STEP-level guarded on the
+    SOURCE-REPO IDENTITY sentinel (.council-forge-source-repo) — NOT on the manifest (which would
+    mask a missing-manifest regression as a skip) and NOT on a script path (which a downstream
+    could coincidentally carry). They must invoke snapshot_manifest verify + release_gate. The
+    P8-D3 native-verify step is INDEPENDENT (also sentinel-only; it decides signing-artifact
+    presence inside bash via the armed-triad, asserted separately) — the base gates must stay
+    manifest-free so an unsigned/missing-manifest state still fails them closed (codex v1 [H1])."""
     wf = yaml.safe_load(ROOT_WF.read_text(encoding="utf-8"))
     assert "release-integrity" in _jobs(wf), "security-scan.yml lacks the release-integrity job"
     run_steps = [s for s in _jobs(wf)["release-integrity"].get("steps", []) if isinstance(s.get("run"), str)]
     assert any("snapshot_manifest.py verify" in s["run"] for s in run_steps)
     assert any("release_gate.py --format checksums" in s["run"] for s in run_steps)
-    for step in run_steps:
+    base_steps = [s for s in run_steps if "snapshot_manifest.py verify" in s["run"] or "release_gate.py" in s["run"]]
+    for step in base_steps:
         cond = str(step.get("if", ""))
-        assert "hashFiles('.council-forge-source-repo')" in cond, "must guard on the source-repo sentinel"
-        assert "release-manifest.json" not in cond, "guard must NOT key on the manifest (would mask a missing-manifest regression)"
+        assert "hashFiles('.council-forge-source-repo')" in cond, "base gate must guard on the source-repo sentinel"
+        assert "release-manifest.json" not in cond, "base gate guard must NOT key on the manifest/.asc (would mask a missing-manifest regression)"
 
 
 def test_release_integrity_job_present_in_template():
@@ -507,3 +511,152 @@ def test_readme_has_release_integrity_section():
     text = (ROOT / "docs" / "templates" / "security" / "README.md").read_text(encoding="utf-8")
     assert "Release integrity (PS.2 / P8-D2)" in text
     assert "minisign -V" in text and "gh attestation verify" in text  # native verify in the matrix
+
+
+# --------------------------------------------------------------------------- #
+# P8-D3 release SIGNING (PS.2): native gpg --verify w/ VALIDSIG signer-binding, honest partial
+# --------------------------------------------------------------------------- #
+RELEASE_SIGNING_DOC = ROOT / "docs" / "security" / "release-signing.md"
+SECURITY_MD = ROOT / "SECURITY.md"
+# A REAL private key is a full armor block: BEGIN, a base64 BODY (>=64 chars), then END. This
+# distinguishes an actual committed key from prose/regex that merely names the armor line (e.g. a
+# secret-detection rule's example), so the invariant has no false positives on documentation.
+PRIVATE_KEY_BLOCK = re.compile(
+    r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----"
+    r"[\r\n]+[A-Za-z0-9+/=\r\n]{64,}?"
+    r"-----END [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----"
+)
+
+
+def _release_integrity_steps(wf: dict) -> list:
+    return [s for s in _jobs(wf).get("release-integrity", {}).get("steps", []) if isinstance(s.get("run"), str)]
+
+
+def _native_verify_step(wf: dict):
+    for step in _release_integrity_steps(wf):
+        if "gpg" in step["run"] and "--verify" in step["run"]:
+            return step
+    return None
+
+
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF])
+def test_release_signing_native_verify_binds_signer(wf_path: Path):
+    """The native-verify step must do a REAL gpg --verify bound to the PINNED SIGNER via VALIDSIG
+    (NOT the pubkey file's first key), refuse an unpinned key, isolate the keyring, and be
+    pipefail-safe with capture-then-grep — so a degraded signature or an attacker-key-in-bundle
+    substitution fails closed (codex v1 [H2] / v2 [H2] / v3 pipefail-masking)."""
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    step = _native_verify_step(wf)
+    assert step is not None, f"{wf_path.name} release-integrity job lacks a native gpg --verify step"
+    run = step["run"]
+    # VALIDSIG signer-binding (NOT a naive file-first --show-keys compare)
+    assert "--status-fd" in run and "VALIDSIG" in run, "must parse VALIDSIG from the gpg status stream"
+    assert "EXPECTED_SIGNING_FINGERPRINT" in run, "must bind to the pinned fingerprint"
+    assert "--show-keys" not in run, "must bind via VALIDSIG, not a file-first --show-keys compare"
+    # EXACT field equality (codex/gemini impl-review): the pin must be format-validated as a full
+    # 40-hex fingerprint and compared as a fixed field token via awk — NOT interpolated into a regex
+    # / substring match (which a weak pin like ".*" would defeat by matching any valid signature).
+    assert "[0-9A-F]{40}" in run, "must STRICTLY validate the pin as a full 40-hex fingerprint"
+    assert "awk" in run and '$2=="VALIDSIG"' in run, "must exact-match the VALIDSIG field via awk"
+    assert "($3==want || $NF==want)" in run, "must compare exact signing/primary key fingerprint fields"
+    assert ".*${EXPECTED_SIGNING_FINGERPRINT}" not in run, "must NOT use a substring/regex pin match"
+    # refuse-unpinned + isolated keyring
+    assert "test -n" in run, "must refuse an unpinned key (test -n)"
+    assert "GNUPGHOME=" in run and "mktemp" in run, "must use an isolated mktemp GNUPGHOME"
+    # pipefail-safe + capture-then-check (gpg rc checked at the assignment, not masked by a pipe)
+    assert step.get("shell") == "bash", "must pin shell: bash (not rely on the runner default)"
+    assert "set -eo pipefail" in run, "must set -eo pipefail explicitly"
+    assert 'STATUS="$(gpg' in run, "must capture-then-check (gpg rc checked directly), not pipe gpg | matcher"
+    # no exit-masking
+    assert check_no_masking(wf) == []
+
+
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF])
+def test_release_signing_native_verify_arms_on_full_triad(wf_path: Path):
+    """The native-verify step is keyed ONLY on the source-repo sentinel (always runs in
+    council-forge, skips downstream); the signing-artifact presence is decided INSIDE bash, NOT in
+    the `if`. Keying the `if` on the .asc/pubkey would let DELETING a signature SKIP enforcement
+    once signing is provisioned — a fail-open (codex impl-review). Instead: no-op ONLY when the
+    whole triad (pin + .asc + pubkey) is absent, else ALL must be present or it FAILS CLOSED."""
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    step = _native_verify_step(wf)
+    cond = str(step.get("if", ""))
+    assert "hashFiles('.council-forge-source-repo')" in cond
+    assert ".asc" not in cond and "release-signing.pub" not in cond, (
+        "artifact presence must be decided in bash, not the `if` (else deleting a signature skips enforcement)"
+    )
+    run = step["run"]
+    # armed-triad: count present members; no-op ONLY when zero; else require all three present.
+    assert "present=0" in run and "-eq 0" in run, "must no-op ONLY when the whole triad is unprovisioned"
+    assert 'test -f "$SIG"' in run and 'test -f "$PUB"' in run, "armed state must require the signature AND pubkey"
+    assert ".well-known/release-manifest.json.asc" in run and ".well-known/release-signing.pub" in run
+
+
+def test_release_signing_doc_documents_lifecycle_and_residual():
+    """release-signing.md must document the Example 2/3 key lifecycle (rotation / revocation /
+    review), the same-repo-pin RESIDUAL (true trust is out-of-band), the mechanism-implemented
+    (operator-action-dependent) ceiling, and the no-committed-key invariant."""
+    assert RELEASE_SIGNING_DOC.is_file(), "docs/security/release-signing.md must exist"
+    text = RELEASE_SIGNING_DOC.read_text(encoding="utf-8")
+    low = text.lower()
+    for token in ("rotation", "revocation", "review", "out-of-band", "expected_signing_fingerprint",
+                  "release-signing.pub", "gpg --detach-sign", "gpg --verify"):
+        assert token in low, f"release-signing.md missing {token!r}"
+    assert "mechanism-implemented" in text and "operator-action-dependent" in text
+    assert "repo integrity" in low or "repo's own integrity" in low, "must state the same-repo-pin residual"
+    assert "private key" in low and "never" in low, "must state no private key is committed"
+
+
+def test_release_signing_discovery_pointers_consistent():
+    """SECURITY.md and security.txt must point to the single source of truth (release-signing.md /
+    the pubkey + fingerprint pin) — consistent discovery, no conflicting pointers (premortem R8)."""
+    security_md = SECURITY_MD.read_text(encoding="utf-8")
+    assert "docs/security/release-signing.md" in security_md
+    assert "release-signing.pub" in security_md and "EXPECTED_SIGNING_FINGERPRINT" in security_md
+    sec_txt = SECURITY_TXT.read_text(encoding="utf-8")
+    assert "release-signing" in sec_txt  # RFC 9116 comment pointer (does not affect the gate)
+
+
+def test_ps2_stays_partial_mechanism_implemented_not_flipped():
+    """P8-D3 builds + tests the signing mechanism but PS.2 MUST stay partial (covered is
+    operator-gated: real key + real signature + out-of-band-published trust anchor). The mapping
+    footnote must say so in the unambiguous 'mechanism-implemented (operator-action-dependent)'
+    wording, not flip; the roadmap records P8-D3; PS.2 is not a re-added gap-waiver."""
+    assert _mapping_row("PS.2")[2] == "partial"
+    mapping = MAPPING_DOC.read_text(encoding="utf-8")
+    assert "mechanism-implemented" in mapping
+    assert "operator-action-dependent" in mapping
+    assert "out-of-band" in mapping
+    assert "不 flip" in mapping
+    roadmap = ROADMAP_DOC.read_text(encoding="utf-8")
+    assert "P8-D3" in roadmap
+    assert "SSDF-Gap-Waiver: PS.2" not in roadmap
+
+
+def test_no_signing_key_committed_anywhere():
+    """Zero-theater invariant: NO private key material is ever committed. Scan for PEM/PGP
+    'PRIVATE KEY' armor (not prose) across the tracked tree, and for private-key files under
+    .well-known/ (the publication slot holds only the PUBLIC key + a fingerprint pin). The
+    end-to-end test uses throwaway tmp keys only."""
+    wk = ROOT / ".well-known"
+    if wk.is_dir():
+        for p in wk.iterdir():
+            assert not p.name.endswith((".key", ".sec", ".gpg")), f"private-key-like file in .well-known/: {p.name}"
+    # external/ holds third-party repos (off-limits to council-forge governance); skip VCS / venvs
+    # / caches / build output too.
+    skip_dirs = {".git", ".sbom-venv", "__pycache__", ".pytest_cache", ".mypy_cache", "node_modules",
+                 "coverage-report", ".pytest-basetemp", "external"}
+    skip_suffix = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".pyc", ".zip", ".gz", ".whl"}
+    offenders = []
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or path.suffix.lower() in skip_suffix:
+            continue
+        if any(part in skip_dirs for part in path.parts):
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if PRIVATE_KEY_BLOCK.search(content):
+            offenders.append(path.relative_to(ROOT).as_posix())
+    assert offenders == [], f"committed PEM/PGP PRIVATE KEY armor found: {offenders}"

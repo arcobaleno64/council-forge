@@ -8,3 +8,7 @@ Expires: 2027-06-01T00:00:00Z
 Policy: https://github.com/arcobaleno64/council-forge/blob/master/SECURITY.md
 Canonical: https://raw.githubusercontent.com/arcobaleno64/council-forge/master/.well-known/security.txt
 Preferred-Languages: en, zh-Hant
+
+# Release signing: the integrity manifest (.well-known/release-manifest.json) is signed; the
+# signing public key (when provisioned) is published at .well-known/release-signing.pub and its
+# fingerprint is the out-of-band trust anchor. Key lifecycle: docs/security/release-signing.md.

@@ -113,3 +113,20 @@ https://doi.org/10.6028/NIST.SP.800-218
 > git per-commit 不可變；CI regenerate-diff **僅證 HEAD 一致**；**全量 release-manifest archive 屬 PS.3-鄰，
 > 緩**。下游 .NET/Tauri 之 PS.2 以 `docs/templates/security/downstream-release-integrity.yml`（native verify
 > 主驗）opt-in/local 行之。
+
+> **PS.2（release-integrity）signing 機制備齊（P8-D3，2026-06-08，TASK-1084）**：承 P8-D2 之 path-to-covered
+> （真簽章 + key rotation/revocation/review＝Example 2/3），P8-D3 **備齊且經測**此簽章驗證機制——**然 PS.2
+> 仍 `partial` 不 flip**。機制：① `.github/workflows/security-scan.yml` 之 `release-integrity` job 增 native
+> `gpg --verify` step（隔離 `GNUPGHOME` + **VALIDSIG 簽章者綁定**：pin 先 **40-hex 格式嚴驗**（`grep -Eq ^[0-9A-F]{40}$`，杜 `.*`/short 等弱/regex pin），再以 **awk 精確 field 全等**比 GnuPG status `VALIDSIG` 行之**簽章者/primary key fingerprint（`$3`/`$NF`）== pinned `EXPECTED_SIGNING_FINGERPRINT`**——**fixed-string 非 substring/regex**、非 pubkey 檔首 key，杜 attacker-key-in-bundle 替換 + 弱 pin fail-open；`set -eo pipefail` + capture-then-check 杜 pipefail-masking；`test -n` refuse-unpinned；**`if` 唯 sentinel `.council-forge-source-repo`**，artifact presence 入 bash 之 **armed-triad**（pin/`.asc`/pubkey **全缺方 no-op**；**任一在即 ARMED，三件全須在否則 fail-closed**——杜「signing provision 後刪 `.asc`/pubkey 無聲關閉密碼學驗」之 fail-open）；既有 snapshot_manifest/release_gate 結構 step 維 sentinel-only·**恆跑**·不條件於 `.asc`）；② `docs/security/release-signing.md`（key-lifecycle：
+> 生成 / **儲存出 repo** / rotation / revocation / protection / **periodic signing-process review**＝Example 3；
+> Mechanism＝`gpg --detach-sign --armor`→`.asc`、`gpg --verify`，簽章 detached、manifest schema 不動）；③ pubkey/
+> fingerprint 刊布槽（`.well-known/release-signing.pub` + `EXPECTED_SIGNING_FINGERPRINT`，**現未填**）；④ **ephemeral-
+> key 端到端測**（`artifacts/scripts/test_release_signing.py`：正向 pinned sign→VALIDSIG fp==pinned→pass；tamper→fail；
+> **負向 multi-key**——attacker key 附 bundle + attacker 簽，以 pinned 為 expected→fail，證綁簽章者非檔首 key；
+> gpg-gated skip-if-unavailable，**不 commit key**）。**誠實上限——故仍 `partial` 而非 `covered`**：covered 之
+> load-bearing 三事（真 key 生成保管、真簽章、pubkey/fingerprint **out-of-band 刊布**＝須 push）**皆 operator 之舉、
+> 非寫碼者所能**；本 repo 守 no-push 故**不 flip**——status 義為 **mechanism-implemented（operator-action-dependent）**。
+> **殘餘（樞）**：**同-repo fingerprint pin 僅及 repo 自身完整性**（控 commit 之攻擊者可同改 pin+pubkey+sig），真
+> publisher trust 須 fingerprint **out-of-band** 刊布於 acquirer 獨立信之渠道——operator covered-gating 之舉，見
+> `docs/security/release-signing.md` §4。validator 仍 **exit 3**（covered 5/partial 14/gap 0，PS.2 不偽升）。**covered
+> ＝operational follow-up**：operator 生 key + 真簽 + out-of-band 刊布 trust anchor + 首驗 + 解 no-push（另 governed task）。

@@ -175,6 +175,60 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Verify release-manifest signature (native gpg; REAL cryptographic check)
+        # The REAL cryptographic release-integrity check (map-don't-recreate: crypto is gpg's job,
+        # not release_gate's — release_gate stays a stdlib STRUCTURAL gate). INDEPENDENT of the
+        # structural gates below, keyed ONLY on the source-repo sentinel (always runs in
+        # council-forge, cleanly skips downstream). Provision-state is decided INSIDE bash, NOT in
+        # the `if`: keying the `if` on the .asc/pubkey would let deleting a signature SKIP
+        # enforcement once signing is provisioned (a fail-open). Here enforcement is ARMED as soon
+        # as ANY member of the signing triad (pinned fingerprint / detached signature / public key)
+        # is present, and a missing member then FAILS CLOSED. (codex impl-review)
+        if: ${{ hashFiles('.council-forge-source-repo') != '' }}
+        env:
+          # The operator pins the fingerprint they published OUT-OF-BAND here. Same-repo pinning
+          # only proves repo integrity; true publisher trust needs the fingerprint from an
+          # independent channel — see docs/security/release-signing.md for the honest residual.
+          EXPECTED_SIGNING_FINGERPRINT: ""
+        shell: bash
+        run: |
+          set -eo pipefail                          # explicit: do NOT rely on the runner default
+          SIG=.well-known/release-manifest.json.asc
+          PUB=.well-known/release-signing.pub
+          # The signing TRIAD: pinned fingerprint + detached signature + published public key.
+          # Count how many are present to decide armed-vs-unprovisioned.
+          present=0
+          if [ -n "$EXPECTED_SIGNING_FINGERPRINT" ]; then present=$((present + 1)); fi
+          if [ -f "$SIG" ]; then present=$((present + 1)); fi
+          if [ -f "$PUB" ]; then present=$((present + 1)); fi
+          if [ "$present" -eq 0 ]; then
+            echo "release signing not provisioned (no pin/.asc/pubkey) — skipping signature verify; the structural gates below still enforce manifest integrity"
+            exit 0
+          fi
+          # ARMED: at least one member of the triad is present, so ALL must be present + valid or we
+          # FAIL CLOSED. Removing a signature/pubkey (or unsetting the pin) after provisioning can
+          # therefore NOT silently disable cryptographic enforcement. (codex impl-review)
+          test -n "$EXPECTED_SIGNING_FINGERPRINT"
+          test -f "$SIG"
+          test -f "$PUB"
+          # Normalize case + STRICTLY validate the pin as a full 40-hex fingerprint — fail closed on
+          # a weak/mistyped/REGEX-METACHARACTER pin (".*", "0", a short key-id) that a substring
+          # match would let accept ANY valid signature. The pin is then a FIXED STRING, never a regex.
+          EXPECTED_SIGNING_FINGERPRINT="$(printf '%s' "$EXPECTED_SIGNING_FINGERPRINT" | tr 'a-f' 'A-F')"
+          printf '%s' "$EXPECTED_SIGNING_FINGERPRINT" | grep -Eq '^[0-9A-F]{40}$'
+          export GNUPGHOME="$(mktemp -d)"           # isolated keyring (no ambient trust)
+          gpg --batch --import "$PUB"
+          # CAPTURE-then-check (NOT a pipe into the matcher): the gpg return code is checked DIRECTLY
+          # at the assignment under set -e (a non-zero gpg -> failed command substitution -> the step
+          # fails), so a degraded/bad signature cannot be masked by a status stream that merely
+          # contains a matching VALIDSIG line.
+          STATUS="$(gpg --batch --status-fd 1 --verify "$SIG" .well-known/release-manifest.json)"
+          # Bind to the PINNED SIGNER by EXACT FIELD EQUALITY, not a substring/regex match: require the
+          # pinned fingerprint to equal the signing-key field ($3) or the primary-key field ($NF) of
+          # the VALIDSIG line. gpg --verify exits 0 on ANY good signature from ANY imported key (e.g.
+          # an attacker key appended to the bundle), so this exact signer binding rejects substitution.
+          printf '%s\n' "$STATUS" | awk -v want="$EXPECTED_SIGNING_FINGERPRINT" '$1=="[GNUPG:]" && $2=="VALIDSIG" && ($3==want || $NF==want){ok=1} END{exit(ok?0:1)}'
+
       - name: Verify published release manifest matches the template snapshot (HEAD consistency)
         # STEP-level guard keyed on the SOURCE-REPO IDENTITY sentinel: only council-forge (the
         # source template repo) carries .council-forge-source-repo — a downstream terminal repo

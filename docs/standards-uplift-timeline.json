@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "description": "council-forge standards-uplift timeline — the SSOT (single source of truth) of WHEN each governance standard / gate / discipline was introduced. Consumed read-only by standards_backaudit_dashboard.py to compute, per task, which standards were uplifted AFTER that task completed (its theoretical 'qualitative delta'). This timeline records WHEN a bar rose; it does NOT certify that any older task does or does not meet today's bar — that qualitative judgement is NOT machine-decidable (see the dashboard caveat). Each event's introduced_at is the committer instant (git log -1 --format=%cI <commit>), so same-day events are ordered by instant, never collapsed to a date.",
+  "maintenance": {
+    "living_ssot": true,
+    "rule": "Any task that introduces a NEW governance standard (a new guard, a new threshold, or anything in the dual-review / SSDF / fail-closed / dispatch / lifecycle / write-scope classes) MUST append one event to this timeline in the same change. This timeline is a LIVING SSOT, not a one-time snapshot: an un-recorded uplift makes every later back-audit under-count the qualitative delta of earlier tasks.",
+    "entry_format": {
+      "introduced_at": "ISO 8601 instant, evidenced by `git log -1 --format=%cI <commit>` (committer instant, +08:00)",
+      "event": "short human label of what was uplifted",
+      "standard": "the standard / threshold / discipline that became required at that instant",
+      "ref": "the introducing task id (e.g. TASK-1079) or PR anchor",
+      "commit": "the introducing commit short-sha (the %cI evidence source)",
+      "category": "exactly one of `categories` below (fail-closed controlled vocabulary)"
+    },
+    "categories": [
+      "dual-review",
+      "ssdf",
+      "security-gate",
+      "fail-closed",
+      "dispatch",
+      "lifecycle",
+      "write-scope"
+    ],
+    "append_example": {
+      "introduced_at": "2026-06-09T12:00:00+08:00",
+      "event": "<what became required>",
+      "standard": "<the new bar, one sentence>",
+      "ref": "TASK-XXXX",
+      "commit": "<short-sha>",
+      "category": "<one of categories>"
+    }
+  },
+  "events": [
+    {
+      "introduced_at": "2026-05-06T14:47:54+08:00",
+      "event": "sub-agent write-scope guard for dispatch wrappers",
+      "standard": "Dispatch wrappers must declare a bounded write-scope; a sub-agent write outside the declared scope is a scope-drift / RACI violation and is guard-enforced.",
+      "ref": "TASK-1057",
+      "commit": "7e006fe",
+      "category": "write-scope"
+    },
+    {
+      "introduced_at": "2026-05-19T17:11:29+08:00",
+      "event": "dispatch prompt discipline codified",
+      "standard": "Dispatch prompts must follow the token-cost discipline (docs/dispatch_prompt_discipline.md): bounded, structured, no unbounded context dumping.",
+      "ref": "TASK-1064",
+      "commit": "cdc7280",
+      "category": "dispatch"
+    },
+    {
+      "introduced_at": "2026-05-19T20:48:08+08:00",
+      "event": "wrapper prompt-size bounds-check",
+      "standard": "Dispatch wrappers enforce a prompt-size bound, rejecting oversized prompts before dispatch.",
+      "ref": "TASK-1067",
+      "commit": "45610cd",
+      "category": "dispatch"
+    },
+    {
+      "introduced_at": "2026-06-05T15:29:25+08:00",
+      "event": "council-forge brownfield-readiness",
+      "standard": "Workflow must retrofit onto brownfield repos: a repo's own README/CLAUDE is preserved and classified brownfield-owned rather than overwritten.",
+      "ref": "TASK-1074",
+      "commit": "4a155a8",
+      "category": "lifecycle"
+    },
+    {
+      "introduced_at": "2026-06-07T16:46:49+08:00",
+      "event": "adversarial dual-review gate established (commander policy) + P8 SSDLC roadmap",
+      "standard": "Every plan must pass a codex+gemini adversarial dual-review (no blocking/critical findings) before any coding; security/crypto/auth plans additionally require a working-tree implementation-layer dual review.",
+      "ref": "P8-roadmap",
+      "commit": "28ab45d",
+      "category": "dual-review"
+    },
+    {
+      "introduced_at": "2026-06-07T18:29:11+08:00",
+      "event": "P8-A SSDF mapping-integrity gate (NIST SP 800-218 v1.1)",
+      "standard": "council-forge governance mechanisms are mapped to NIST SSDF practices and the mapping is integrity-gated (ssdf_mapping_validator); an unmapped or mis-mapped practice fails the gate.",
+      "ref": "TASK-1077",
+      "commit": "fed3d5c",
+      "category": "ssdf"
+    },
+    {
+      "introduced_at": "2026-06-07T19:19:58+08:00",
+      "event": "P8-B secret-scan + SCA recognition, hardening, mapping, downstream templates",
+      "standard": "Secret-scanning and software-composition-analysis gates are recognized, hardened, SSDF-mapped, and templated into downstream repos.",
+      "ref": "TASK-1078",
+      "commit": "4968c14",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-07T19:34:01+08:00",
+      "event": "sca_gate dotnet report-version fail-closed hardening",
+      "standard": "Security gates must fail closed: a missing or unparseable report version is a hard failure, never a silent pass.",
+      "ref": "TASK-1079",
+      "commit": "7703b09",
+      "category": "fail-closed"
+    },
+    {
+      "introduced_at": "2026-06-07T21:01:22+08:00",
+      "event": "P8-C advisory SAST (sast_gate + repo_security_scan sast + PW.7 partial)",
+      "standard": "A static application security testing gate (advisory) is present and SSDF-mapped (PW.7 partial).",
+      "ref": "TASK-1080",
+      "commit": "d8f9e7c",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-08T00:24:55+08:00",
+      "event": "P8-C2 SBOM (sbom_gate, 4-ecosystem, PS.2 misattribution fix)",
+      "standard": "A software bill-of-materials gate (multi-ecosystem) is present and SSDF-mapped (PS.3).",
+      "ref": "TASK-1081",
+      "commit": "23e0692",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-08T07:56:19+08:00",
+      "event": "P8-D vulnerability disclosure & response (security_txt_gate + SECURITY.md + IR runbook)",
+      "standard": "A vulnerability-disclosure path (security.txt gate + SECURITY.md) and an incident-response runbook are present and SSDF-mapped (RV.1).",
+      "ref": "TASK-1082",
+      "commit": "9cc6395",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-08T10:28:37+08:00",
+      "event": "P8-D2 release-integrity (release_gate + snapshot_manifest, PS.2 gap->partial)",
+      "standard": "A release-integrity gate plus a snapshot manifest are present and SSDF-mapped (PS.2 partial).",
+      "ref": "TASK-1083",
+      "commit": "a00173a",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-08T13:35:25+08:00",
+      "event": "P8-D3 release-signing verification mechanism (PS.2 mechanism-implemented)",
+      "standard": "Release-signing verification is implemented (PS.2 mechanism-implemented), strengthening release integrity beyond manifest snapshotting.",
+      "ref": "TASK-1084",
+      "commit": "66d1e4a",
+      "category": "security-gate"
+    },
+    {
+      "introduced_at": "2026-06-08T17:32:13+08:00",
+      "event": "P8-E SSDF conformance dashboard + enablement SSOT (read-only, honest non-certification)",
+      "standard": "A per-downstream SSDF mechanism-overlay dashboard (read-only, honest non-certification) and an enablement-matrix SSOT exist; mechanism presence is reported honestly and never conflated with enforcement.",
+      "ref": "TASK-1085",
+      "commit": "8556413",
+      "category": "ssdf"
+    }
+  ]
+}

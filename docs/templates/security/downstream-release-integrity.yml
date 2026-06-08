@@ -1,0 +1,126 @@
+# council-forge downstream RELEASE-INTEGRITY template (OPT-IN reference, P8-D2 / SSDF PS.2).
+#
+# PS.2 = "Provide a Mechanism for Verifying Software Release Integrity" — make integrity
+# verification information available to acquirers (cryptographic hashes / code signing). This
+# is DISTINCT from PS.3.2 provenance (SBOM) — see downstream-sbom.yml — and must not be
+# double-counted with it.
+#
+# This is a REFERENCE template, NOT an auto-applied workflow. A downstream copies the job
+# matching its stack into its own .github/workflows/ (or runs the commands locally for repos
+# without CI). See README.md "Release integrity (PS.2 / P8-D2)" for the per-downstream matrix.
+#
+# Design / honesty notes (map-don't-recreate):
+# - NATIVE verify is the REAL check. Each stack's canonical, cryptographic release-integrity
+#   tool is authoritative: `signtool verify` / `dotnet nuget verify` (Authenticode / NuGet
+#   signing), `cosign verify` + `gh attestation verify` (Sigstore / GitHub build provenance),
+#   `minisign -V` (Tauri updater). council-forge does NOT re-implement these — it invokes them.
+# - release_gate.py is an OFFLINE STRUCTURAL PRE-CHECK only. It validates a published checksums
+#   manifest's STRUCTURE (schema / algorithm / digest shape / no placeholders / coverage); it
+#   does NOT cryptographically verify signatures, certificate trust, or that digests match the
+#   real bytes. Those remain the native tools' job and an explicitly accepted residual risk
+#   (the gate prints this advisory on every run). in-toto/Sigstore/Tauri structural validation
+#   is delegated to the native tools, NOT re-implemented in release_gate.
+# - Supply chain: every `uses:` is pinned to a full commit SHA in action-pins.json. No masking
+#   (no `|| true` / `set +e`). Producing GitHub build provenance uses
+#   `actions/attest-build-provenance` in the BUILD job — pin it in action-pins.json when adopted.
+
+name: Downstream Release Integrity
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write       # required for cosign keyless / attestations (LINE-BOT)
+  attestations: write   # required for actions/attest-build-provenance (LINE-BOT)
+
+jobs:
+  # --- .NET release integrity — Sentinel [template-only while FROZEN], LINE-BOT [active] ----
+  # Sentinel is FROZEN and on Azure DevOps: this is TEMPLATE-ONLY. Do NOT wire it in or touch
+  # azure-pipelines.yml until thaw. LINE-BOT (active, GitHub Actions, container) is the natural
+  # first adopter: copy this job into .github/workflows/.
+  dotnet-release-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Native verify — NuGet / Authenticode signatures (REAL cryptographic check)
+        # The authoritative release-integrity check for .NET: verify the package/assembly is
+        # signed and the signature chains to a trusted CA. This is NOT re-implemented in Python.
+        # (Authenticode: `signtool verify /pa your.exe` on a Windows runner.)
+        run: dotnet nuget verify ./artifacts/*.nupkg --all
+      - name: Build a checksums manifest over release artifacts + structural gate (offline pre-check)
+        # Emit a council-forge-schema checksums manifest over the release files, then validate
+        # its STRUCTURE with release_gate (fail-closed on malformed / placeholder / bad shape).
+        # This is a cheap offline sanity gate BEFORE/BESIDE the native crypto verify above.
+        run: |
+          python - <<'PY'
+          import glob, hashlib, json, os
+          algo = "sha256"
+          entries = []
+          for path in sorted(glob.glob("artifacts/**/*", recursive=True)):
+              if not os.path.isfile(path):
+                  continue
+              digest = hashlib.sha256(open(path, "rb").read()).hexdigest()
+              entries.append({"path": path.replace(os.sep, "/"), algo: digest})
+          root = hashlib.sha256("".join(f"{e['path']}\0{e[algo]}\n" for e in entries).encode("utf-8")).hexdigest()
+          json.dump({"schema": "council-forge/release-manifest@1", "algorithm": algo, "entries": entries, "root": root},
+                    open("release-checksums.json", "w"), indent=2)
+          PY
+          test -s release-checksums.json
+          python artifacts/scripts/release_gate.py --format checksums --file release-checksums.json --summary-file "$GITHUB_STEP_SUMMARY"
+      - name: Native verify — Sigstore / GitHub build provenance (REAL; LINE-BOT container image)
+        # For the container release surface: the BUILD job signs with cosign and produces a SLSA
+        # build-provenance attestation via `actions/attest-build-provenance` (pin it in
+        # action-pins.json when adopted). This step VERIFIES it with the native tooling — the
+        # cryptographic source of truth, not a Python re-implementation.
+        run: gh attestation verify oci://ghcr.io/${{ github.repository }}:latest --repo ${{ github.repository }}
+
+  # --- Tauri release integrity — Verso, Vero [LOCAL / pre-commit; no CI] --------------------
+  # Verso/Vero have NO CI: run these commands LOCALLY (or as a pre-commit/release script). The
+  # canonical Tauri release-integrity mechanism is the updater minisign signature, verified by
+  # the app's embedded public key. OS installer signing (Authenticode / notarization) is
+  # complementary.
+  tauri-release-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Native verify — Tauri updater minisign signature (REAL cryptographic check)
+        # `tauri signer sign` (TAURI_SIGNING_PRIVATE_KEY) signs each updater bundle; the client
+        # verifies it against the pubkey in tauri.conf.json. Locally, verify with minisign -V
+        # against the published public key — the authoritative check, not re-implemented here.
+        run: minisign -Vm ./src-tauri/target/release/bundle/updater/*.tar.gz -P "$TAURI_UPDATER_PUBKEY"
+      - name: Build a checksums manifest over the bundles + structural gate (offline pre-check)
+        run: |
+          python - <<'PY'
+          import glob, hashlib, json, os
+          algo = "sha256"
+          entries = []
+          for path in sorted(glob.glob("src-tauri/target/release/bundle/**/*", recursive=True)):
+              if not os.path.isfile(path):
+                  continue
+              digest = hashlib.sha256(open(path, "rb").read()).hexdigest()
+              entries.append({"path": path.replace(os.sep, "/"), algo: digest})
+          root = hashlib.sha256("".join(f"{e['path']}\0{e[algo]}\n" for e in entries).encode("utf-8")).hexdigest()
+          json.dump({"schema": "council-forge/release-manifest@1", "algorithm": algo, "entries": entries, "root": root},
+                    open("release-checksums.json", "w"), indent=2)
+          PY
+          test -s release-checksums.json
+          python artifacts/scripts/release_gate.py --format checksums --file release-checksums.json --summary-file "$GITHUB_STEP_SUMMARY"

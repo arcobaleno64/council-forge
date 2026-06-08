@@ -30,6 +30,7 @@ EXACT_SYNC_FILES = [
     "artifacts/scripts/prompt_regression_validator.py",
     "artifacts/scripts/repo_security_scan.py",
     "artifacts/scripts/run_red_team_suite.py",
+    "artifacts/scripts/release_gate.py",
     "artifacts/scripts/sast_gate.py",
     "artifacts/scripts/sbom_gate.py",
     "artifacts/scripts/sca_gate.py",

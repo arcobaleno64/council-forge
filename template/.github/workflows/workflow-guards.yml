@@ -33,15 +33,28 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest pytest-cov
+        # cyclonedx-bom is pinned so the SBOM transitive-generation regression test runs
+        # (not skipped) in CI, exercising the real generation path, not just the gate parser.
+        run: pip install -r requirements.txt pytest pytest-cov cyclonedx-bom==7.3.0
 
       - name: Unit Tests
         run: |
-          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py -v \
+          python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py artifacts/scripts/test_scaffold_downstream.py artifacts/scripts/test_prompt_regression_validator.py artifacts/scripts/test_drift_dashboard.py artifacts/scripts/test_propagate_downstream.py artifacts/scripts/test_ssdf_mapping_validator.py artifacts/scripts/test_sca_gate.py artifacts/scripts/test_sast_gate.py artifacts/scripts/test_sbom_gate.py artifacts/scripts/test_security_txt_gate.py artifacts/scripts/test_release_gate.py artifacts/scripts/test_snapshot_manifest.py artifacts/scripts/test_repo_security_scan_sast.py artifacts/scripts/test_downstream_security_template.py -v \
             --cov --cov-config=.coveragerc \
             --cov-report=term-missing \
             --cov-report=html:coverage-report \
             --cov-fail-under=90
+
+      - name: SSDF Mapping Integrity
+        # errexit-safe: validator exit 3 (valid-with-open-items) is acceptable; only an
+        # integrity violation (2) or usage/IO error (1) fails the gate. Without `set +e`
+        # the default errexit would abort the step on exit 3 before rc is captured.
+        run: |
+          set +e
+          python artifacts/scripts/ssdf_mapping_validator.py --mapping docs/ssdf-mapping.md
+          rc=$?
+          set -e
+          case "$rc" in 0|3) exit 0;; *) exit "$rc";; esac
 
       - name: Contract Guard
         run: python artifacts/scripts/guard_contract_validator.py --root .

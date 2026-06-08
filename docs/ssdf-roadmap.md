@@ -159,9 +159,23 @@ phase 與理據。
 > **P8-D 校正（2026-06-08）**：P8-D（TASK-1082）聚焦 **vuln-disclosure & response**（RV.1.3/RV.2/
 > RV.3）——立運行中之 `SECURITY.md` + `.well-known/security.txt`（`security_txt_gate.py` per-PR+
 > schedule 守）+ IR-runbook，RV.1/RV.2 強化 evidence（仍 partial）、RV.3 covered（IR 骨架）。
-> **PS.2（release-integrity 簽章）析出為 P8-D2**：council-forge 無二進位 release→covered 結構不可
-> 達（下游 .NET/Tauri 之事），故 PS.2 **仍 gap**、marker owning 由 P8-D 改 **P8-D2**。
+> **PS.2（release-integrity）析出為 P8-D2**，後於 P8-D2 由 `gap` 升 `partial`（gap-waiver 撤，見下 P8-D2 完成校正）。
 
-- `SSDF-Gap-Waiver: PS.2`
-  - owning phase: P8-D2（release-integrity：code-signing / 雜湊 / integrity-verification info 供 acquirer；council-forge 無 binaries→partial 上限為 policy+下游模板，covered 屬下游）。
-  - 理據：council-forge 尚無 release 簽章/雜湊機制供 acquirer 驗其完整性（**非** SBOM——SBOM 已於 P8-C2 認列為 PS.3.2 provenance；disclosure & response 已於 P8-D 立，見上 P8-D 校正）。
+> **P8-D2 完成 — PS.2 under-claim 校正（2026-06-08，TASK-1083）**：前述「council-forge 無二進位
+> release→covered 結構不可達、PS.2 仍 gap」**實為 under-claim**。council-forge 經 `propagate_downstream.py`
+> 釋出之 `template/` SSOT snapshot 即真實 release artifact（PS.2.1 artifact-type-agnostic：governance 檔樹
+> 亦 software）。故 **PS.2 由 `gap` 升 `partial`**（**gap-waiver 已撤**）：機制＝`artifacts/scripts/release_gate.py`
+> （fail-closed checksums 結構 gate）+ `artifacts/scripts/snapshot_manifest.py`（content-addressed、可獨立復現
+> 之 manifest，source-only）；evidence＝運行中 `release-integrity` job（`.well-known/release-manifest.json`，
+> `snapshot_manifest.py verify` regenerate-diff + `release_gate.py` 結構驗，step-level guarded by
+> `.council-forge-source-repo`，per-PR + 每週 schedule），且 `propagate --apply` 寫各下游 durable
+> `.council-forge/release-snapshot.json`（acquirer 之 verifier，PS.2.1）。**誠實上限 `partial` 非 `covered`**：
+> Example-1 刊布**可復現**雜湊；**真簽章（signed tag / minisign / cosign）+ key rotation/revocation/review
+> （Example 2/3）＝path-to-covered，defined follow-up**。**PS.2≠PS.3.2（SBOM）不 double-count**；release_gate
+> 驗結構非密碼學（native verify＝真驗：cosign/`gh attestation verify`/`dotnet nuget verify`/`minisign -V`，
+> accepted residual）。下游 .NET/Tauri 之 PS.2 以 `docs/templates/security/downstream-release-integrity.yml`
+> （native verify 主驗，map-don't-recreate）opt-in/local 行之。
+>
+> **defined follow-up（P8-D2 析出，非 blocking）**：① 真簽章 + key-lifecycle（PS.2→covered）；② propagate
+> apply-phase cross-target staged-transaction rollback（誠實界：本階 per-file atomic 除損檔、preflight-detectable
+> 敗無半套用、apply-phase I/O 中斷殘餘以 git + idempotent 重跑 verified-recovery；全量 rollback 緩）。

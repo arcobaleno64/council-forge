@@ -160,3 +160,37 @@ jobs:
         # failure). The gate fails closed on a malformed / expired security.txt.
         if: ${{ hashFiles('.well-known/security.txt') != '' }}
         run: python artifacts/scripts/security_txt_gate.py --file .well-known/security.txt
+
+  release-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Verify published release manifest matches the template snapshot (HEAD consistency)
+        # STEP-level guard keyed on the SOURCE-REPO IDENTITY sentinel: only council-forge (the
+        # source template repo) carries .council-forge-source-repo — a downstream terminal repo
+        # is contractually FORBIDDEN from it (guard_contract_validator), and it is never
+        # propagated (not in template/). So this runs ONLY in council-forge and cleanly skips
+        # downstream, even if a downstream coincidentally carries an unrelated
+        # snapshot_manifest.py. Keying on the manifest itself would MASK a missing-manifest
+        # regression as a skip; here a missing/mismatched manifest FAILS the job (required
+        # evidence: snapshot_manifest verify exits non-zero), no exit-masking.
+        if: ${{ hashFiles('.council-forge-source-repo') != '' }}
+        run: python artifacts/scripts/snapshot_manifest.py verify --template-root template --manifest .well-known/release-manifest.json
+
+      - name: Release integrity gate (structural; checksums manifest)
+        # Fails closed on malformed / schema-drift / bad-digest shape / placeholder / coverage
+        # gap. An unmissable STRUCTURE-not-crypto advisory is appended to $GITHUB_STEP_SUMMARY:
+        # real cryptographic verification (cosign / gh attestation verify / minisign -V) is a
+        # separate native-tool step and an explicitly accepted residual risk.
+        if: ${{ hashFiles('.council-forge-source-repo') != '' }}
+        run: python artifacts/scripts/release_gate.py --format checksums --file .well-known/release-manifest.json --summary-file "$GITHUB_STEP_SUMMARY"

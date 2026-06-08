@@ -6,17 +6,19 @@ auto-applied workflows** — a downstream copies the jobs it needs into its own 
 runs them via local/pre-commit for repos without a remote). council-forge's own
 `security-scan.yml` already enforces Python SCA (pip-audit) + secret/static scan.
 
-> **Scope**: secret-scan + SCA (P8-B), **advisory SAST (P8-C)**, and **SBOM (P8-C2)**.
-> Release-integrity (PS.2: hashes / code-signing) + vuln-disclosure intake + release/IR are
-> P8-D. This is why SSDF practices PW.4 (SCA), RV.1 (secret-scan/vuln-id), **PW.7 (SAST)**, and
-> **PS.3 (SBOM provenance)** are mapped `partial`, not `covered`, in `docs/ssdf-mapping.md` —
-> see the **SAST** and **SBOM** sections below. (SBOM is PS.3.2, NOT PS.2 — see the SBOM section.)
+> **Scope**: secret-scan + SCA (P8-B), **advisory SAST (P8-C)**, **SBOM (P8-C2)**,
+> **vuln-disclosure intake (P8-D)**, and **release integrity (PS.2 / P8-D2)**. SSDF practices
+> PW.4 (SCA), RV.1 (secret-scan/vuln-id), **PW.7 (SAST)**, **PS.3 (SBOM provenance)**, and
+> **PS.2 (release integrity)** are mapped `partial`, not `covered`, in `docs/ssdf-mapping.md` —
+> see the sections below. (SBOM is PS.3.2; PS.2 is release-integrity — distinct, never
+> double-counted.)
 
 ## Files
 
 - `downstream-security-scan.yml` — the opt-in multi-language workflow (secret + Node/Rust/.NET SCA).
 - `downstream-sast.yml` — the opt-in SAST workflow (advisory Python SAST + native Rust clippy / .NET analyzers).
 - `downstream-sbom.yml` — the opt-in SBOM workflow (CycloneDX generation per ecosystem → fail-closed `sbom_gate.py`).
+- `downstream-release-integrity.yml` — the opt-in RELEASE-INTEGRITY workflow (PS.2: native signature verify + fail-closed `release_gate.py` structural pre-check).
 - `action-pins.json` — manifest of approved GitHub Actions (identity → version + resolved SHA). Lint-enforced.
 
 ## Fail-closed & supply-chain guarantees (lint-enforced)
@@ -138,7 +140,45 @@ A downstream that wants a disclosure program:
 The gate validates **syntax + URI structure + https-for-web + a non-expired Expires**. It does
 **not** verify that the Contact reaches a monitored party, that URLs resolve, or that a signature
 is valid — that is human review. SSDF mapping: this is the **RV.1.3** disclosure dimension (it
-stays `partial`, policy + verifiable intake). Release-integrity signing (PS.2) is **P8-D2**.
+stays `partial`, policy + verifiable intake). Release-integrity signing (PS.2) is **P8-D2** (below).
+
+## Release integrity (PS.2 / P8-D2) — `downstream-release-integrity.yml`
+
+Release integrity (SSDF **PS.2** — "Provide a Mechanism for Verifying Software Release
+Integrity": make integrity-verification info available to acquirers via cryptographic hashes /
+code signing) is **distinct from PS.3.2 provenance (SBOM)** and must never be double-counted.
+
+**Map-don't-recreate**: each stack's **native** tool is the REAL cryptographic check —
+`signtool verify` / `dotnet nuget verify` (.NET Authenticode / NuGet), `cosign verify` +
+`gh attestation verify` (Sigstore / GitHub build provenance), `minisign -V` (Tauri updater).
+council-forge does NOT re-implement signature verification. `release_gate.py` is an **offline
+STRUCTURAL pre-check** of a published checksums manifest only (schema / digest shape / no
+placeholders / coverage); it explicitly does **not** verify signatures, certificate trust, or
+that digests match the real bytes — that is the native tools' job and an accepted residual risk
+(printed as an advisory on every run). in-toto/Sigstore/Tauri structural validation is left to
+the native tools, NOT re-implemented in `release_gate`.
+
+> council-forge applies PS.2 to **its own** release surface — the propagated `template/` SSOT
+> snapshot it ships to downstreams — via `snapshot_manifest.py` (a content-addressed,
+> reproducible manifest published at `.well-known/release-manifest.json`) + the `release-integrity`
+> job in `security-scan.yml` (regenerate-diff + `release_gate`), and a durable
+> `.council-forge/release-snapshot.json` record written into each downstream on `propagate --apply`.
+> That moves PS.2 from `gap` to **`partial`** in `docs/ssdf-mapping.md`.
+
+| Repo | Stack | Native verify (REAL check) | Enablement |
+|---|---|---|---|
+| council-forge | Python (SSOT snapshot) | `snapshot_manifest.py` reproducible manifest + `release_gate` structural | already operational (`release-integrity` job; PS.2 `partial`) |
+| Sentinel | .NET (frozen) | `signtool verify` / `dotnet nuget verify` | **template-only while frozen — do NOT wire into CI; do NOT touch azure-pipelines.yml** |
+| LINE-BOT | .NET (active GitHub remote, container) | `cosign verify` + `gh attestation verify` (build provenance) | opt-in: copy `dotnet-release-integrity`; sign in the build job (`actions/attest-build-provenance`, pin it) |
+| Verso | Tauri (Rust + pnpm, no remote) | `minisign -V` (updater signature) | local / pre-commit (no CI) — run `tauri-release-integrity` commands locally |
+| Vero | Tauri (Rust + pnpm, no remote) | `minisign -V` (updater signature) | local / pre-commit (evidence-zip model makes integrity especially relevant) |
+
+**`partial`, not `covered`** (honest ceiling): council-forge publishes a **reproducible** hash
+manifest of its release surface (NIST PS.2.1 Example 1) — an acquirer can independently
+recompute and compare. Full `covered` needs actual **signing** of the manifest/tag plus a key
+rotation/revocation/review process (Example 2/3); that is a **defined follow-up**, not claimed
+now. PS.2 ≠ PS.3.2 (SBOM): `release_gate` validates integrity manifests, `sbom_gate` validates
+SBOMs — different mechanisms, no double-count.
 
 ## Adoption
 

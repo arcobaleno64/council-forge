@@ -32,7 +32,7 @@ https://doi.org/10.6028/NIST.SP.800-218
 | PO.4 | Criteria for Software Security Checks | partial | docs/artifact_schema.md | .github/workflows/workflow-guards.yml | — |
 | PO.5 | Secure Software Development Environments | partial | CODEX.md | GEMINI.md | — |
 | PS.1 | Protect All Forms of Code | covered | artifacts/scripts/drift_dashboard.py | artifacts/scripts/propagate_downstream.py | — |
-| PS.2 | Provide a Mechanism for Verifying Software Release Integrity | gap | — | — | docs/ssdf-roadmap.md#8-ssdf-gap-waiver-registry |
+| PS.2 | Provide a Mechanism for Verifying Software Release Integrity | partial | artifacts/scripts/release_gate.py | .github/workflows/security-scan.yml | — |
 | PS.3 | Archive and Protect Each Software Release | partial | artifacts/scripts/sbom_gate.py | .github/workflows/security-scan.yml | — |
 | PW.1 | Design Software to Meet Security Requirements | partial | docs/premortem_rules.md | CODEX.md | — |
 | PW.2 | Review the Software Design | covered | docs/orchestration.md | CLAUDE.md | — |
@@ -62,8 +62,8 @@ https://doi.org/10.6028/NIST.SP.800-218
 > Release Integrity」，論雜湊與 code-signing（PS.2.1 例皆 hash/CA-signing），非 SBOM**；
 > **SBOM 實屬 PS.3.2**（「...share provenance data... e.g., in a software bill of materials
 > [SBOM]」，居 PS.3「Archive and Protect Each Software Release」）。故 council-forge 前
-> 「PS.2…(SBOM)」為 **P8-A 誤植，已正**：① **PS.2** 復 verbatim 標題、status 仍 `gap`、改隸
-> **P8-D**（release 簽章/雜湊/integrity-verification info 供 acquirer，council-forge 尚無）；
+> 「PS.2…(SBOM)」為 **P8-A 誤植，已正**：① **PS.2** 復 verbatim 標題（release-integrity，非 SBOM）；
+> 其 status 後於 **P8-D2** 由 `gap` 升 `partial`（under-claim 校正，見下 P8-D2 footnote）；
 > ② **PS.3** 以 `sbom_gate.py` + `.github/workflows/security-scan.yml` 之運行中 `sbom` job
 > 強化（PS.3.2 provenance facet：cyclonedx-py 由 **resolved 環境**生成 SBOM、捕 transitive、
 > sbom_gate 驗之）。**PS.3 仍 `partial` 非 `covered`**：archive facet（PS.3.1）僅 via status/
@@ -87,5 +87,29 @@ https://doi.org/10.6028/NIST.SP.800-218
 > triage→contain→eradicate→recover→**post-incident/root-cause**→PROCESS_LEDGER）為其操作骨架。
 > **誠實界**：security_txt_gate 驗檔之語法/結構/未過期，**不能**驗 Contact 真達責任人/URL 可達/
 > 非惡意（無網路 fetch）——**語義可信屬 human-review**（security.txt 變更之 PR review + policy
-> owner）。**release-integrity 簽章（PS.2）析出 P8-D2**（council-forge 無二進位 release→covered
-> 結構不可達；下游 .NET/Tauri 之事，見 roadmap §8）。映 `docs/security_cadence.md`（cross-ref）。
+> owner）。**release-integrity（PS.2）析出 P8-D2**（後於 P8-D2 由 `gap` 升 `partial`，見下 P8-D2 footnote）。
+> 映 `docs/security_cadence.md`（cross-ref）。
+
+> **PS.2（release-integrity）under-claim 校正（P8-D2，2026-06-08）**：4-agent recon 逐字核 NIST SP
+> 800-218 v1.1——**PS.2.1**＝「Make software integrity verification information available to software
+> acquirers」（notional examples：張貼 release 之 cryptographic hashes、CA code-signing、定期審簽章流程），
+> **artifact-type-agnostic**。前態（P8-C2/P8-D）稱 PS.2「council-forge 無二進位 release→covered 結構不可
+> 達」**實為 under-claim**：「不產編譯 artifact」≠「不釋出 release artifact」——council-forge 經
+> `propagate_downstream.py` 釋出之 `template/` SSOT snapshot **即真實 release artifact**（governance 檔
+> 樹亦 software，竄改正威脅之）。故 **PS.2 由 `gap` 升 `partial`**：機制＝`artifacts/scripts/release_gate.py`
+> （fail-closed checksums-manifest 結構 gate）+ `artifacts/scripts/snapshot_manifest.py`（content-addressed、
+> **可獨立復現**之 manifest 生成，source-only）；evidence＝`.github/workflows/security-scan.yml` 之**運行中**
+> `release-integrity` job（`snapshot_manifest.py verify` regenerate-diff + `release_gate.py` 結構驗
+> `.well-known/release-manifest.json`，step-level guarded by `.council-forge-source-repo`；per-PR + 每週
+> schedule），且 `propagate --apply` 寫入各下游 durable `.council-forge/release-snapshot.json`（acquirer
+> 持其所收 snapshot 之 verifier，PS.2.1）。**誠實上限 `partial` 非 `covered`**：本階為 NIST PS.2.1
+> **Example 1**（刊布**可復現**之 cryptographic hash manifest 供 acquirer，零 key 負擔）；**真簽章
+> （signed tag / minisign / cosign）+ key rotation/revocation/review（Example 2/3）＝path-to-covered，
+> defined follow-up**。**release_gate 驗結構非密碼學**：簽章真驗/憑證鏈/key 信任/digest-vs-bytes 屬
+> native verify（cosign/`gh attestation verify`/`dotnet nuget verify`/`minisign -V`）+ human-review，
+> **explicitly accepted residual**（in-toto/Sigstore/Tauri 結構+密碼學交 native tool，map-don't-recreate，
+> 不於 release_gate 重造）。**PS.2 ≠ PS.3.2（SBOM），不 double-count**：release_gate 驗 integrity manifest
+> （hashes），sbom_gate 驗 SBOM（provenance）——機制相異。**歷史可驗**賴 manifest `root` content-address +
+> git per-commit 不可變；CI regenerate-diff **僅證 HEAD 一致**；**全量 release-manifest archive 屬 PS.3-鄰，
+> 緩**。下游 .NET/Tauri 之 PS.2 以 `docs/templates/security/downstream-release-integrity.yml`（native verify
+> 主驗）opt-in/local 行之。

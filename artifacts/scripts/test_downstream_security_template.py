@@ -27,6 +27,7 @@ TEMPLATE_WF = ROOT / "template" / ".github" / "workflows" / "security-scan.yml"
 DOWNSTREAM_WF = ROOT / "docs" / "templates" / "security" / "downstream-security-scan.yml"
 DOWNSTREAM_SAST_WF = ROOT / "docs" / "templates" / "security" / "downstream-sast.yml"
 DOWNSTREAM_SBOM_WF = ROOT / "docs" / "templates" / "security" / "downstream-sbom.yml"
+DOWNSTREAM_RELEASE_WF = ROOT / "docs" / "templates" / "security" / "downstream-release-integrity.yml"
 MANIFEST = ROOT / "docs" / "templates" / "security" / "action-pins.json"
 MAPPING_DOC = ROOT / "docs" / "ssdf-mapping.md"
 ROADMAP_DOC = ROOT / "docs" / "ssdf-roadmap.md"
@@ -95,14 +96,14 @@ def _all_run_text(wf: dict) -> str:
 # --------------------------------------------------------------------------- #
 # POSITIVE: the real shipped workflows must lint clean
 # --------------------------------------------------------------------------- #
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF, DOWNSTREAM_RELEASE_WF])
 def test_real_workflow_action_pins_clean(wf_path: Path):
     manifest = load_manifest(MANIFEST)
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_action_pins(wf, manifest) == []
 
 
-@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF])
+@pytest.mark.parametrize("wf_path", [ROOT_WF, TEMPLATE_WF, DOWNSTREAM_WF, DOWNSTREAM_SAST_WF, DOWNSTREAM_SBOM_WF, DOWNSTREAM_RELEASE_WF])
 def test_real_workflow_no_masking(wf_path: Path):
     wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
     assert check_no_masking(wf) == []
@@ -250,16 +251,19 @@ def test_downstream_sast_wires_tested_gate_and_recognizes_native():
 # --------------------------------------------------------------------------- #
 # P8-C2 SBOM: PS.2 misattribution correction, PS.3 evidence, identity/parser-fail invariant
 # --------------------------------------------------------------------------- #
-def test_ps2_corrected_to_verbatim_not_sbom():
-    """PS.2 must carry its verbatim NIST title (release-integrity / signing), NOT the P8-A
-    '(SBOM)' misattribution; it stays a gap owned by P8-D (codex/gemini/recon, P8-C2)."""
+def test_ps2_release_integrity_raised_to_partial_by_p8d2():
+    """PS.2 keeps its verbatim NIST title (release-integrity, NOT the P8-A '(SBOM)' misattribution)
+    and is raised from gap to PARTIAL by P8-D2 — the under-claim correction (council-forge's
+    propagated template/ snapshot IS a real release artifact). Mechanism = release_gate.py; the
+    gap-waiver is WITHDRAWN (no longer a gap)."""
     cells = _mapping_row("PS.2")  # [Practice, Title, Status, Mechanism, Evidence, Gap/Waiver]
     assert "Verifying Software Release Integrity" in cells[1]
     assert "(SBOM)" not in cells[1]
-    assert cells[2] == "gap"
-    lines = ROADMAP_DOC.read_text(encoding="utf-8").splitlines()
-    idx = next(i for i, line in enumerate(lines) if "SSDF-Gap-Waiver: PS.2" in line)
-    assert any("owning phase: P8-D" in line for line in lines[idx : idx + 4]), "PS.2 must be owned by P8-D"
+    assert cells[2] == "partial"
+    assert cells[3] == "artifacts/scripts/release_gate.py"
+    assert cells[4] == ".github/workflows/security-scan.yml"
+    # gap-waiver withdrawn: PS.2 is no longer a gap, so no SSDF-Gap-Waiver marker for it.
+    assert "SSDF-Gap-Waiver: PS.2" not in ROADMAP_DOC.read_text(encoding="utf-8")
 
 
 def test_ps3_evidence_is_operational_sbom_job():
@@ -399,14 +403,107 @@ def test_security_txt_job_is_operational_and_scheduled():
 
 
 def test_rv_disclosure_mapping_is_honest():
-    """The RV footnote must document the disclosure intake + IR runbook, RV.1/RV.2 stay partial,
-    PS.2 stays a gap owned by P8-D2 (no over-claim; council-forge has no binaries)."""
+    """The RV footnote must document the disclosure intake + IR runbook; RV.1/RV.2 stay partial.
+    PS.2 is now partial (raised by P8-D2) with the gap-waiver withdrawn (no over-claim)."""
     mapping = MAPPING_DOC.read_text(encoding="utf-8")
     assert "SECURITY.md" in mapping and ".well-known/security.txt" in mapping
     assert "incident-response-runbook" in mapping
     assert _mapping_row("RV.1")[2] == "partial"
     assert _mapping_row("RV.2")[2] == "partial"
-    assert _mapping_row("PS.2")[2] == "gap"
-    lines = ROADMAP_DOC.read_text(encoding="utf-8").splitlines()
-    idx = next(i for i, line in enumerate(lines) if "SSDF-Gap-Waiver: PS.2" in line)
-    assert any("owning phase: P8-D2" in line for line in lines[idx : idx + 4]), "PS.2 must be owned by P8-D2"
+    assert _mapping_row("PS.2")[2] == "partial"
+    assert "SSDF-Gap-Waiver: PS.2" not in ROADMAP_DOC.read_text(encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
+# P8-D2 release integrity (PS.2): source-repo-guarded job, native-verify template, honesty
+# --------------------------------------------------------------------------- #
+def test_release_integrity_job_is_source_repo_guarded():
+    """The release-integrity job's steps must be STEP-level guarded on the SOURCE-REPO IDENTITY
+    sentinel (.council-forge-source-repo) — NOT on the manifest (which would mask a
+    missing-manifest regression as a skip) and NOT on a script path (which a downstream could
+    coincidentally carry). They must invoke snapshot_manifest verify + release_gate."""
+    wf = yaml.safe_load(ROOT_WF.read_text(encoding="utf-8"))
+    assert "release-integrity" in _jobs(wf), "security-scan.yml lacks the release-integrity job"
+    run_steps = [s for s in _jobs(wf)["release-integrity"].get("steps", []) if isinstance(s.get("run"), str)]
+    assert any("snapshot_manifest.py verify" in s["run"] for s in run_steps)
+    assert any("release_gate.py --format checksums" in s["run"] for s in run_steps)
+    for step in run_steps:
+        cond = str(step.get("if", ""))
+        assert "hashFiles('.council-forge-source-repo')" in cond, "must guard on the source-repo sentinel"
+        assert "release-manifest.json" not in cond, "guard must NOT key on the manifest (would mask a missing-manifest regression)"
+
+
+def test_release_integrity_job_present_in_template():
+    """The release-integrity job must be mirrored into template/ (security-scan.yml is synced),
+    so a retrofitted downstream inherits it — and it cleanly skips there (no source-repo sentinel)."""
+    wf = yaml.safe_load(TEMPLATE_WF.read_text(encoding="utf-8"))
+    assert "release-integrity" in _jobs(wf)
+
+
+def test_downstream_release_integrity_uses_native_verify_not_reimplemented():
+    """map-don't-recreate: the downstream template invokes each stack's NATIVE crypto verify (the
+    REAL check) and uses release_gate ONLY as a checksums structural pre-check — it does NOT
+    re-implement in-toto/Sigstore/Tauri validation in release_gate."""
+    text = DOWNSTREAM_RELEASE_WF.read_text(encoding="utf-8")
+    assert "dotnet nuget verify" in text  # .NET NuGet signing (native)
+    assert "signtool verify" in text or "Authenticode" in text  # .NET Authenticode (native)
+    assert "gh attestation verify" in text  # Sigstore / GitHub build provenance (native)
+    assert "minisign -V" in text  # Tauri updater signature (native)
+    assert "release_gate.py --format checksums" in text  # structural pre-check only
+    assert "--format intoto" not in text and "--format sigstore" not in text and "--format tauri" not in text
+
+
+def test_release_gate_only_supports_checksums_format():
+    """release_gate must validate ONLY the checksums manifest format (in-toto/Sigstore/Tauri are
+    delegated to native tools, map-don't-recreate, per the commander's v1 adjudication)."""
+    import release_gate
+
+    args = release_gate.parse_args(["--format", "checksums", "--file", "x"])
+    assert args.format == "checksums"
+    with pytest.raises(SystemExit):
+        release_gate.parse_args(["--format", "sigstore", "--file", "x"])  # not a valid choice
+
+
+def test_council_forge_release_manifest_published_and_gate_passes():
+    """council-forge's own published release manifest must exist and pass the structural gate
+    (end-to-end PS.2.1: published, reproducible integrity-verification info)."""
+    import release_gate
+
+    manifest_path = ROOT / ".well-known" / "release-manifest.json"
+    assert manifest_path.is_file(), "council-forge must publish .well-known/release-manifest.json"
+    assert release_gate.run(["--format", "checksums", "--file", str(manifest_path)]) == release_gate.EXIT_OK
+
+
+def test_council_forge_release_manifest_matches_template_snapshot():
+    """The published manifest must match the current template/ tree (regenerate-diff) — the same
+    HEAD-consistency check the CI release-integrity job runs, proving the manifest is not stale."""
+    import snapshot_manifest
+
+    manifest_path = ROOT / ".well-known" / "release-manifest.json"
+    rc = snapshot_manifest.run(["verify", "--template-root", str(ROOT / "template"), "--manifest", str(manifest_path)])
+    assert rc == snapshot_manifest.EXIT_OK
+
+
+def test_snapshot_manifest_is_source_only_never_propagated():
+    """The CI guard's correctness rests on snapshot_manifest.py being source-only: it must NOT be
+    in template/ nor in EXACT_SYNC_FILES, so it is structurally impossible to propagate it
+    downstream (gemini v3/v4 invariant). Same for the source-repo sentinel."""
+    assert not (ROOT / "template" / "artifacts" / "scripts" / "snapshot_manifest.py").exists()
+    guard = (ROOT / "artifacts" / "scripts" / "guard_contract_validator.py").read_text(encoding="utf-8")
+    assert "snapshot_manifest.py" not in guard  # not in EXACT_SYNC_FILES
+    assert not (ROOT / "template" / ".council-forge-source-repo").exists()
+
+
+def test_ps2_release_integrity_honesty_footnote():
+    """The mapping footnote must keep PS.2 honest: partial-not-covered (Example-1 reproducible
+    hashes), signing as path-to-covered, and PS.2 != PS.3.2 (no double-count with SBOM)."""
+    mapping = MAPPING_DOC.read_text(encoding="utf-8")
+    assert "under-claim" in mapping
+    assert "path-to-covered" in mapping
+    assert "PS.2 ≠ PS.3.2" in mapping or "PS.2≠PS.3.2" in mapping
+
+
+def test_readme_has_release_integrity_section():
+    text = (ROOT / "docs" / "templates" / "security" / "README.md").read_text(encoding="utf-8")
+    assert "Release integrity (PS.2 / P8-D2)" in text
+    assert "minisign -V" in text and "gh attestation verify" in text  # native verify in the matrix

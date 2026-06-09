@@ -130,3 +130,27 @@ https://doi.org/10.6028/NIST.SP.800-218
 > publisher trust 須 fingerprint **out-of-band** 刊布於 acquirer 獨立信之渠道——operator covered-gating 之舉，見
 > `docs/security/release-signing.md` §4。validator 仍 **exit 3**（covered 5/partial 14/gap 0，PS.2 不偽升）。**covered
 > ＝operational follow-up**：operator 生 key + 真簽 + out-of-band 刊布 trust anchor + 首驗 + 解 no-push（另 governed task）。
+
+> **secret-scan/SCA（RV.1.1/RV.1.2 + PW.4）evidence 補（P9-A·FB-4，2026-06-09，TASK-1091）**：承 TASK-1087
+> CP-4 back-audit——`repo_security_scan.py` 之 secret/static 掃描（TASK-980 引入）與 `pip-audit` SCA（TASK-963
+> 引入）於完成時尚無 SSDF mapping evidence；其 RV.1/PW.4 列已於 P8-A/B 補入，本註補其**具體運行證據**（前每
+> 安全實踐皆有誠實界註，獨此二機制缺，故補之以對稱）。
+> **RV.1（secret-scan：RV.1.1 識別 / RV.1.2 code-analysis）運行證據**：穩定契約＝`repo_security_scan.py … secrets`
+> （憑證/金鑰 regex 啟發式）+ `… static`（危險模式）之 invocation；現行接線＝`.github/workflows/security-scan.yml`
+> 之 `repo-secrets-scan` / `repo-static-scan` job（`on:` = per-PR + push[master] + `workflow_dispatch` + weekly schedule Mon 06:00 UTC）。
+> **enforcement 界（誠實）**：job 非零退出即 **fail CI**（workflow 層級事實）；**不宣稱阻 merge**——required-status-
+> check / branch-protection 配置不在本 repo 可驗範圍，故不據以宣稱 enforcement。**fail-closed 硬化（TASK-1088/
+> FB-1）**：**應讀而不可讀之 in-scope 檔**（read/stat/walk OS 錯）今 raise `ScanReadError`，杜「不可讀＝靜默
+> clean」之 fail-open。
+> **PW.4（SCA）運行證據**：穩定契約＝`python -m pip_audit -r requirements.txt`（job 全令＝`… --format=json
+> --output=pip-audit-report.json`）；現行接線＝`pip-audit` job（pinned `pip-audit==2.7.3`，單一 enforcing step、
+> 無 exit-masking），發現漏洞即 job 非零退出 fail CI（同上不宣稱阻 merge）。
+> **誠實界——RV.1/PW.4 仍 `partial`（不可協商，不 flip covered）**：本註強化 evidence、**非升等**；綠 CI 不得讀為
+> SSDLC 完備。界：① secret/static 為**啟發式 regex**（非窮盡、非語義，可漏新型 secret 樣式）；② SCA 為**以
+> `requirements.txt` 為入口之 Python SCA**（pip-audit 對該入口可解析之 Python 套件查 PyPI advisory DB；**不掃
+> vendored / 非-Python 生態**）；③
+> **fail-closed 非「全無 fail-open」**——oversize（>1MB，`MAX_FILE_BYTES`）/ binary（**首 4096 bytes 含 NUL 之
+> 啟發式**，`b"\x00" in raw[:4096]`）檔為**刻意之非文字 skip**，經 `_report_skipped` 具名揭示（`[INFO] … skipped
+> (oversize/binary)`，揭示非靜默；regex 文字掃描本不能掃二進位/逾巨檔）。**升 covered 之所需**（皆另 governed task）：窮盡（非啟發式）掃描器 + baseline/waiver
+> enforcement + transitive/跨生態 SCA + 簽核流程。job 名為**現行接線**（security-scan.yml 變更經雙審 + human
+> review，footnote 隨之維護）。validator 仍 **exit 3**（covered 5/partial 14/gap 0，本註不動 table 列、不偽升）。

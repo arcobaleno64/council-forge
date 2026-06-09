@@ -278,16 +278,86 @@ def test_run_apply_writes_durable_marker(template_root: Path, tmp_path: Path):
     assert {entry["path"] for entry in marker["propagated"]} == {"artifacts/scripts/guard.py"}
 
 
-def test_run_apply_updates_valid_existing_marker(template_root: Path, tmp_path: Path):
-    publish_manifest(template_root)
+def test_run_apply_merges_into_valid_existing_marker(template_root: Path, tmp_path: Path):
+    # CP-1 (TASK-1093): a SAME-snapshot existing council-forge marker is MERGED (union by
+    # path), not erased — prior entries (e.g. an earlier propagation's files) survive.
+    root = publish_manifest(template_root)
     ds = _brownfield_drifted(tmp_path)
+    prior = {"path": "artifacts/scripts/prior_gate.py", "sha256": "a" * 64}
     _write(ds / MARKER, json.dumps(
-        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": "old", "algorithm": "sha256", "propagated": []}
+        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": root, "algorithm": "sha256", "propagated": [prior]}
     ))
     rc = pp.run([f"--downstream=Demo={ds}", "--template-root", str(template_root), "--apply"])
     assert rc == pp.EXIT_OK
     marker = json.loads((ds / MARKER).read_text(encoding="utf-8"))
-    assert marker["released_snapshot_root"] != "old"  # updated in place
+    paths = {entry["path"] for entry in marker["propagated"]}
+    assert paths == {"artifacts/scripts/prior_gate.py", "artifacts/scripts/guard.py"}  # union, not overwrite
+    assert marker["released_snapshot_root"] == root
+
+
+def test_run_apply_aborts_on_marker_root_mismatch(template_root: Path, tmp_path: Path):
+    # A marker from a DIFFERENT released snapshot must abort (no cross-snapshot pollution).
+    publish_manifest(template_root)
+    ds = _brownfield_drifted(tmp_path)
+    _write(ds / MARKER, json.dumps(
+        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": "old-different-root", "algorithm": "sha256", "propagated": []}
+    ))
+    rc = pp.run([f"--downstream=Demo={ds}", "--template-root", str(template_root), "--apply"])
+    assert rc == pp.EXIT_ERROR
+
+
+def test_run_apply_aborts_on_malformed_propagated(template_root: Path, tmp_path: Path):
+    root = publish_manifest(template_root)
+    ds = _brownfield_drifted(tmp_path)
+    _write(ds / MARKER, json.dumps(
+        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": root, "algorithm": "sha256", "propagated": "not-a-list"}
+    ))
+    rc = pp.run([f"--downstream=Demo={ds}", "--template-root", str(template_root), "--apply"])
+    assert rc == pp.EXIT_ERROR
+
+
+def test_run_apply_aborts_on_bad_propagated_entry(template_root: Path, tmp_path: Path):
+    root = publish_manifest(template_root)
+    ds = _brownfield_drifted(tmp_path)
+    _write(ds / MARKER, json.dumps(
+        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": root, "algorithm": "sha256",
+         "propagated": [{"path": "x.py", "sha256": "tooshort"}]}
+    ))
+    rc = pp.run([f"--downstream=Demo={ds}", "--template-root", str(template_root), "--apply"])
+    assert rc == pp.EXIT_ERROR
+
+
+def test_run_apply_aborts_on_algorithm_mismatch(template_root: Path, tmp_path: Path):
+    root = publish_manifest(template_root)
+    ds = _brownfield_drifted(tmp_path)
+    _write(ds / MARKER, json.dumps(
+        {"schema": pp.MARKER_SCHEMA, "released_snapshot_root": root, "algorithm": "md5", "propagated": []}
+    ))
+    rc = pp.run([f"--downstream=Demo={ds}", "--template-root", str(template_root), "--apply"])
+    assert rc == pp.EXIT_ERROR
+
+
+def test_write_marker_in_memory_merge_conflict_takes_this_run(tmp_path: Path):
+    # write_marker merges purely from the passed snapshot (no on-disk read); union by path,
+    # THIS run's sha256 wins on a same-path conflict.
+    existing = [{"path": "a.py", "sha256": "a" * 64}]
+    this_run = [{"path": "b.py", "sha256": "b" * 64}, {"path": "a.py", "sha256": "c" * 64}]
+    pp.write_marker(tmp_path, "root1", this_run, existing_propagated=existing)
+    marker = json.loads((tmp_path / MARKER).read_text(encoding="utf-8"))
+    by_path = {entry["path"]: entry["sha256"] for entry in marker["propagated"]}
+    assert by_path == {"a.py": "c" * 64, "b.py": "b" * 64}  # a.py: this-run wins
+
+
+def test_write_marker_default_existing_is_create(tmp_path: Path):
+    # backward-compat: omitting existing_propagated behaves as a create (no merge).
+    pp.write_marker(tmp_path, "root1", [{"path": "x.py", "sha256": "f" * 64}])
+    marker = json.loads((tmp_path / MARKER).read_text(encoding="utf-8"))
+    assert {entry["path"] for entry in marker["propagated"]} == {"x.py"}
+
+
+def test_load_and_validate_marker_absent_returns_empty(tmp_path: Path):
+    err, snapshot = pp.load_and_validate_marker(tmp_path, "root1")
+    assert err is None and snapshot == []
 
 
 def test_run_apply_no_manifest_aborts_no_partial(template_root: Path, tmp_path: Path, capsys):

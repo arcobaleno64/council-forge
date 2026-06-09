@@ -79,6 +79,7 @@ class PropagationPlan:
     skipped_placeholder: List[str] = field(default_factory=list)  # missing but placeholder -> manual
     applied: bool = False
     propagated: List[dict] = field(default_factory=list)    # [{path, sha256}] actually written
+    existing_propagated: List[dict] = field(default_factory=list)  # PREFLIGHT-validated prior marker propagated[] (merge base)
     released_root: Optional[str] = None
 
     @property
@@ -155,13 +156,74 @@ def check_marker_ownership(downstream_root: Path) -> Optional[str]:
     return None
 
 
-def write_marker(downstream_root: Path, released_root: Optional[str], propagated: List[dict]) -> None:
-    """Atomically write the durable per-snapshot marker into the downstream."""
+def _is_sha256_hex(value) -> bool:
+    return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdefABCDEF" for c in value)
+
+
+def load_and_validate_marker(downstream_root: Path, released_root: Optional[str]):
+    """PREFLIGHT: validate an existing council-forge marker and return its propagated[] snapshot.
+
+    Returns ``(error, existing_propagated)``. An absent marker -> ``(None, [])`` (first
+    propagate / create). A valid council-forge marker of the SAME released snapshot ->
+    ``(None, <its propagated list>)``. Any problem (foreign/malformed file, root mismatch,
+    bad algorithm, malformed ``propagated``) -> ``(error, [])``.
+
+    Doing this in PREFLIGHT (before ANY write) lets the APPLY-phase ``write_marker`` merge
+    purely in memory from the returned snapshot — zero marker disk-read during apply, so a
+    marker locked/deleted/altered after preflight cannot corrupt a half-applied state. The
+    root-match guard refuses to carry forward entries from a different snapshot.
+    """
+    # Reuse the ownership/foreign-file refusal (schema check) unchanged.
+    ownership_error = check_marker_ownership(downstream_root)
+    if ownership_error is not None:
+        return (ownership_error, [])
+    marker = downstream_root / MARKER_REL
+    if not marker.exists():
+        return (None, [])  # first propagate — create path, unchanged behavior
+    existing = json.loads(marker.read_text(encoding="utf-8"))  # ownership check already parsed this OK
+    existing_root = existing.get("released_snapshot_root")
+    if existing_root != released_root:
+        return (
+            f"existing {MARKER_REL} released_snapshot_root {existing_root!r} != current {released_root!r} "
+            f"— refusing to merge across snapshots",
+            [],
+        )
+    if existing.get("algorithm") != ALGORITHM:
+        return (f"existing {MARKER_REL} algorithm {existing.get('algorithm')!r} != {ALGORITHM!r}", [])
+    prop = existing.get("propagated")
+    if not isinstance(prop, list):
+        return (f"existing {MARKER_REL} propagated is not a list", [])
+    for entry in prop:
+        if not (isinstance(entry, dict) and isinstance(entry.get("path"), str) and _is_sha256_hex(entry.get("sha256"))):
+            return (f"existing {MARKER_REL} has a malformed propagated entry: {entry!r}", [])
+    return (None, prop)
+
+
+def write_marker(
+    downstream_root: Path,
+    released_root: Optional[str],
+    propagated: List[dict],
+    existing_propagated: Optional[List[dict]] = None,
+) -> None:
+    """Atomically write the durable per-snapshot marker, MERGING in memory with the
+    PREFLIGHT-validated ``existing_propagated`` snapshot (union by path; THIS run's entry
+    wins on a path conflict).
+
+    ``existing_propagated`` defaults to ``None`` -> ``[]`` (first propagate / create —
+    behaviour unchanged). The snapshot is supplied by the caller from PREFLIGHT
+    (``load_and_validate_marker``), so APPLY performs NO marker disk-read.
+    """
+    by_path: dict = {}
+    for entry in (existing_propagated or []):
+        by_path[entry["path"]] = entry
+    for entry in propagated:
+        by_path[entry["path"]] = entry  # this run's sha256 wins on a same-path conflict
+    merged = sorted(by_path.values(), key=lambda entry: entry["path"])
     marker = {
         "schema": MARKER_SCHEMA,
         "released_snapshot_root": released_root,
         "algorithm": ALGORITHM,
-        "propagated": propagated,
+        "propagated": merged,
     }
     atomic_write_text(downstream_root / MARKER_REL, json.dumps(marker, indent=2, ensure_ascii=False) + "\n")
 
@@ -263,14 +325,16 @@ def run(argv: Optional[Sequence[str]] = None) -> int:
             print(f"[FAIL] {manifest_error}", file=sys.stderr)
             return EXIT_ERROR
         for downstream_root, plan in targets:
-            marker_error = check_marker_ownership(downstream_root)
+            marker_error, existing_propagated = load_and_validate_marker(downstream_root, released_root)
             if marker_error is not None:
                 print(f"[FAIL] {plan.name}: {marker_error}", file=sys.stderr)
                 return EXIT_ERROR
+            plan.existing_propagated = existing_propagated  # PREFLIGHT-validated merge base
         # (II) APPLY — every target passed preflight.
         for downstream_root, plan in targets:
             apply_plan(template_root, downstream_root, plan)
-            write_marker(downstream_root, released_root, plan.propagated)
+            # Merge in memory from the PREFLIGHT snapshot — no marker disk-read in APPLY.
+            write_marker(downstream_root, released_root, plan.propagated, plan.existing_propagated)
             plan.released_root = released_root
 
     plans = [plan for _, plan in targets]

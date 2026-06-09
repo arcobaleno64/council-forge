@@ -424,7 +424,7 @@
     },
     {
       "path": "artifacts/scripts/Invoke-CodexAgent.ps1",
-      "sha256": "12c2f62ef37f74a2d1d9854e137158ed9e10c8d16f25e0a98259f2a61ee1c759"
+      "sha256": "d24809085539e2968cb655d1b09a6d4210720b6c3b88f08c37ce5cb4be0d13e1"
     },
     {
       "path": "artifacts/scripts/Invoke-CodexReview.ps1",
@@ -600,7 +600,7 @@
     },
     {
       "path": "artifacts/scripts/test_invoke_codex_agent.py",
-      "sha256": "5b5de5d619a091a74eca37d78c333c52b0fdabe6d1429b878fded2bddaca6fb7"
+      "sha256": "dca6224b243d03d8758778e02d4254deddf5fc98e175814467f42190153e7401"
     },
     {
       "path": "artifacts/scripts/test_invoke_codex_review.py",
@@ -923,5 +923,5 @@
       "sha256": "3057ed30441890243808d704f9ba759f1a499f4009d60f245d15eddd53afe9c7"
     }
   ],
-  "root": "317b0f5d6c3285c9675b7d1b31deae5d215ffc06012f819355fa9dde217ee479"
+  "root": "027ea8d97ccfb50cce134bb1f9fdf26fc1725ecd09d761cb42b0198a24ec6b4b"
 }

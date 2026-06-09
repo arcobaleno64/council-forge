@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -167,6 +168,114 @@ def test_best_effort_stdout_is_returned_when_all_tiers_fail(fake_codex_exe, run_
     )
     assert result.returncode == 1
     assert "__BEST_EFFORT_REVIEW__" in result.stdout
+
+
+# region TASK-1092 / FB-5: retry-pattern match is scoped to STDERR, not the combined
+# stream. A successful (exit 0) review whose STDOUT *answer* quotes a transport-error
+# substring (e.g. "429", "Failed to fetch") must NOT be treated as a failure.
+
+
+def test_exit0_with_transient_substring_in_stdout_is_success_not_retried(fake_codex_exe, run_wrapper):
+    # The review answer legitimately discusses transport errors; with stderr clean and
+    # exit 0 the dispatch must succeed WITHOUT any spurious interception/backoff.
+    fake_codex_exe.configure(
+        stdout="VERDICT: approve. Note: handles 429 Too Many Requests and 'Failed to fetch' / ECONNRESET.",
+        stderr="",
+        exit_code=0,
+    )
+    result = run_wrapper(
+        WRAPPER,
+        "-Prompt", "review this",
+        "-Executable", fake_codex_exe.path,
+        "-MaxRetriesPerTier", "1",
+        "-BaseBackoffSeconds", "0",
+    )
+    assert result.returncode == 0, result.combined_output
+    assert "VERDICT: approve" in result.stdout
+    assert len(fake_codex_exe.calls()) == 1, "must not retry a successful exit-0 review"
+    assert "Intercepted API/Execution Error" not in result.combined_output
+    assert "Backoff" not in result.combined_output
+
+
+def test_exit0_with_transient_in_stderr_is_success_not_retried(fake_codex_exe, run_wrapper):
+    # exit 0 is UNCONDITIONAL success. The codex CLI echoes reviewed content (including
+    # transport-error tokens) to STDERR as well as stdout (tool traces / reasoning), so a
+    # stderr scan on exit 0 ALSO false-positives. This is the exact scenario that made the
+    # FB-5 impl-review run exhaust on an exit-0 dispatch: exit code is the sole truth.
+    fake_codex_exe.configure(
+        stdout="__OK__",
+        stderr="...tool trace mentioning 429 Too Many Requests and ECONNRESET...",
+        exit_code=0,
+    )
+    result = run_wrapper(
+        WRAPPER,
+        "-Prompt", "review this",
+        "-Executable", fake_codex_exe.path,
+        "-MaxRetriesPerTier", "1",
+        "-BaseBackoffSeconds", "0",
+    )
+    assert result.returncode == 0, result.combined_output
+    assert "__OK__" in result.stdout
+    assert len(fake_codex_exe.calls()) == 1, "exit 0 must succeed even when stderr contains a transient token"
+    assert "Intercepted API/Execution Error" not in result.combined_output
+    assert "Backoff" not in result.combined_output
+
+
+def test_failure_with_transient_only_in_stdout_is_generic_not_targeted(fake_codex_exe, run_wrapper):
+    # exit != 0 with the transient substring ONLY in STDOUT (stderr empty) must classify
+    # as a GENERIC backoff, NOT "Target error string matched" -- proving the match target
+    # moved off the combined stream (old code matched stdout "429" => targeted).
+    fake_codex_exe.configure(
+        stdout="some review text mentioning 429 and Failed to fetch",
+        stderr="",
+        exit_code=1,
+    )
+    result = run_wrapper(
+        WRAPPER,
+        "-Prompt", "review this",
+        "-TaskScale", "tiny",
+        "-Executable", fake_codex_exe.path,
+        "-MaxRetriesPerTier", "1",
+        "-BaseBackoffSeconds", "0",
+    )
+    assert result.returncode == 1, result.combined_output
+    assert "Backoff] Generic failure" in result.combined_output
+    assert "Target error string matched" not in result.combined_output
+
+
+def test_throw_path_classifies_via_exception_message(tmp_repo):
+    # When the invocation itself THROWS (executable not found), the catch must feed the
+    # exception message into the retry-pattern classification. The missing executable
+    # name contains a RetryPattern so the classification is targeted (proves line 437
+    # populates $errText, consumed by the line 442 classification).
+    # NB: this throw path makes PowerShell render an error whose pipe-captured bytes are
+    # not always valid UTF-8; we decode with errors="replace" here. The shared
+    # run_wrapper fixture uses text=True (no errors=) and would crash on that decode --
+    # an unrelated harness fragility, so this one test captures directly.
+    ps = (shutil.which("powershell.exe") or shutil.which("pwsh")) if os.name == "nt" else shutil.which("pwsh")
+    command = [ps, "-NoProfile"]
+    if Path(ps).name.lower() == "powershell.exe":
+        command += ["-ExecutionPolicy", "Bypass"]
+    command += [
+        "-File", str(WRAPPER),
+        "-Prompt", "review this",
+        "-TaskScale", "tiny",
+        "-Executable", "ECONNRESET-no-such-codex-binary",
+        "-MaxRetriesPerTier", "1",
+        "-BaseBackoffSeconds", "0",
+    ]
+    result = subprocess.run(
+        command,
+        cwd=tmp_repo,
+        env=os.environ.copy(),
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    combined = f"{result.stdout}\n{result.stderr}"
+    assert result.returncode == 1, combined
+    assert "Process Exception Caught" in combined, combined
+    assert "Target error string matched" in combined, combined
 
 
 # region TASK-1060: lifecycle exclusion in pre-dispatch stash baseline

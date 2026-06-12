@@ -198,7 +198,10 @@ the native tools, NOT re-implemented in `release_gate`.
 
 **`partial`, not `covered`** (honest ceiling): council-forge publishes a **reproducible** hash
 manifest of its release surface (NIST PS.2.1 Example 1) — an acquirer can independently
-recompute and compare. Full `covered` needs actual **signing** of the manifest/tag plus a key
+recompute and compare. (Reproducibility is cross-platform because the manifest's
+`digest_canonicalization` field (`text-eol-lf-v1`, schema `@2`) defines the rule: **text** files
+are LF-normalised before hashing, **binary** files hashed raw.) Full `covered` needs actual
+**signing** of the manifest/tag plus a key
 rotation/revocation/review process (Example 2/3); that is a **defined follow-up**, not claimed
 now. PS.2 ≠ PS.3.2 (SBOM): `release_gate` validates integrity manifests, `sbom_gate` validates
 SBOMs — different mechanisms, no double-count.

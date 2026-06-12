@@ -46,7 +46,10 @@ ALGO_ALLOWLIST: Dict[str, int] = {"sha256": 64, "sha512": 128}
 
 # Supported manifest schema ``const`` values. Unknown -> fail-closed (schema-drift discipline);
 # add a value only after the new schema is verified and the parser updated.
-SUPPORTED_SCHEMA_VERSIONS = frozenset({"council-forge/release-manifest@1"})
+# @1: raw-byte digests (legacy, accepted for backward compat).
+# @2: text line endings LF-normalised before hashing; MUST declare ``digest_canonicalization``.
+SCHEMA_V2 = "council-forge/release-manifest@2"
+SUPPORTED_SCHEMA_VERSIONS = frozenset({"council-forge/release-manifest@1", SCHEMA_V2})
 
 _HEX_RE = re.compile(r"[0-9a-f]+")
 # Obvious placeholders that must never read as a real digest, even if hex-shaped.
@@ -121,6 +124,12 @@ def evaluate_checksums(
     schema = payload.get("schema")
     if type(schema) is not str or schema not in SUPPORTED_SCHEMA_VERSIONS:
         return EXIT_FAIL, f"unsupported manifest schema {schema!r} — verify then update release_gate"
+    # @2 manifests MUST DECLARE their digest canonicalisation (structural presence check; the
+    # value's correctness vs the actual hashing is recomputed by snapshot_manifest verify).
+    if schema == SCHEMA_V2:
+        canon = payload.get("digest_canonicalization")
+        if type(canon) is not str or not canon:
+            return EXIT_FAIL, "schema @2 manifest missing non-empty string 'digest_canonicalization'"
     algorithm = payload.get("algorithm")
     if type(algorithm) is not str or algorithm not in ALGO_ALLOWLIST:
         return EXIT_FAIL, f"unsupported algorithm {algorithm!r} (allowed: {', '.join(sorted(ALGO_ALLOWLIST))})"

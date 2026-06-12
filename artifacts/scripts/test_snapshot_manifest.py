@@ -219,6 +219,82 @@ def test_run_verify_mismatch(tmp_path, capsys):
     assert "does not match" in capsys.readouterr().err
 
 
+# --- line-ending canonicalisation (cross-platform reproducibility) ------------------------
+
+def test_is_text_plain():
+    assert sm.is_text(b"hello\nworld") is True
+
+
+def test_is_text_nul_is_binary():
+    assert sm.is_text(b"hello\x00world") is False
+
+
+def test_is_text_non_utf8_is_binary():
+    assert sm.is_text(b"\xff\xfe\xfa") is False  # invalid UTF-8 -> binary (fail-closed)
+
+
+def test_canonicalize_text_crlf_and_lone_cr():
+    assert sm.canonicalize_text(b"a\r\nb\rc\n") == b"a\nb\nc\n"
+
+
+def test_sha256_file_crlf_equals_lf(tmp_path):
+    """Same content with CRLF vs LF endings hashes identically (text canonicalisation)."""
+    crlf = tmp_path / "crlf"
+    lf = tmp_path / "lf"
+    crlf.write_bytes(b"line1\r\nline2\r\nline3\r\n")
+    lf.write_bytes(b"line1\nline2\nline3\n")
+    assert sm.sha256_file(crlf) == sm.sha256_file(lf)
+
+
+def test_sha256_file_chunk_boundary_crlf(tmp_path):
+    """A CRLF straddling the 65536-byte read boundary must not be mis-split into \\n\\n."""
+    head = b"a" * 65535  # next two bytes (65535,65536) are '\r','\n' -> straddle boundary
+    crlf = tmp_path / "crlf_big"
+    lf = tmp_path / "lf_big"
+    crlf.write_bytes(head + b"\r\n" + b"tail")
+    lf.write_bytes(head + b"\n" + b"tail")
+    assert sm.sha256_file(crlf) == sm.sha256_file(lf)
+
+
+def test_sha256_file_binary_raw_not_normalised(tmp_path):
+    """A binary file (has NUL) keeps its raw bytes — CRLF inside is NOT normalised."""
+    import hashlib
+    raw = b"\x00\r\n\x00binary\r\n"
+    path = tmp_path / "bin"
+    path.write_bytes(raw)
+    assert sm.sha256_file(path) == hashlib.sha256(raw).hexdigest()  # raw, not canonicalised
+
+
+def test_compute_manifest_declares_canonicalization(tmp_path):
+    make_tree(tmp_path)
+    manifest = sm.compute_manifest(tmp_path)
+    assert manifest["digest_canonicalization"] == sm.DIGEST_CANONICALIZATION
+
+
+def test_run_verify_canonicalization_missing_fails_closed(tmp_path, capsys):
+    src = tmp_path / "tpl"
+    src.mkdir()
+    make_tree(src)
+    manifest = sm.compute_manifest(src)
+    del manifest["digest_canonicalization"]  # legacy / tampered manifest
+    manifest_path = tmp_path / "m.json"
+    sm.write_manifest(str(manifest_path), manifest)
+    rc = sm.run(["verify", "--template-root", str(src), "--manifest", str(manifest_path)])
+    assert rc == sm.EXIT_ERROR and "digest_canonicalization mismatch" in capsys.readouterr().err
+
+
+def test_run_verify_canonicalization_wrong_fails_closed(tmp_path, capsys):
+    src = tmp_path / "tpl"
+    src.mkdir()
+    make_tree(src)
+    manifest = sm.compute_manifest(src)
+    manifest["digest_canonicalization"] = "raw-bytes-v0"  # different rule
+    manifest_path = tmp_path / "m.json"
+    sm.write_manifest(str(manifest_path), manifest)
+    rc = sm.run(["verify", "--template-root", str(src), "--manifest", str(manifest_path)])
+    assert rc == sm.EXIT_ERROR and "digest_canonicalization mismatch" in capsys.readouterr().err
+
+
 def test_content_address_regression(tmp_path, capsys):
     """A snapshot-A manifest still verifies tree-A even after the live tree advances to B."""
     tree_a = tmp_path / "a"

@@ -20,6 +20,13 @@ signing process (rotation / revocation / key protection). This document specifie
 mechanism so it is **implemented and tested**, while being explicit that flipping PS.2 to
 `covered` depends on **operator actions** this repository deliberately does not take here.
 
+> **Reproducible-hash canonicalisation (Example 1).** The manifest's `digest_canonicalization`
+> field (`text-eol-lf-v1`, schema `@2`) declares how each `sha256` is computed so an acquirer can
+> reproduce it independently: **text** files (UTF-8-decodable AND no NUL byte) are LF-normalised
+> (CRLF/CR → LF) before hashing; **binary** files are hashed raw. Without this, a Windows-CRLF
+> working tree and a Linux-LF checkout would hash the same text file differently — the manifest
+> would not be cross-platform reproducible (the whole point of Example 1).
+
 ## 1. Mechanism — detached signature over the manifest
 
 The manifest is signed with a **detached, ASCII-armored** signature, so the manifest's bytes and

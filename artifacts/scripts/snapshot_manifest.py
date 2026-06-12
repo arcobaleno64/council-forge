@@ -9,6 +9,12 @@ information available to acquirers"; an acquirer can independently recompute and
 
 Determinism (byte-reproducibility is the whole point — a hash nobody can reproduce is theater):
   - paths are normalised to POSIX (``/``) so a Windows-generated manifest verifies on Linux CI,
+  - TEXT file line endings are normalised (CRLF/CR -> LF) BEFORE hashing, so a manifest generated
+    on a CRLF working tree (e.g. Windows, autocrlf) is byte-identical to one generated on LF
+    (Linux CI). A file is treated as text iff it decodes as UTF-8 AND contains no NUL byte;
+    otherwise it is binary and hashed raw (fail-closed — line endings are never touched). The
+    manifest DECLARES this in ``digest_canonicalization`` so an acquirer can reproduce it; the
+    schema is ``@2`` (``@1`` was raw-byte and is NOT cross-platform reproducible for text).
   - a fixed cruft exclusion set (VCS / editor / OS noise) keeps the file SET stable,
   - entries are sorted by path and there is NO wall-clock field; the ``root`` is a Merkle-ish
     digest over the sorted ``path\\0digest`` lines and is the snapshot's content-address.
@@ -29,8 +35,12 @@ from typing import Dict, List, Optional, Sequence
 EXIT_OK = 0
 EXIT_ERROR = 1
 
-SCHEMA = "council-forge/release-manifest@1"
+SCHEMA = "council-forge/release-manifest@2"
 ALGORITHM = "sha256"
+# Declares HOW digests are canonicalised so an acquirer can reproduce them independently.
+# "text-eol-lf-v1": text files (UTF-8-decodable AND no NUL) are LF-normalised before hashing;
+# binary files are hashed raw. Bump this token if the canonicalisation rule ever changes.
+DIGEST_CANONICALIZATION = "text-eol-lf-v1"
 
 # Cruft excluded so the manifest is byte-reproducible across environments (no .DS_Store on a
 # Mac, no __pycache__ from a test run, etc.). Directory NAMES pruned anywhere in the path;
@@ -49,12 +59,33 @@ def is_excluded(rel_posix: str, name: str) -> bool:
     return any(part in EXCLUDE_DIRS for part in PurePosixPath(rel_posix).parts)
 
 
+def is_text(data: bytes) -> bool:
+    """True iff ``data`` is text: decodes as UTF-8 AND contains no NUL byte.
+
+    Fail-closed for the binary path: anything not provably UTF-8-and-NUL-free (incl. binaries
+    without an early NUL) is treated as binary and hashed raw, so its bytes are never mutated.
+    """
+    if b"\x00" in data:
+        return False
+    try:
+        data.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
+def canonicalize_text(data: bytes) -> bytes:
+    """Normalise text line endings to LF: CRLF -> LF first, then any lone CR -> LF."""
+    return data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
 def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for chunk in iter(lambda: handle.read(65536), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    # Whole-file read (not chunked): a chunked CRLF/CR->LF replace could split a ``\r\n`` that
+    # straddles a chunk boundary into ``\n\n`` and break determinism. template files are small.
+    data = path.read_bytes()
+    if is_text(data):
+        data = canonicalize_text(data)
+    return hashlib.sha256(data).hexdigest()
 
 
 def compute_manifest(template_root: Path) -> dict:
@@ -71,7 +102,13 @@ def compute_manifest(template_root: Path) -> dict:
     root = hashlib.sha256(
         "".join(f"{entry['path']}\0{entry[ALGORITHM]}\n" for entry in entries).encode("utf-8")
     ).hexdigest()
-    return {"schema": SCHEMA, "algorithm": ALGORITHM, "entries": entries, "root": root}
+    return {
+        "schema": SCHEMA,
+        "algorithm": ALGORITHM,
+        "digest_canonicalization": DIGEST_CANONICALIZATION,
+        "entries": entries,
+        "root": root,
+    }
 
 
 def diff_manifest(expected: dict, actual: dict) -> List[str]:
@@ -146,6 +183,14 @@ def run(argv: Optional[Sequence[str]] = None) -> int:
         return EXIT_ERROR
     if not isinstance(published, dict):
         print("[FAIL] manifest is not a JSON object", file=sys.stderr)
+        return EXIT_ERROR
+    pub_canon = published.get("digest_canonicalization")
+    if pub_canon != DIGEST_CANONICALIZATION:
+        print(
+            f"[FAIL] manifest digest_canonicalization mismatch: expected "
+            f"{DIGEST_CANONICALIZATION!r}, got {pub_canon!r} (fail-closed)",
+            file=sys.stderr,
+        )
         return EXIT_ERROR
     actual = compute_manifest(template_root)
     diffs = diff_manifest(published, actual)

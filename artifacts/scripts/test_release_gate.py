@@ -133,6 +133,40 @@ def test_evaluate_schema_unknown():
     assert code == rg.EXIT_FAIL
 
 
+# --- schema @2 digest_canonicalization (structural presence) ------------------------------
+
+def test_evaluate_schema_v1_no_canonicalization_passes():
+    # @1 (legacy raw-byte) does NOT require digest_canonicalization -> backward compatible.
+    doc = manifest()
+    assert "digest_canonicalization" not in doc
+    code, msg = rg.evaluate_checksums(doc, require_paths=frozenset(), min_entries=1)
+    assert code == rg.EXIT_OK
+
+
+def test_evaluate_schema_v2_with_canonicalization_passes():
+    doc = manifest(schema=rg.SCHEMA_V2, digest_canonicalization="text-eol-lf-v1")
+    code, msg = rg.evaluate_checksums(doc, require_paths=frozenset(), min_entries=1)
+    assert code == rg.EXIT_OK and "valid release manifest" in msg
+
+
+def test_evaluate_schema_v2_missing_canonicalization_fails_closed():
+    doc = manifest(schema=rg.SCHEMA_V2)  # @2 but no digest_canonicalization
+    code, msg = rg.evaluate_checksums(doc, require_paths=frozenset(), min_entries=1)
+    assert code == rg.EXIT_FAIL and "digest_canonicalization" in msg
+
+
+def test_evaluate_schema_v2_empty_canonicalization_fails_closed():
+    doc = manifest(schema=rg.SCHEMA_V2, digest_canonicalization="")
+    code, msg = rg.evaluate_checksums(doc, require_paths=frozenset(), min_entries=1)
+    assert code == rg.EXIT_FAIL and "digest_canonicalization" in msg
+
+
+def test_evaluate_schema_v2_nonstring_canonicalization_fails_closed():
+    doc = manifest(schema=rg.SCHEMA_V2, digest_canonicalization=1)
+    code, msg = rg.evaluate_checksums(doc, require_paths=frozenset(), min_entries=1)
+    assert code == rg.EXIT_FAIL and "digest_canonicalization" in msg
+
+
 def test_evaluate_algorithm_unknown():
     code, msg = rg.evaluate_checksums(manifest(algorithm="md5"), require_paths=frozenset(), min_entries=1)
     assert code == rg.EXIT_FAIL and "unsupported algorithm" in msg

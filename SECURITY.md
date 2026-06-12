@@ -89,6 +89,12 @@ protection, and periodic review (SSDF PS.2.1 Example 2/3) — is documented in
 [`docs/security/release-signing.md`](docs/security/release-signing.md). No **private** key is ever
 committed to this repository.
 
+> **Reproducing the digests (acquirers):** the manifest declares its canonicalisation in the
+> `digest_canonicalization` field (`text-eol-lf-v1`, schema `@2`). To recompute a `sha256` and
+> compare, **LF-normalise text files** (CRLF/CR → LF) before hashing; **binary** files (not
+> UTF-8-decodable, or containing a NUL byte) are hashed **raw**. This makes the content-address
+> identical across platforms regardless of working-tree line endings.
+
 ## Cadence
 
 See [`docs/security_cadence.md`](docs/security_cadence.md) for how disclosure intake, the weekly

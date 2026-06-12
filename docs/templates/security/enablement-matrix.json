@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "description": "Machine-readable SINGLE SOURCE OF TRUTH for the per-downstream security-enablement matrix (P8-E / TASK-1085). The prose tables in README.md are derived from THIS file; ssdf_conformance_dashboard.py consumes it. NOT an SSDLC certification: each `state` is the *declared, intended* way a downstream is expected to cover a dimension, NOT observed runtime enforcement. The dashboard's actual mechanism-overlay `status` is computed independently and is NEVER overridden by these declared states.",
+  "dimensions": [
+    "secret-scan",
+    "sca",
+    "sast",
+    "sbom",
+    "release-integrity",
+    "disclosure"
+  ],
+  "enablement_states": {
+    "enforced-self": "Already enforced/operational in this repo's own CI (council-forge security-scan.yml).",
+    "opt-in-ci": "This repo has an active remote CI; it can copy the council-forge opt-in workflow into its own pipeline.",
+    "template-only-frozen": "Frozen repo: the template is available but MUST NOT be wired into CI while frozen; enable after thaw via the repo's own pipeline.",
+    "local-precommit": "No remote CI: run the audit/gate commands locally or via pre-commit.",
+    "native-enforcing": "The stack's NATIVE, build-enforcing analyzer already is the mechanism (e.g. Rust clippy -D warnings, .NET Roslyn TreatWarningsAsErrors); no extra council-forge workflow needed.",
+    "n-a": "Not applicable to this repo (e.g. no public remote surface for a disclosure program)."
+  },
+  "repos": {
+    "council-forge": {
+      "stack": "Python",
+      "ci": "GitHub Actions (self)",
+      "dimensions": {
+        "secret-scan": { "state": "enforced-self", "rationale": "repo_security_scan.py secrets job runs in its own security-scan.yml." },
+        "sca": { "state": "enforced-self", "rationale": "pip-audit job (pinned) enforces Python SCA in its own security-scan.yml." },
+        "sast": { "state": "enforced-self", "rationale": "python-sast job (advisory, durable summary) runs in its own security-scan.yml." },
+        "sbom": { "state": "enforced-self", "rationale": "sbom job (cyclonedx-py resolved env -> sbom_gate) runs in its own security-scan.yml." },
+        "release-integrity": { "state": "enforced-self", "rationale": "release-integrity job (snapshot_manifest verify + release_gate) runs in its own security-scan.yml." },
+        "disclosure": { "state": "enforced-self", "rationale": "security-txt job + SECURITY.md + .well-known/security.txt, validated per-PR and on schedule." }
+      }
+    },
+    "Sentinel": {
+      "stack": ".NET (frozen)",
+      "ci": "Azure Pipelines",
+      "dimensions": {
+        "secret-scan": { "state": "template-only-frozen", "rationale": "P0 frozen: template only; do NOT wire into CI or touch azure-pipelines.yml. After thaw, run secret-scan in its Azure DevOps pipeline." },
+        "sca": { "state": "template-only-frozen", "rationale": "After thaw, dotnet-sca (dotnet list package --vulnerable -> sca_gate) in its Azure pipeline; template only while frozen." },
+        "sast": { "state": "native-enforcing", "rationale": "Roslyn analyzers via TreatWarningsAsErrors already enforce in the native build; do NOT wire a separate analyzer job while frozen." },
+        "sbom": { "state": "template-only-frozen", "rationale": "After thaw, dotnet-CycloneDX -> sbom_gate; template only while frozen." },
+        "release-integrity": { "state": "template-only-frozen", "rationale": "After thaw, signtool verify / dotnet nuget verify; template only while frozen." },
+        "disclosure": { "state": "template-only-frozen", "rationale": "Government service backend; disclosure program deferred until thaw (operational)." }
+      }
+    },
+    "LINE-BOT": {
+      "stack": ".NET (active GitHub remote)",
+      "ci": "GitHub Actions (docker-publish)",
+      "dimensions": {
+        "secret-scan": { "state": "opt-in-ci", "rationale": "Most valuable here (AI provider keys, LINE channel secret); copy the secret-scan job into .github/workflows/." },
+        "sca": { "state": "opt-in-ci", "rationale": "Copy the dotnet-sca job (dotnet list package --vulnerable -> sca_gate) into its active GitHub Actions." },
+        "sast": { "state": "native-enforcing", "rationale": "Roslyn analyzers (native) are the primary SAST mechanism; opt-in python-sast only if tooling scripts are Python." },
+        "sbom": { "state": "opt-in-ci", "rationale": "Copy the dotnet-sbom job (dotnet-CycloneDX -> sbom_gate)." },
+        "release-integrity": { "state": "opt-in-ci", "rationale": "Sign in the build job (actions/attest-build-provenance, pinned); verify with cosign + gh attestation verify." },
+        "disclosure": { "state": "opt-in-ci", "rationale": "Has a GitHub remote: author SECURITY.md + .well-known/security.txt and enable private vulnerability reporting." }
+      }
+    },
+    "Verso": {
+      "stack": "Tauri (Rust + Node, no remote)",
+      "ci": "none",
+      "dimensions": {
+        "secret-scan": { "state": "local-precommit", "rationale": "No CI: run repo_security_scan.py secrets locally / via pre-commit." },
+        "sca": { "state": "local-precommit", "rationale": "No CI: run cargo audit + pnpm audit locally / via pre-commit." },
+        "sast": { "state": "native-enforcing", "rationale": "cargo clippy -- -D warnings already enforces (already in package.json scripts)." },
+        "sbom": { "state": "local-precommit", "rationale": "No CI: cargo-cyclonedx (all members) + cdxgen -t pnpm -> sbom_gate, run locally." },
+        "release-integrity": { "state": "local-precommit", "rationale": "No CI: minisign -V of the updater signature, run locally." },
+        "disclosure": { "state": "n-a", "rationale": "Local markdown reader with no public remote surface; no RFC 9116 deployment point / private vuln reporting." }
+      }
+    },
+    "Vero": {
+      "stack": "Tauri (Rust + Node, no remote)",
+      "ci": "none",
+      "dimensions": {
+        "secret-scan": { "state": "local-precommit", "rationale": "No CI: run repo_security_scan.py secrets locally / via pre-commit." },
+        "sca": { "state": "local-precommit", "rationale": "No CI: run cargo audit + pnpm audit locally; the evidence-zip model makes SCA especially relevant." },
+        "sast": { "state": "native-enforcing", "rationale": "cargo clippy -- -D warnings already enforces." },
+        "sbom": { "state": "local-precommit", "rationale": "No CI: cargo-cyclonedx (all members) + cdxgen -t pnpm -> sbom_gate, run locally." },
+        "release-integrity": { "state": "local-precommit", "rationale": "No CI: minisign -V of the updater signature; evidence-zip model makes integrity especially relevant." },
+        "disclosure": { "state": "n-a", "rationale": "Local audit-clock app with no public remote surface; no RFC 9116 deployment point / private vuln reporting." }
+      }
+    }
+  }
+}

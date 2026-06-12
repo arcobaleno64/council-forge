@@ -21,10 +21,10 @@
   "decision_waivers": [
     {
       "task_id": "TASK-964",
-      "reason": "Red Team Simulation RACI violation",
+      "reason": "Red Team Simulation RACI violation (historical drill; waiver renewed 2026-06-05 under TASK-1070; supersession tracked at TASK-1010)",
       "gate": "Gate_D",
       "approver": "Antigravity",
-      "expires": "2026-05-26T19:48:00+08:00"
+      "expires": "2027-06-05T00:00:00+08:00"
     }
   ]
 }

@@ -161,7 +161,7 @@ workflow files: CLAUDE.md、GEMINI.md、CODEX.md、AGENTS.md、docs/*、BOOTSTRA
 
 修改任何 workflow file 後，必須同步變更到 `template/`。專案特定引用泛化為 placeholders。必須同步更新 `README.md`。任一同步缺漏（包含 Obsidian 入口）都視為 workflow 變更未完成。
 
-由 `template/` 複製出去的新專案屬於 downstream terminal repo，不得再建立新的 `template/`，而是只維護 root 文件與 `OBSIDIAN.md`。
+由 `template/` 複製出去的新專案屬於 downstream terminal repo，不得再建立新的 `template/`，而是只維護 root 文件與 `OBSIDIAN.md`。本 downstream terminal repo 不再建立新的 `template/`，只維護 root 文件與 `OBSIDIAN.md`。
 
 詳見 docs/orchestration-workflow.md §9
 

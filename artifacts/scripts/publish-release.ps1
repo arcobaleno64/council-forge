@@ -16,16 +16,23 @@
     Create the release as a draft.
 .PARAMETER PreRelease
     Mark the release as pre-release.
+.PARAMETER AllowUnsigned
+    Explicitly opt in to publishing an UNSIGNED release when release signing is not yet
+    provisioned (the signing triad — pinned fingerprint + detached signature + public key —
+    is entirely absent). This NEVER overrides a failed structural-integrity gate, nor an ARMED
+    signing failure (a partially-provisioned or invalid signature always fails closed).
 .PARAMETER WhatIf
-    Run all preflight checks but skip actual release creation.
+    Run all preflight checks (including release-integrity + signature verification) but skip
+    actual release creation.
 #>
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$Tag,
     [string]$Title,
     [string]$NotesFile,
     [switch]$Draft,
     [switch]$PreRelease,
+    [switch]$AllowUnsigned,
     [switch]$WhatIf
 )
 
@@ -84,6 +91,40 @@ Write-Host "[OK] No existing release for '$Tag'." -ForegroundColor Green
 if ($NotesFile -and -not (Test-Path $NotesFile)) {
     Write-Error "Notes file not found: $NotesFile"
     exit $EXIT_PRECONDITION_FAIL
+}
+
+# 1g. Release-integrity gate (TASK-1089 / FB-2): the published manifest MUST match the template
+#     snapshot AND pass the structural gate BEFORE we publish. Fail-closed. Uses the TRUE repo
+#     root (git rev-parse), not artifacts/.
+$releaseRoot = Get-RepoRoot
+try {
+    Invoke-ReleaseIntegrityGate -RepoRoot $releaseRoot -ScriptDir $scriptDir
+}
+catch {
+    Write-Error "Release-integrity verification failed: $($_.Exception.Message)"
+    exit $EXIT_PRECONDITION_FAIL
+}
+Write-Host "[OK] Release-integrity verified (manifest matches template snapshot + structural gate)." -ForegroundColor Green
+
+# 1h. Release-signing verification (TASK-1089 / FB-2), mirroring the CI release-integrity job.
+#     ARMED triad -> must verify against the pinned signer or FAIL CLOSED (never overridable).
+#     Unprovisioned (triad empty) -> FAIL CLOSED by default; publish UNSIGNED only with -AllowUnsigned.
+try {
+    $sigState = Assert-ReleaseSignature -RepoRoot $releaseRoot
+}
+catch {
+    Write-Error "Release-signing verification failed: $($_.Exception.Message)"
+    exit $EXIT_PRECONDITION_FAIL
+}
+if ($sigState -eq 'verified') {
+    Write-Host "[OK] Release-manifest signature verified against the pinned signer." -ForegroundColor Green
+}
+elseif ($sigState -eq 'unprovisioned') {
+    if (-not $AllowUnsigned) {
+        Write-Error "Release signing is not provisioned. Provision signing (see docs/security/release-signing.md), or pass -AllowUnsigned to explicitly publish an UNSIGNED release."
+        exit $EXIT_PRECONDITION_FAIL
+    }
+    Write-Warning "[WARN] Publishing an UNSIGNED release per explicit -AllowUnsigned (signing not provisioned); manifest integrity was still enforced."
 }
 
 Write-Host "=== Preflight PASSED ===" -ForegroundColor Green

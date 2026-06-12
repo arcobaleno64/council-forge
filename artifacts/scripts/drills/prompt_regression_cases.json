@@ -241,6 +241,7 @@
   },
   {
     "id": "PR-009",
+    "applies_to": "source",
     "title": "Source Downstream Sync Split",
     "description": "Workflow prompt must distinguish source template repos from downstream terminal repos, including template sync only in source mode.",
     "assertions": [
@@ -300,13 +301,14 @@
         "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
         "must_contain_all": [
           "gemini-3.1-flash-lite-preview",
-          "gemini-3-flash-preview"
+          "gemini-3-flash-preview",
+          "gemini-3.1-pro-preview"
         ],
         "must_not_contain_any": [
           "gemini-2.0",
           "gemini-2.5"
         ],
-        "note": "Gemini wrapper progresses breadth (flash-lite) -> depth (flash-preview); pro removed from auto-fallback per TASK-1053 Layer 5 (user account not entitled). Pro still allowed in ALLOWED_GEMINI_MODELS for manual ad-hoc dispatch."
+        "note": "Gemini wrapper auto-fallback ladder: Tier 1 breadth (flash-lite) -> Tier 2 depth (flash-preview) -> Tier 3 (pro). All three tiers are in ALLOWED_GEMINI_MODELS; pro re-enabled as auto-fallback Tier 3. (Assertion pins the full 3-tier ladder so a ladder change cannot pass unnoticed.)"
       }
     ]
   },

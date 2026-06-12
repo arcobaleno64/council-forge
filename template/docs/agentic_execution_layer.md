@@ -114,14 +114,14 @@ mini-PDCA 子循環為 [orchestration.md §2.8](orchestration.md) 所定義之�
 
 此設計確保 TAO 之微觀失敗不會繞過管理層之 PDCA gate。
 
-## 7. Validator 規則（Phase 3 待補）
+## 7. Validator 規則（`--check-tao`，已實作，warning-only）
 
-[guard_status_validator.py](../artifacts/scripts/guard_status_validator.py) 將於 Phase 3 加入 `--check-tao` 旗標：
+[guard_status_validator.py](../artifacts/scripts/guard_status_validator.py) 之 `--check-tao` 旗標（函式 `check_tao_trace`）：
 
-- 啟用條件：plan artifact 存在且最大 Severity = `blocking`（即 risk ≥ 3）。
-- 檢查：對應 code / verify artifact 須含 `## TAO Trace` 區塊，且至少 1 個 `### Step N` sub-section。
-- 失敗等級：warning-only（不 hard fail，避免阻塞既有 artifact）。
-- 既有 artifact 之回填：見 Phase 5 之 `Reconstructed from artifact history` 標註規則。
+- 啟用條件：task 於 [artifacts/registry/risk_classification.csv](../artifacts/registry/risk_classification.csv) 之 `risk_level` 欄為 `high-risk`（該 registry 以 `max_severity` 記錄各 task 風險，`blocking` 對應 `high-risk`，與 §1「`Severity: blocking` 即 risk ≥ 3」之模型一致）。csv 缺、或 task 未登錄，則發 warning 並略過該 task。
+- 檢查：對應 code / verify artifact 須含 `## TAO Trace` 區塊。
+- 失敗等級：warning-only（`--check-tao` 恆 exit 0，不 hard fail，避免阻塞既有 artifact）。
+- 已知限制（follow-up 候選）：(a) 目前僅檢查 `## TAO Trace` 區塊是否存在，尚未強制 §2 之 `### Step N` step-level 結構；(b) 既有 high-risk artifact 之 TAO 回填仍待後續 backlog 處理。
 
 ## 8. 禁止事項
 

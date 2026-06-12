@@ -1,0 +1,99 @@
+# council-forge downstream security-scan template (OPT-IN reference).
+#
+# This is a REFERENCE template, NOT an auto-applied workflow. A downstream repo that
+# opts in copies the relevant jobs into its own .github/workflows/ (or local pre-commit
+# for repos without CI). Keep only the jobs matching your stack — see
+# docs/templates/security/README.md for the per-downstream enablement matrix.
+#
+# Design / honesty notes:
+# - Supply chain: every `uses:` is pinned to a full commit SHA recorded in
+#   docs/templates/security/action-pins.json (identity + exact SHA, lint-enforced).
+#   Only actions/checkout and actions/setup-python are used; language toolchains
+#   (dotnet / node / rust) come preinstalled on ubuntu-latest, and the SCANNER TOOLS
+#   are version-pinned below (bump periodically — see the README).
+# - Fail-closed: no `|| true` / `; true` / `set +e` / continue-on-error anywhere. A
+#   vulnerability or scanner error MUST fail the job. The .NET gate uses the tested
+#   council-forge sca_gate.py (dotnet exits 0 even with vulns, so a raw grep is unsafe).
+# - secret-scan reuses council-forge's language-agnostic repo_security_scan.py.
+
+name: Downstream Security Scan
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # --- secret scan (all stacks) ---------------------------------------------
+  secret-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Secret scan (fail-closed)
+        run: python artifacts/scripts/repo_security_scan.py --root . secrets
+
+  # --- Node / pnpm SCA (keep for Tauri/Node downstreams: Verso, Vero) --------
+  node-sca:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: pnpm audit (pinned pnpm; fail-closed)
+        # corepack ships with the runner Node; pin pnpm for reproducible audit semantics.
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.0 --activate
+          pnpm install --frozen-lockfile
+          pnpm audit --audit-level=high
+
+  # --- Rust / cargo SCA (keep for Tauri downstreams: Verso, Vero) ------------
+  rust-sca:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: cargo audit (pinned cargo-audit; fail-closed)
+        run: |
+          cargo install cargo-audit --version 0.21.1 --locked
+          cargo audit
+
+  # --- .NET SCA (keep for .NET downstreams: Sentinel [thawed], LINE-BOT) -----
+  dotnet-sca:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: dotnet vulnerable packages -> fail-closed gate
+        # `dotnet list package --vulnerable` exits 0 even with vulnerabilities, so the
+        # tested council-forge gate (sca_gate.py) decides pass/fail from the JSON.
+        run: |
+          dotnet restore
+          dotnet list package --vulnerable --include-transitive --format json > dotnet-vuln.json
+          python artifacts/scripts/sca_gate.py dotnet --json dotnet-vuln.json

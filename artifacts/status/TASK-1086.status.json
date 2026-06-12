@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-1086",
+  "state": "done",
+  "current_owner": "Claude",
+  "next_agent": "none",
+  "blocked_reason": "",
+  "required_artifacts": ["code", "plan", "status", "task", "test", "verify"],
+  "available_artifacts": ["task", "plan", "status", "decision", "improvement", "code", "test", "verify"],
+  "missing_artifacts": [],
+  "assurance_level": "mvp",
+  "project_adapter": "generic",
+  "verification_readiness": "mvp",
+  "plan_version": "v8",
+  "source_anchor": { "council_forge_head": "f1e2449", "manifest_root": "027ea8d97ccfb50cce134bb1f9fdf26fc1725ecd09d761cb42b0198a24ec6b4b" },
+  "downstream_commits": {
+    "Sentinel": { "head": "cb03324", "pre_apply": "a9eb53f" },
+    "Verso": { "head": "18d3d60", "pre_apply": "9b2a590" },
+    "Vero": { "head": "6b2b2e1", "pre_apply": "0352352" },
+    "LINE-BOT": { "head": "a87620c", "pre_apply": "6df7981" },
+    "note": "each commit = 5 P8 gate scripts + pruned marker (6 files, 1153 insertions, pure-additive); local branch council-forge/retrofit-overlay, NOT pushed"
+  },
+  "commander_rulings_2026-06-09": [
+    "D10 alpha P8-fence: files beyond the committed-set are applied-then-git-checkout-restored (not committed)",
+    "D11 committed-set = add-5-only: commit ONLY the 5 self-contained P8 gate scripts; guard_contract_validator.py + repo_security_scan.py + 6 non-P8 + Verso/Vero workflows restored, not committed",
+    "apply authorized (2026-06-09) after v8 dual-review gate PASSED + read-only dry-run rehearsal"
+  ],
+  "adversarial_review_gate": "PASSED (v8: codex APPROVE + gemini APPROVE, both no blocking/critical). 6 rounds v3->v8. Full ledger in plan + decision artifact.",
+  "implementation_layer_verification": "GREEN — inline per-step + CP-3 roll-up + ultracode Workflow 4-repo adversarial audit (GREEN) + codex external working-tree review (APPROVE, 7 invariants hold, 20 gate blobs byte-identical to mother template).",
+  "open_verification_debts": [],
+  "follow_up": [
+    "FB governed task (separate): propagate guard/scan FB-1/FB-3 hardening + 6 non-P8 files + Verso/Vero workflows. D12 PREREQUISITE: fix write_marker to merge (or re-apply all) so it does not erase this task's 5-gate marker integrity (R15).",
+    "no-push residual: 4 downstream commits are local on council-forge/retrofit-overlay; pushing/PR is out of scope for TASK-1086 (a separate operational decision).",
+    "downstream functional gate execution (running the propagated gates in each downstream pipeline) is a separate follow-up — this task verified overlay-apply integrity, not runtime enforcement."
+  ],
+  "last_updated": "2026-06-09T16:40:00+08:00"
+}

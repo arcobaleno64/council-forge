@@ -38,13 +38,39 @@ issue 自動建立後 30 天為建議 deadline；workflow 不執行實際 threat
 
 | 欄位 | 內容 |
 |---|---|
-| Trigger | `.github/workflows/security-scan.yml`（`on: pull_request, push to master, workflow_dispatch`） |
-| Cadence | per PR / per push to master / 手動 |
-| Artifact Destination | GitHub Actions log；pip-audit 之 `pip-audit-report.json` 落於 run 之 group output |
+| Trigger | `.github/workflows/security-scan.yml`（`on: pull_request, push to master, workflow_dispatch, schedule cron "0 6 * * 1"`） |
+| Cadence | per PR / per push to master / 手動 / 每週一 06:00 UTC（schedule） |
+| Artifact Destination | GitHub Actions log；pip-audit 之 `pip-audit-report.json`、SBOM `sbom.cdx.json`、SAST findings 之 `$GITHUB_STEP_SUMMARY` |
 | Owner | CI 自動 + PR reviewer |
-| Components | (a) `pip-audit` 掃 `requirements.txt` CVE；(b) `repo_security_scan.py secrets` 掃 hardcoded credentials；(c) `repo_security_scan.py static` 掃 focused static rules |
+| Components | (a) `pip-audit` 掃 `requirements.txt` CVE（SCA, PW.4）；(b) `repo_security_scan.py secrets`；(c) `repo_security_scan.py static`；(d) `python-sast`（advisory SAST → `sast_gate.py`，PW.7）；(e) `sbom`（`cyclonedx-py` resolved-env → `sbom_gate.py`，PS.3.2）；(f) `security-txt`（`security_txt_gate.py` 驗 RFC 9116 intake，RV.1.3；step-level present-only）；(g) `release-integrity`（`snapshot_manifest.py verify` regenerate-diff + `release_gate.py` 結構驗 `.well-known/release-manifest.json`，PS.2；step-level guarded by `.council-forge-source-repo`） |
 
-continuous 層由既有 workflow 落地（前置 task TASK-* 已建立），本 task 不變動。任何 hardening（fail-on-severity threshold / SBOM 整合 / license audit）屬 future task 範圍。
+continuous 層由既有 workflow 落地。**schedule cron 之要**：使 `security-txt` job 週期跑，於 `.well-known/security.txt` 之 `Expires` 無聲過期時 fail-closed（即便無 code 變動）。任何 hardening（fail-on-severity threshold / release-signing）屬 future task。
+
+## Vulnerability Disclosure & Response（P8-D）
+
+> **映而不疊**：本節為 cross-ref；內容主於各專檔，此處唯列其關聯與 cadence。
+
+| 維度 | 真實來源 | Cadence / Gate |
+|---|---|---|
+| Disclosure intake | [`.well-known/security.txt`](../.well-known/security.txt)（RFC 9116）+ GitHub private vulnerability reporting | `security-txt` job（per-PR + 每週 schedule），`security_txt_gate.py` fail-closed 驗 well-formed + 未過期 |
+| Disclosure policy | [`../SECURITY.md`](../SECURITY.md)（CVD：intake / best-effort ack / 90-day / safe-harbor / 自訂 patch-prioritization） | 文件（policy；human-review 守其語義） |
+| Incident response | [`incident-response-runbook.md`](incident-response-runbook.md)（NIST SP 800-61，RV.3 root-cause→PROCESS_LEDGER） | 文件（process） |
+
+SSDF 對應：RV.1.3（disclosure policy/intake）、RV.2（assess/prioritize，自訂非 NIST 數值）、RV.3（root-cause）——皆 `partial`/`covered` 見 [`ssdf-mapping.md`](ssdf-mapping.md)。
+
+## Release Integrity（PS.2 / P8-D2）
+
+> **映而不疊**：本節為 cross-ref；機制主於 `release_gate.py`/`snapshot_manifest.py`、簽章 key-lifecycle 之 [`security/release-signing.md`](security/release-signing.md)，與 [`templates/security/README.md`](templates/security/README.md) 之「Release integrity」節。
+
+| 維度 | 真實來源 | Cadence / Gate |
+|---|---|---|
+| 自身 release surface（propagated `template/` snapshot） | [`../.well-known/release-manifest.json`](../.well-known/release-manifest.json)（content-addressed，`snapshot_manifest.py` 生）+ propagate 時寫入各下游之 `.council-forge/release-snapshot.json` | `release-integrity` job（per-PR + 每週 schedule，guarded by `.council-forge-source-repo`）：`snapshot_manifest.py verify` regenerate-diff + `release_gate.py` 結構驗 |
+| 簽章驗證（Example 2/3，P8-D3） | [`security/release-signing.md`](security/release-signing.md)（key-lifecycle）+ [`../.well-known/release-manifest.json.asc`](../.well-known/release-manifest.json.asc) + [`../.well-known/release-signing.pub`](../.well-known/release-signing.pub)（operator 刊布，現未填） | `release-integrity` job 之 native `gpg --verify` step（VALIDSIG **精確 field** 綁 `EXPECTED_SIGNING_FINGERPRINT`；`if` 唯 sentinel·**armed-triad**：pin/`.asc`/pubkey 全缺方 no-op，任一在則全須在否則 fail-closed）；**signing-process periodic review（Example 3）入本 cadence** |
+| 下游 release（.NET/Tauri） | [`templates/security/downstream-release-integrity.yml`](templates/security/downstream-release-integrity.yml)（native verify 主驗：`dotnet nuget verify`/`gh attestation verify`/`minisign -V`） | opt-in / local（map-don't-recreate；release_gate 為 offline 結構 pre-check） |
+
+SSDF 對應：**PS.2** 由 `gap` 升 **`partial`**（Example-1 刊布**可復現**雜湊供 acquirer）。**誠實上限 partial 非 covered**：P8-D3 已**備齊且經測**之簽章驗證機制（native `gpg --verify` + fingerprint-pin + key-lifecycle policy Example 3 + ephemeral-key 端到端測），然 `covered` 唯繫 operator 行 key 生成 + 真簽章 + **out-of-band 刊布** pubkey/fingerprint + 首驗——**故 PS.2 仍 partial（mechanism-implemented, operator-action-dependent；不 flip）**。**PS.2 ≠ PS.3.2（SBOM）不 double-count**。release_gate 驗結構非密碼學（簽章真驗交 native gpg + human-review，accepted residual；同-repo fingerprint pin 之殘餘見 [`security/release-signing.md`](security/release-signing.md)）。
+
+continuous 層之 `release-integrity` job 以 **regenerate-diff** 防刊布 manifest 靜默漂移於其所述之樹（僅證 HEAD 一致），並以 native `gpg --verify`（VALIDSIG 綁簽章者）驗簽章；schedule 使其週期受檢，**signing-process 之 Example-3 periodic review 入本 cadence**。covered 之 operator key 儀式（生 key / 真簽 / out-of-band 刊布 / 解 no-push）與 cross-target staged-transaction rollback 屬 future task。
 
 ## Setup Steps
 

@@ -37,5 +37,11 @@
 - 任意產品功能修改
 - 任意 `external/` 目錄改動
 
+## Assurance Level
+POC
+
+## Project Adapter
+generic
+
 ## Current Status Summary
 Built-in role-boundary live drill.

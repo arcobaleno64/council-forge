@@ -1,19 +1,41 @@
 {
   "task_id": "TASK-1094",
-  "state": "verifying",
+  "state": "done",
   "current_owner": "Claude",
-  "next_agent": "Claude",
+  "next_agent": "none",
   "blocked_reason": "",
-  "required_artifacts": ["task", "plan", "research", "code", "test", "verify", "status"],
-  "available_artifacts": ["task", "plan", "research", "code", "test", "verify", "status", "decision"],
+  "required_artifacts": [
+    "task",
+    "plan",
+    "research",
+    "code",
+    "test",
+    "verify",
+    "status"
+  ],
+  "available_artifacts": [
+    "task",
+    "plan",
+    "research",
+    "code",
+    "test",
+    "verify",
+    "status",
+    "decision"
+  ],
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "generic",
   "verification_readiness": "mvp",
-  "source_anchor": { "council_forge_head": "a1a31a1", "pr": "14", "branch": "hygiene/task-1070-contract-guard-green" },
-  "implementation_layer_review": "gemini APPROVE (8 points, zero blocking, read-only — did not edit files); codex DEFERRED to 19:25 (codex credits exhausted, commander ruled 'implement now, codex part deferred'). Local CI-equiv: 1948 passed / cov 95.82% (snapshot_manifest 100%, release_gate 100%); 2 previously-red manifest tests now green; 3 guards green; manifest verify CRLF exit 0.",
-  "open_items": ["codex working-tree implementation-layer review at 19:25", "PR #14 CI cross-platform final verification (post-push)"],
-  "adversarial_review_gate": "PASSED (round 4: codex APPROVE + gemini APPROVE, no blocking). 4 rounds: r1 A+B mechanism approved + 3 blocking (gemini chunk-boundary CRLF split; codex canonicalization-not-acquirer-visible, NUL-sniff weak) -> R8 whole-file read / R9 digest_canonicalization field @2 + acquirer docs + release_gate structural check + EXACT_SYNC / R10 UTF-8+NUL classifier; r2 codex 3 blocking (stale 'do-not-touch release_gate' / stale NUL-sniff / release_gate not test-planned) -> reconciled + test_release_gate.py @1/@2 cases + downstream-@1 kept; r3 codex 1 blocking (Out-of-Scope release_gate contradiction) -> narrowed; r4 codex+gemini APPROVE. plan Ready For Coding: yes. Implementation pending commander.",
+  "source_anchor": {
+    "council_forge_head": "a1a31a1",
+    "pr": "14",
+    "branch": "hygiene/task-1070-contract-guard-green"
+  },
+  "implementation_layer_review": "COMPLETE: gemini APPROVE (8 points, zero blocking, read-only) + codex APPROVE (6 points, zero blocking; virtual CRLF-vs-LF recompute = same root ff49024; whole-file read, fail-closed binary safety, canonicalization visible+fail-closed, release_gate @1/@2 byte-identical twin, tests 100% cov, acquirer docs accurate). Local CI-equiv 1948 passed / cov 95.82%.",
+  "open_items": [],
+  "adversarial_review_gate": "PASSED (round 4: codex APPROVE + gemini APPROVE, no blocking). 4 rounds: r1 A+B mechanism approved + 3 blocking (gemini chunk-boundary CRLF split; codex canonicalization-not-acquirer-visible, NUL-sniff weak) -> R8 whole-file read / R9 digest_canonicalization field @2 + acquirer docs + release_gate structural check + EXACT_SYNC / R10 UTF-8+NUL classifier; r2 codex 3 blocking (stale 'do-not-touch release_gate' / stale NUL-sniff / release_gate not test-planned) -> reconciled + test_release_gate.py @1/@2 cases + downstream-@1 kept; r3 codex 1 blocking (Out-of-Scope release_gate contradiction) -> narrowed; r4 codex+gemini APPROVE. plan Ready For Coding: yes; implemented + impl-layer dual review APPROVE + CI green.",
   "open_verification_debts": [],
-  "last_updated": "2026-06-12T16:00:00+08:00"
+  "last_updated": "2026-06-12T20:45:00+08:00",
+  "ci_status": "PR #14 all 8 checks PASS on Linux (release-integrity + validate green; cross-platform CRLF/LF fix verified). CLEAN/MERGEABLE. Commits 4e7b373 + 6001c5d pushed. master merge awaits commander."
 }

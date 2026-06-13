@@ -2,15 +2,15 @@
   "task_id": "TASK-1001",
   "state": "blocked",
   "current_owner": "Claude",
-  "next_agent": "User",
+  "next_agent": "Claude",
   "required_artifacts": ["task", "status"],
   "available_artifacts": ["task", "status", "decision", "verify"],
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "open_verification_debts": ["deferred: GEMINI.md 含 Architecture Synthesizer dispatch 模式段落"],
-  "blocked_reason": "AC-5b GEMINI.md Architecture Synthesizer dispatch mode open and unimplemented; no successor task assigned in v3.4 scope. See artifacts/decisions/TASK-1001.decision.md §Decision 2.",
-  "last_updated": "2026-05-03T19:00:00+08:00",
+  "blocked_reason": "AC-5b GEMINI.md Architecture Synthesizer dispatch mode open and unimplemented. Successor task assigned 2026-06-13: TASK-1095 (commander ruling to scope+launch). TASK-1001 stays blocked until TASK-1095 implements AC-5b and reconciles. See artifacts/decisions/TASK-1001.decision.md §Decision 2 + Amendment (2026-06-13).",
+  "last_updated": "2026-06-13T03:30:00+08:00",
   "verification_readiness": "mvp",
   "superseded_by": {
     "successor_task_id": "TASK-1011",
@@ -18,7 +18,7 @@
     "superseded_at": "2026-05-03T19:00:00+08:00",
     "scope": "partial",
     "remaining_obligations": [
-      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode (deferred, not in v3.4 scope)"
+      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode (deferred; successor assigned 2026-06-13: TASK-1095)"
     ]
   },
   "reconciliation_ref": "artifacts/verify/TASK-1011.verify.md"

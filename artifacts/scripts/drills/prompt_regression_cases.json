@@ -832,5 +832,22 @@
         "note": "Review wrapper enforces generous bounds for diff-driven prompts."
       }
     ]
+  },
+  {
+    "id": "PR-033",
+    "title": "Gemini Architecture Synthesizer Is Emit-Only Draft",
+    "description": "GEMINI.md must declare the Architecture Synthesizer mode (SECI active externalization) as emit-only: Gemini emits a synthesis draft but must not directly write any repo-tracked file (including architecture-synthesis-cache.md); Claude/Codex performs the write after review. Triggered every N=10 PROCESS_LEDGER entries or sprint review. (sync TASK-1095, implements TASK-1001 AC-5b)",
+    "assertions": [
+      {
+        "file": "GEMINI.md",
+        "must_contain_all": [
+          "Architecture Synthesizer 模式",
+          "不得直接寫入",
+          "architecture-synthesis-cache.md",
+          "N=10"
+        ],
+        "note": "Gemini Architecture Synthesizer must stay emit-only (draft text, no repo-tracked writes incl the cache) with the N=10 / sprint-review trigger; mirrors the Memory Bank Curator draft-only contract (PR-021)."
+      }
+    ]
   }
 ]

@@ -10,6 +10,7 @@
 - 為 planning 產出已驗證的 findings 與 constraints
 - 在被授權時使用本機 Tavily CLI 輔助 research，並輸出可追蹤 cache draft
 - 在 Memory Bank Curator 模式下，分類可沉澱知識、查重、驗證來源，產出 `Remember Capture` draft
+- 在 Architecture Synthesizer 模式下，主動掃描近 N=10 個 decision / improvement artifact，外化共通模式為架構指引 draft（不直寫任何 repo-tracked file）
 - 主要輸出：`artifacts/research/TASK-XXX.research.md`
 - Memory Bank Curator 模式輸出：`Remember Capture` draft，由 Claude/Codex 評估後才可寫入 `.github/memory-bank/`
 
@@ -91,6 +92,25 @@ Memory Bank Curator 輸出格式：
 - Source:
 - Safety Check:
 ```
+
+## Architecture Synthesizer 模式
+
+Gemini 可在 closure（`PROCESS_LEDGER.md` 條目達 N=10 倍數）或 sprint review 階段，以 read-only 身分執行 SECI **主動知識外化**（Active Knowledge Externalization）——為 Memory Bank Curator 之**主動掃描**對應模式：定期讀取近 N=10 個 decision / improvement artifact，從碎片經驗中萃取共通失敗／決策模式，外化為架構指引 draft（SECI Externalization：tacit → explicit）。完整 dispatch 規範（Role / Inputs / Task / Anti-Snowball Guard / Output 格式 / Trigger）見 `docs/templates/architecture-synthesizer/TEMPLATE.md`，本段不複述。
+
+允許：
+
+- 讀取近 N=10 個 `artifacts/decisions/TASK-*.decision.md` 與對應 `artifacts/improvement/TASK-*.improvement.md`、`artifacts/improvement/PROCESS_LEDGER.md`、既有 `.github/memory-bank/architecture-synthesis-cache.md` 及 `.github/memory-bank/` 其餘檔（作 Anti-Snowball baseline）
+- 對每個聚類（至少 2 個 source artifact）產出架構指引候選（target：prompt-patterns／guard rule／artifact schema／template／workflow doc）
+- **吐出 synthesis draft 文字**（於 dispatch 輸出），格式依 TEMPLATE.md §Output
+
+禁止：
+
+- **emit-only：不得直接寫入任何 repo-tracked file——含 `.github/memory-bank/architecture-synthesis-cache.md` 本身**。draft 僅為 dispatch 輸出文字，寫入 cache 檔由 Claude／Codex 審核後為之（同 Memory Bank Curator 之 `Remember Capture` draft 範式，對齊上節 §禁止事項與 §Memory Bank Curator 禁止）
+- 自行覆寫既有 cache section（衝突須加 `Conflict-With` 並報 `## Blocked Conflict`，待 Claude 起 `conflict-resolution` decision 裁決）
+- 略過 Anti-Snowball Guard（dispatch 前須載既有 cache + memory-bank baseline；Reference Range 不得與既有 section 重疊；每 cluster 之 `Existing Cache Match` 必填）
+- 跨 N 個任務之外推測未來（retrospective synthesis only）
+
+觸發：`artifacts/improvement/PROCESS_LEDGER.md` 條目達 N=10 倍數時自動 dispatch，或使用者手動（sprint review／季度復盤）。
 
 ## 必要輸出區段
 

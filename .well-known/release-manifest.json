@@ -281,7 +281,7 @@
     },
     {
       "path": "GEMINI.md",
-      "sha256": "005b6e965522c4fc42c17a7a2ed1463291e3545cd03f778614f650b3306ec464"
+      "sha256": "0f717a6e80f455008bad518fde76b3f36fd95a94d08701c06875bb251b034e02"
     },
     {
       "path": "LICENSE",
@@ -461,7 +461,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "a64a8cb0c04ca6cc257287c4ddb8c488d90065a0c0c9dfb3bb20c46b158495f6"
+      "sha256": "92cc824598225e0f151f8dd387570e7f59ed5517d31c509b37da8b61feee4a6f"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -861,7 +861,7 @@
     },
     {
       "path": "docs/templates/architecture-synthesizer/TEMPLATE.md",
-      "sha256": "2a8c5a34e0e069d5c3d1a5b195998a781e73b59f3fa673d9df5c770e151ec8c1"
+      "sha256": "9e435c73b3cf9d365247cbb92edb86d008f18dd5893dd21dd12bb095d322762d"
     },
     {
       "path": "docs/templates/blocking/TEMPLATE.md",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "ff49024cceb71d0a9c53456e4f05668fcdfe8631c427a3e37c188c9e16e0b90a"
+  "root": "b24c7762ef03a7c86d47c25338931a76dfd401d7dede1142c2e1ec56baf72021"
 }

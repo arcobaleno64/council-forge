@@ -1,26 +1,28 @@
 {
   "task_id": "TASK-1095",
-  "state": "planned",
+  "state": "done",
   "current_owner": "Claude",
-  "next_agent": "Claude",
+  "next_agent": "",
   "required_artifacts": [
     "task",
-    "research",
     "plan",
+    "verify",
     "status"
   ],
   "available_artifacts": [
     "task",
     "research",
     "plan",
+    "code",
+    "verify",
     "status"
   ],
   "missing_artifacts": [],
   "blocked_reason": "",
-  "last_updated": "2026-06-13T04:45:00+08:00",
+  "last_updated": "2026-06-13T18:30:00+08:00",
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "open_verification_debts": [],
   "verification_readiness": "mvp",
-  "adversarial_review_gate": "PLAN-GATE PASSED (2026-06-13): gemini r1 APPROVE + codex 4 rounds APPROVE. codex r1 REJECT (B1 emit-only boundary contradiction: GEMINI.md forbids Gemini writing any repo-tracked file incl the synthesis-cache, but plan+TEMPLATE.md said Gemini writes it -> fix: emit-only, Claude/Codex writes; B2 validation missed predecessor TASK-1001 -> add its guard_status) -> r2 REJECT (NEW-B3 GEMINI.md is a PROMPT_ENTRY_FILE; modifying it without prompt_regression_cases.json fails guard_contract validate_prompt_contract_sync:541 -> add PR-033 + cases.json to scope) -> r3 REJECT (NEW-B4 PR-033 must target via assertion file not applies_to/repo-mode) -> r4 APPROVE. Ready For Coding: yes. Implementation pending; adds working-tree impl-layer dual-review."
+  "adversarial_review_gate": "PLAN-GATE PASSED (2026-06-13): gemini r1 APPROVE + codex 4 rounds APPROVE (r1 B1 emit-only/B2 predecessor -> r2 NEW-B3 prompt-entry coupling -> r3 NEW-B4 PR-033 schema -> r4 APPROVE). IMPL-GATE PASSED (2026-06-13): working-tree dual-review on the 6-file diff -- codex (gpt-5.5 xhigh, --sandbox read-only, session 019ec059): NO FINDINGS, VERDICT APPROVE (9-point check: emit-only completeness, EXACT_SYNC, prompt coupling, PR-033 anchors, no PR regression, Plan C, no dual-maintenance drift, AC-4 no-op, scope=6 files); gemini (read-only -p): APPROVE (weak evidence -- could not read .omc diff / no shell tool, so codex is the authoritative reviewer). pytest first run caught a premortem-missed coupling (R6): editing template/ invalidated the published .well-known/release-manifest.json snapshot -> 2 release-integrity tests fail-closed; resolved by regenerating the manifest (snapshot_manifest.py generate; no key needed, .asc is CI-side), re-run pytest 1931 passed/2 skipped, guard_contract still [OK]."
 }

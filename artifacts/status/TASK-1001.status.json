@@ -8,9 +8,9 @@
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
-  "open_verification_debts": ["deferred: GEMINI.md 含 Architecture Synthesizer dispatch 模式段落"],
-  "blocked_reason": "AC-5b GEMINI.md Architecture Synthesizer dispatch mode open and unimplemented. Successor task assigned 2026-06-13: TASK-1095 (commander ruling to scope+launch). TASK-1001 stays blocked until TASK-1095 implements AC-5b and reconciles. See artifacts/decisions/TASK-1001.decision.md §Decision 2 + Amendment (2026-06-13).",
-  "last_updated": "2026-06-13T03:30:00+08:00",
+  "open_verification_debts": [],
+  "blocked_reason": "AC-5b (GEMINI.md Architecture Synthesizer dispatch mode) RESOLVED 2026-06-13 by successor TASK-1095 (state=done; verify 6/6 AC verified; codex impl-review NO FINDINGS). No remaining substantive obligation. TASK-1001 retained in 'blocked' as the reconciled-via-successor terminal sink: its lifecycle artifacts (plan/code) live in successors TASK-1011 (canonical ACs) + TASK-1095 (AC-5b), so a direct done-transition is not mechanically applicable (docs-spec/mvp done requires plan/code TASK-1001 never owned; back-filling historical artifacts is out of scope). Doneness recorded via superseded_by.scope + reconciliation_ref + decision §Verified AC Summary (all ACs now have evidence; AC-5b verified|TASK-1095). A formal done-disposition, if desired, needs a dedicated reconciliation task. See artifacts/decisions/TASK-1001.decision.md §Closing Amendment (2026-06-13).",
+  "last_updated": "2026-06-13T18:30:00+08:00",
   "verification_readiness": "mvp",
   "superseded_by": {
     "successor_task_id": "TASK-1011",
@@ -18,7 +18,7 @@
     "superseded_at": "2026-05-03T19:00:00+08:00",
     "scope": "partial",
     "remaining_obligations": [
-      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode (deferred; successor assigned 2026-06-13: TASK-1095)"
+      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode — RESOLVED 2026-06-13 by TASK-1095 (state=done; decision §Verified AC Summary AC-5b = verified|TASK-1095). No remaining obligation."
     ]
   },
   "reconciliation_ref": "artifacts/verify/TASK-1011.verify.md"

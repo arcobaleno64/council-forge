@@ -1,21 +1,26 @@
 {
   "task_id": "TASK-1099",
-  "state": "drafted",
+  "state": "planned",
   "current_owner": "Claude",
   "next_agent": "Claude",
   "required_artifacts": [
     "task",
+    "research",
+    "plan",
     "status"
   ],
   "available_artifacts": [
     "task",
+    "research",
+    "plan",
     "status"
   ],
   "missing_artifacts": [],
   "blocked_reason": "",
-  "last_updated": "2026-06-13T19:00:00+08:00",
+  "last_updated": "2026-06-13T19:45:00+08:00",
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "open_verification_debts": [],
-  "verification_readiness": "mvp"
+  "verification_readiness": "mvp",
+  "adversarial_review_gate": "PLAN-GATE PASSED (2026-06-13, route 2: document superseded-via-reconciliation terminal in workflow_state_machine.md; no guard change, no fabrication, no done-flip). gemini r1/r2/r3 APPROVE (r3 via transient-retry); codex r1 REJECT (B1 task AC-1 needs a TASK-1099 decision artifact, plan omitted it; N1 Gate-E framing) -> r2 REJECT (B2 task AC-5 needs TASK-1001 decision/status/VERIFY all consistent, plan omitted verify.md whose Pass-Fail Note still said 'blocked pending AC-5b') -> r3 APPROVE no blocking (sole non-blocking: blocked-overload, contained by strict 3-part id + no exit/resume + general stuck still Gate-E + no guard-enforcement claim). Route 2 is docs-only -> no working-tree impl-layer review required. Implementation pending."
 }

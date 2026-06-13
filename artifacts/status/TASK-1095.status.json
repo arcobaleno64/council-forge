@@ -1,21 +1,26 @@
 {
   "task_id": "TASK-1095",
-  "state": "drafted",
+  "state": "planned",
   "current_owner": "Claude",
   "next_agent": "Claude",
   "required_artifacts": [
     "task",
+    "research",
+    "plan",
     "status"
   ],
   "available_artifacts": [
     "task",
+    "research",
+    "plan",
     "status"
   ],
   "missing_artifacts": [],
   "blocked_reason": "",
-  "last_updated": "2026-06-13T03:30:00+08:00",
+  "last_updated": "2026-06-13T04:45:00+08:00",
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "open_verification_debts": [],
-  "verification_readiness": "mvp"
+  "verification_readiness": "mvp",
+  "adversarial_review_gate": "PLAN-GATE PASSED (2026-06-13): gemini r1 APPROVE + codex 4 rounds APPROVE. codex r1 REJECT (B1 emit-only boundary contradiction: GEMINI.md forbids Gemini writing any repo-tracked file incl the synthesis-cache, but plan+TEMPLATE.md said Gemini writes it -> fix: emit-only, Claude/Codex writes; B2 validation missed predecessor TASK-1001 -> add its guard_status) -> r2 REJECT (NEW-B3 GEMINI.md is a PROMPT_ENTRY_FILE; modifying it without prompt_regression_cases.json fails guard_contract validate_prompt_contract_sync:541 -> add PR-033 + cases.json to scope) -> r3 REJECT (NEW-B4 PR-033 must target via assertion file not applies_to/repo-mode) -> r4 APPROVE. Ready For Coding: yes. Implementation pending; adds working-tree impl-layer dual-review."
 }

@@ -909,7 +909,7 @@
     },
     {
       "path": "docs/workflow_state_machine.md",
-      "sha256": "f51ab7c8deea4fafd9c3cc5585e970837c7d25c7a5cf222da121ad24cbbbe169"
+      "sha256": "10050e484b68d9d85440b6eba7d7c6a610a1d63b342ad26c3e226f50bc265f3a"
     },
     {
       "path": "pytest.ini",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "b24c7762ef03a7c86d47c25338931a76dfd401d7dede1142c2e1ec56baf72021"
+  "root": "a674c0db4b2e495ab953ac98451dcc277b5c455f7cdf412c22d609f05fd75e23"
 }

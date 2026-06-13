@@ -117,6 +117,24 @@ blocked
   - improvement artifact 必須為 `Status: applied`
   - `guard_status_validator.py` 在 `blocked → *` 轉移時自動檢查
 
+### 5.1 Blocked 之二處置別（disposition）
+
+`blocked` sink 涵兩種 disposition，語意與出 sink 之條件迥異：
+
+**(a) stuck-awaiting-resolution（預設、blocked 原義）**：任務因必要 artifact 缺失、衝突、風險或無法繼續而暫停，**待解後 resume**；出 blocked 須依上列解除條件（含 Gate-E `Status: applied` improvement artifact）。即 §1 之「任務卡住」。
+
+**(b) superseded-via-reconciliation terminal（認可終態）**：任務之**實質 obligation 已全由 successor(s) 承載並 reconcile**，本身無工作可 resume，為一**認可之終態**（非待解）。識別條件（**三者全須**滿足）：
+
+1. status.json 具 `superseded_by`（含 `reconciliation_ref` 指向 successor 之 verify）；
+2. 該 successor(s) 已 `done`；
+3. 對應 decision artifact 之 `## Verified AC Summary` 顯**全 AC 皆有 evidence**（verified／superseded-by-successor／covered，**無 deferred、無待解**）。
+
+此別**不發生任何 exit/resume 轉移**——state **維 `blocked` 作為其 terminal disposition**。Gate-E 係治理「resume 工作」之 `blocked → 前一合法狀態` 轉移；superseded-terminal 無工作可 resume，故 **Gate-E 對其 N/A（非「繞過」）**。
+
+**誠實界（documentary，非 guard-enforced）**：`guard_status_validator.py` **不讀** `superseded_by`／`reconciliation_ref`，仍以 `blocked` 驗此類任務（guard-clean）；本別之 terminal 性由「本節 + status／decision／verify 記載 + review 認定」共同確立，**非 guard enforced**。一般 stuck 任務（不滿足上三條件）**不得**藉此別繞 Gate-E——無 successor-reconciliation evidence 即不適用，§5 之 Gate-E 紀律照舊。
+
+> 例：TASK-1001（v3.4 多階段任務）之 canonical AC 經 TASK-1011 reconcile、AC-5b 經 TASK-1095 resolved，全 AC 有 evidence 而自身無 plan/code → 處置為 superseded-via-reconciliation terminal（見 `artifacts/decisions/TASK-1001.decision.md` §Closing Amendment）。
+
 ## 6. 強制規則
 
 1. 每次狀態變更必須更新 status.json

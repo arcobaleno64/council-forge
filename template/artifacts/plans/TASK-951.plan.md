@@ -6,6 +6,7 @@
 - Owner: Claude
 - Status: approved
 - Last Updated: 2026-04-11T11:10:00+08:00
+- PDCA Stage: P
 
 ## Scope
 - 建立一組 blocked / PDCA / resume live drill artifacts。
@@ -34,6 +35,12 @@
   - Trigger: improvement metadata 沒有維持 `Status: applied`
   - Detection: status validator transition check 失敗
   - Mitigation: 在 verify 與 task acceptance criteria 重複強調 `Status: applied`
+  - Severity: non-blocking
+- R3
+  - Risk: blocked/resume 時序描述不一致，造成 Gate E 生效點難以審核
+  - Trigger: verify 與 decision 對 blocked 原因或恢復條件描述不同步
+  - Detection: 人工驗讀時無法一致重建事件順序
+  - Mitigation: 固定以 decision 為單一事實來源，verify 僅引用對應條目
   - Severity: non-blocking
 
 ## Validation Strategy

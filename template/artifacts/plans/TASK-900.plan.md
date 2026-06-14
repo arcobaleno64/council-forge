@@ -6,6 +6,7 @@
 - Owner: Claude
 - Status: approved
 - Last Updated: 2026-04-11T10:00:00+08:00
+- PDCA Stage: P
 
 ## Scope
 - 補齊 `TASK-900` 所需的 research / plan / code / verify sample artifacts。
@@ -36,6 +37,12 @@
   - Trigger: 在 research artifact 中加入 Recommendation 或缺少 inline citation
   - Detection: `python artifacts/scripts/guard_status_validator.py --task-id TASK-900`
   - Mitigation: 僅保留事實、來源與 implementation constraints
+  - Severity: non-blocking
+- R3
+  - Risk: Files Likely Affected 清單未同步後續樣本調整，導致文件與實際變更脫節
+  - Trigger: 調整 sample artifact 後未更新 plan 內影響檔案清單
+  - Detection: scope 檢查顯示 code 與 plan 列舉不一致
+  - Mitigation: 每次更新 sample 先對照 `Files Likely Affected` 與 `Files Changed`
   - Severity: non-blocking
 
 ## Validation Strategy

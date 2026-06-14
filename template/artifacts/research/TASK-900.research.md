@@ -21,6 +21,11 @@
 - `artifacts/scripts/guard_contract_validator.py`
 - `BOOTSTRAP_PROMPT.md`
 
+## Sources
+[1] Arcobaleno64. "guard_status_validator.py." https://github.com/arcobaleno64/consilium-fabri/blob/master/artifacts/scripts/guard_status_validator.py (2026-04-15 retrieved)
+[2] Arcobaleno64. "guard_contract_validator.py." https://github.com/arcobaleno64/consilium-fabri/blob/master/artifacts/scripts/guard_contract_validator.py (2026-04-15 retrieved)
+[3] Arcobaleno64. "BOOTSTRAP_PROMPT.md." https://github.com/arcobaleno64/consilium-fabri/blob/master/BOOTSTRAP_PROMPT.md (2026-04-15 retrieved)
+
 ## Uncertain Items
 None
 

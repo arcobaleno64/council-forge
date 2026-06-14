@@ -5,7 +5,6 @@
   "next_agent": "Claude",
   "required_artifacts": [
     "code",
-    "research",
     "status",
     "task",
     "verify"
@@ -22,5 +21,9 @@
   ],
   "missing_artifacts": [],
   "blocked_reason": "",
-  "last_updated": "2026-04-11T11:00:00+08:00"
+  "last_updated": "2026-04-11T11:00:00+08:00",
+  "assurance_level": "poc",
+  "project_adapter": "generic",
+  "open_verification_debts": [],
+  "verification_readiness": "poc"
 }

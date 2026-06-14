@@ -6,6 +6,7 @@
 - Owner: Codex
 - Status: ready
 - Last Updated: 2026-04-11T10:00:00+08:00
+- PDCA Stage: D
 
 ## Files Changed
 - `artifacts/tasks/TASK-900.task.md`
@@ -28,6 +29,17 @@
 
 ## Known Risks
 - 若之後 bootstrap 或 contract guard 規則再變動，`TASK-900` 也必須同步更新。
+
+
+## TAO Trace
+
+Reconstructed from artifact history. This task predates the TAO schema (introduced in TASK-1000 Phase 2).
+
+### Step 1
+- Thought Log: (Reconstructed) Reviewed plan Proposed Changes and executed accordingly.
+- Action Step: Implemented changes per plan scope.
+- Observation: Completed (inferred from verify artifact AC checklist).
+- Next-Step Decision: continue
 
 ## Blockers
 None

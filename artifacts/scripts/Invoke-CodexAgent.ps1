@@ -47,8 +47,22 @@ param (
     # Default $false = exclude lifecycle from stash so sub-agent sees prereq artifacts;
     # set $true only for wrapper-self-test or strict-enforcement callers that have
     # committed lifecycle artifacts and want full-stash semantics.
-    [switch]$IncludeLifecycleInBaseline = $false
+    [switch]$IncludeLifecycleInBaseline = $false,
+
+    # TASK-1067: prompt size bounds-check opt-out switch.
+    [switch]$SuppressSizeWarn = $false
 )
+
+# TASK-1067 prompt size bounds-check (warn @ 500 / reject @ 5000; per docs/dispatch_prompt_discipline.md)
+if (-not $SuppressSizeWarn) {
+    $_promptSize = $Prompt.Length
+    if ($_promptSize -gt 5000) {
+        [Console]::Error.WriteLine("Prompt size $_promptSize exceeds reject limit 5000 chars (per docs/dispatch_prompt_discipline.md). Use -SuppressSizeWarn to bypass or rewrite as path-reference.")
+        exit 4
+    } elseif ($_promptSize -gt 500) {
+        [Console]::Error.WriteLine("WARNING: Prompt size $_promptSize exceeds soft limit 500 chars (per docs/dispatch_prompt_discipline.md). Consider path-reference form. Use -SuppressSizeWarn to silence.")
+    }
+}
 
 # Core Error Patterns to Catch
 $RetryPatterns = @(
@@ -400,10 +414,20 @@ foreach ($model in $Models) {
                 $BestEffortOutput = $outText
             }
 
-            # Check outcome -- codex CLI 0.128 exit code is the source of truth.
-            # The retry-pattern check stays only as a guard for transient errors
-            # that might leak through with exit 0 (rare).
-            if ($lastExitCode -eq 0 -and -not ($combinedText -match $RegexPattern)) {
+            # Check outcome -- the codex CLI EXIT CODE is the SOLE source of truth.
+            # We deliberately do NOT scan the agent output for retry patterns on success:
+            # a legitimate review routinely quotes/discusses transport-error tokens
+            # ("429", "Failed to fetch", "ECONNRESET"), and the codex CLI echoes such
+            # content to BOTH stdout and stderr (tool traces / reasoning) -- so ANY
+            # content scan on exit 0 spuriously fails an otherwise-successful dispatch.
+            # (TASK-1092 / FB-5. Empirically observed: a stderr-only scan still exhausted
+            # the impl-review run, because exit-0 stderr merely contained the reviewed
+            # text.) The RetryPatterns are used ONLY to classify the backoff log line on
+            # genuine (exit != 0 / thrown) failures. Residual: a transient the CLI somehow
+            # reports with exit 0 is an accepted, documented residual (it would require
+            # violating the exit-code contract, and no string-scan can disambiguate it
+            # from quoted content on either stream).
+            if ($lastExitCode -eq 0) {
                 $IsSuccess = $true
                 $FinalOutput = $outText
                 break
@@ -420,12 +444,18 @@ foreach ($model in $Models) {
 
         } catch {
             Write-Host "    [!] Process Exception Caught: $($_.Exception.Message)" -ForegroundColor Red
-            $combinedText = $_.Exception.Message
+            # A thrown invocation IS a genuine failure for this attempt; feed the
+            # exception into $errText so the failure-path backoff log below can classify
+            # it ($errText is reset at the top of each attempt -- no stale value leaks
+            # across attempts). TASK-1092 / FB-5.
+            $errText = $_.Exception.Message
         }
 
-        # Calculate backoff if not last attempt
+        # Calculate backoff if not last attempt. This is only reached on a genuine
+        # failure (exit != 0 or a thrown invocation). Both branches sleep for the SAME
+        # duration; the $errText match only classifies the log line. TASK-1092 / FB-5.
         if ($attempt -lt $MaxRetriesPerTier) {
-            if ($combinedText -match $RegexPattern) {
+            if ($errText -match $RegexPattern) {
                 $sleepTime = [Math]::Pow(2, $attempt) * $BaseBackoffSeconds
                 Write-Host "    [Backoff] Target error string matched. Sleeping for $sleepTime seconds..." -ForegroundColor DarkYellow
                 Start-Sleep -Seconds $sleepTime

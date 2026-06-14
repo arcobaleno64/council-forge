@@ -1,0 +1,139 @@
+# council-forge downstream SBOM template (OPT-IN reference, P8-C2).
+#
+# This is a REFERENCE template, NOT an auto-applied workflow. A downstream repo that opts in
+# copies the job matching its stack into its own .github/workflows/ (or runs the commands
+# locally for repos without CI). See docs/templates/security/README.md for the per-downstream
+# matrix and the SBOM honesty notes.
+#
+# Design / honesty notes:
+# - One gate, many generators: every ecosystem generator emits CycloneDX JSON, validated by
+#   the single tested council-forge sbom_gate.py. The gate is fail-closed on malformed /
+#   unknown-specVersion / version-skewed component-type / below --min-components / a declared
+#   DIRECT dependency missing from the SBOM (identity, not just a count).
+# - Identity, not count-only: each job derives its DIRECT dependency NAMES from the manifest
+#   and passes them as --require-components, with a `test -n "$REQ"` guard that fails the job
+#   BEFORE the gate if a non-empty manifest yields no names (so a parser failure cannot
+#   silently degrade to a count-only check). There is NO bare `sbom_gate --sbom ...` call.
+# - Accepted risk (transitive): the gate verifies well-formedness + presence + direct-dep
+#   identity. EXHAUSTIVE transitive completeness vs the true graph is an explicitly accepted
+#   risk (no gate can verify it without re-deriving the graph) — mitigated by resolved-source
+#   generation recipes (Python resolved-env, Rust all-members, Node pnpm->cdxgen) + the gate's
+#   unmissable advisory. See README.md "SBOM" and the gate docstring.
+# - Supply chain: every `uses:` is pinned to a full commit SHA in action-pins.json; the SBOM
+#   generator tools are version-pinned below. No masking (no `|| true` / `set +e`).
+
+name: Downstream SBOM
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # --- Python SBOM (resolved environment) — Python downstreams + council-forge self -------
+  python-sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Generate CycloneDX SBOM from a resolved environment (captures transitive)
+        run: |
+          python -m venv .sbom-venv
+          .sbom-venv/bin/python -m pip install -r requirements.txt
+          python -m pip install cyclonedx-bom==7.3.0
+          python -m cyclonedx_py environment .sbom-venv --output-format JSON --output-file sbom.cdx.json
+      - name: SBOM gate (identity from requirements.txt; pep503 names)
+        run: |
+          REQ=$(python -c "import re;print(','.join(re.split(r'[<>=!~;\[ ]',l.strip())[0] for l in open('requirements.txt') if l.strip() and not l.lstrip().startswith(('#','-'))))")
+          test -n "$REQ"
+          python artifacts/scripts/sbom_gate.py --sbom sbom.cdx.json --require-components "$REQ" --name-normalization pep503 --summary-file "$GITHUB_STEP_SUMMARY"
+
+  # --- Rust SBOM (per-workspace-member) — Tauri downstreams: Verso, Vero -------------------
+  # cargo-cyclonedx writes a bom.json next to EVERY member Cargo.toml; validate ALL of them
+  # (a single member's BOM passing would hide missing crates). Each member is identity-checked
+  # against its own [dependencies]. (A zero-dependency member needs manual adjustment.)
+  rust-sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Generate + gate per-member CycloneDX SBOMs (identity from each Cargo.toml; exact names)
+        run: |
+          cargo install cargo-cyclonedx --version 0.5.9 --locked
+          cargo cyclonedx --format json
+          for bom in $(find . -name bom.json -not -path '*/target/*'); do
+            dir=$(dirname "$bom")
+            REQ=$(python -c "import tomllib;print(','.join(tomllib.load(open('$dir/Cargo.toml','rb')).get('dependencies',{}).keys()))")
+            test -n "$REQ"
+            python artifacts/scripts/sbom_gate.py --sbom "$bom" --require-components "$REQ" --name-normalization exact --summary-file "$GITHUB_STEP_SUMMARY"
+          done
+
+  # --- Node SBOM (pnpm) — Tauri downstreams: Verso, Vero (pnpm@9.15) -----------------------
+  # cyclonedx-npm does NOT read pnpm-lock.yaml, so pnpm projects use @cyclonedx/cdxgen (which
+  # does). An npm-lock project can substitute `@cyclonedx/cyclonedx-npm@4.2.1` instead.
+  node-sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Generate CycloneDX SBOM with cdxgen (reads pnpm-lock)
+        run: |
+          npm install --global @cyclonedx/cdxgen@12.5.1
+          cdxgen -t pnpm -o sbom.cdx.json
+      - name: SBOM gate (identity from package.json dependencies; exact names)
+        run: |
+          REQ=$(python -c "import json;print(','.join(json.load(open('package.json')).get('dependencies',{}).keys()))")
+          test -n "$REQ"
+          python artifacts/scripts/sbom_gate.py --sbom sbom.cdx.json --require-components "$REQ" --name-normalization exact --summary-file "$GITHUB_STEP_SUMMARY"
+
+  # --- .NET SBOM — .NET downstreams: Sentinel [thawed], LINE-BOT --------------------------
+  # NuGet IDs are case-insensitive but punctuation-significant; exact matching is conservative.
+  # The downstream should align the required names' case with what the generator emits.
+  dotnet-sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Generate CycloneDX SBOM with the dotnet tool
+        run: |
+          dotnet tool install --global CycloneDX --version 6.2.0
+          dotnet-CycloneDX YourSolution.sln -o out -F Json -fn bom.json
+      - name: SBOM gate (identity from PackageReference; exact names)
+        run: |
+          REQ=$(python -c "import glob,re;print(','.join(sorted(set(m for f in glob.glob('**/*.csproj',recursive=True)+glob.glob('**/Directory.Build.props',recursive=True) for m in re.findall(r'PackageReference\s+Include=\"([^\"]+)\"',open(f,encoding='utf-8').read())))))")
+          test -n "$REQ"
+          python artifacts/scripts/sbom_gate.py --sbom out/bom.json --require-components "$REQ" --name-normalization exact --summary-file "$GITHUB_STEP_SUMMARY"

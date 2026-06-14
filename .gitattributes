@@ -1,0 +1,6 @@
+# Pin line endings to LF in the working tree on every platform (the repo is text-only).
+# Git objects are already LF (historically committed under autocrlf); this keeps every
+# checkout and diff LF-consistent so the release-integrity manifest stays reproducible.
+# Note: the manifest generator (snapshot_manifest.py) ALSO LF-normalises text before hashing,
+# so manifest correctness does not depend on this file — this is hygiene / clean diffs.
+* text=auto eol=lf

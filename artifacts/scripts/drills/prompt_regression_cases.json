@@ -241,6 +241,7 @@
   },
   {
     "id": "PR-009",
+    "applies_to": "source",
     "title": "Source Downstream Sync Split",
     "description": "Workflow prompt must distinguish source template repos from downstream terminal repos, including template sync only in source mode.",
     "assertions": [
@@ -300,13 +301,14 @@
         "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
         "must_contain_all": [
           "gemini-3.1-flash-lite-preview",
-          "gemini-3-flash-preview"
+          "gemini-3-flash-preview",
+          "gemini-3.1-pro-preview"
         ],
         "must_not_contain_any": [
           "gemini-2.0",
           "gemini-2.5"
         ],
-        "note": "Gemini wrapper progresses breadth (flash-lite) -> depth (flash-preview); pro removed from auto-fallback per TASK-1053 Layer 5 (user account not entitled). Pro still allowed in ALLOWED_GEMINI_MODELS for manual ad-hoc dispatch."
+        "note": "Gemini wrapper auto-fallback ladder: Tier 1 breadth (flash-lite) -> Tier 2 depth (flash-preview) -> Tier 3 (pro). All three tiers are in ALLOWED_GEMINI_MODELS; pro re-enabled as auto-fallback Tier 3. (Assertion pins the full 3-tier ladder so a ladder change cannot pass unnoticed.)"
       }
     ]
   },
@@ -539,14 +541,14 @@
         "note": "Gemini can curate draft memory entries but must not write repo-tracked memory-bank files."
       },
       {
-        "file": "CLAUDE.md",
+        "file": "docs/sop/dispatch_memory_curator.md",
         "must_contain_all": [
           "Memory Bank Curator",
           "Gemini 不得改檔",
           "Claude 或 Codex",
           "Claude 最終驗收"
         ],
-        "note": "Claude owns routing and approval for memory-bank writes."
+        "note": "Memory bank curator SOP migrated from CLAUDE.md to docs/sop/ per TASK-1055; Claude still owns routing/approval via the SOP doc."
       },
       {
         "file": "docs/subagent_roles.md",
@@ -772,6 +774,62 @@
           "PowerShell unavailable"
         ],
         "note": "Conftest defines cross-platform fake exe shim; pytest skips on POSIX without pwsh."
+      }
+    ]
+  },
+  {
+    "id": "PR-031",
+    "title": "Dispatch Prompt Discipline Codification (TASK-1064)",
+    "description": "Caller-side dispatch prompt token-cost governance is codified at docs/dispatch_prompt_discipline.md; routing rule defines inline (<=500 chars) vs path-reference (>500 chars) vs temp file (dynamic context) vs fabrication-prone (always inline + UNVERIFIED).",
+    "assertions": [
+      {
+        "file": "docs/dispatch_prompt_discipline.md",
+        "must_contain_all": [
+          "dispatch_prompt_discipline.md",
+          "500",
+          "path-reference",
+          "inline",
+          "temp file",
+          "fabrication"
+        ],
+        "note": "Doc literal pins routing rule branches and threshold."
+      }
+    ]
+  },
+  {
+    "id": "PR-032",
+    "title": "Wrapper Prompt-Size Bounds-Check (TASK-1067)",
+    "description": "Three dispatch wrappers must enforce prompt size bounds: Codex/Gemini warn @ 500 chars and reject @ 5000 chars; review wrapper warn @ 100000 / reject @ 200000. -SuppressSizeWarn switch bypasses enforcement. Builds on TASK-1064 docs/dispatch_prompt_discipline.md.",
+    "assertions": [
+      {
+        "file": "artifacts/scripts/Invoke-CodexAgent.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "5000",
+          "500",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Codex dispatch wrapper enforces TASK-1064 500-char threshold via warn / reject."
+      },
+      {
+        "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "5000",
+          "500",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Gemini dispatch wrapper enforces same threshold as Codex."
+      },
+      {
+        "file": "artifacts/scripts/Invoke-CodexReview.ps1",
+        "must_contain_all": [
+          "SuppressSizeWarn",
+          "200000",
+          "100000",
+          "docs/dispatch_prompt_discipline.md"
+        ],
+        "note": "Review wrapper enforces generous bounds for diff-driven prompts."
       }
     ]
   }

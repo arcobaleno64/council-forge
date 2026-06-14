@@ -61,7 +61,10 @@ param(
     [string[]]$AllowedPaths = @(),
     [switch]$AutoRestore = $false,
 
-    [switch]$ShowHelp = $false
+    [switch]$ShowHelp = $false,
+
+    # TASK-1067: prompt size bounds-check opt-out switch.
+    [switch]$SuppressSizeWarn = $false
 )
 
 function Write-Usage {
@@ -133,6 +136,16 @@ $diffText
 
 $promptSize = $reviewInstruction.Length
 
+# TASK-1067 prompt size bounds-check (warn @ 100000 / reject @ 200000; diff-driven generous bounds per docs/dispatch_prompt_discipline.md)
+if (-not $SuppressSizeWarn) {
+    if ($promptSize -gt 200000) {
+        [Console]::Error.WriteLine("Review prompt size $promptSize exceeds reject limit 200000 chars (per docs/dispatch_prompt_discipline.md). Diff too large; consider narrower commit range. Use -SuppressSizeWarn to bypass.")
+        exit 4
+    } elseif ($promptSize -gt 100000) {
+        [Console]::Error.WriteLine("WARNING: Review prompt size $promptSize exceeds soft limit 100000 chars (per docs/dispatch_prompt_discipline.md). Diff is large; review may be token-expensive. Use -SuppressSizeWarn to silence.")
+    }
+}
+
 # Resolve OutputDir to a forward-slash relative path for logging consistency.
 $normalizedOutputDir = $OutputDir -replace '\\','/'
 if (-not $normalizedOutputDir.EndsWith('/')) { $normalizedOutputDir += '/' }
@@ -159,14 +172,16 @@ foreach ($model in $CouncilModels) {
     Write-Host "[Council] Dispatching to $model (effort=$ReasoningEffort, prompt_size=$promptSize)" -ForegroundColor Cyan
 
     $invokeArgs = @{
-        Prompt          = $reviewInstruction
-        Model           = $model
-        ModelPolicy     = 'fixed'
-        ReasoningEffort = $ReasoningEffort
-        TaskScale       = 'standard'
-        ApprovalMode    = 'never'
-        AllowedPaths    = $AllowedPaths
-        AutoRestore     = [bool]$AutoRestore
+        Prompt           = $reviewInstruction
+        Model            = $model
+        ModelPolicy      = 'fixed'
+        ReasoningEffort  = $ReasoningEffort
+        TaskScale        = 'standard'
+        ApprovalMode     = 'never'
+        AllowedPaths     = $AllowedPaths
+        AutoRestore      = [bool]$AutoRestore
+        # TASK-1067: review wrapper enforces its own bounds (100k/200k); always bypass dispatch wrapper's 500/5000 bounds downstream.
+        SuppressSizeWarn = $true
     }
 
     $reviewOut = & $wrapperPath @invokeArgs 2>&1 | Out-String

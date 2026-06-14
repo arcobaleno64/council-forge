@@ -1095,20 +1095,31 @@ class TestValidateAllowedGeminiModels:
 # ─────────────────────────────────────────────
 
 class TestValidatePromptCaseSync:
-    def test_no_git_available(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(gcv, "detect_changed_files", lambda root: (False, set()))
+    # TASK-1090: detect_changed_files -> (is_repo, changed, errors). is_repo=False is a non-git
+    # bootstrap (legit skip); is_repo=True + non-empty errors is a degraded detector (fail-closed).
+    def test_non_git_bootstrap_skips(self, tmp_path, monkeypatch):
+        # non-git context (e.g. scaffold git_init=False) -> prompt-sync N/A -> [] (not an error)
+        monkeypatch.setattr(gcv, "detect_changed_files", lambda root: (False, set(), []))
+        assert gcv.validate_prompt_case_sync(tmp_path) == []
+
+    def test_degraded_detection_fails_closed(self, tmp_path, monkeypatch):
+        # git work tree but a change-detection probe failed -> FAIL CLOSED (do not pass silently)
+        monkeypatch.setattr(
+            gcv, "detect_changed_files",
+            lambda root: (True, set(), ["git ... diff HEAD: exit 128"]),
+        )
         errors = gcv.validate_prompt_case_sync(tmp_path)
-        assert errors == []
+        assert len(errors) == 1
+        assert "degraded" in errors[0].lower() and "fail-closed" in errors[0].lower()
 
     def test_no_changes(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(gcv, "detect_changed_files", lambda root: (True, set()))
-        errors = gcv.validate_prompt_case_sync(tmp_path)
-        assert errors == []
+        monkeypatch.setattr(gcv, "detect_changed_files", lambda root: (True, set(), []))
+        assert gcv.validate_prompt_case_sync(tmp_path) == []
 
     def test_prompt_changed_without_regression(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
             gcv, "detect_changed_files",
-            lambda root: (True, {"CLAUDE.md", "AGENTS.md"}),
+            lambda root: (True, {"CLAUDE.md", "AGENTS.md"}, []),
         )
         errors = gcv.validate_prompt_case_sync(tmp_path)
         assert len(errors) == 1
@@ -1120,18 +1131,16 @@ class TestValidatePromptCaseSync:
             lambda root: (True, {
                 "CLAUDE.md",
                 "artifacts/scripts/drills/prompt_regression_cases.json",
-            }),
+            }, []),
         )
-        errors = gcv.validate_prompt_case_sync(tmp_path)
-        assert errors == []
+        assert gcv.validate_prompt_case_sync(tmp_path) == []
 
     def test_non_prompt_changes_ok(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
             gcv, "detect_changed_files",
-            lambda root: (True, {"artifacts/scripts/guard_status_validator.py"}),
+            lambda root: (True, {"artifacts/scripts/guard_status_validator.py"}, []),
         )
-        errors = gcv.validate_prompt_case_sync(tmp_path)
-        assert errors == []
+        assert gcv.validate_prompt_case_sync(tmp_path) == []
 
 
 # ─────────────────────────────────────────────

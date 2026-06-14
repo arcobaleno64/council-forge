@@ -58,8 +58,9 @@ continuous 層由既有 workflow 落地（前置 task TASK-* 已建立），本 
 步驟：
 
 1. **確認 secret**：repo settings → Secrets and variables → Actions 之 Repository secrets 列表須含 `OPENAI_API_KEY`。secret value 由 user 自管；workflow 採 `${{ secrets.OPENAI_API_KEY }}` 經 step-level `env:` mapping 注入，不於任何 `run:` 內 echo / print。
-2. **首次驗證**：merge 後於 Actions tab → Weekly Council Audit → `Run workflow`（manual workflow_dispatch）；確認 (a) `Install Codex CLI` step 印 `codex --version` + `codex.cmd --version` 成功；(b) `Run council review` step 之 wrapper log 含 `[Council] Dispatching to gpt-5.4-mini` / `gpt-5.4` / `gpt-5.5` 三 tier；(c) review artifact 落 `artifacts/reviews/weekly-<date>/` 含 3 個 markdown 檔（per Council member 一檔）；(d) PR title 含 `[claude-routine] Weekly Audit` prefix；(e) PR body 含 source workflow / source script attribution 段。失敗則檢 Actions log 對應 step 之 stderr。
-3. **巡檢**：每週一 user 檢 master 是否有 `[claude-routine] Weekly Audit` 之 PR；無則 Actions tab 之 Weekly Council Audit workflow 點 manual `Run workflow` 補跑（per §Cadence Drift Recovery）。
+2. **驗 PR 權限**（前置必檢，per `### 2026-05-19 Incident: PR Permission Gap` 之 lesson）：執 `gh api repos/<owner>/<repo>/actions/permissions/workflow` 確認回傳 `can_approve_pull_request_reviews: true`。若為 `false`，執 `gh api -X PUT repos/<owner>/<repo>/actions/permissions/workflow -F default_workflow_permissions=read -F can_approve_pull_request_reviews=true` 切；切後重 GET 驗。原因：yml-level `permissions: pull-requests: write`（line 8-10）須 AND repo-level toggle，二者全綠 cron 之 `Open PR` step 方可開 PR。
+3. **首次驗證**：merge 後於 Actions tab → Weekly Council Audit → `Run workflow`（manual workflow_dispatch）；確認 (a) `Install Codex CLI` step 印 `codex --version` + `codex.cmd --version` 成功；(b) `Run council review` step 之 wrapper log 含 `[Council] Dispatching to gpt-5.4-mini` / `gpt-5.4` / `gpt-5.5` 三 tier；(c) review artifact 落 `artifacts/reviews/weekly-<date>/` 含 3 個 markdown 檔（per Council member 一檔）；(d) PR title 含 `[claude-routine] Weekly Audit` prefix；(e) PR body 含 source workflow / source script attribution 段。失敗則檢 Actions log 對應 step 之 stderr；若見 `HttpError: GitHub Actions is not permitted to create or approve pull requests` 即回 step 2 驗 PR 權限 toggle。
+4. **巡檢**：每週一 user 檢 master 是否有 `[claude-routine] Weekly Audit` 之 PR；無則 Actions tab 之 Weekly Council Audit workflow 點 manual `Run workflow` 補跑（per §Cadence Drift Recovery）。
 
 ### Quarterly Threat Model Workflow
 
@@ -79,10 +80,24 @@ continuous 層由既有 workflow 落地（前置 task TASK-* 已建立），本 
 
 ### 重啟
 
-- **Weekly Codex Council audit 漏跑**：(a) Actions tab 之 Weekly Council Audit workflow 確認是否被 disabled（GitHub 公開 repo 60 天無活動之 schedule auto-disable 風險）/ secret `OPENAI_API_KEY` 是否失效（rotate / revoke）/ OpenAI quota 是否耗盡（per `Run council review` step 之 stderr 印 `429` / `rate_limit_exceeded`）；(b) Actions tab 點 `Run workflow` 手動 dispatch 補跑；(c) 若連續 2 週漏跑，建 decision artifact 記 outage + root cause（如 secret rotate、quota 耗盡、cron 高負載延遲、auto-disable）+ 對應 mitigation。
+- **Weekly Codex Council audit 漏跑**：(a) Actions tab 之 Weekly Council Audit workflow 確認是否被 disabled（GitHub 公開 repo 60 天無活動之 schedule auto-disable 風險）/ secret `OPENAI_API_KEY` 是否失效（rotate / revoke）/ OpenAI quota 是否耗盡（per `Run council review` step 之 stderr 印 `429` / `rate_limit_exceeded`）；(b) `gh run view <id> --log-failed` 印 `HttpError: GitHub Actions is not permitted to create or approve pull requests` 則回 §Setup Steps Weekly step 2 驗 PR 權限 toggle（gh api PUT 切 `can_approve_pull_request_reviews=true`，per `### 2026-05-19 Incident: PR Permission Gap`）；(c) Actions tab 點 `Run workflow` 手動 dispatch 補跑；(d) 若連續 2 週漏跑，建 decision artifact 記 outage + root cause（如 secret rotate、quota 耗盡、cron 高負載延遲、auto-disable、repo permission drift）+ 對應 mitigation。
 - **Quarterly issue 漏建**：(a) `Actions → Quarterly Threat Model Reminder` 點 `Run workflow` 手動觸發；(b) 若 cron 連續 2 季漏觸發（≥6 個月），建 decision artifact 並檢 GitHub Actions schedule disable 風險（公開 repo 60 天無活動規則於本 repo 不適用，但 schedule 高負載延遲為已知風險）。
 - **Continuous SAST 紅**：依 PR check log 修；不得 force-merge bypass。
 
 ### Escalation
 
 任何 cadence outage 之 root cause 不明、或對應 mitigation 失效時，建 `artifacts/decisions/TASK-<id>.decision.md` 記錄：(a) outage 起訖；(b) detection 路徑；(c) suspected root cause；(d) mitigation 嘗試；(e) follow-up task ID（若需）。決定 artifact 由 user 簽核後關閉。
+
+### 2026-05-19 Incident: PR Permission Gap
+
+| 欄位 | 內容 |
+|---|---|
+| Outage start | 2026-05-10 Sunday 18:00 UTC（首次失敗 cron run 為 2026-05-10T18:22:31Z，per gh run id 25636273248） |
+| Outage detected | 2026-05-19（TASK-1068 push 後 audit `gh run list` 揭露兩週連續失敗） |
+| Root cause | repo-level `can_approve_pull_request_reviews` 為 `false`；yml-level `permissions: pull-requests: write`（weekly-council-audit.yml line 8-10）被 repo-level toggle 覆蓋；`actions/github-script` `Open PR` step 之 GitHub API call 被拒，stderr 印 `HttpError: GitHub Actions is not permitted to create or approve pull requests`。註：repo + yml 兩 layer 為 AND 機制 |
+| Detection 路徑 | `gh run list --limit 10` 查 Weekly Council Audit conclusion 為 failure；`gh run view <id> --log-failed` 印 HttpError 字面；`gh api repos/<owner>/<repo>/actions/permissions/workflow` 確認 toggle 為 false |
+| Immediate mitigation | 2026-05-19 user 授權 Claude 經 `gh api -X PUT repos/<owner>/<repo>/actions/permissions/workflow -F default_workflow_permissions=read -F can_approve_pull_request_reviews=true` 切 toggle 為 true；GET verify 後值為 `{"default_workflow_permissions":"read","can_approve_pull_request_reviews":true}` |
+| Affected runs | 2026-05-10 / 2026-05-17 兩 weekly cron run（review artifacts 生成 + Run council review step 成功；Open PR step fail；PR 未開） |
+| Docs hardening | TASK-1069 落地：§Setup Steps Weekly 新增 step 2「驗 PR 權限」前置 gh api check；§Cadence Drift Recovery Weekly 補 PR fail signal + mitigation；本 §2026-05-19 Incident: PR Permission Gap 永留紀錄供未來 audit |
+| Runtime 驗證 | 下次 weekly cron（2026-05-24 Sunday 18:00 UTC）自然 surface 為 success；user 亦可即時 manual `Run workflow` workflow_dispatch 提前驗 |
+| Lessons learned | TASK-1063 落地後缺 user-side runtime verification step（doc line 55 寫了 toggle 要求但無 `gh api` enforced check）；governance gap 由本 incident 揭露。未來 docs-yml-runtime 三層 sync 須以可機械驗證之命令 codify（屬第二批 backlog 之 validator design rule cousin） |

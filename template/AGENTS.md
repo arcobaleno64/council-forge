@@ -61,7 +61,7 @@
 | **Red Team Exercise** | C (Check 衍生) | `docs/red_team_runbook.md`, `docs/red_team_scorecard.md`, `docs/red_team_backlog.md` | -- | -- |
 | **Sync Contract** | meta | `docs/orchestration-workflow.md` §9 | -- | -- |
 
-兩層架構詳見 [docs/orchestration.md §2.8](docs/orchestration.md)：管理層 PDCA 對應上表「PDCA 階段」欄；執行層 TAO/ReAct 內含於 Coding 階段內 subagent dispatch（詳見 [docs/agentic_execution_layer.md](docs/agentic_execution_layer.md)，Phase 2 提供）。
+兩層架構詳見 [docs/orchestration.md §2.8](docs/orchestration.md)：管理層 PDCA 對應上表「PDCA 階段」欄；執行層 TAO/ReAct 內含於 Coding 階段內 subagent dispatch（詳見 [docs/agentic_execution_layer.md](docs/agentic_execution_layer.md)）。
 
 ## 交叉引用慣例
 

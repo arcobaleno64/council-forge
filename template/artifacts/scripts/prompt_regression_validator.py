@@ -23,6 +23,7 @@ class CaseResult:
     title: str
     passed: bool
     failures: List[AssertionFailure]
+    skipped: bool = False
 
 
 def normalize_text(text: str) -> str:
@@ -57,10 +58,39 @@ def load_cases(cases_path: Path) -> List[dict]:
     return payload
 
 
+def detect_repo_mode(root: Path) -> str:
+    """Source repos carry the .council-forge-source-repo sentinel; others are downstream terminal repos."""
+    return "source" if (root / ".council-forge-source-repo").exists() else "downstream"
+
+
+def is_brownfield(root: Path) -> bool:
+    """A brownfield downstream (retrofitted onto an existing repo) keeps its own
+    project CLAUDE.md / README; assertions targeting those project-owned files are
+    skipped for it, because that content is guaranteed by the EXACT_SYNC docs and the
+    overlaid GEMINI/CODEX prompts instead."""
+    return (root / ".council-forge-brownfield").exists()
+
+
+# Files a brownfield downstream owns (its own project versions); council-forge's prompt
+# assertions targeting these are skipped for brownfield repos.
+BROWNFIELD_PROJECT_OWNED_FILES = {"CLAUDE.md", "README.md", "README.zh-TW.md"}
+
+
+def case_applies(case: dict, mode: str) -> bool:
+    """A case runs when its optional ``applies_to`` is absent/"all" or matches the repo mode.
+
+    Source-only cases (e.g. the source/template sync split) assert template/ files that a
+    downstream terminal repo deliberately lacks, so they are skipped in downstream mode.
+    """
+    applies = str(case.get("applies_to", "all")).strip().lower()
+    return applies in ("all", mode)
+
+
 def evaluate_case(case: dict, root: Path, cache: Dict[str, str]) -> CaseResult:
     case_id = str(case.get("id", ""))
     title = str(case.get("title", ""))
     failures: List[AssertionFailure] = []
+    brownfield = is_brownfield(root)
 
     assertions = case.get("assertions", [])
     if not isinstance(assertions, list) or not assertions:
@@ -72,6 +102,11 @@ def evaluate_case(case: dict, root: Path, cache: Dict[str, str]) -> CaseResult:
         note = str(assertion.get("note", "")).strip()
         if not file_name:
             failures.append(AssertionFailure(file="(case)", message="Assertion missing file", note=note))
+            continue
+        if brownfield and file_name in BROWNFIELD_PROJECT_OWNED_FILES:
+            # Brownfield downstream owns its project CLAUDE.md / README; council-forge's
+            # orchestrator + product-README content is guaranteed via the EXACT_SYNC docs
+            # and the overlaid GEMINI/CODEX prompts instead.
             continue
 
         if file_name not in cache:
@@ -163,7 +198,8 @@ def render_report(results: Sequence[CaseResult]) -> str:
         "|---|---|---|---:|",
     ]
     for result in results:
-        lines.append(f"| `{result.case_id}` | {result.title} | {'pass' if result.passed else 'fail'} | {len(result.failures)} |")
+        outcome = "skip" if result.skipped else ("pass" if result.passed else "fail")
+        lines.append(f"| `{result.case_id}` | {result.title} | {outcome} | {len(result.failures)} |")
 
     lines.append("")
     lines.append("## Failure Details")
@@ -216,7 +252,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             return 1
 
     cache: Dict[str, str] = {}
-    results = [evaluate_case(case, root, cache) for case in cases]
+    mode = detect_repo_mode(root)
+    results: List[CaseResult] = []
+    for case in cases:
+        if case_applies(case, mode):
+            results.append(evaluate_case(case, root, cache))
+        else:
+            results.append(
+                CaseResult(
+                    case_id=str(case.get("id", "")),
+                    title=str(case.get("title", "")),
+                    passed=True,
+                    failures=[],
+                    skipped=True,
+                )
+            )
     report = render_report(results)
     print(report, end="")
 

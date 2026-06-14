@@ -37,5 +37,11 @@
 - 任何 `external/` 目錄修改
 - 任何產品功能實作
 
+## Assurance Level
+POC
+
+## Project Adapter
+generic
+
 ## Current Status Summary
 Built-in smoke test for validator and contract synchronization.

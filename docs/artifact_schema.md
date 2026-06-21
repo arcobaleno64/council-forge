@@ -144,6 +144,8 @@
 - decision: `done`
 - improvement: `draft`, `approved`, `applied`
 
+> **Reconciliation-terminal 例外（superseded-via-reconciliation terminal）**：任務之實質 obligation 已全由 successor(s) 承載並 reconcile 者，其 state 維 `blocked` 作為認可終態，且**得保留其 verify artifact** 作為 successor 解決之證據——故 `*.verify.md` 數可略多於 done 任務數，非異常。識別條件與語意見 [docs/workflow_state_machine.md §5.1](workflow_state_machine.md)。
+
 ## 5. Artifact 類型詳細欄位
 
 各 artifact type 之詳細欄位、必填項、規則範例見 `docs/schemas/`：

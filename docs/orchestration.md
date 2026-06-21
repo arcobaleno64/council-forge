@@ -127,7 +127,7 @@ Routing matrix：
 
 | PDCA 階段 | Workflow 階段 | 主要 artifact | Gate |
 |---|---|---|---|
-| **P (Plan)** | Intake → Research → Planning | task → research → plan（含 premortem R1-R4+） | Gate A / B |
+| **P (Plan)** | Intake → Research → Planning | task → research → plan（含 premortem；min_risks 依 task_type，見 docs/premortem_rules.md §7） | Gate A / B |
 | **D (Do)** | Coding | code（含 `Files Changed`、`Mapping To Plan`） | Gate C |
 | **C (Check)** | Verification | verify（含 Build Guarantee、Acceptance Criteria Checklist） | Gate D |
 | **A (Act)** | Closure（含 blocked 處置） | improvement（§5.9，含 `What Happened` / `Preventive Action`） + decision | Gate E |

@@ -1,0 +1,21 @@
+{
+  "task_id": "TASK-1101",
+  "state": "drafted",
+  "current_owner": "Claude",
+  "next_agent": "Claude",
+  "required_artifacts": [
+    "task",
+    "status"
+  ],
+  "available_artifacts": [
+    "task",
+    "status"
+  ],
+  "missing_artifacts": [],
+  "blocked_reason": "",
+  "last_updated": "2026-06-21T21:20:00+08:00",
+  "assurance_level": "mvp",
+  "project_adapter": "generic",
+  "open_verification_debts": [],
+  "verification_readiness": "mvp"
+}

@@ -545,11 +545,11 @@
     },
     {
       "path": "artifacts/scripts/run_precommit_check.py",
-      "sha256": "98ab9567fa97eb4fa66c52706f2da62651e81443bfff4812f011847c728bee6e"
+      "sha256": "9600b0564f4ae1614ed598bcadd3b05b04b1477fd75e66940b5f519687b9a2f5"
     },
     {
       "path": "artifacts/scripts/run_quality_gates.py",
-      "sha256": "1d51b91ebb26701ad7c4c8bc8a79d21e74b7761699620f7055f1088a07abe15d"
+      "sha256": "cf0d6cf2dc288e1f4a31bec95d1afc3e4eb8b39ed7670777aa509a3f276af673"
     },
     {
       "path": "artifacts/scripts/run_red_team_suite.py",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "690538929994aa0088cba50823db6de366e4eb8359fa4c2ef49b1af91f1757c9"
+  "root": "dd7d3e5918b6364e9883b0922e7ac4161fe69939db9ecf407ca882bd026be2cf"
 }

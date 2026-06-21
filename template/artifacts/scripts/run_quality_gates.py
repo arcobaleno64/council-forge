@@ -44,6 +44,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from guard_contract_validator import EXACT_SYNC_FILES
+
 SCRIPT_PATH = Path(__file__).resolve()
 TAIPEI_TZ = timezone(timedelta(hours=8))
 
@@ -627,6 +629,15 @@ def run_qc_sync_001(
         if current_status == "in_sync":
             check["status"] = "pass"
             check["reason_code"] = "post_baseline_new_pair_in_sync"
+        elif current_status == "missing_template" and src_rel not in EXACT_SYNC_FILES:
+            # A post-baseline .py with no template twin is a failure ONLY if it is a
+            # must-sync file (in EXACT_SYNC_FILES, the same authority guard_contract_validator
+            # uses). Files outside that authority are deliberately source-only (generators,
+            # dashboards, root-only tests) and legitimately have no twin -> pass. This keeps
+            # QC-SYNC aligned with the must-sync authority and stops false missing_template
+            # reports, without weakening detection for genuine must-sync files (see negative test).
+            check["status"] = "pass"
+            check["reason_code"] = "post_baseline_source_only_no_twin_expected"
         else:
             runtime_match = find_runtime_waiver_for_target(
                 "QC-SYNC-001", src_rel, runtime_waivers, today_date

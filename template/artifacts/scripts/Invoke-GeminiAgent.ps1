@@ -37,8 +37,22 @@ param (
     # Default $false = exclude lifecycle from stash so sub-agent sees prereq artifacts;
     # set $true only for wrapper-self-test or strict-enforcement callers that have
     # committed lifecycle artifacts and want full-stash semantics.
-    [switch]$IncludeLifecycleInBaseline = $false
+    [switch]$IncludeLifecycleInBaseline = $false,
+
+    # TASK-1067: prompt size bounds-check opt-out switch.
+    [switch]$SuppressSizeWarn = $false
 )
+
+# TASK-1067 prompt size bounds-check (warn @ 500 / reject @ 5000; per docs/dispatch_prompt_discipline.md)
+if (-not $SuppressSizeWarn) {
+    $_promptSize = $Prompt.Length
+    if ($_promptSize -gt 5000) {
+        [Console]::Error.WriteLine("Prompt size $_promptSize exceeds reject limit 5000 chars (per docs/dispatch_prompt_discipline.md). Use -SuppressSizeWarn to bypass or rewrite as path-reference.")
+        exit 4
+    } elseif ($_promptSize -gt 500) {
+        [Console]::Error.WriteLine("WARNING: Prompt size $_promptSize exceeds soft limit 500 chars (per docs/dispatch_prompt_discipline.md). Consider path-reference form. Use -SuppressSizeWarn to silence.")
+    }
+}
 
 # Core Error Patterns to Catch
 $RetryPatterns = @(
@@ -267,14 +281,12 @@ if ($AutoRestoreLegacy) {
 }
 
 # Models Progression
-# TASK-1053 Layer 5: gemini-3.1-pro-preview removed from auto-fallback (user account
-# is not entitled to that model and previously wasted 2 retries per dispatch).
-# Pro is still allowed in guard_contract_validator's ALLOWED_GEMINI_MODELS for ad-hoc
-# manual dispatch, but the wrapper progresses through breadth (flash-lite) -> depth
-# (flash-preview) only.
+# Tier 1 (breadth) -> Tier 2 (depth) -> Tier 3 (pro).
+# Pro re-enabled after user subscribed to Gemini AI Pro (2026-05-25).
 $Models = @(
     "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview"
+    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview"
 )
 
 $IsSuccess = $false

@@ -149,7 +149,7 @@ Claude Code 的成功不是「自己做完」，而是：
 
 ## 4. Gemini CLI
 
-預設模型：`gemini-3.1-flash-lite-preview`（低成本、快速）。有問題時可升級至 `gemini-3-flash-preview`；`gemini-3.1-pro-preview` 僅保留為 allowlist 內的 ad-hoc dispatch，不再列為 auto-fallback。不得降回 `2.x` 或其他未列入 allowlist 的舊模型。
+預設模型：`gemini-3.1-flash-lite-preview`（低成本、快速）。有問題時依序升級至 `gemini-3-flash-preview`、`gemini-3.1-pro-preview`（auto-fallback tier 3）。不得降回 `2.x` 或其他未列入 allowlist 的舊模型。
 認證方式：授權登入不依賴 `GEMINI_API_KEY` 環境變數，由 CLI 內部 OAuth 處理（若未登入請先執行 `gemini auth` 類似指令）。
 呼叫方式：`gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"`
 

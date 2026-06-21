@@ -3,9 +3,20 @@
   "state": "blocked",
   "current_owner": "Claude",
   "next_agent": "User",
-  "required_artifacts": ["task", "status"],
-  "available_artifacts": ["task", "status", "decision"],
+  "required_artifacts": [
+    "status",
+    "task"
+  ],
+  "available_artifacts": [
+    "decision",
+    "status",
+    "task"
+  ],
   "missing_artifacts": [],
   "blocked_reason": "Archived: external/Wino-Mail/ no longer exists in workspace. Task is effectively stale. Re-clone Wino-Mail and update inputs to resume.",
-  "last_updated": "2026-04-16T14:20:00+08:00"
+  "last_updated": "2026-04-16T14:20:00+08:00",
+  "assurance_level": "poc",
+  "project_adapter": "generic",
+  "open_verification_debts": [],
+  "verification_readiness": "poc"
 }

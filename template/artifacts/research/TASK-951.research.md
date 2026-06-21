@@ -21,6 +21,11 @@
 - `docs/workflow_state_machine.md`
 - `docs/artifact_schema.md`
 
+## Sources
+[1] Arcobaleno64. "guard_status_validator.py." https://github.com/arcobaleno64/consilium-fabri/blob/master/artifacts/scripts/guard_status_validator.py (2026-04-15 retrieved)
+[2] Arcobaleno64. "workflow_state_machine.md." https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/workflow_state_machine.md (2026-04-15 retrieved)
+[3] Arcobaleno64. "artifact_schema.md." https://github.com/arcobaleno64/consilium-fabri/blob/master/docs/artifact_schema.md (2026-04-15 retrieved)
+
 ## Uncertain Items
 None
 

@@ -38,6 +38,7 @@ test_e2e.ps1
 .coverage
 coverage-report/
 .pytest_cache/
+.pytest-basetemp/
 
 # Claude Code worktrees (local only)
 .claude/worktrees/

@@ -6,6 +6,7 @@
 - Owner: Codex
 - Status: ready
 - Last Updated: 2026-04-11T11:10:00+08:00
+- PDCA Stage: D
 
 ## Files Changed
 - `artifacts/decisions/TASK-951.decision.md`
@@ -21,3 +22,13 @@
 - 對應 plan 的 decision 建立：記錄 blocked 與 resume 的取捨。
 - 對應 plan 的 improvement 建立：用 `Status: applied` 固定 Gate E。
 - 對應 plan 的 verify 建立：以 evidence 證明 blocked 無法繞過 improvement。
+
+## TAO Trace
+
+Reconstructed from artifact history. This task predates the TAO schema (introduced in TASK-1000 Phase 2).
+
+### Step 1
+- Thought Log: (Reconstructed) Reviewed plan Proposed Changes and executed accordingly.
+- Action Step: Implemented changes per plan scope.
+- Observation: Completed (inferred from verify artifact AC checklist).
+- Next-Step Decision: continue

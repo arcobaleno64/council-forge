@@ -1,0 +1,82 @@
+# council-forge downstream SAST template (OPT-IN reference, P8-C).
+#
+# This is a REFERENCE template, NOT an auto-applied workflow. A downstream repo that opts
+# in copies the relevant jobs into its own .github/workflows/ (or runs them locally for
+# repos without CI). Keep only the jobs matching your stack — see
+# docs/templates/security/README.md for the per-downstream enablement matrix.
+#
+# Design / honesty notes:
+# - Advisory-first: the Python SAST path is ADVISORY (sast_gate.py exits 0 even with
+#   findings) to avoid a false-positive avalanche. Findings are NOT silently dropped: they
+#   are durably appended to $GITHUB_STEP_SUMMARY for review (reporting-not-control guard).
+#   sast_gate still FAILS CLOSED on malformed / unknown-version / unknown-level SARIF.
+# - Map, don't re-create: Rust and .NET already have build-enforcing native analyzers
+#   (clippy -D warnings; Roslyn analyzers via TreatWarningsAsErrors). We RECOGNIZE those as
+#   the SAST mechanism rather than bolting on a second, redundant scanner.
+# - Supply chain: every `uses:` is pinned to a full commit SHA recorded in
+#   docs/templates/security/action-pins.json (identity + exact SHA, lint-enforced). Only
+#   actions/checkout and actions/setup-python are used.
+# - Fail-closed: no `|| true` / `; true` / `set +e` / continue-on-error anywhere.
+
+name: Downstream SAST
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # --- Python SAST (advisory) — for Python downstreams + council-forge self ----
+  python-sast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+      - name: Python SAST (advisory) -> SARIF
+        # repo_security_scan sast is ADVISORY (exit 0); it only PRODUCES the SARIF report.
+        run: python artifacts/scripts/repo_security_scan.py --root . sast --format sarif > python-sast.sarif
+      - name: SAST gate (advisory; durably surface findings to the job summary)
+        # Advisory by default (exit 0); findings are durably appended to the job summary so
+        # they are reviewable, not silently dropped. Still FAILS CLOSED on broken SARIF.
+        run: python artifacts/scripts/sast_gate.py --sarif python-sast.sarif --summary-file "$GITHUB_STEP_SUMMARY"
+
+  # --- Rust SAST (native, build-enforcing) — keep for Tauri downstreams: Verso, Vero ---
+  # clippy -D warnings already runs in their package.json scripts; this is the CI mirror.
+  # Native analyzer = the SAST mechanism (PW.7); no separate scanner is added.
+  rust-clippy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: cargo clippy (native, enforcing)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  # --- .NET SAST (native, build-enforcing) — keep for .NET downstreams: Sentinel [thawed], LINE-BOT ---
+  # Roslyn analyzers run at build; Sentinel's Directory.Build.props sets TreatWarningsAsErrors.
+  # Native analyzer = the SAST mechanism (PW.7); build failure is the gate.
+  dotnet-analyzers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: dotnet build with analyzers (warnings as errors)
+        run: dotnet build -warnaserror

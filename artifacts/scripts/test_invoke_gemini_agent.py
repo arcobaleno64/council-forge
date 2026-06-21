@@ -108,10 +108,10 @@ def test_flash_lite_capacity_failure_falls_back_to_flash_preview(fake_gemini_exe
     assert models[3] == "gemini-3-flash-preview"
 
 
-def test_auto_fallback_models_array_does_not_include_pro(fake_gemini_exe, run_wrapper):
+def test_auto_fallback_models_array_includes_pro(fake_gemini_exe, run_wrapper):
     text = WRAPPER.read_text(encoding="utf-8")
     models_block = text.split("$Models = @(", 1)[1].split(")", 1)[0]
-    assert "gemini-3.1-pro-preview" not in models_block
+    assert "gemini-3.1-pro-preview" in models_block
 
     fake_gemini_exe.configure(stdout="429 MODEL_CAPACITY_EXHAUSTED", exit_code=1)
     result = run_wrapper(
@@ -126,7 +126,7 @@ def test_auto_fallback_models_array_does_not_include_pro(fake_gemini_exe, run_wr
         "0",
     )
     assert result.returncode == 1
-    assert "gemini-3.1-pro-preview" not in _models_from_calls(fake_gemini_exe.calls())
+    assert "gemini-3.1-pro-preview" in _models_from_calls(fake_gemini_exe.calls())
 
 
 # region TASK-1060: lifecycle exclusion in pre-dispatch stash baseline
@@ -357,3 +357,66 @@ class TestGeminiBugBStdinAlways:
 
 
 # endregion TASK-1062
+
+
+class TestGeminiBoundsCheck:
+    """TASK-1067: Gemini wrapper enforces prompt size bounds — warn @ 500,
+    reject @ 5000. -SuppressSizeWarn opts out. Aligns with
+    docs/dispatch_prompt_discipline.md 500-char threshold."""
+
+    def test_prompt_under_warn_threshold_dispatches_silently(self, fake_gemini_exe, run_wrapper):
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "x" * 300
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "exceeds soft limit" not in result.combined_output
+        assert "exceeds reject limit" not in result.combined_output
+
+    def test_prompt_in_warn_range_emits_warning_but_dispatches(self, fake_gemini_exe, run_wrapper):
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "y" * 600
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 0, result.combined_output
+        normalized = " ".join(result.combined_output.split())
+        assert "exceeds soft limit 500" in normalized
+
+    def test_prompt_over_reject_threshold_exits_four(self, fake_gemini_exe, run_wrapper):
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "z" * 6000
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+        )
+        assert result.returncode == 4, result.combined_output
+        normalized = " ".join(result.combined_output.split())
+        assert "exceeds reject limit 5000" in normalized
+
+    def test_suppress_size_warn_bypasses_reject(self, fake_gemini_exe, run_wrapper):
+        fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
+        prompt = "w" * 6000
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", prompt,
+            "-Executable", str(fake_gemini_exe.path),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-SuppressSizeWarn",
+        )
+        assert result.returncode == 0, result.combined_output
+        assert "exceeds reject limit" not in result.combined_output
+        assert "exceeds soft limit" not in result.combined_output

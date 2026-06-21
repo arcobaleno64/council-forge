@@ -6,6 +6,7 @@
 - Owner: Claude
 - Status: approved
 - Last Updated: 2026-04-11T11:00:00+08:00
+- PDCA Stage: P
 
 ## Scope
 - 建立一組可重跑的 role boundary live drill artifacts。
@@ -35,6 +36,12 @@
   - Trigger: code artifact 未明說沒有產品 code 變更
   - Detection: Build Guarantee 與 Files Changed 描述互相矛盾
   - Mitigation: 在 code / verify 明確寫 `None (no .csproj modified)`
+  - Severity: non-blocking
+- R3
+  - Risk: decision artifact 未跟 verify 證據保持一致，導致 drill 結論可追溯性下降
+  - Trigger: 更新 decision 後未同步 verify 的 Evidence 區段
+  - Detection: verify 無法對應到正確 decision 條目
+  - Mitigation: 每次變更 decision 同步更新 verify 的證據引用
   - Severity: non-blocking
 
 ## Validation Strategy

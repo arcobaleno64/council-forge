@@ -35,5 +35,11 @@
 ## Out of Scope
 - 任意產品程式修改
 
+## Assurance Level
+POC
+
+## Project Adapter
+generic
+
 ## Current Status Summary
 Built-in blocked / PDCA / resume live drill.

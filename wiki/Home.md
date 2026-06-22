@@ -6,7 +6,7 @@
 
 - [[Getting-Started]] — 前置需求與快速上手
 - [[Workflow-Overview]] — 工作流階段與 gate 驗證
-- [[Artifact-Schema]] — 8 種 artifact 類型與 schema
+- [[Artifact-Schema]] — 9 種 artifact 類型與 schema
 - [[Agent-Roles]] — 三個 agent 的角色分工
 - [[Validator-Commands]] — 驗證指令速查表
 - [[Context-System]] — 分層式上下文管理系統

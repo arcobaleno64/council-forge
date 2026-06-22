@@ -2,7 +2,7 @@
 
 ## 前置需求
 
-- **Python 3.10+** — 執行驗證腳本所需
+- **Python 3.11** — 執行驗證腳本所需
 - **Git** — 版本控制
 - **Claude Code** — 協調者 agent（透過 VS Code 擴充功能或 CLI）
 - **Gemini CLI** — 研究 agent（選配，完整工作流所需）
@@ -15,6 +15,9 @@
 # 1. 複製範本到你的專案
 git clone https://github.com/arcobaleno64/council-forge.git my-project
 cd my-project
+
+# 1.5. 初始化 external/ 下的必要整合（submodule）
+git submodule update --init --recursive
 
 # 2. 替換 CLAUDE.md 中的 placeholder（無 fork 則移除 fork 區段）
 #    {{PROJECT_NAME}}, {{REPO_NAME}}, {{UPSTREAM_ORG}}

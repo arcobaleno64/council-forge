@@ -1,8 +1,8 @@
 # Artifact Schema
 
-所有工作流產物遵循 [docs/artifact_schema.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/artifact_schema.md) 定義的 8 種 schema。
+所有工作流產物遵循 [docs/artifact_schema.md](https://github.com/arcobaleno64/council-forge/blob/master/docs/artifact_schema.md) 定義的 9 種 schema。
 
-## 8 種 Artifact 類型
+## 9 種 Artifact 類型
 
 | 類型 | 檔案格式 | 用途 |
 |---|---|---|
@@ -14,6 +14,7 @@
 | Verify (§5.6) | `TASK-XXX.verify.md` | 驗證結果與 Build Guarantee |
 | Decision (§5.7) | `TASK-XXX.decision.md` | 決策記錄（guard exception、scope waiver 等） |
 | Status (§5.8) | `TASK-XXX.status.json` | 機器可讀狀態 |
+| Improvement (§5.9) | `TASK-XXX.improvement.md` | PDCA 改進記錄：失敗分析、矯正與預防、verify／done 後輕量復盤 |
 
 ## 共用 Metadata 欄位
 

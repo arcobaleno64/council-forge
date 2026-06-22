@@ -6,7 +6,7 @@
 
 Council Forge 不只是一組 prompt，而是一套完整的工作流治理框架。它包含：
 - 明確的狀態機與 gate 驗證
-- 8 種 artifact schema
+- 9 種 artifact schema
 - 自動化驗證腳本
 - 三個 agent 的角色分工
 - 分層式上下文管理

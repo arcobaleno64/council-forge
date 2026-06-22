@@ -280,6 +280,8 @@ See `BOOTSTRAP_PROMPT.md` for the full bootstrapping guide.
 
 Copy the `template/` directory contents into your repository root, replace placeholders, treat the new repo as a downstream terminal repo, and run the same bootstrap validation commands above. Do not create a nested `template/`.
 
+To automate this overlay, run `python artifacts/scripts/scaffold_downstream.py --retrofit --target <repo> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>`. It copies only the governance files your repo is missing (additive, copy-missing-only) without touching existing code, and marks the result as a brownfield downstream so source-only guards relax greenfield assumptions.
+
 Before local development or validation, run `git submodule update --init --recursive` so the required integrations under `external/` are present and the workspace matches CI.
 
 ---
@@ -301,7 +303,7 @@ Before local development or validation, run `git submodule update --init --recur
 │
 ├── docs/                      # Workflow specification documents
 │   ├── orchestration.md       # Full workflow: goals, principles, stages, gates
-│   ├── artifact_schema.md     # 8 artifact type schemas (§5.1–§5.8)
+│   ├── artifact_schema.md     # 9 artifact type schemas (§5.1–§5.9)
 │   ├── workflow_state_machine.md  # 8 states + legal transitions
 │   ├── premortem_rules.md     # Risk analysis format + quality guardrails
 │   ├── subagent_roles.md      # 7 agent role definitions
@@ -371,6 +373,16 @@ Before local development or validation, run `git submodule update --init --recur
 | `python artifacts/scripts/repo_health_dashboard.py` | Generate repository health dashboard |
 | `python artifacts/scripts/build_decision_registry.py --root .` | Rebuild the decision registry |
 | `python artifacts/scripts/update_repository_profile.py` | Update GitHub repository profile |
+| `python artifacts/scripts/scaffold_downstream.py --target <dir> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>` | Generate a new downstream project from the template (greenfield) |
+| `python artifacts/scripts/scaffold_downstream.py --retrofit --target <dir> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>` | Overlay governance onto an existing repo (additive, copy-missing-only) |
+| `python artifacts/scripts/drift_dashboard.py --downstream <name>=<path>` | Report template-vs-downstream drift (read-only) |
+| `python artifacts/scripts/propagate_downstream.py --downstream <name>=<path> --apply` | Refresh downstream-owned files toward the template (dry-run by default) |
+| `python artifacts/scripts/ssdf_mapping_validator.py --mapping docs/ssdf-mapping.md` | Check NIST SSDF (SP 800-218 v1.1) mapping integrity |
+| `python artifacts/scripts/sca_gate.py dotnet --json <scan.json>` | Fail-closed software composition analysis (SCA) gate |
+| `python artifacts/scripts/sast_gate.py --sarif <results.sarif>` | Advisory static application security testing (SAST) gate |
+| `python artifacts/scripts/sbom_gate.py --sbom <bom.json>` | Validate a CycloneDX software bill of materials (SBOM) |
+| `python artifacts/scripts/release_gate.py --format checksums --file <manifest.json>` | Release-integrity gate (with `snapshot_manifest.py`) |
+| `python artifacts/scripts/run_quality_gates.py` | Run the baseline-aware P0 quality gates (QC-SYNC/SCHEMA/IMPORT/GOLDEN/RUFF) |
 | `pwsh artifacts/scripts/push-wiki.ps1` | Push wiki/ to GitHub Wiki (with preflight) |
 | `pwsh artifacts/scripts/push-wiki.ps1 -WhatIf` | Run wiki preflight only (no push) |
 | `pwsh artifacts/scripts/publish-release.ps1 -Tag v0.4.0` | Create a GitHub Release (with preflight) |
@@ -383,7 +395,10 @@ Before local development or validation, run `git submodule update --init --recur
 - All GitHub Actions in `.github/workflows/` are pinned to full 40-character commit SHAs to prevent tag-mutation supply-chain attacks. Version comments (e.g. `# v4.3.1`) are preserved for Dependabot compatibility.
 - `.github/dependabot.yml` is configured to automatically propose weekly updates for both `github-actions` and `pip` ecosystems.
 - `.github/workflows/security-scan.yml` now runs three low-dependency checks on every PR, push to master, and manual dispatch: `pip-audit`, `python artifacts/scripts/repo_security_scan.py --root . secrets`, and `python artifacts/scripts/repo_security_scan.py --root . static`.
-- `artifacts/scripts/repo_security_scan.py` is intentionally repo-local: the `secrets` mode targets high-confidence credential patterns while filtering placeholders, and the `static` mode guards workflow/script foot-guns such as unpinned actions, `persist-credentials: true`, `pull_request_target`, `shell=True`, `exec` / `eval`, `Invoke-Expression`, and obvious secret logging.
+- `artifacts/scripts/repo_security_scan.py` is intentionally repo-local: the `secrets` mode targets high-confidence credential patterns while filtering placeholders, and the `static` mode guards workflow/script foot-guns such as unpinned actions, `persist-credentials: true`, `pull_request_target`, `shell=True`, `exec` / `eval`, `Invoke-Expression`, and obvious secret logging. It now runs fail-closed.
+- The workflow is mapped to **NIST SSDF (SP 800-218 v1.1)** in `docs/ssdf-mapping.md`. `ssdf_mapping_validator.py` is a fail-closed *mapping-integrity* check: it verifies that coverage map is structurally complete and honest and never reports a bare "conformant" while gaps remain — it is explicitly **not** an SSDLC conformance certification. `ssdf_conformance_dashboard.py` and `standards_backaudit_dashboard.py` report coverage and uplift over time.
+- Dedicated supply-chain gates are available for source and downstream repos: `sca_gate.py` (fail-closed dependency-scan gate), `sast_gate.py` (advisory SARIF gate), `sbom_gate.py` (fail-closed CycloneDX SBOM validation), and `security_txt_gate.py` (RFC 9116 `security.txt` gate). A `SECURITY.md` and `docs/incident-response-runbook.md` document the disclosure and response process.
+- Release integrity is gated by `release_gate.py` + `snapshot_manifest.py`, with signing guidance in `docs/security/release-signing.md` and an operational schedule in `docs/security_cadence.md`.
 - Wiki and release publish scripts include mandatory preflight checks: auth probing (`GH_TOKEN` → `GITHUB_TOKEN` → `gh auth`), remote reachability, tag/release existence, and uninitialized wiki detection.
 - All publish scripts support `-WhatIf` for dry-run validation without side effects.
 

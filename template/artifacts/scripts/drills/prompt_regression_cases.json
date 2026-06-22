@@ -57,9 +57,12 @@
           [
             "Codex CLI",
             "Codex"
+          ],
+          [
+            "改碼由 Codex / Implementer 負責"
           ]
         ],
-        "note": "Claude must enforce single-writer and role split."
+        "note": "Claude must enforce single-writer/role split AND attribute code changes to Codex/Implementer, not itself."
       },
       {
         "file": "GEMINI.md",

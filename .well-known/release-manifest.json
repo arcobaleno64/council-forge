@@ -273,7 +273,7 @@
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "ff563133f6ecce606cc1da5baa0283aacdd740bf9ba242d7101b65d6eb065b3e"
+      "sha256": "d9aeb97170debd568e086fc1be4620761520bc0990a8272ed50fa8b79682209b"
     },
     {
       "path": "CODEX.md",
@@ -293,11 +293,11 @@
     },
     {
       "path": "README.md",
-      "sha256": "9d195d43f840095b3499fa251338109316ba9b024cbb3a6e428af3f25ba6847d"
+      "sha256": "fb586e068b2052923b128f6bac03c96a04c512d0c2f56588cac2a76931394bb9"
     },
     {
       "path": "README.zh-TW.md",
-      "sha256": "c863524b2098bbc2af51196e3cc7cf3c6dabc37d1be82aeb4d88cb41cc0f241f"
+      "sha256": "6027af7fdc911c49c0e6f51376d9a558619f8a3ca35ccc6068989893a36976e8"
     },
     {
       "path": "START_HERE.md",
@@ -461,7 +461,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "92cc824598225e0f151f8dd387570e7f59ed5517d31c509b37da8b61feee4a6f"
+      "sha256": "158fb0f4a2327ea5c67c674e54b6983373b04a78fb37815de037e59d7e640ad6"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "d21d98c9b632ba5087f75e670cb9395f122095c2ab5dae402b24c198330d3fd2"
+  "root": "5c4e7911a224aabc6a731a55c47679690136ed644153519a6a000ca8320aecc0"
 }

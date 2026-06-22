@@ -68,7 +68,7 @@ Claude Code 預設優先使用 CLI。只有當使用者明確在 VS Code / Copil
 
 (見 AGENTS.md §「Agent 入口檔」)
 
-- **Claude（你）**: Orchestrator。讀 CLAUDE.md。只能有一個 agent 可以修改程式碼（single agent can modify code）。
+- **Claude（你）**: Orchestrator。讀 CLAUDE.md。預設不自行實作（只做 orchestration／決策／驗收／整合）；改碼由 Codex / Implementer 負責，全程維持 single-writer（同一時刻只能有一個 agent 可以修改程式碼，single agent can modify code）。
 - **Gemini**: Research 與 Memory Bank Curator draft。讀 GEMINI.md（已內嵌所有規則，不依賴 CLAUDE.md）
 - **Codex**: Implementation。讀 CODEX.md（同上）
 

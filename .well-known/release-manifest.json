@@ -69,7 +69,7 @@
     },
     {
       "path": ".github/memory-bank/workflow-gates.md",
-      "sha256": "2af7a1a7693249da68b84328428358180bc31c2f83a2b9ba185baa1d1e2d6d94"
+      "sha256": "f5728bc09bf7530df4781c28f7ccecbcd13bea1347224a2624e64b80fa71811f"
     },
     {
       "path": ".github/prompts/context-review.prompt.md",
@@ -281,7 +281,7 @@
     },
     {
       "path": "GEMINI.md",
-      "sha256": "005b6e965522c4fc42c17a7a2ed1463291e3545cd03f778614f650b3306ec464"
+      "sha256": "0f717a6e80f455008bad518fde76b3f36fd95a94d08701c06875bb251b034e02"
     },
     {
       "path": "LICENSE",
@@ -461,7 +461,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "a64a8cb0c04ca6cc257287c4ddb8c488d90065a0c0c9dfb3bb20c46b158495f6"
+      "sha256": "92cc824598225e0f151f8dd387570e7f59ed5517d31c509b37da8b61feee4a6f"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -545,11 +545,11 @@
     },
     {
       "path": "artifacts/scripts/run_precommit_check.py",
-      "sha256": "98ab9567fa97eb4fa66c52706f2da62651e81443bfff4812f011847c728bee6e"
+      "sha256": "9600b0564f4ae1614ed598bcadd3b05b04b1477fd75e66940b5f519687b9a2f5"
     },
     {
       "path": "artifacts/scripts/run_quality_gates.py",
-      "sha256": "1d51b91ebb26701ad7c4c8bc8a79d21e74b7761699620f7055f1088a07abe15d"
+      "sha256": "abe57e4a5c399b936801d97dcb3b82c4ff88eb035d7169160151685465c651bb"
     },
     {
       "path": "artifacts/scripts/run_red_team_suite.py",
@@ -741,7 +741,7 @@
     },
     {
       "path": "docs/artifact_schema.md",
-      "sha256": "7dc19a2465f5cbb853905b47e88e483d5d735a992e85baf3289ed74993b6a0b5"
+      "sha256": "1973b2e0d2f1e9e54a73b82668a11be8729d408ba25ee6885739fc30d90ec816"
     },
     {
       "path": "docs/dispatch_prompt_discipline.md",
@@ -757,7 +757,7 @@
     },
     {
       "path": "docs/orchestration.md",
-      "sha256": "5a443e95ddd8b6100d6a5c107b945b1c972e5a88f0365d5d00d8ffda9bd05f00"
+      "sha256": "2ce51c28ebd2794456bf7a33efc9dee37e27eab425c58cfcef100038d42547e4"
     },
     {
       "path": "docs/premortem_rules.md",
@@ -861,7 +861,7 @@
     },
     {
       "path": "docs/templates/architecture-synthesizer/TEMPLATE.md",
-      "sha256": "2a8c5a34e0e069d5c3d1a5b195998a781e73b59f3fa673d9df5c770e151ec8c1"
+      "sha256": "9e435c73b3cf9d365247cbb92edb86d008f18dd5893dd21dd12bb095d322762d"
     },
     {
       "path": "docs/templates/blocking/TEMPLATE.md",
@@ -909,7 +909,7 @@
     },
     {
       "path": "docs/workflow_state_machine.md",
-      "sha256": "f51ab7c8deea4fafd9c3cc5585e970837c7d25c7a5cf222da121ad24cbbbe169"
+      "sha256": "10050e484b68d9d85440b6eba7d7c6a610a1d63b342ad26c3e226f50bc265f3a"
     },
     {
       "path": "pytest.ini",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "ff49024cceb71d0a9c53456e4f05668fcdfe8631c427a3e37c188c9e16e0b90a"
+  "root": "d21d98c9b632ba5087f75e670cb9395f122095c2ab5dae402b24c198330d3fd2"
 }

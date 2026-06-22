@@ -43,7 +43,7 @@ Layer 5: docs/                             (詳細規範，按需載入)
 
 ### Layer 3.5 — 可組合能力（Skills & Agents）
 
-`.github/skills/` 包含 8 個可組合的 GitHub Copilot 專業能力模組（如 security-review、quality-playbook、code-tour、agent-governance 等），可依任務需求使用；它們不是強制 lifecycle hook。
+`.github/skills/` 包含 9 個可組合的 GitHub Copilot 專業能力模組（如 security-review、quality-playbook、code-tour、agent-governance、mcp-security-audit 等），可依任務需求使用；它們不是強制 lifecycle hook。
 
 `.github/agents/` 包含 2 個自訂 agent 定義（Autonomous Executor、Readonly Process Auditor），提供可重用的 agent 人格與工具邊界。
 

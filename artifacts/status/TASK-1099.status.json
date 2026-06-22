@@ -1,0 +1,29 @@
+{
+  "task_id": "TASK-1099",
+  "state": "done",
+  "current_owner": "Claude",
+  "next_agent": "",
+  "required_artifacts": [
+    "task",
+    "plan",
+    "verify",
+    "status"
+  ],
+  "available_artifacts": [
+    "task",
+    "research",
+    "plan",
+    "decision",
+    "code",
+    "verify",
+    "status"
+  ],
+  "missing_artifacts": [],
+  "blocked_reason": "",
+  "last_updated": "2026-06-13T20:30:00+08:00",
+  "assurance_level": "mvp",
+  "project_adapter": "docs-spec",
+  "open_verification_debts": [],
+  "verification_readiness": "mvp",
+  "adversarial_review_gate": "PLAN-GATE PASSED (2026-06-13, route 2). gemini r1/r2/r3 APPROVE (r3 transient-retry); codex r1 REJECT (B1 task AC-1 needs TASK-1099 decision artifact; N1 Gate-E framing) -> r2 REJECT (B2 task AC-5 needs TASK-1001 decision/status/VERIFY consistent; plan omitted verify.md) -> r3 APPROVE no blocking. Implemented: workflow_state_machine.md §5.1 (+template EXACT_SYNC), manifest regen (R6), TASK-1001 decision/status/verify reconciled, TASK-1099 decision (governance-terminal-disposition). Route 2 docs-only -> no impl-layer review. Closure: guard_contract [OK], guard_status TASK-1099+TASK-1001 [OK], prompt_regression PR-001..033, pytest 1931 passed/2 skipped, EXACT_SYNC MATCH."
+}

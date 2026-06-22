@@ -280,6 +280,8 @@ python artifacts/scripts/run_red_team_suite.py --phase all
 
 將 `template/` 目錄內容複製到你的專案根目錄，替換 placeholder 後，將新 repo 視為 downstream terminal repo，執行上述相同的驗證指令，且不要再建立 nested `template/`。
 
+若要自動化此疊加，可執行 `python artifacts/scripts/scaffold_downstream.py --retrofit --target <repo> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>`。它只補你 repo 所缺的治理檔（additive、僅補缺檔），不動既有程式碼，並將結果標記為 brownfield 下游，讓 source-only guard 放寬 greenfield 假設。
+
 開始本地開發或驗證前，請先執行 `git submodule update --init --recursive`，確保 `external/` 內的必要整合存在，讓工作區與 CI 一致。
 
 ---
@@ -301,7 +303,7 @@ python artifacts/scripts/run_red_team_suite.py --phase all
 │
 ├── docs/                      # 工作流規範文件
 │   ├── orchestration.md       # 完整流程：目標、原則、階段、gate
-│   ├── artifact_schema.md     # 8 種 artifact schema（§5.1–§5.8）
+│   ├── artifact_schema.md     # 9 種 artifact schema（§5.1–§5.9）
 │   ├── workflow_state_machine.md  # 8 個狀態 + 合法轉移
 │   ├── premortem_rules.md     # 風險分析格式 + 品質護欄
 │   ├── subagent_roles.md      # 7 種 agent 角色定義
@@ -371,6 +373,16 @@ python artifacts/scripts/run_red_team_suite.py --phase all
 | `python artifacts/scripts/repo_health_dashboard.py` | 產生儲存庫健康儀表板 |
 | `python artifacts/scripts/build_decision_registry.py --root .` | 重建決策登錄冊 |
 | `python artifacts/scripts/update_repository_profile.py` | 更新 GitHub 儲存庫 profile |
+| `python artifacts/scripts/scaffold_downstream.py --target <dir> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>` | 從 template 產生新的下游專案（greenfield） |
+| `python artifacts/scripts/scaffold_downstream.py --retrofit --target <dir> --project-name <name> --repo-name <repo> --project-summary "<summary>" --owner <org>` | 於既有 repo 疊加治理（additive、僅補缺檔） |
+| `python artifacts/scripts/drift_dashboard.py --downstream <name>=<path>` | 回報 template 與下游之 drift（唯讀） |
+| `python artifacts/scripts/propagate_downstream.py --downstream <name>=<path> --apply` | 將下游自有檔刷新對齊 template（預設 dry-run） |
+| `python artifacts/scripts/ssdf_mapping_validator.py --mapping docs/ssdf-mapping.md` | 檢查 NIST SSDF（SP 800-218 v1.1）對應完整性 |
+| `python artifacts/scripts/sca_gate.py dotnet --json <scan.json>` | fail-closed 軟體成分分析（SCA）gate |
+| `python artifacts/scripts/sast_gate.py --sarif <results.sarif>` | 諮詢式靜態應用安全測試（SAST）gate |
+| `python artifacts/scripts/sbom_gate.py --sbom <bom.json>` | 驗證 CycloneDX 軟體物料清單（SBOM） |
+| `python artifacts/scripts/release_gate.py --format checksums --file <manifest.json>` | 發布完整性 gate（搭配 `snapshot_manifest.py`） |
+| `python artifacts/scripts/run_quality_gates.py` | 執行 baseline-aware P0 quality gate（QC-SYNC/SCHEMA/IMPORT/GOLDEN/RUFF） |
 | `pwsh artifacts/scripts/push-wiki.ps1` | 推送 wiki/ 到 GitHub Wiki（含 preflight） |
 | `pwsh artifacts/scripts/push-wiki.ps1 -WhatIf` | 僅執行 wiki preflight（不推送） |
 | `pwsh artifacts/scripts/publish-release.ps1 -Tag v0.4.0` | 建立 GitHub Release（含 preflight） |
@@ -383,7 +395,10 @@ python artifacts/scripts/run_red_team_suite.py --phase all
 - `.github/workflows/` 內的所有 GitHub Actions 已改為完整 40 字元 commit SHA pin，防止 tag 被竄改的供應鏈攻擊。版本註解（如 `# v4.3.1`）保留以供 Dependabot 辨識。
 - `.github/dependabot.yml` 設定為每週自動提案更新 `github-actions` 與 `pip` 兩個 ecosystem。
 - `.github/workflows/security-scan.yml` 現在在每次 PR、push to master 與手動觸發時執行三條低依賴檢查：`pip-audit`、`python artifacts/scripts/repo_security_scan.py --root . secrets` 與 `python artifacts/scripts/repo_security_scan.py --root . static`。
-- `artifacts/scripts/repo_security_scan.py` 採 repo-local 設計：`secrets` 模式只抓高信心 credential patterns 並過濾 placeholder；`static` 模式則專門守住 unpinned actions、`persist-credentials: true`、`pull_request_target`、`shell=True`、`exec` / `eval`、`Invoke-Expression` 與明顯 secret logging 這類 workflow/script foot-guns。
+- `artifacts/scripts/repo_security_scan.py` 採 repo-local 設計：`secrets` 模式只抓高信心 credential patterns 並過濾 placeholder；`static` 模式則專門守住 unpinned actions、`persist-credentials: true`、`pull_request_target`、`shell=True`、`exec` / `eval`、`Invoke-Expression` 與明顯 secret logging 這類 workflow/script foot-guns。現已改為 fail-closed。
+- 工作流於 `docs/ssdf-mapping.md` 對應 **NIST SSDF（SP 800-218 v1.1）**：`ssdf_mapping_validator.py` 係 fail-closed 之 *對應完整性* 檢查——驗證該對應表結構完整且誠實、在仍有 gap 時絕不回報裸「conformant」，且明確**非** SSDLC conformance 認證；`ssdf_conformance_dashboard.py` 與 `standards_backaudit_dashboard.py` 回報覆蓋與標準提升。
+- 為 source 與下游 repo 備有專用供應鏈 gate：`sca_gate.py`（fail-closed 相依掃描 gate）、`sast_gate.py`（諮詢式 SARIF gate）、`sbom_gate.py`（fail-closed CycloneDX SBOM 驗證）與 `security_txt_gate.py`（RFC 9116 `security.txt` gate）。另備 `SECURITY.md` 與 `docs/incident-response-runbook.md` 載明揭露與應變流程。
+- 發布完整性由 `release_gate.py` + `snapshot_manifest.py` 把關，簽章指引見 `docs/security/release-signing.md`，作業排程見 `docs/security_cadence.md`。
 - Wiki 與 release 發布腳本包含強制 preflight 檢查：auth 探測（`GH_TOKEN` → `GITHUB_TOKEN` → `gh auth`）、遠端可達性、tag/release 狀態、wiki 未初始化偵測。
 - 所有發布腳本支援 `-WhatIf` 進行不產生副作用的 dry-run 驗證。
 

@@ -35,7 +35,7 @@ Gemini SECI Architecture Synthesizer (Active Knowledge Externalization)。為 Me
 
 ## Rules
 
-- **不得直寫 `.github/memory-bank/`**：依 [GEMINI.md](../../../GEMINI.md) §Memory Bank Curator 規則，Gemini 為 read-only curator。所有輸出為 draft 寫入 `.github/memory-bank/architecture-synthesis-cache.md`，由 Claude / Codex 審核後才可進入 prompt-patterns.md 等正式 memory-bank 檔。
+- **emit-only — 不得直接寫入任何 repo-tracked file（含 `.github/memory-bank/architecture-synthesis-cache.md` 本身）**：依 [GEMINI.md](../../../GEMINI.md) §Memory Bank Curator 規則，Gemini 為 read-only curator。所有輸出僅為 **draft 文字**（於 dispatch 輸出）；由 Claude / Codex 審核後**寫入** `.github/memory-bank/architecture-synthesis-cache.md`，再經整合後才可進入 prompt-patterns.md 等正式 memory-bank 檔。
 - **token 預算**：一次掃描限 ≤ 8 個 artifact；超出須分批；每批之間記錄 cursor（`Last Synthesized: TASK-XXX, retrieved YYYY-MM-DD`）。
 - **輸出格式嚴格**：每候選 guidance 須含 cluster name / source artifacts / pattern description / proposed system-level fix / target file / **Existing Cache Match**。
 - **不得替代 closure 級 Remember Capture**：本模式為 active scan，與 closure-triggered single-task curator（[`.github/prompts/remember-capture.prompt.md`](../../../.github/prompts/remember-capture.prompt.md)）並存；二者不衝突，cache 之 draft 於 sprint review 時由 Claude 整合。
@@ -87,7 +87,7 @@ Gemini SECI Architecture Synthesizer (Active Knowledge Externalization)。為 Me
 
 ## Output
 
-寫入：`.github/memory-bank/architecture-synthesis-cache.md`（append-only，每次掃描為一新區段，含時戳）
+emit（Gemini 吐出 draft 文字；經 Claude / Codex 審核後寫入 `.github/memory-bank/architecture-synthesis-cache.md`，append-only，每次掃描為一新區段，含時戳）
 
 格式：
 

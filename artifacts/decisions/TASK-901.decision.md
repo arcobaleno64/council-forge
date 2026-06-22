@@ -51,3 +51,9 @@ None
 
 ## Guard Exception
 None
+
+## Amendment (2026-06-13): Abandonment (commander ruling)
+
+主公 2026-06-13 裁 **TASK-901 棄置（abandon）**。緣由：本 task 標的 `external/Wino-Mail/` 已自 workspace 移除（status `blocked_reason` 自原「Gemini 憑證缺」演為「Archived: Wino-Mail no longer exists」），主公決定**不 re-clone、不續做**。
+
+workflow state machine（`WORKFLOW_STATES`）僅 8 態、無 `rejected`/`archived`/`abandoned` 終態；blocked 唯能經 Gate E improvement artifact 返前態以「解封續做」。故棄置之誠實表徵＝**留於 blocked（唯一 parked sink）**，並以本 amendment ＋ status `blocked_reason` 明標 ABANDONED、清 `next_agent`（不再候 User re-clone）。此非「done」（未完成）、非暫時 blocked（不待解），乃**永久棄置**。原 §Issue/§Follow Up 之「補 Gemini 憑證重跑」路徑隨棄置失效。

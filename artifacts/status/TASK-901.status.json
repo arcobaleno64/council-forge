@@ -2,7 +2,7 @@
   "task_id": "TASK-901",
   "state": "blocked",
   "current_owner": "Claude",
-  "next_agent": "User",
+  "next_agent": "none",
   "required_artifacts": [
     "status",
     "task"
@@ -13,8 +13,8 @@
     "task"
   ],
   "missing_artifacts": [],
-  "blocked_reason": "Archived: external/Wino-Mail/ no longer exists in workspace. Task is effectively stale. Re-clone Wino-Mail and update inputs to resume.",
-  "last_updated": "2026-04-16T14:20:00+08:00",
+  "blocked_reason": "ABANDONED (commander ruling 2026-06-13): external/Wino-Mail/ removed from workspace; will NOT re-clone or resume. Permanently parked (no terminal reject state in WORKFLOW_STATES; blocked is the parked sink). See TASK-901.decision.md Amendment (2026-06-13).",
+  "last_updated": "2026-06-13T03:00:00+08:00",
   "assurance_level": "poc",
   "project_adapter": "generic",
   "open_verification_debts": [],

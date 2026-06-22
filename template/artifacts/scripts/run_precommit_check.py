@@ -164,7 +164,7 @@ def detect_repo_root() -> Path:
     matches = [
         parent
         for parent in SCRIPT_PATH.parents
-        if (parent / "council-forge-governance-repair-plan-v3.5.md").is_file()
+        if (parent / ".council-forge-source-repo").is_file()
         and (parent / "artifacts" / "governance").is_dir()
         and (parent / "template").is_dir()
     ]

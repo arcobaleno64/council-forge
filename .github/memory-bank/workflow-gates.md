@@ -21,8 +21,10 @@
 IF task.lightweight == true:
     SKIP premortem, allow direct to coding
 ELSE:
-    REQUIRE plan.## Risks with R1-R4
-    IF plan.## Risks is empty or contains <2 entries:
+    REQUIRE plan.## Risks with numbered risks (R1, R2, ...)
+    # min_risks 為 ADAPTIVE，依 task_type（hotfix:1, research:2, planning:3, code/default:3）
+    # 見 docs/premortem_rules.md §7；實作見 guard_status_validator.py classify_premortem_policy
+    IF count(distinct numbered risks) < min_risks(task_type):
         BLOCK with "incomplete_premortem"
     ELSE IF any risk lacks Trigger/Detection/Mitigation:
         WARN but allow (can fix in code phase)
@@ -72,13 +74,13 @@ ELSE:
 - 或 task 在 `drafted` / `researched` 且無 plan artifact 且無 code artifact
 
 輕量級標準：
-- 不要求 R1-R4 premortem
+- 不要求 premortem（完整門檻見 docs/premortem_rules.md §7 之 min_risks 表）
 - 需要 basic plan with objectives
 - 需要 code artifact with Files Changed
 - 需要 verify with Environment
 
 重量級標準（預設）：
-- 需要完整 premortem (R1-R4+)
+- 需要完整 premortem（numbered risks，min_risks 依 task_type，見 docs/premortem_rules.md §7）
 - 需要 verify with Build Guarantee
 
 升級條件：若任務變複雜，自動升級回 full gate（guard 會偵測）

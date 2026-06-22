@@ -2,15 +2,15 @@
   "task_id": "TASK-1001",
   "state": "blocked",
   "current_owner": "Claude",
-  "next_agent": "User",
+  "next_agent": "Claude",
   "required_artifacts": ["task", "status"],
   "available_artifacts": ["task", "status", "decision", "verify"],
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
-  "open_verification_debts": ["deferred: GEMINI.md 含 Architecture Synthesizer dispatch 模式段落"],
-  "blocked_reason": "AC-5b GEMINI.md Architecture Synthesizer dispatch mode open and unimplemented; no successor task assigned in v3.4 scope. See artifacts/decisions/TASK-1001.decision.md §Decision 2.",
-  "last_updated": "2026-05-03T19:00:00+08:00",
+  "open_verification_debts": [],
+  "blocked_reason": "AC-5b (GEMINI.md Architecture Synthesizer dispatch mode) RESOLVED 2026-06-13 by successor TASK-1095 (state=done; verify 6/6 AC verified; codex impl-review NO FINDINGS). No remaining substantive obligation. TASK-1001 retained in 'blocked' as the reconciled-via-successor terminal sink: its lifecycle artifacts (plan/code) live in successors TASK-1011 (canonical ACs) + TASK-1095 (AC-5b), so a direct done-transition is not mechanically applicable (docs-spec/mvp done requires plan/code TASK-1001 never owned; back-filling historical artifacts is out of scope). Doneness recorded via superseded_by.scope + reconciliation_ref + decision §Verified AC Summary (all ACs now have evidence; AC-5b verified|TASK-1095). TASK-1001's terminal disposition was settled 2026-06-13 by successor TASK-1099 (done): per commander ruling (route 2), docs/workflow_state_machine.md §5.1 now defines 'superseded-via-reconciliation terminal' as a sanctioned disposition of the blocked sink. TASK-1001 meets all 3 identification conditions (superseded_by+reconciliation_ref present; successors TASK-1011/TASK-1095 done; decision §Verified AC Summary all-ACs-evidenced) -> state remains 'blocked' AS this sanctioned terminal (NOT pending, NOT stuck; Gate-E N/A since there is no work to resume; no guard change, no fabrication, no done-flip). See artifacts/decisions/TASK-1001.decision.md §Closing Amendment + docs/workflow_state_machine.md §5.1 + artifacts/decisions/TASK-1099.decision.md.",
+  "last_updated": "2026-06-13T18:30:00+08:00",
   "verification_readiness": "mvp",
   "superseded_by": {
     "successor_task_id": "TASK-1011",
@@ -18,7 +18,7 @@
     "superseded_at": "2026-05-03T19:00:00+08:00",
     "scope": "partial",
     "remaining_obligations": [
-      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode (deferred, not in v3.4 scope)"
+      "AC-5b: GEMINI.md Architecture Synthesizer dispatch mode — RESOLVED 2026-06-13 by TASK-1095 (state=done; decision §Verified AC Summary AC-5b = verified|TASK-1095). No remaining obligation."
     ]
   },
   "reconciliation_ref": "artifacts/verify/TASK-1011.verify.md"

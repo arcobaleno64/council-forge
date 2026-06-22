@@ -1,0 +1,90 @@
+name: Large-Scale Experiments (Daily)
+
+# 兩個離線、確定性的自走實驗：
+#   ① Red-Team Marathon  — 紅隊套件穩定度/soak 測試（artifacts/scripts/experiments/red_team_marathon.py）
+#   ② Premortem Backtest — premortem 預測 vs verify 實際結果校準（.../premortem_backtest.py）
+#
+# 注意：GitHub 的 schedule 觸發「只」會從預設分支（master）的 workflow 檔執行。
+# 在本 workflow 合併進 master 前，請用 workflow_dispatch 手動觸發測試。
+on:
+  schedule:
+    - cron: '0 19 * * *'  # 每天 19:00 UTC = 03:00 Asia/Taipei
+  workflow_dispatch:
+    inputs:
+      marathon_iterations:
+        description: 'Red-Team Marathon 輪數'
+        default: '30'
+      marathon_max_minutes:
+        description: 'Red-Team Marathon 時長上限(分)'
+        default: '45'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: large-scale-experiments-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  RESULTS_BRANCH: claude/experiments-results
+
+jobs:
+  experiments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run experiment ① Red-Team Marathon
+        continue-on-error: true
+        run: |
+          python3 artifacts/scripts/experiments/red_team_marathon.py \
+            --iterations "${{ github.event.inputs.marathon_iterations || '30' }}" \
+            --max-minutes "${{ github.event.inputs.marathon_max_minutes || '45' }}" \
+            --phase static
+
+      - name: Run experiment ② Premortem Backtest
+        continue-on-error: true
+        run: |
+          python3 artifacts/scripts/experiments/premortem_backtest.py
+
+      - name: Snapshot results to dated history
+        id: snap
+        run: |
+          DATE="$(date -u +%Y-%m-%d)"
+          DEST="artifacts/experiments/history/$DATE"
+          mkdir -p "$DEST/red_team_marathon" "$DEST/premortem_backtest"
+          cp -f artifacts/experiments/red_team_marathon/marathon_trend.md   "$DEST/red_team_marathon/"   2>/dev/null || true
+          cp -f artifacts/experiments/red_team_marathon/marathon_results.json "$DEST/red_team_marathon/" 2>/dev/null || true
+          cp -f artifacts/experiments/premortem_backtest/backtest_report.md  "$DEST/premortem_backtest/"  2>/dev/null || true
+          cp -f artifacts/experiments/premortem_backtest/backtest_results.json "$DEST/premortem_backtest/" 2>/dev/null || true
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push to rolling results branch
+        run: |
+          git config user.name "claude-routine[bot]"
+          git config user.email "claude-routine@users.noreply.github.com"
+          # 切到（或建立）滾動 results 分支，累積每日趨勢快照。
+          if git ls-remote --exit-code --heads origin "$RESULTS_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$RESULTS_BRANCH"
+            git checkout -B "$RESULTS_BRANCH" "origin/$RESULTS_BRANCH"
+          else
+            git checkout -B "$RESULTS_BRANCH"
+          fi
+          # 只把實驗產出帶過來（避免夾帶 default 分支其他變更）。
+          git checkout "${{ github.sha }}" -- artifacts/experiments/ 2>/dev/null || true
+          git add artifacts/experiments/
+          if git diff --cached --quiet; then
+            echo "No experiment changes to commit."
+            exit 0
+          fi
+          git commit -m "[claude-routine] experiments snapshot ${{ steps.snap.outputs.date }}"
+          git push origin "$RESULTS_BRANCH"

@@ -8,8 +8,8 @@ Council Forge 採用三個 AI agent 分工協作，各自有明確的職責邊�
 
 - **入口檔**: `CLAUDE.md`
 - **職責**: 流程控制、artifact 管理、任務派發、驗收
-- **權限**: 唯一可修改程式碼的 agent（single agent can modify code）
-- **載入**: 依階段按需載入 `docs/` 內文件
+- **權限**: 預設不自行實作（orchestration／決策／驗收／整合）；改碼由 Codex / Implementer 負責（single-writer：同一時刻僅一 agent 寫入程式碼）
+- **載入**: 先讀 AGENTS.md 與 docs/orchestration.md，再依階段按需載入 `docs/` 內文件
 
 ### Gemini CLI — 研究者（Researcher）
 
@@ -22,7 +22,7 @@ Council Forge 採用三個 AI agent 分工協作，各自有明確的職責邊�
 
 - **入口檔**: `CODEX.md`（已內嵌所有規則，不依賴 CLAUDE.md）
 - **職責**: 程式碼實作、測試撰寫、Build Guarantee 產出
-- **限制**: 僅在有 approved plan artifact 後才可實作
+- **限制**: 僅在 plan artifact 狀態為 ready 或 approved（且 Ready For Coding = yes）後才可實作
 - **產出**: Code artifact + Verify artifact
 
 ## 角色邊界

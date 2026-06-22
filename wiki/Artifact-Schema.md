@@ -44,10 +44,13 @@ artifacts/
 ├── research/    # Research artifacts
 ├── plans/       # Plan artifacts
 ├── code/        # Code artifacts
+├── test/        # Test artifacts
 ├── verify/      # Verify artifacts
 ├── decisions/   # Decision artifacts
-├── improvement/ # Improvement artifacts
-├── status/      # Status JSON + decision registry
+├── improvement/ # Improvement artifacts + PROCESS_LEDGER
+├── status/      # Status JSON
+├── registry/    # decision_registry.json
+├── metrics/     # Aggregate metrics
 └── red_team/    # Red-team exercise reports
 ```
 

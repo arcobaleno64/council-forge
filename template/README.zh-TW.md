@@ -178,7 +178,7 @@ Coding
 Verification
   |
   v
-Done
+Closure
 ```
 
 流程設計刻意保持簡潔：每個階段產出的 artifact 就是下一階段的依據。這讓協作過程可追蹤、可檢視，避免「只存在於對話紀錄中的隱形進度」。

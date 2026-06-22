@@ -6,7 +6,7 @@ Council Forge 內建分層式上下文管理系統，搭配 VS Code Copilot 使�
 
 ```
 Layer 1: .github/copilot-instructions.md  (全域穩定規則，VS Code 自動載入)
-Layer 2: CLAUDE.md                          (精簡入口檔，~168 行)
+Layer 2: CLAUDE.md                          (精簡入口檔，~190 行)
 Layer 3: .github/memory-bank/              (穩定參考知識庫)
 Layer 4: .github/prompts/                  (任務導向 prompt)
 Layer 5: docs/                             (詳細規範，按需載入)
@@ -25,13 +25,13 @@ Layer 5: docs/                             (詳細規範，按需載入)
 
 ### Layer 2 — Agent 入口檔
 
-- `CLAUDE.md` — 協調者入口（~168 行，非原始 ~2600 行）
+- `CLAUDE.md` — 協調者入口（~190 行，非原始 ~2600 行）
 - `GEMINI.md` — 研究者入口（自包含）
 - `CODEX.md` — 實作者入口（自包含）
 
 ### Layer 3 — 知識庫（Memory Bank）
 
-`.github/memory-bank/` 包含 5 個穩定參考文件：
+`.github/memory-bank/` 包含 7 個穩定參考文件（其中 4 個為 validator 必備核心，另加 README）：
 
 | 檔案 | 內容 |
 |---|---|
@@ -40,6 +40,8 @@ Layer 5: docs/                             (詳細規範，按需載入)
 | `prompt-patterns.md` | Dispatch prompt 常用模式 |
 | `project-facts.md` | 技術棧、部署、環境資訊 |
 | `README.md` | 知識庫使用說明 |
+| `coverage-sprint.md` | 涵蓋率提升 sprint 追蹤 |
+| `raci-violations-log.md` | RACI 稽核違規記錄（RACI auditor v2 寫入） |
 
 ### Layer 3.5 — 可組合能力（Skills & Agents）
 

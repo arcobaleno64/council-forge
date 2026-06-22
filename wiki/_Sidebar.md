@@ -3,6 +3,7 @@
 * [[Home]]
 * [[Getting-Started]]
 * [[Workflow-Overview]]
+* [[Architecture-Diagram]]
 * [[Artifact-Schema]]
 * [[Agent-Roles]]
 * [[Validator-Commands]]

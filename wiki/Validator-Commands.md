@@ -12,6 +12,7 @@
 | `python artifacts/scripts/prompt_regression_validator.py --root .` | 執行 prompt regression 測例 |
 | `python artifacts/scripts/validate_context_stack.py` | 驗證分層式上下文堆疊 |
 | `python artifacts/scripts/run_quality_gates.py` | 執行 baseline-aware P0 quality gate（QC-SYNC/SCHEMA/IMPORT/GOLDEN/RUFF） |
+| `python artifacts/scripts/migrate_artifact_schema.py --input-mode external-legacy --root .` | 匯入外部 legacy artifacts（預設 root-tracked 嚴格模式；非結構化 verify 降級為 manual-review／deferred） |
 
 ## 下游 generator 與散播
 

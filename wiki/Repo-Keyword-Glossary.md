@@ -35,13 +35,13 @@ Council Forge 不是一般以產品功能為主的 app repo；它比較像一套
 | verify artifact | 驗收檔；逐條核對 acceptance criteria 有沒有真的完成。 | `docs/artifact_schema.md` §5.6 |
 | status artifact | 機器可讀的狀態檔，讓 guard 能自動判斷 task 目前在哪個階段。 | `docs/artifact_schema.md`、`docs/workflow_state_machine.md` |
 | decision artifact | 當需求衝突、要做取捨或記錄例外時，寫成 decision。 | `docs/artifact_schema.md` §5.7 |
-| improvement artifact | 人類閱讀的復盤文件，用 PDCA 記錄根因、矯正與預防；從 `blocked` 恢復時必填，平時則屬建議補充。 | `docs/artifact_schema.md` §5.8、`docs/workflow_state_machine.md` |
+| improvement artifact | 人類閱讀的復盤文件，用 PDCA 記錄根因、矯正與預防；從 `blocked` 恢復時必填，平時則屬建議補充。 | `docs/artifact_schema.md` §5.9、`docs/workflow_state_machine.md` |
 
 ## 這個 Repo 最常出現的治理名詞
 
 | 術語 | 淺白說明 | 主要證據 |
 |---|---|---|
-| Assurance Level | 驗證強度等級；目前有 `POC`、`MVP`、`Production`。等級越高，必備 artifact 和驗證要求越高。 | `docs/artifact_schema.md`、`docs/orchestration.md` |
+| Assurance Level | 驗證強度等級；目前有 `poc`、`mvp`、`production`。等級越高，必備 artifact 和驗證要求越高。 | `docs/artifact_schema.md`、`docs/orchestration.md` |
 | Project Adapter | 任務類型；像 `generic`、`docs-spec`、`backend-service`。它會影響 validator 該套用哪套規則。 | `docs/artifact_schema.md` |
 | resolved policy | 真正生效的規則組合；先看 `Assurance Level`，再套 `Project Adapter`。 | `docs/orchestration.md`、`docs/artifact_schema.md` |
 | lightweight mode | 小任務的簡化流程；可以減少 research / test 密度，但不能放棄範圍與驗收紀律。 | `docs/lightweight_mode_rules.md` |

@@ -178,7 +178,7 @@ Coding
 Verification
   |
   v
-Done
+Closure
 ```
 
 The model is simple on purpose: each stage produces the artifact that justifies the next stage. That keeps collaboration inspectable and prevents "magic progress" that only exists inside a chat transcript.

@@ -3,7 +3,7 @@
 ## 流程階段
 
 ```
-Intake → Research → Planning → Coding → Verification → Done
+Intake → Research → Planning → Coding → Verification → Closure
 ```
 
 每個階段產出的 artifact 就是下一階段的依據。不允許跳步。
@@ -34,10 +34,11 @@ Intake → Research → Planning → Coding → Verification → Done
 - 需要 Build Guarantee（commit hash、CI log、測試結果）
 - 不接受口頭「我測過了」
 
-### Done
-- 所有 artifacts 符合 schema
-- 狀態轉換合法
-- 驗證通過
+### Closure
+- Verification 通過後進入收尾（PDCA 的 Act 階段）
+- 產出 improvement artifact（根因分析與系統層級預防）與必要的 decision
+- 更新 `artifacts/improvement/PROCESS_LEDGER.md`
+- 註：`done` 是狀態機的終態（state），Closure 是工作流階段（stage）
 
 ## Gate 驗證
 
@@ -45,11 +46,11 @@ Intake → Research → Planning → Coding → Verification → Done
 
 | Gate | 檢查項目 |
 |---|---|
-| Gate A | Task artifact 存在且 metadata 完整 |
-| Gate B | Research artifact 有 ≥2 條 source + URL |
-| Gate C | Plan artifact 有 premortem（R1–R4） |
-| Gate D | Code artifact 的 Files Changed ⊆ plan 的 Files Likely Affected |
-| Gate E | Verify artifact 有 Build Guarantee |
+| Gate A（Research Gate） | Research artifact 完整：每個 claim 有 ≥2 條 source + URL，未驗證項標記 UNVERIFIED |
+| Gate B（Planning Gate） | Plan artifact 有 premortem（R1–R4）、Files Likely Affected，且 Ready For Coding = yes |
+| Gate C（Code Gate） | Code artifact 的 Files Changed ⊆ plan 的 Files Likely Affected，含 Mapping To Plan |
+| Gate D（Verification Gate） | Verify artifact 有 Build Guarantee 與 Acceptance Criteria Checklist |
+| Gate E（Closure / blocked-resume） | 任務從 `blocked` 恢復前，須有 `Status: applied` 的 improvement artifact |
 
 ## Lightweight 模式
 

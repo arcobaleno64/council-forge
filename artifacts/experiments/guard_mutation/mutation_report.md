@@ -1,6 +1,6 @@
 # Guard Mutation-Testing Report
 
-_Generated: 2026-06-23T01:10:12+08:00 · runtime: 52.7s · bounds: max_mutants=200, max_minutes=7.0_
+_Generated: 2026-06-23T01:15:01+08:00 · runtime: 51.84s · bounds: max_mutants=200, max_minutes=7.0_
 
 Mutation testing applies small semantic mutations (a guard becoming too loose/strict) and checks whether the focused test suite **fails**. A **survived** mutant is a test blind spot: the guard could be weakened and no test would notice — the actionable output here.
 

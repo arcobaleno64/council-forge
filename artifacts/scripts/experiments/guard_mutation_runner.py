@@ -77,22 +77,25 @@ PER_MUTANT_TIMEOUT_S = 90
 
 
 def _pytest_python() -> str:
-    """Locate a python whose env has pytest. Prefer the uv-managed pytest tool."""
+    """Locate a python whose env has pytest. Prefer the current interpreter (CI installs
+    pytest there); fall back to a uv-managed pytest tool for local dev convenience."""
     candidates = [
-        Path("/root/.local/share/uv/tools/pytest/bin/python"),
         Path(sys.executable),
+        Path("/root/.local/share/uv/tools/pytest/bin/python"),
     ]
     for c in candidates:
-        if c.exists():
-            try:
-                r = subprocess.run(
-                    [str(c), "-c", "import pytest"],
-                    capture_output=True, timeout=30,
-                )
-                if r.returncode == 0:
-                    return str(c)
-            except Exception:
+        try:
+            if not c.exists():
                 continue
+            r = subprocess.run(
+                [str(c), "-c", "import pytest"],
+                capture_output=True, timeout=30,
+            )
+            if r.returncode == 0:
+                return str(c)
+        except Exception:
+            # e.g. PermissionError on a non-readable candidate path under CI — skip it.
+            continue
     # fall back to current interpreter; the run will error loudly if pytest is absent
     return sys.executable
 

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Council Forge — Multi-Agent AI Workflow Framework</title>
+<meta name="description" content="Council Forge — an artifact-first, gate-guarded multi-agent AI workflow framework that lives inside your repository.">
+<style>
+  :root{
+    --bg:#0b0f1a; --bg2:#0f1524; --panel:#121a2c; --panel2:#162035;
+    --line:#243049; --line2:#2e3c5a;
+    --text:#e6ecf7; --muted:#9aa8c4; --faint:#6b7a99;
+    --agent:#6366f1; --agent-deep:#4338ca;
+    --stage:#14b8a6; --stage-deep:#0d9488;
+    --gate:#f59e0b; --artifact:#3b82f6; --artifact-deep:#2563eb;
+    --guard:#ef4444; --guard-deep:#dc2626;
+    --gov:#eab308; --gov-deep:#ca8a04; --down:#a855f7;
+    --radius:16px;
+    --maxw:1120px;
+    --font:"Segoe UI","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --mono:"SF Mono","JetBrains Mono","Fira Code",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:var(--font); color:var(--text);
+    background:
+      radial-gradient(1100px 620px at 78% -8%, rgba(99,102,241,.20), transparent 60%),
+      radial-gradient(900px 560px at 10% 4%, rgba(20,184,166,.16), transparent 55%),
+      radial-gradient(800px 700px at 50% 110%, rgba(168,85,247,.12), transparent 55%),
+      var(--bg);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* i18n: default zh shown, en hidden */
+  .en{display:none}
+  body.lang-en .zh{display:none}
+  body.lang-en .en{display:inline}
+  body.lang-en span.en{display:inline}
+  body.lang-en .block.en{display:block}
+  .block.en{display:none}
+  body.lang-en .block.zh{display:none}
+  .block.zh{display:block}
+
+  /* Nav */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(11,15,26,.72);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px}
+  .brand .logo{
+    width:30px;height:30px;border-radius:9px;flex:0 0 auto;
+    background:conic-gradient(from 210deg,var(--agent),var(--stage),var(--gate),var(--down),var(--agent));
+    box-shadow:0 0 0 1px rgba(255,255,255,.10) inset, 0 6px 18px rgba(99,102,241,.35);
+    position:relative;
+  }
+  .brand .logo::after{content:"";position:absolute;inset:8px;border-radius:4px;background:var(--bg);}
+  .nav-links{display:flex;align-items:center;gap:22px}
+  .nav-links a{color:var(--muted);font-size:14px;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  .lang-toggle{
+    display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden;
+    font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .lang-toggle button{
+    border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer;font:inherit;
+  }
+  .lang-toggle button.active{background:var(--agent);color:#fff}
+  @media(max-width:760px){.nav-links .hide-sm{display:none}}
+
+  /* Sections */
+  section{padding:84px 0}
+  .eyebrow{
+    display:inline-block;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--stage);font-weight:700;margin-bottom:14px;
+  }
+  h1{font-size:clamp(34px,6vw,60px);line-height:1.08;margin:0 0 18px;font-weight:800;letter-spacing:-.5px}
+  h2{font-size:clamp(26px,3.6vw,38px);margin:0 0 14px;font-weight:800;letter-spacing:-.3px}
+  .lead{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:680px}
+  .section-head{max-width:760px;margin-bottom:46px}
+
+  /* Hero */
+  .hero{padding-top:70px;padding-bottom:48px;position:relative;overflow:hidden}
+  .gradient-text{
+    background:linear-gradient(100deg,#a5b4fc 0%,#5eead4 45%,#fcd34d 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .badges{display:flex;flex-wrap:wrap;gap:9px;margin:26px 0 30px}
+  .badge{
+    font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;
+    border:1px solid var(--line2);color:var(--muted);background:rgba(255,255,255,.02);
+  }
+  .badge b{color:var(--text)}
+  .cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:12px;
+    font-weight:650;font-size:15px;transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .btn.primary{background:linear-gradient(100deg,var(--agent),var(--agent-deep));color:#fff;
+    box-shadow:0 10px 30px -8px rgba(99,102,241,.6)}
+  .btn.ghost{border:1px solid var(--line2);color:var(--text)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn svg{width:17px;height:17px}
+
+  .hero-stats{display:flex;flex-wrap:wrap;gap:30px;margin-top:54px;padding-top:30px;border-top:1px solid var(--line)}
+  .stat .n{font-size:30px;font-weight:800;letter-spacing:-.5px}
+  .stat .l{font-size:13px;color:var(--faint);font-weight:500}
+
+  /* Council / agent cards */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:880px){.grid-3{grid-template-columns:1fr}}
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:var(--radius);padding:26px;
+    position:relative;transition:transform .2s ease,border-color .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--line2)}
+  .agent-card{border-top:3px solid var(--accent,var(--agent))}
+  .agent-top{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+  .chip{
+    width:42px;height:42px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;
+    font-weight:800;font-size:18px;color:#fff;background:var(--accent,var(--agent));
+    box-shadow:0 8px 22px -6px var(--accent,var(--agent));
+  }
+  .agent-card h3{margin:0;font-size:19px}
+  .agent-role{font-size:12.5px;color:var(--accent,var(--agent));font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+  .card p{color:var(--muted);font-size:14.5px;margin:12px 0 0}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .tag{font-size:11.5px;color:var(--faint);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-family:var(--mono)}
+
+  /* Pipeline */
+  .pipeline{
+    display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;overflow-x:auto;
+    padding:6px 2px 16px;scrollbar-width:thin;
+  }
+  .stage{
+    flex:1 0 150px;min-width:150px;background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-top:3px solid var(--stage);border-radius:13px;padding:18px 16px;
+  }
+  .stage .si{font-family:var(--mono);font-size:12px;color:var(--stage);font-weight:700}
+  .stage h4{margin:7px 0 5px;font-size:16px}
+  .stage p{margin:0;font-size:12.5px;color:var(--muted)}
+  .gate{
+    flex:0 0 auto;align-self:center;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:4px;padding:0 8px;
+  }
+  .gate .dot{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(245,158,11,.12);border:1.5px solid var(--gate);color:var(--gate);
+    font-weight:800;font-size:13px;
+  }
+  .gate .gl{font-size:10px;color:var(--gate);font-weight:700;letter-spacing:.5px}
+  @media(max-width:900px){
+    .pipeline{flex-direction:column;overflow:visible}
+    .stage{flex:1 1 auto;min-width:0}
+    .gate{flex-direction:row;padding:6px 0}
+    .gate .dot{transform:rotate(0)}
+  }
+
+  /* Artifacts grid */
+  .grid-art{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:880px){.grid-art{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid-art{grid-template-columns:1fr}}
+  .art{
+    border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+    background:rgba(59,130,246,.05);border-left:3px solid var(--artifact);
+    display:flex;align-items:center;gap:13px;transition:transform .15s ease;
+  }
+  .art:hover{transform:translateX(3px)}
+  .art .an{font-family:var(--mono);font-size:12px;color:var(--artifact);font-weight:700}
+  .art h4{margin:0;font-size:15px}
+  .art small{color:var(--faint);font-size:12px}
+  .pull-quote{
+    margin:34px 0 0;font-size:clamp(18px,2.4vw,24px);font-weight:700;text-align:center;
+    color:var(--text);
+  }
+  .pull-quote .accent{color:var(--guard)}
+
+  /* Governance two-layer */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:820px){.grid-2{grid-template-columns:1fr}}
+  .gov-card{border-top:3px solid var(--accent)}
+  .gov-card .layer-k{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .flow span{
+    font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:8px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);
+  }
+  .flow span.hl{border-color:var(--accent);color:var(--text)}
+
+  /* Highlights */
+  .grid-feat{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:820px){.grid-feat{grid-template-columns:1fr}}
+  .feat{display:flex;gap:16px}
+  .feat .ico{
+    width:44px;height:44px;flex:0 0 auto;border-radius:11px;display:grid;place-items:center;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+  }
+  .feat .ico svg{width:22px;height:22px}
+  .feat h4{margin:2px 0 6px;font-size:17px}
+  .feat p{margin:0;color:var(--muted);font-size:14px}
+
+  /* Footer */
+  footer{border-top:1px solid var(--line);padding:46px 0 60px;color:var(--muted)}
+  .foot-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
+  .foot-links{display:flex;gap:20px;flex-wrap:wrap;font-size:14px}
+  .foot-links a:hover{color:var(--text)}
+  .ver{font-family:var(--mono);font-size:12px;color:var(--faint)}
+
+  /* Reveal animation */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body class="lang-zh">
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="logo"></span><span>Council&nbsp;Forge</span></a>
+    <div class="nav-links">
+      <a class="hide-sm" href="#council"><span class="zh">議會</span><span class="en">Council</span></a>
+      <a class="hide-sm" href="#pipeline"><span class="zh">流程</span><span class="en">Pipeline</span></a>
+      <a class="hide-sm" href="#artifacts"><span class="zh">產物</span><span class="en">Artifacts</span></a>
+      <a class="hide-sm" href="#why"><span class="zh">亮點</span><span class="en">Why</span></a>
+      <div class="lang-toggle" role="group" aria-label="language">
+        <button id="btn-zh" class="active" type="button">繁中</button>
+        <button id="btn-en" type="button">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap reveal">
+    <span class="eyebrow"><span class="zh">多代理 · 產物優先 · 關卡守護</span><span class="en">Multi-Agent · Artifact-First · Gate-Guarded</span></span>
+    <h1>
+      <span class="zh">把 AI 協作開發<br>鍛造成<span class="gradient-text">可稽核的交付系統</span></span>
+      <span class="en">Forge AI-assisted dev into<br>an <span class="gradient-text">auditable delivery system</span></span>
+    </h1>
+    <p class="lead">
+      <span class="block zh">Council Forge 是一套住在 repository 裡的多代理 AI 工作流框架。它不追求「叫模型寫快一點」，而是建立一個有明確邊界、可審查檢查點、持久產物與硬性驗證的交付系統。</span>
+      <span class="block en">Council Forge is a multi-agent AI workflow framework that lives inside the repository itself — built not to make a model code faster, but to create a delivery system with explicit boundaries, reviewable checkpoints, durable artifacts, and hard verification.</span>
+    </p>
+    <div class="badges">
+      <span class="badge"><b>3</b> <span class="zh">協作代理</span><span class="en">agents</span></span>
+      <span class="badge"><b>6</b> <span class="zh">流程階段</span><span class="en">stages</span></span>
+      <span class="badge"><b>9</b> <span class="zh">產物型別</span><span class="en">artifact types</span></span>
+      <span class="badge"><b>A–E</b> <span class="zh">關卡守護</span><span class="en">gates</span></span>
+      <span class="badge">v0.4.0</span>
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/arcobaleno64/council-forge" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49l-.01-1.9c-2.78.62-3.37-1.2-3.37-1.2-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.36 1.12 2.94.85.09-.66.35-1.12.63-1.38-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9l-.01 2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+        <span class="zh">查看原始碼</span><span class="en">View on GitHub</span>
+      </a>
+      <a class="btn ghost" href="https://github.com/arcobaleno64/council-forge/blob/master/README.md" target="_blank" rel="noopener">
+        <span class="zh">閱讀 README</span><span class="en">Read the README</span>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="n gradient-text">Single-Writer</div><div class="l"><span class="zh">同一時刻只有一個代理可改碼</span><span class="en">one agent edits code at a time</span></div></div>
+      <div class="stat"><div class="n gradient-text">PDCA × TAO</div><div class="l"><span class="zh">巨觀 / 微觀雙層治理</span><span class="en">two-layer governance</span></div></div>
+      <div class="stat"><div class="n gradient-text">No Artifact = Not Done</div><div class="l"><span class="zh">沒有證據就不算完成</span><span class="en">no evidence, no completion</span></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- COUNCIL -->
+<section id="council">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="zh">三方議會</span><span class="en">The Council</span></span>
+      <h2><span class="zh">三個代理，各司其職</span><span class="en">Three agents, non-overlapping roles</span></h2>
+      <p class="lead"><span class="zh">明確的職責切分降低碰撞與角色漂移。路由依任務型別、風險分數與上下文成本決定由誰接手。</span><span class="en">Clear ownership reduces collisions and role drift. Routing is driven by task type, risk score, and context cost.</span></p>
+    </div>
+    <div class="grid-3">
+      <article class="card agent-card reveal" style="--accent:var(--agent)">
+        <div class="agent-top"><span class="chip">C</span><div><h3>Claude Code</h3><div class="agent-role"><span class="zh">協調者</span><span class="en">Orchestrator</span></div></div></div>
+        <p><span class="zh">決策擁有者、驗收者、最終整合者。預設不自行實作，只做協調、裁決與整合，維持 single-writer。CLI 優先。</span><span class="en">Decision owner, verifier, and final integrator. Coordinates, judges, and integrates rather than coding — keeping a single writer. CLI-first.</span></p>
+        <div class="tags"><span class="tag">orchestration</span><span class="tag">decision</span><span class="tag">verify</span></div>
+      </article>
+      <article class="card agent-card reveal" style="--accent:var(--stage)">
+        <div class="agent-top"><span class="chip" style="--accent:var(--stage)">G</span><div><h3>Gemini CLI</h3><div class="agent-role" style="color:var(--stage)"><span class="zh">研究與記憶策展</span><span class="en">Research &amp; Memory</span></div></div></div>
+        <p><span class="zh">證據蒐集與唯讀記憶庫策展。每個 claim 都需可追溯來源；來源不足就停下要求補充。可選用 Tavily 輔助研究。</span><span class="en">Evidence gathering and read-only memory-bank curation. Every claim needs a traceable source — if sources are thin, it stops. Tavily-assisted when allowed.</span></p>
+        <div class="tags"><span class="tag">research</span><span class="tag">sources</span><span class="tag">memory-bank</span></div>
+      </article>
+      <article class="card agent-card reveal" style="--accent:var(--down)">
+        <div class="agent-top"><span class="chip" style="--accent:var(--down)">X</span><div><h3>Codex CLI</h3><div class="agent-role" style="color:var(--down)"><span class="zh">實作交付</span><span class="en">Implementation</span></div></div></div>
+        <p><span class="zh">依已核可的計畫實作、補強測試、交付。內含四個子代理：Implementer、Tester、Verifier、Reviewer。</span><span class="en">Implements against an approved plan, reinforces tests, and delivers. Four sub-agents: Implementer, Tester, Verifier, Reviewer.</span></p>
+        <div class="tags"><span class="tag">implementer</span><span class="tag">tester</span><span class="tag">verifier</span><span class="tag">reviewer</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" style="background:linear-gradient(180deg,transparent,rgba(20,184,166,.04),transparent)">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="zh">關卡守護流程</span><span class="en">Gate-Guarded Pipeline</span></span>
+      <h2><span class="zh">六個階段，不得跳步</span><span class="en">Six stages, no skipping</span></h2>
+      <p class="lead"><span class="zh">每個階段產出的產物，正當化下一個階段。Gates A–E 由 validator 強制合法的狀態轉移，讓流程可審查、可重播。</span><span class="en">Each stage produces artifacts that justify the next. Gates A–E enforce legal state transitions, making the workflow reviewable and replayable.</span></p>
+    </div>
+    <div class="pipeline reveal">
+      <div class="stage"><div class="si">01</div><h4><span class="zh">受理</span><span class="en">Intake</span></h4><p><span class="zh">建立 task artifact 與 metadata</span><span class="en">create task artifact &amp; metadata</span></p></div>
+      <div class="gate"><span class="dot">A</span><span class="gl">GATE</span></div>
+      <div class="stage"><div class="si">02</div><h4><span class="zh">研究</span><span class="en">Research</span></h4><p><span class="zh">具來源的研究產物</span><span class="en">sourced research artifact</span></p></div>
+      <div class="gate"><span class="dot">B</span><span class="gl">GATE</span></div>
+      <div class="stage"><div class="si">03</div><h4><span class="zh">規劃</span><span class="en">Planning</span></h4><p><span class="zh">含 premortem 的計畫</span><span class="en">plan with premortem</span></p></div>
+      <div class="gate"><span class="dot">C</span><span class="gl">GATE</span></div>
+      <div class="stage"><div class="si">04</div><h4><span class="zh">實作</span><span class="en">Coding</span></h4><p><span class="zh">依計畫變更程式碼</span><span class="en">code against the plan</span></p></div>
+      <div class="gate"><span class="dot">D</span><span class="gl">GATE</span></div>
+      <div class="stage"><div class="si">05</div><h4><span class="zh">驗證</span><span class="en">Verification</span></h4><p><span class="zh">含 Build Guarantee 的驗證</span><span class="en">verify with Build Guarantee</span></p></div>
+      <div class="gate"><span class="dot">E</span><span class="gl">GATE</span></div>
+      <div class="stage"><div class="si">06</div><h4><span class="zh">結案</span><span class="en">Closure</span></h4><p><span class="zh">改進產物與決策紀錄</span><span class="en">improvement &amp; decision log</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTIFACTS -->
+<section id="artifacts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="zh">產物優先設計</span><span class="en">Artifact-First Design</span></span>
+      <h2><span class="zh">可稽核的事實，而非聊天紀錄</span><span class="en">Auditable facts, not chat logs</span></h2>
+      <p class="lead"><span class="zh">每個決策、研究發現與結果都活在產物裡，可追溯、可重播、不依賴上下文。進度不藏在聊天逐字稿中。</span><span class="en">Every decision, finding, and result lives in an artifact — traceable, replayable, and context-independent. No magic progress hidden in transcripts.</span></p>
+    </div>
+    <div class="grid-art reveal">
+      <div class="art"><span class="an">01</span><div><h4>Task</h4><small><span class="zh">任務與範圍</span><span class="en">task &amp; scope</span></small></div></div>
+      <div class="art"><span class="an">02</span><div><h4>Research</h4><small><span class="zh">具來源研究</span><span class="en">sourced findings</span></small></div></div>
+      <div class="art"><span class="an">03</span><div><h4>Plan</h4><small><span class="zh">含 premortem</span><span class="en">with premortem</span></small></div></div>
+      <div class="art"><span class="an">04</span><div><h4>Code</h4><small><span class="zh">變更紀錄</span><span class="en">change record</span></small></div></div>
+      <div class="art"><span class="an">05</span><div><h4>Test</h4><small><span class="zh">測試證據</span><span class="en">test evidence</span></small></div></div>
+      <div class="art"><span class="an">06</span><div><h4>Verify</h4><small><span class="zh">Build Guarantee</span><span class="en">Build Guarantee</span></small></div></div>
+      <div class="art"><span class="an">07</span><div><h4>Decision</h4><small><span class="zh">決策紀錄</span><span class="en">decision log</span></small></div></div>
+      <div class="art"><span class="an">08</span><div><h4>Improvement</h4><small><span class="zh">回顧改進</span><span class="en">retro &amp; uplift</span></small></div></div>
+      <div class="art"><span class="an">09</span><div><h4>Status</h4><small><span class="zh">機器可讀 JSON</span><span class="en">machine-readable JSON</span></small></div></div>
+    </div>
+    <p class="pull-quote reveal">No artifact = <span class="accent">not done</span>. No verification = <span class="accent">not done</span>. No evidence = <span class="accent">not valid</span>.</p>
+  </div>
+</section>
+
+<!-- GOVERNANCE -->
+<section id="governance" style="background:linear-gradient(180deg,transparent,rgba(99,102,241,.05),transparent)">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="zh">兩層治理</span><span class="en">Two-Layer Governance</span></span>
+      <h2><span class="zh">巨觀循環，微觀步進</span><span class="en">Macro cycle, micro steps</span></h2>
+    </div>
+    <div class="grid-2">
+      <article class="card gov-card reveal" style="--accent:var(--gov)">
+        <div class="layer-k">MACRO · PDCA</div>
+        <h3 style="margin:8px 0 4px"><span class="zh">跨任務的品質循環</span><span class="en">Cross-task quality cycle</span></h3>
+        <p style="margin-top:6px"><span class="zh">Plan = 任務 + 研究 + 計畫（含 premortem）；Do = 實作；Check = 驗證（含 Build Guarantee）；Act = 改進產物 + 決策。</span><span class="en">Plan = task + research + plan (premortem); Do = code; Check = verify (Build Guarantee); Act = improvement + decision.</span></p>
+        <div class="flow"><span class="hl">Plan</span><span>Do</span><span>Check</span><span>Act</span></div>
+      </article>
+      <article class="card gov-card reveal" style="--accent:var(--agent)">
+        <div class="layer-k">MICRO · TAO / ReAct</div>
+        <h3 style="margin:8px 0 4px"><span class="zh">單次派發內的步進</span><span class="en">Inside a single dispatch</span></h3>
+        <p style="margin-top:6px"><span class="zh">每個子代理派發都遵循：思考紀錄 → 行動步驟 → 觀察 → 下一步決策，讓推理過程可被檢查。</span><span class="en">Every sub-agent dispatch follows: Thought Log → Action Step → Observation → Next-Step Decision, keeping reasoning inspectable.</span></p>
+        <div class="flow"><span class="hl">Thought</span><span>Action</span><span>Observation</span><span>Next-Step</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- WHY / HIGHLIGHTS -->
+<section id="why">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="zh">差異化亮點</span><span class="en">Why Council Forge</span></span>
+      <h2><span class="zh">驗證是機制，不是口號</span><span class="en">Validation as a mechanism, not a slogan</span></h2>
+    </div>
+    <div class="grid-feat">
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gate)" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6l-8-3Z"/></svg></span>
+        <div><h4><span class="zh">關卡守護的工作流</span><span class="en">Gate-guarded workflow</span></h4><p><span class="zh">階段不得任意跳過，合法狀態轉移由 validator 強制，流程可審查、可稽核。</span><span class="en">Stages can't be skipped; legal transitions are enforced by a validator, making the flow reviewable and auditable.</span></p></div>
+      </div>
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--artifact)" stroke-width="2"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5"/><path d="M8 13h8M8 17h8"/></svg></span>
+        <div><h4><span class="zh">可稽核的產物</span><span class="en">Auditable artifacts</span></h4><p><span class="zh">研究、計畫、結果全部留痕，工作流可重播且與上下文無關。</span><span class="en">Research, plans, and results are all on record — the workflow is replayable and context-independent.</span></p></div>
+      </div>
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--guard)" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6l-8-3Z"/></svg></span>
+        <div><h4><span class="zh">內建 Guard 驗證器</span><span class="en">Built-in guard validators</span></h4><p><span class="zh">status 與 contract validator 自動檢查狀態轉移與範圍漂移（task 檔 vs git 變更）。</span><span class="en">Status and contract validators auto-check state transitions and scope drift (task files vs git changes).</span></p></div>
+      </div>
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--down)" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <div><h4><span class="zh">內建紅隊演練</span><span class="en">Built-in red-team drills</span></h4><p><span class="zh">靜態攻擊案例 + 實戰演練 + 重播工作流，並對代理入口檔做 prompt regression 檢查。</span><span class="en">Static attack cases + live drills + replay, plus prompt-regression checks on agent entry files.</span></p></div>
+      </div>
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--stage)" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span>
+        <div><h4><span class="zh">按角色與階段載入</span><span class="en">Role- &amp; phase-scoped loading</span></h4><p><span class="zh">代理不一次載入整套文件，依角色與階段按需載入，token 用量更低更可預測。</span><span class="en">Agents don't load the whole doc set — context is loaded by role and phase, keeping token usage low and predictable.</span></p></div>
+      </div>
+      <div class="feat reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--agent)" stroke-width="2"><path d="M4 7V5a2 2 0 0 1 2-2h2M20 7V5a2 2 0 0 0-2-2h-2M4 17v2a2 2 0 0 0 2 2h2M20 17v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <div><h4><span class="zh">住在 repo，不鎖平台</span><span class="en">Lives in the repo, no lock-in</span></h4><p><span class="zh">純文件 + CI 的工作流層，可直接套用到既有 repository，無需採用大型平台。</span><span class="en">A docs + CI workflow layer you can drop into an existing repository — no platform adoption required.</span></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand" style="margin-bottom:8px"><span class="logo"></span><span>Council Forge</span></div>
+      <div class="ver">v0.4.0 · artifact-first · gate-guarded</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/arcobaleno64/council-forge" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/arcobaleno64/council-forge/blob/master/README.md" target="_blank" rel="noopener">README</a>
+      <a href="https://github.com/arcobaleno64/council-forge/blob/master/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a>
+      <a href="https://github.com/arcobaleno64/council-forge/blob/master/SECURITY.md" target="_blank" rel="noopener">Security</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var KEY="cf-lang";
+  var bz=document.getElementById("btn-zh"), be=document.getElementById("btn-en"), b=document.body;
+  function set(lang){
+    if(lang==="en"){b.classList.add("lang-en");b.classList.remove("lang-zh");be.classList.add("active");bz.classList.remove("active");document.documentElement.lang="en";}
+    else{b.classList.add("lang-zh");b.classList.remove("lang-en");bz.classList.add("active");be.classList.remove("active");document.documentElement.lang="zh-Hant";}
+    try{localStorage.setItem(KEY,lang);}catch(e){}
+  }
+  try{var saved=localStorage.getItem(KEY);if(saved)set(saved);}catch(e){}
+  bz.addEventListener("click",function(){set("zh");});
+  be.addEventListener("click",function(){set("en");});
+
+  // Scroll reveal (progressive enhancement)
+  var els=[].slice.call(document.querySelectorAll(".reveal"));
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);}});
+    },{threshold:.12});
+    els.forEach(function(el){io.observe(el);});
+  }else{els.forEach(function(el){el.classList.add("in");});}
+})();
+</script>
+</body>
+</html>

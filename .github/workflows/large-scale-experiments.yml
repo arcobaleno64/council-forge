@@ -45,10 +45,17 @@ jobs:
 
       - name: Run experiment ① Red-Team Marathon
         continue-on-error: true
+        # 安全:workflow_dispatch inputs 經 env 傳入(不直接拼進 shell,避免 template-injection),
+        # 並在 shell 內驗證為整數後才使用。
+        env:
+          MARATHON_ITERATIONS: ${{ github.event.inputs.marathon_iterations || '30' }}
+          MARATHON_MAX_MINUTES: ${{ github.event.inputs.marathon_max_minutes || '45' }}
         run: |
+          case "$MARATHON_ITERATIONS" in (''|*[!0-9]*) echo "invalid iterations"; exit 1;; esac
+          case "$MARATHON_MAX_MINUTES" in (''|*[!0-9]*) echo "invalid max-minutes"; exit 1;; esac
           python3 artifacts/scripts/experiments/red_team_marathon.py \
-            --iterations "${{ github.event.inputs.marathon_iterations || '30' }}" \
-            --max-minutes "${{ github.event.inputs.marathon_max_minutes || '45' }}" \
+            --iterations "$MARATHON_ITERATIONS" \
+            --max-minutes "$MARATHON_MAX_MINUTES" \
             --phase static
 
       - name: Run experiment ② Premortem Backtest

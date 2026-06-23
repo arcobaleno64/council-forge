@@ -1,0 +1,175 @@
+{
+  "generated_at": "2026-06-23T01:10:12+08:00",
+  "runtime_seconds": 52.7,
+  "bounds": {
+    "max_mutants": 200,
+    "max_minutes": 7.0
+  },
+  "pytest_python": "/root/.local/share/uv/tools/pytest/bin/python",
+  "targets": [
+    {
+      "module": "sast_gate.py",
+      "test_files": [
+        "test_sast_gate.py"
+      ],
+      "baseline_passing_tests": 47,
+      "total_mutants": 35,
+      "killed": 31,
+      "survived": 4,
+      "mutation_score": 0.8857,
+      "survived_mutants": [
+        {
+          "file": "sast_gate.py",
+          "line": 36,
+          "operator": "num_inc",
+          "change": "1 -> 2"
+        },
+        {
+          "file": "sast_gate.py",
+          "line": 37,
+          "operator": "num_inc",
+          "change": "2 -> 3"
+        },
+        {
+          "file": "sast_gate.py",
+          "line": 37,
+          "operator": "num_zero",
+          "change": "2 -> 0"
+        },
+        {
+          "file": "sast_gate.py",
+          "line": 197,
+          "operator": "const_bool",
+          "change": "True -> False"
+        }
+      ]
+    },
+    {
+      "module": "security_txt_gate.py",
+      "test_files": [
+        "test_security_txt_gate.py"
+      ],
+      "baseline_passing_tests": 43,
+      "total_mutants": 48,
+      "killed": 40,
+      "survived": 8,
+      "mutation_score": 0.8333,
+      "survived_mutants": [
+        {
+          "file": "security_txt_gate.py",
+          "line": 39,
+          "operator": "num_inc",
+          "change": "1 -> 2"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 40,
+          "operator": "num_inc",
+          "change": "2 -> 3"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 40,
+          "operator": "num_zero",
+          "change": "2 -> 0"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 149,
+          "operator": "cmp_flip",
+          "change": "<= -> <"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 152,
+          "operator": "cmp_flip",
+          "change": "> -> >="
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 168,
+          "operator": "const_bool",
+          "change": "True -> False"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 172,
+          "operator": "num_inc",
+          "change": "365 -> 366"
+        },
+        {
+          "file": "security_txt_gate.py",
+          "line": 172,
+          "operator": "num_zero",
+          "change": "365 -> 0"
+        }
+      ]
+    },
+    {
+      "module": "release_gate.py",
+      "test_files": [
+        "test_release_gate.py"
+      ],
+      "baseline_passing_tests": 52,
+      "total_mutants": 54,
+      "killed": 46,
+      "survived": 8,
+      "mutation_score": 0.8519,
+      "survived_mutants": [
+        {
+          "file": "release_gate.py",
+          "line": 41,
+          "operator": "num_inc",
+          "change": "1 -> 2"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 42,
+          "operator": "num_inc",
+          "change": "2 -> 3"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 42,
+          "operator": "num_zero",
+          "change": "2 -> 0"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 215,
+          "operator": "const_bool",
+          "change": "True -> False"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 216,
+          "operator": "const_bool",
+          "change": "True -> False"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 224,
+          "operator": "num_zero",
+          "change": "1 -> 0"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 169,
+          "operator": "num_inc",
+          "change": "12 -> 13"
+        },
+        {
+          "file": "release_gate.py",
+          "line": 169,
+          "operator": "num_zero",
+          "change": "12 -> 0"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "total_mutants": 137,
+    "killed": 117,
+    "survived": 20
+  }
+}

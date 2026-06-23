@@ -82,7 +82,7 @@ Internal-host reachability (SSRF) is achievable even with the allowlist intact, 
 **Description.** The structured set covers only GitHub PAT (classic + fine-grained), AWS access-key-id, OpenAI `sk-`, and PEM private-key blocks. Notable formats it misses entirely (no rule, and they will not reliably hit the generic `key/secret/token = "..."` assignment rule because they often appear bare or under other variable names):
 - **GitHub Actions / app tokens:** `ghs_` is matched by the classic charset `gh[pousr]_` (the `s` is included) — OK — but **GitHub refresh tokens `ghr_`** are covered too; however `github_pat_` fine-grained is matched. (These are covered; listed for completeness.)
 - **Slack tokens** `xox[baprs]-...`, **Slack webhooks** `https://hooks.slack.com/services/...`.
-- **Google API keys** `AIza[0-9A-Za-z\-_]{35}`, **GCP service-account JSON** (`"private_key": "-----BEGIN PRIVATE KEY-----` is caught by the PEM rule, but `"type": "service_account"` + `private_key_id` is not).
+- **Google API keys** `AIza[0-9A-Za-z\-_]{35}`, **GCP service-account JSON** (the PEM `BEGIN PRIVATE KEY` header inside `"private_key": "..."` is caught by the PEM rule — dashes elided here so this report does not self-trip the scanner — but `"type": "service_account"` + `private_key_id` is not).
 - **Stripe** `sk_live_` / `rk_live_` (NOT matched by the `sk-` OpenAI rule, which requires a hyphen `sk-`, whereas Stripe uses underscore `sk_`).
 - **AWS secret access key** (the 40-char base64 secret half) — only the *access key ID* `AKIA...` is detected; the secret value is invisible.
 - **JWTs** (`eyJ...` three base64url segments), **generic high-entropy base64/hex blobs** in config (no rule; only caught if assigned to a `key/secret/token`-named field via the generic rule).

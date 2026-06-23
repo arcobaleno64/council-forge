@@ -1,0 +1,101 @@
+name: Guard Calibration Gate
+
+# 把「過嚴/過鬆」量測升級為永久防線：
+#   - calibration: fail-closed — 任何 guard 出現 FP(過嚴)或 FN(過鬆)即擋 PR。
+#   - mutation:    跑 AST 變異測試,分數寫入 job summary;低於 floor 即失敗(抓測試被弱化)。
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+  schedule:
+    - cron: '30 7 * * 1'  # 每週一 07:30 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guard-calibration-${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run guard calibration matrix
+        run: python artifacts/scripts/experiments/guard_calibration_matrix.py
+
+      - name: Calibration gate (fail-closed on any FP or FN)
+        run: |
+          python - <<'PY'
+          import json, sys
+          d = json.load(open("artifacts/experiments/guard_calibration/matrix_results.json", encoding="utf-8"))
+          fp, fn = d.get("false_positives", []), d.get("false_negatives", [])
+          summary = []
+          for name, m in d.get("matrices", {}).items():
+              summary.append(f"  {name}: {m}")
+          print("Per-guard confusion matrix:")
+          print("\n".join(summary))
+          if fp or fn:
+              print(f"[FAIL] guard calibration drift: {len(fp)} false positive(s) (too strict), "
+                    f"{len(fn)} false negative(s) (too loose).")
+              for x in fp: print(f"  FP: {x}")
+              for x in fn: print(f"  FN: {x}")
+              sys.exit(1)
+          print("[OK] No FP/FN — guards neither over-strict nor over-loose within the corpus.")
+          PY
+
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Install deps (pytest is the mutation test runner)
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run mutation testing (bounded)
+        run: python artifacts/scripts/experiments/guard_mutation_runner.py --max-mutants 200 --max-minutes 10
+
+      - name: Mutation gate (surface score; fail below floor 0.80)
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          d = json.load(open("artifacts/experiments/guard_mutation/mutation_results.json", encoding="utf-8"))
+          t = d["totals"]
+          total, killed, survived = t["total_mutants"], t["killed"], t["survived"]
+          score = killed / total if total else 1.0
+          floor = 0.80
+          line = f"Mutation score: {killed}/{total} = {score:.1%} (survived={survived}, floor={floor:.0%})"
+          print(line)
+          gh = os.environ.get("GITHUB_STEP_SUMMARY")
+          if gh:
+              with open(gh, "a", encoding="utf-8") as f:
+                  f.write(f"## Guard mutation testing\n\n{line}\n")
+          if score < floor:
+              print(f"[FAIL] mutation score {score:.1%} below floor {floor:.0%} — test suite weakened.")
+              sys.exit(1)
+          print("[OK] mutation score at or above floor.")
+          PY

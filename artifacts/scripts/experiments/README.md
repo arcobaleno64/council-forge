@@ -40,3 +40,37 @@ python3 artifacts/scripts/experiments/premortem_backtest.py
 
 > ⚠️ GitHub 的 `schedule` 觸發只從**預設分支**執行；workflow 合併進 master 前，
 > 請用 Actions 的 `workflow_dispatch` 手動觸發。
+
+## ③ Guard Calibration Matrix（過嚴/過鬆量測）
+
+量測各 guard 的 **false positive（過嚴：誤擋合法 artifact）** 與
+**false negative（過鬆：放行該擋的 artifact）**，輸出每個 guard 的混淆矩陣。
+
+```bash
+python3 artifacts/scripts/experiments/guard_calibration_matrix.py
+```
+
+- SHOULD_PASS：對真 artifact 跑 guard，期望 PASS；失敗即 FP。
+- SHOULD_FAIL：對 artifact 施 5 類標註腐化（刪 Status、去 +08:00、非法狀態、>512KB、刪 plan），期望被擋；放行即 FN。
+- 產出：`artifacts/experiments/guard_calibration/`（`matrix_report.md` + `matrix_results.json`）。
+- 誠實限制：SHOULD_PASS 語料是「以通過 guard」挑出的，無法回溯「曾被誤擋而從未提交」的 artifact。
+
+## ④ Guard Mutation Testing（測試盲點）
+
+把 guard 程式碼**改鬆/改嚴**（AST 變異），看既有測試**抓不抓得到**。
+mutation score 低 = 測試對該處的鬆緊變化無感（盲點）。純 stdlib `ast`，零外部依賴。
+
+```bash
+python3 artifacts/scripts/experiments/guard_mutation_runner.py \
+    --max-mutants 200 --max-minutes 7
+```
+
+- 每個 mutant 寫到 temp copy，跑該模組 focused pytest;測試失敗=killed，通過=survived（盲點）。
+- 護欄：`--max-mutants` / `--max-minutes` 任一達到即停;per-mutant 90s timeout（timeout 計為 survived，抓 ReDoS 型 hang）。
+- 產出：`artifacts/experiments/guard_mutation/`（`mutation_report.md` + `mutation_results.json`,含 survived mutants 清單）。
+
+## CI 校準 gate（永久防線）
+
+`.github/workflows/guard-calibration.yml`（每週 + PR + push + dispatch）：
+- **calibration job：fail-closed** — 一旦出現任何 FP 或 FN（guard 變過嚴或過鬆）即擋 PR。
+- **mutation job：** 跑變異測試，分數寫入 job summary;低於 floor（0.80）即失敗，抓測試套件被弱化。

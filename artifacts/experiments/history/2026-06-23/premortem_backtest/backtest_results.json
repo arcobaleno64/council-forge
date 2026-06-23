@@ -1,0 +1,3121 @@
+{
+  "generated_at": "2026-06-23T08:11:29+08:00",
+  "aggregate": {
+    "plans_total": 111,
+    "plans_with_premortem": 111,
+    "plans_with_verify": 111,
+    "avg_risks_per_premortem": 5.26,
+    "max_risks": 16,
+    "min_risks": 2,
+    "tasks_with_negative_verify": 2,
+    "calibration_2x2": {
+      "pred_neg_act_neg": 8,
+      "pred_neg_act_pos": 0,
+      "pred_pos_act_neg": 101,
+      "pred_pos_act_pos": 2
+    }
+  },
+  "records": [
+    {
+      "task_id": "TASK-1000",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 4
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1005",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1006",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1007",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 12,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1008",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 11,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1009",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "non-blocking": 1,
+          "blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1010",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 9,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1011",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1012",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 11,
+        "verified": 11,
+        "redteam_fail": 2,
+        "escalated": 2,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": true
+      }
+    },
+    {
+      "task_id": "TASK-1013",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "non-blocking": 2,
+          "blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1014",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 5,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1015",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 1
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 5,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1016",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 16,
+        "verified": 16,
+        "redteam_fail": 2,
+        "escalated": 4,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": true
+      }
+    },
+    {
+      "task_id": "TASK-1019",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 7,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 3,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1020",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 3
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 19,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1021",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 1,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1022",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "non-blocking": 2,
+          "blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1023",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 23,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1024",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "non-blocking": 2,
+          "blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 14,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1025",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 16,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1026",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 19,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1027",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 22,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1028",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 21,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1029",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 2
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 23,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1030",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 2
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 25,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1031",
+      "plan": {
+        "risk_count": 7,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 2
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 28,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1032",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 1
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 29,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1033",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 1
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 32,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1034",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 1
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 31,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1035",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 1
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 30,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1036",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 1
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 30,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1037",
+      "plan": {
+        "risk_count": 8,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 30,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1038",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 23,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1039",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 25,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1040",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 25,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1041",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 25,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1042",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 25,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1043",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {},
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 22,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1045",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1046",
+      "plan": {
+        "risk_count": 7,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 5
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1047",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "non-blocking": 3,
+          "blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1048",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1049",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 5
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 11,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1050",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 3
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 11,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1051",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 11,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1052",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 12,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1053",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 1
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 14,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1054",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 4
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 13,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1055",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1056",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 17,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1057",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 3
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 12,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1058",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 3
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1059",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 3
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1060",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1061",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 3
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1062",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 3
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1063",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 19,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1064",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 15,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1067",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 14,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1068",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 12,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1069",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 12,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1070",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1071",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1072",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 1
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 11,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1073",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 2
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1074",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1075",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1076",
+      "plan": {
+        "risk_count": 7,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 3
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1077",
+      "plan": {
+        "risk_count": 10,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 6,
+          "non-blocking": 4
+        },
+        "blocking_count": 6,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1078",
+      "plan": {
+        "risk_count": 9,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "severity_distribution": {
+          "blocking": 6,
+          "non-blocking": 3
+        },
+        "blocking_count": 6,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 10,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1079",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 3
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1080",
+      "plan": {
+        "risk_count": 11,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 6
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1081",
+      "plan": {
+        "risk_count": 14,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R11",
+          "R12",
+          "R13",
+          "R14",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 10,
+          "non-blocking": 4
+        },
+        "blocking_count": 10,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1082",
+      "plan": {
+        "risk_count": 10,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 6,
+          "non-blocking": 4
+        },
+        "blocking_count": 6,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1083",
+      "plan": {
+        "risk_count": 14,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11",
+          "R13",
+          "R14",
+          "R12"
+        ],
+        "severity_distribution": {
+          "blocking": 8,
+          "non-blocking": 6
+        },
+        "blocking_count": 8,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 9,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1084",
+      "plan": {
+        "risk_count": 9,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 4
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1085",
+      "plan": {
+        "risk_count": 10,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 7,
+          "non-blocking": 3
+        },
+        "blocking_count": 7,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1086",
+      "plan": {
+        "risk_count": 16,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14",
+          "R15",
+          "R16"
+        ],
+        "severity_distribution": {
+          "blocking": 12,
+          "non-blocking": 4
+        },
+        "blocking_count": 12,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1087",
+      "plan": {
+        "risk_count": 10,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 8,
+          "non-blocking": 2
+        },
+        "blocking_count": 8,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1088",
+      "plan": {
+        "risk_count": 8,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8"
+        ],
+        "severity_distribution": {
+          "blocking": 5,
+          "non-blocking": 3
+        },
+        "blocking_count": 5,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1089",
+      "plan": {
+        "risk_count": 7,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7"
+        ],
+        "severity_distribution": {
+          "blocking": 7
+        },
+        "blocking_count": 7,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1090",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R6",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 2
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1091",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1092",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 7,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1093",
+      "plan": {
+        "risk_count": 11,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10",
+          "R11"
+        ],
+        "severity_distribution": {
+          "blocking": 9,
+          "non-blocking": 2
+        },
+        "blocking_count": 9,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1094",
+      "plan": {
+        "risk_count": 10,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6",
+          "R7",
+          "R8",
+          "R9",
+          "R10"
+        ],
+        "severity_distribution": {
+          "blocking": 8,
+          "non-blocking": 2
+        },
+        "blocking_count": 8,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 8,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1095",
+      "plan": {
+        "risk_count": 6,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 2
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1099",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 2
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 5,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1100",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 5,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-1101",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 5,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-900",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 2
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-902",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 2
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-950",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 2
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-951",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 1,
+          "non-blocking": 2
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-952",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-953",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-954",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-955",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-956",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-957",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-958",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-960",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 1
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-961",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "non-blocking": 2,
+          "blocking": 1
+        },
+        "blocking_count": 1,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-963",
+      "plan": {
+        "risk_count": 5,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "R5"
+        ],
+        "severity_distribution": {
+          "blocking": 4,
+          "non-blocking": 1
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-980",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 3,
+          "non-blocking": 1
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-981",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 1
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-982",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-983",
+      "plan": {
+        "risk_count": 3,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "severity_distribution": {
+          "blocking": 3
+        },
+        "blocking_count": 3,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-984",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 2,
+          "non-blocking": 2
+        },
+        "blocking_count": 2,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-985",
+      "plan": {
+        "risk_count": 4,
+        "risk_ids": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "severity_distribution": {
+          "blocking": 4
+        },
+        "blocking_count": 4,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 0,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": false,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    },
+    {
+      "task_id": "TASK-999",
+      "plan": {
+        "risk_count": 2,
+        "risk_ids": [
+          "R1",
+          "R2"
+        ],
+        "severity_distribution": {
+          "non-blocking": 1,
+          "non-blocking。": 1
+        },
+        "blocking_count": 0,
+        "has_premortem": true
+      },
+      "verify": {
+        "results_total": 0,
+        "verified": 6,
+        "redteam_fail": 0,
+        "escalated": 0,
+        "blocked": true,
+        "has_build_guarantee": true,
+        "negative_signal": false
+      }
+    }
+  ]
+}

@@ -119,3 +119,30 @@ jobs:
 
       - name: Regex-safety audit (fail-closed)
         run: python artifacts/scripts/regex_safety_audit.py --root .
+
+  prompt-injection:
+    # Indirect prompt-injection control for the agent orchestrator: research /
+    # external captures and work-product artifacts are read by Claude/Gemini/Codex,
+    # so injected instructions there are an attack surface (TASK-1021 Rule-3/4).
+    # Two-tier, fail-closed: strict shapes (override / role / system-prompt exfil /
+    # hidden Unicode / beacons) over the whole artifact surface; lexical shapes
+    # additionally over the untrusted external-input zone. The detector's recall is
+    # held by calibration against the labelled adversarial corpus. Pure stdlib.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Calibrate detector against adversarial corpus (fail-closed on any miss/FP)
+        run: python artifacts/scripts/prompt_injection_scan.py calibrate --root .
+
+      - name: Prompt-injection scan of artifact surface (fail-closed)
+        run: python artifacts/scripts/prompt_injection_scan.py scan --root .

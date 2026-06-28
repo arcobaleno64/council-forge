@@ -132,6 +132,17 @@ class TestCitationPatternRelaxation:
         assert result is False
         assert elapsed < 1.0, f"ReDoS regression: match took {elapsed:.2f}s on {len(payload)}B line"
 
+    def test_citation_pattern_is_linear_no_redos(self):
+        # REDOS-02: an unclosed `(` + path-like filler, and a long bare dotted
+        # path, previously drove the paren / bare-path branches to tens of
+        # seconds. The bounded replacement must complete near-instantly.
+        import time as _time
+        for payload in ("(" + "a/" * 20000, "a.a" * 20000, "(" * 20000 + "x"):
+            start = _time.perf_counter()
+            _gsv.CITATION_PATTERN.search(payload)
+            elapsed = _time.perf_counter() - start
+            assert elapsed < 2.0, f"ReDoS regression: search took {elapsed:.2f}s on {len(payload)}B input"
+
     def test_citation_pattern_dual_site_consistency(self):
         # R4 mitigation: guard_status_validator.py and guard_helpers/markers.py
         # must keep CITATION_PATTERN literal-identical.

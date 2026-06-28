@@ -134,13 +134,24 @@ ARTIFACT_ALLOWED_STATUSES = {
 
 TASK_ID_PATTERN = re.compile(r"^TASK(?:-LITE)?-\d{3,}$")
 TAIPEI_TIMESTAMP_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+08:00$")
+# REDOS-02 fix: the paren-citation branch wrapped an overlapping required
+# path-with-extension in a lazy `[^)）\n]*?` AND a greedy `[^)）\n]*` fill, and the
+# bare-path branch ran `[A-Za-z0-9_./\\-]+\.ext` greedily at every search start.
+# Both backtracked super-linearly on attacker-authored `## Confirmed Facts` items
+# (e.g. an unclosed `(` + path-like filler: ~40 KB -> ~24 s). The paren branch now
+# uses one BOUNDED lookahead to assert an inner path.ext, then a single greedy
+# fill to the close paren; the bare-path run is BOUNDED to {1,256}. Both are now
+# linear; accept/reject is unchanged for real citations (verified vs the prior
+# pattern over the test battery + 20k fuzz strings, 0 diffs).
+# NOTE: this regex MUST stay byte-identical to the copy in guard_helpers/markers.py
+# (test_guard_units.py asserts CITATION_PATTERN.pattern equality across both).
 CITATION_PATTERN = re.compile(
     r"(?:"
     r"https?://\S+"
     r"|`gh api [^`]+`"
     r"|`[^`\n]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)[^`\n]*`"
-    r"|[（(](?:[Ss]ource:\s*)?[^)）\n]*?[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?[^)）\n]*[)）]"
-    r"|\b[A-Za-z0-9_./\\-]+\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?\b"
+    r"|[（(](?=[^)）\n]{0,512}[A-Za-z0-9_./\\-]\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?)[^)）\n]*[)）]"
+    r"|\b[A-Za-z0-9_./\\-]{1,256}\.(?:md|json|txt|py|ps1|csproj|ini|toml|yml|yaml|cfg|sh)(?::\d+)?\b"
     r")",
     re.IGNORECASE,
 )

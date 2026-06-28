@@ -84,6 +84,32 @@ class TestSecretScan:
         findings = rss.scan_secrets(tmp_path)
         assert findings == []
 
+    def test_secret_is_redacted_in_excerpt(self, tmp_path: Path):
+        # SEC-LEAK: the scanner must never reproduce the raw secret in its output.
+        sample_secret = "ghp_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
+        _write(tmp_path / "artifacts" / "scripts" / "sample.py", f'token = "{sample_secret}"\n')
+        findings = rss.scan_secrets(tmp_path)
+        assert findings, "expected the PAT to be detected"
+        for finding in findings:
+            assert sample_secret not in finding.excerpt, "raw secret leaked into excerpt"
+            assert "<redacted:" in finding.excerpt
+
+    def test_generic_secret_is_redacted_in_excerpt(self, tmp_path: Path):
+        secret_value = "AbCdEfGh" + "1234567890ZyXwVu"
+        _write(tmp_path / "artifacts" / "scripts" / "config.py", f'client_secret = "{secret_value}"\n')
+        findings = rss.scan_secrets(tmp_path)
+        assert findings
+        for finding in findings:
+            assert secret_value not in finding.excerpt
+            assert "<redacted:" in finding.excerpt
+
+    def test_redact_secret_helper_masks_value(self):
+        # Split the value so this test file does not itself trip the secret scanner.
+        raw = "Zx9Q" + "w8e7r6t5y4u3i2o1"  # 20 chars
+        masked = rss.redact_secret("prefix " + raw + " suffix", raw)
+        assert raw not in masked
+        assert masked.startswith("prefix <redacted:20c:sha256:") and masked.endswith("> suffix")
+
     def test_detects_generic_secret_assignment(self, tmp_path: Path):
         secret_value = "AbCdEfGh" + "1234567890ZyXwVu"
         _write(tmp_path / "artifacts" / "scripts" / "config.py", f'client_secret = "{secret_value}"\n')

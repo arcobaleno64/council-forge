@@ -792,6 +792,14 @@
       "sha256": "fa59461bbab149ab892c58b85e19f520610bbb7ed1fb5e59d910c4bcbf3ac42d"
     },
     {
+      "path": "docs/ecosystem/mcp-skills-hooks-catalog.md",
+      "sha256": "756424929ca9f5db3f1fafd31890529b10c32a098217cf3cfa91dddb13e14b9c"
+    },
+    {
+      "path": "docs/governance/agentic-coverage-map.md",
+      "sha256": "8b7653968cbeb46cb5be0bd5082cda530fd878a61778b5f9946d50a06a9e18e9"
+    },
+    {
       "path": "docs/hooks.md",
       "sha256": "87dabbc459a953668381c85244686b97fe8040fd37b54cee3db72a890f313960"
     },
@@ -972,5 +980,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "3c399c1b5c477c84d4618df82ce9f913ad225f4c11138e190b3732a4a09aa0f0"
+  "root": "17a2c3435e48e97d71cd8f19cf4eb09dcf52bdf7d6382b9e945b3ddb2fe77263"
 }

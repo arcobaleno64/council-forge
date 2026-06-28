@@ -103,6 +103,32 @@ class TestSecretScan:
             assert secret_value not in finding.excerpt
             assert "<redacted:" in finding.excerpt
 
+    # SEC-FN: the new prefix-anchored provider rules. Each sample is built from a
+    # varied alphabet sliced to the exact length the rule requires, and assembled
+    # by concatenation so this test file does not itself trip the secret scanner.
+    @pytest.mark.parametrize("rule_id", [
+        "slack-token", "slack-webhook", "google-api-key", "stripe-live-key",
+        "sendgrid-key", "npm-token", "jwt",
+    ])
+    def test_detects_new_provider_secret(self, tmp_path: Path, rule_id):
+        a = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"  # 62 varied chars
+        samples = {
+            "slack-token": "xoxb-" + "2419827456-" + a[:20],
+            "slack-webhook": "https://hooks.slack.com/services/" + a[:30],
+            "google-api-key": "AIza" + a[:35],
+            "stripe-live-key": "sk_live_" + a[:20],
+            "sendgrid-key": "SG." + a[:22] + "." + (a + a)[:43],
+            "npm-token": "npm_" + a[:36],
+            "jwt": "eyJ" + a[:10] + ".eyJ" + a[:10] + "." + a[:10],
+        }
+        sample = samples[rule_id]
+        _write(tmp_path / "artifacts" / "scripts" / "leak.py", f'value = "{sample}"\n')
+        findings = rss.scan_secrets(tmp_path)
+        assert any(f.rule_id == rule_id for f in findings), f"{rule_id} not detected"
+        # SEC-LEAK interplay: the matched secret must still be redacted.
+        for finding in findings:
+            assert sample not in finding.excerpt
+
     def test_redact_secret_helper_masks_value(self):
         # Split the value so this test file does not itself trip the secret scanner.
         raw = "Zx9Q" + "w8e7r6t5y4u3i2o1"  # 20 chars

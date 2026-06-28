@@ -85,6 +85,17 @@ STRUCTURED_SECRET_PATTERNS = (
     ("github-pat-fine-grained", "high", re.compile(r"\bgithub_pat_(?P<secret>[A-Za-z0-9_]{20,})\b"), "Possible GitHub fine-grained personal access token"),
     ("aws-access-key-id", "high", re.compile(r"\bAKIA(?P<secret>[0-9A-Z]{16})\b"), "Possible AWS access key ID"),
     ("openai-style-key", "high", re.compile(r"\bsk-(?P<secret>[A-Za-z0-9]{20,})\b"), "Possible OpenAI-style API key"),
+    # SEC-FN: high-confidence, prefix-anchored rules for provider tokens the prior
+    # set missed (Slack/Google/Stripe/SendGrid/npm/JWT). Each is anchored to a
+    # vendor prefix to hold the low-false-positive discipline; all are single,
+    # bounded quantifiers (no nested/overlapping groups -> linear, no ReDoS).
+    ("slack-token", "high", re.compile(r"\bxox[baprs]-(?P<secret>[A-Za-z0-9-]{10,})"), "Possible Slack token"),
+    ("slack-webhook", "high", re.compile(r"(?P<secret>https://hooks\.slack\.com/services/[A-Za-z0-9/_-]{20,})"), "Possible Slack incoming webhook URL"),
+    ("google-api-key", "high", re.compile(r"\b(?P<secret>AIza[0-9A-Za-z_-]{35})\b"), "Possible Google API key"),
+    ("stripe-live-key", "high", re.compile(r"\b(?:sk|rk|pk)_live_(?P<secret>[A-Za-z0-9]{16,})\b"), "Possible Stripe live key"),
+    ("sendgrid-key", "high", re.compile(r"\b(?P<secret>SG\.[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43})\b"), "Possible SendGrid API key"),
+    ("npm-token", "high", re.compile(r"\bnpm_(?P<secret>[A-Za-z0-9]{36})\b"), "Possible npm access token"),
+    ("jwt", "medium", re.compile(r"\b(?P<secret>eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,})\b"), "Possible JSON Web Token"),
     ("private-key-block", "critical", re.compile(r"-----BEGIN (?:(?:RSA|EC|OPENSSH|DSA) )?PRIVATE KEY-----"), "Private key block detected"),
 )
 

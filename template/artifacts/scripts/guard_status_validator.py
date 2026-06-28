@@ -176,6 +176,9 @@ MAX_DIFF_EVIDENCE_REPLAY_BYTES = 128 * 1024
 GITHUB_API_ALLOWED_HOSTS_ENV = "CONSILIUM_ALLOWED_GITHUB_API_HOSTS"
 DEFAULT_GITHUB_API_BASE_URL = "https://api.github.com"
 DEFAULT_GITHUB_API_ALLOWED_HOSTS = {"api.github.com"}
+# F-06: hosts for which cleartext http is tolerated (local dev / tests). Every
+# other host must use https so the Authorization bearer token is never sent in clear.
+LOOPBACK_HOSTS = {"127.0.0.1", "::1", "localhost"}
 LEGACY_STATE_ALIASES = {
     "research_ready": "researched",
     "plan_ready": "planned",
@@ -397,6 +400,13 @@ def normalize_api_base_url(raw_value: str) -> Tuple[Optional[str], Optional[str]
             f"Allowed hosts: {allowed_list}. "
             f"Set {GITHUB_API_ALLOWED_HOSTS_ENV} to allow trusted GitHub Enterprise hosts."
         )
+    # F-06: require https for non-loopback hosts so the Authorization bearer token
+    # is never sent in cleartext. http is permitted only for loopback dev/test hosts.
+    if parsed.scheme == "http" and hostname not in LOOPBACK_HOSTS:
+        return None, (
+            f"API Base URL host '{hostname}' must use https — cleartext http would "
+            f"expose the Authorization token; http is permitted only for loopback hosts"
+        )
     return value, None
 
 
@@ -512,12 +522,19 @@ def collect_github_pr_files(repository: str, pull_number: str, api_base_url: str
     }
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    allowed_hosts = get_allowed_github_api_hosts()
     changed_files: Set[str] = set()
     for page in range(1, MAX_GITHUB_PR_FILES_PAGES + 2):
         url = (
             f"{base_url}/repos/{urllib.parse.quote(owner, safe='')}/{urllib.parse.quote(repo, safe='')}"
             f"/pulls/{pull_number}/files?per_page=100&page={page}"
         )
+        # F-02: re-validate the effective host on every request rather than trusting
+        # the one-time base-URL check. The no-redirect opener (F-01) already pins the
+        # host, so this is defense in depth against any future URL-construction change.
+        request_host = (urllib.parse.urlparse(url).hostname or "").strip().lower()
+        if request_host not in allowed_hosts:
+            return set(), f"refusing request to non-allowlisted host '{request_host}'"
         request = urllib.request.Request(url, headers=headers)
         try:
             # F-01: use the no-redirect opener so a 3xx from an allowlisted host

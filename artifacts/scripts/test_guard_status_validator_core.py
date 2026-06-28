@@ -2980,3 +2980,37 @@ class TestNoRedirectTokenLeak:
         # The redirect target must never have been contacted (no token leak).
         assert hits["leaked"] == 0, "redirect was followed — SSRF/token-leak path is open"
         assert hits["leaked_auth"] is None
+
+
+class TestGitRefArgInjection:
+    """ARG-INJ: artifact-supplied refs must not reach git argv as options."""
+
+    def test_validate_git_ref_accepts_real_refs(self):
+        for ref in ("HEAD", "HEAD~1", "origin/main", "feature/x-y", "a" * 40,
+                    "v1.2.3", "HEAD^", "refs/heads/main"):
+            assert gsv.validate_git_ref(ref) is None, f"valid ref rejected: {ref!r}"
+
+    def test_validate_git_ref_rejects_option_like(self):
+        for ref in ("--git-dir=/tmp", "-x", "--output=/etc/passwd", "", "a b",
+                    "a;b", "a=b", "$(id)"):
+            assert gsv.validate_git_ref(ref) is not None, f"unsafe ref accepted: {ref!r}"
+
+    def test_collect_git_diff_range_rejects_option_like_ref_without_running_git(self, monkeypatch):
+        called = {"run": False}
+
+        def _boom(*a, **k):
+            called["run"] = True
+            raise AssertionError("git must not be invoked for an unsafe ref")
+
+        monkeypatch.setattr(gsv.subprocess, "run", _boom)
+        files, error = gsv.collect_git_diff_range_files(Path("."), "--git-dir=/tmp", "HEAD")
+        assert files == set() and error is not None and "unsafe git ref" in error
+        assert called["run"] is False
+
+    def test_resolve_git_revision_rejects_option_like_ref_without_running_git(self, monkeypatch):
+        def _boom(*a, **k):
+            raise AssertionError("git must not be invoked for an unsafe revision")
+
+        monkeypatch.setattr(gsv.subprocess, "run", _boom)
+        commit, error = gsv.resolve_git_revision_commit(Path("."), "--output=/x")
+        assert commit is None and error is not None and "unsafe git ref" in error

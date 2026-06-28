@@ -489,7 +489,7 @@
     },
     {
       "path": "artifacts/scripts/guard_status_validator.py",
-      "sha256": "d4cec0bb021c484a06a1c728a58a64a8b3236aded67a795a825c3fa52b90eb0e"
+      "sha256": "b3aa5166c54a69d6e96206d7c561e2f8a56903166fb4cdefcc234f129a375595"
     },
     {
       "path": "artifacts/scripts/legacy_verify_corpus.py",
@@ -589,7 +589,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_core.py",
-      "sha256": "cec3a1193844ca7be493e9177f059a00319daf8a42fbd8ed4eae2b77c0e5159d"
+      "sha256": "0cba451566c1dc192098962893d2cd3cb2927fd6ba268c4d348b94fc64dd645b"
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_state.py",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "4536a8ad9f5fb90a34947ace65e320eb44e3144bc2580eb137575431a0e1e39e"
+  "root": "835f527e917097bcd1e2ab47f4c29378ee1428b65e519e47cf7374a25d69a58f"
 }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -365,6 +366,21 @@ def generic_secret_is_actionable(secret_value: str) -> bool:
     return not is_placeholder_secret(secret_value) and shannon_entropy(secret_value) >= 3.0
 
 
+def redact_secret(excerpt: str, secret_value: str) -> str:
+    """Mask a detected secret inside an excerpt before it is emitted (SEC-LEAK).
+
+    A secret scanner must never reproduce the raw secret in its own report,
+    console output, JSON, or SARIF (those logs are frequently more widely
+    readable than the source). The masked token keeps a length + sha256 prefix so
+    findings stay identifiable and dedupable without exposing the value.
+    """
+    if not secret_value:
+        return excerpt
+    digest = hashlib.sha256(secret_value.encode("utf-8", "replace")).hexdigest()[:8]
+    placeholder = f"<redacted:{len(secret_value)}c:sha256:{digest}>"
+    return excerpt.replace(secret_value, placeholder)
+
+
 def build_finding(rule_id: str, severity: str, rel_path: str, line_number: int, message: str, excerpt: str) -> Finding:
     return Finding(rule_id=rule_id, severity=severity, path=rel_path, line=line_number, message=message, excerpt=excerpt.strip())
 
@@ -387,6 +403,7 @@ def scan_secrets(root: Path, *, skipped: list[str] | None = None) -> list[Findin
                     continue
                 line_number = text.count("\n", 0, match.start()) + 1
                 excerpt = text.splitlines()[line_number - 1] if text.splitlines() else match.group(0)
+                excerpt = redact_secret(excerpt, secret_value)  # SEC-LEAK: never emit the raw secret
                 findings.append(build_finding(rule_id, severity, rel_path, line_number, message, excerpt))
 
         if path.suffix.lower() not in {".cmd", ".env", ".ini", ".json", ".ps1", ".py", ".sh", ".toml", ".yaml", ".yml"}:
@@ -403,7 +420,7 @@ def scan_secrets(root: Path, *, skipped: list[str] | None = None) -> list[Findin
                         rel_path,
                         line_number,
                         "Possible hard-coded secret assignment",
-                        line,
+                        redact_secret(line, secret_value),  # SEC-LEAK: never emit the raw secret
                     )
                 )
     return dedupe_findings(findings)

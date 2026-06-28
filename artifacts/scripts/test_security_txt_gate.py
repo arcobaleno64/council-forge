@@ -271,3 +271,32 @@ def test_run_missing_file_usage(tmp_path: Path, capsys):
 def test_run_stdin(monkeypatch):
     monkeypatch.setattr("sys.stdin", io.StringIO(_txt(expires="2099-01-01T00:00:00Z")))
     assert gate.run(["--file", "-", "--max-validity-days", "100000"]) == gate.EXIT_OK
+
+
+# --------------------------------------------------------------------------- #
+# BND-01 / BND-02: pin the Expires boundary comparisons (mutation blind spots).
+# These lock the exact `<=` / `>` operators against silent loosening/tightening.
+
+def test_expires_exactly_now_is_stale():
+    # BND-01: `expires <= now` — Expires == now must FAIL (kills the `<=`->`<` mutant).
+    code, msg = _eval(_txt(expires="2026-06-08T00:00:00Z"), now=NOW)
+    assert code == gate.EXIT_FAIL and "stale" in msg
+
+
+def test_expires_one_second_after_now_is_not_stale():
+    # Just past `now` must NOT be flagged stale (the other side of the `<=` boundary).
+    code, msg = _eval(_txt(expires="2026-06-08T00:00:01Z"), now=NOW)
+    assert code == gate.EXIT_OK
+
+
+def test_expires_exactly_max_validity_is_accepted():
+    # BND-02: `days_out > max_validity_days` — exactly == max must PASS
+    # (kills the `>`->`>=` off-by-one mutant). NOW + 365d == 2027-06-08.
+    code, msg = _eval(_txt(expires="2027-06-08T00:00:00Z"), now=NOW, max_validity_days=365)
+    assert code == gate.EXIT_OK and "365d out" in msg
+
+
+def test_expires_one_day_over_max_validity_fails():
+    # One day past the cap must FAIL (the other side of the `>` boundary).
+    code, msg = _eval(_txt(expires="2027-06-09T00:00:00Z"), now=NOW, max_validity_days=365)
+    assert code == gate.EXIT_FAIL and "max-validity-days" in msg

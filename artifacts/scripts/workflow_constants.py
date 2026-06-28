@@ -13,7 +13,7 @@ REQUIRED_TOPICS = {
     "premortem",
 }
 
-TOPIC_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+TOPIC_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")  # redos-ok: anchored ^...$; each (?:-[a-z0-9]+)* iteration must start with a literal '-', so input partitions are unique (linear) — audit REDOS-04 clearance
 
 DEFAULT_ASSURANCE_LEVEL = "poc"
 DEFAULT_PROJECT_ADAPTER = "generic"

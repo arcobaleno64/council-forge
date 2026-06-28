@@ -3,22 +3,28 @@
   "plan_version": "v3.4",
   "created_at": "2026-04-29T14:00:00+08:00",
   "created_by": "TASK-1021",
-  "last_updated_by": "TASK-1012",
-  "last_updated_at": "2026-05-03T22:00:00+08:00",
+  "last_updated_by": "security-hardening-engagement-2026Q2 (PR #36/#37/#38)",
+  "last_updated_at": "2026-06-28T16:00:00+08:00",
   "entries": [
     {
       "finding_id": "FIND-23",
       "title": "Indirect injection through research snippets",
       "source_task_id": "TASK-1021",
-      "proposed_status": "In-Progress",
+      "proposed_status": "Mitigated",
       "evidence_refs": [
         "artifacts/verify/TASK-1021.verify.md",
         "artifacts/code/TASK-1021.code.md",
-        "artifacts/verify/TASK-1019.verify.md"
+        "artifacts/verify/TASK-1019.verify.md",
+        "artifacts/scripts/prompt_injection_scan.py",
+        "artifacts/red_team/prompt_injection_corpus.jsonl",
+        "artifacts/scripts/test_prompt_injection_scan.py",
+        ".github/workflows/security-deep-scan.yml#prompt-injection",
+        "git:fc81f6d8448ff3a111585a97d3ccc2e0d85b8e51 (PR #37)"
       ],
-      "rationale": "Governance policy established in Prompt 0a: untrusted-by-default trust policy (Rule-1/3/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-INJECTION-001/002/003 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts. RT-INJECTION-004 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 blocks research-injected governance overrides; guard_contract_validator --audit-raci exits 1 VIOLATION regardless of research artifact content.",
-      "finalized_by": "TASK-1012",
-      "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-INJECTION-004"
+      "rationale": "Governance policy established in Prompt 0a: untrusted-by-default trust policy (Rule-1/3/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-INJECTION-001/002/003 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). RT-INJECTION-004 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 blocks research-injected governance overrides; guard_contract_validator --audit-raci exits 1 VIOLATION regardless of research artifact content. || 2026-06-28 UPDATE (out-of-cadence, PR #37): the deferred runtime enforcement is now implemented as a fail-closed CI gate. prompt_injection_scan.py detects high-confidence injection shapes (instruction override; role/system impersonation; system-prompt & credential exfiltration; workflow-gate subversion; command coercion; smuggled invisible/bidi/tag Unicode; markdown exfil beacons) across the whole artifact surface (strict tier) and additionally over the untrusted external-input zone *.tavily_raw.md (lexical tier). Calibrated 100% recall / 0 false positives against the 36-case bilingual adversarial corpus (artifacts/red_team/prompt_injection_corpus.jsonl); the prompt-injection CI job fails closed on any missed attack, false positive, or unjustified finding. This realises the 'runtime guard' exit criterion as a DETECTIVE control at the CI/intake boundary over exactly the research-snippet surface FIND-23 names.",
+      "finalized_by": "TASK-1012 (v3.4 baseline); status advanced by security-hardening-engagement-2026Q2 (PR #37)",
+      "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-INJECTION-004",
+      "residual_risk": "Detective control: detect-and-block at commit/CI time, NOT a preventive per-read structural trust-tagging guard that stops an agent from ever treating content as authoritative at read-time. A read-time intake trust-boundary remains as defense-in-depth backlog. Snapshot finalization (Mitigated in the frozen inventory) deferred to the next quarterly threat-model exercise per docs/security_cadence.md."
     },
     {
       "finding_id": "FIND-24",
@@ -30,7 +36,7 @@
         "artifacts/code/TASK-1021.code.md",
         "artifacts/verify/TASK-1019.verify.md"
       ],
-      "rationale": "Governance policy established in Prompt 0a: source-ref-required authority policy (Rule-2/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-MEMORY-001/002 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). Full Mitigated status requires runtime guard implementation and verification evidence from later prompts. RT-MEMORY-POISON-001 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 is the sole authoritative source; .github/memory-bank/ files are not read by the validator; narrative authority claims have no effect.",
+      "rationale": "Governance policy established in Prompt 0a: source-ref-required authority policy (Rule-2/4) documented at artifacts/code/TASK-1021.code.md §Trust Policy. Starter red-team cases RT-MEMORY-001/002 define detection scenarios. Runtime enforcement deferred to Prompt 1+ (TASK-1006+). RT-MEMORY-POISON-001 (TASK-1019 Prompt 6e) confirmed: RACI_MATRIX_V2 is the sole authoritative source; .github/memory-bank/ files are not read by the validator; narrative authority claims have no effect. || 2026-06-28 NOTE (PR #37): a reusable injection detector (prompt_injection_scan.py) now exists and COULD be extended to the memory-bank intake boundary, but its current scan scope is artifacts/ only and does NOT cover .github/memory-bank/. FIND-24 therefore remains In-Progress; no status change. Extending the detector (or an equivalent structural guard) to memory-bank intake is the concrete next step toward Mitigated.",
       "finalized_by": "TASK-1012",
       "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-MEMORY-POISON-001"
     },
@@ -46,6 +52,23 @@
       "rationale": "Source/template drift for artifacts/scripts/run_red_team_suite.py resolved by removing case_live_964() and RT-LIVE-964 CaseDefinition (TASK-964 legacy evidence is right-answer-for-wrong-reason, not canonical; not eligible for template sync). guard_contract_validator passes after repair. Remaining requirements for Mitigated: (1) CI exact-sync guard for root<->template pairs, (2) drift regression case in test corpus, (3) decision path evidence for drift resolution, (4) clean guard_contract_validator run. Items 1 and 2 are deferred to TASK-1007+. FIND-18 remains In-Progress. RT-SOURCE-TEMPLATE-001 (TASK-1019 Prompt 6e) confirmed: EXACT_SYNC_FILES contract enforced; guard_contract_validator detects checksum mismatch; drift laundering via verify narrative is correctly blocked.",
       "finalized_by": "TASK-1012",
       "red_team_execution_ref": "artifacts/governance/red-team-execution-results.v3.4.json#RT-SOURCE-TEMPLATE-001"
+    },
+    {
+      "finding_id": "FIND-35",
+      "title": "Availability: catastrophic regex backtracking (ReDoS) in guard validators",
+      "source_task_id": "security-hardening-engagement-2026Q2",
+      "new_finding": true,
+      "severity": "Medium",
+      "proposed_status": "Mitigated",
+      "evidence_refs": [
+        "artifacts/scripts/regex_safety_audit.py",
+        "artifacts/scripts/test_regex_safety_audit.py",
+        ".github/workflows/security-deep-scan.yml#regex-safety",
+        "git:d4b1d0bcc533de2589628b9f83a571cfacf4929b (PR #36)"
+      ],
+      "rationale": "Threat class absent from the v3.4 inventory, surfaced by the 2026Q2 security audit: a maliciously crafted artifact field can trigger catastrophic backtracking in guard-validator regexes (root cause of REDOS-01 / REDOS-02), stalling CI and local validation (availability denial-of-service against the workflow's own gates). Instances fixed via linear rewrites (REDOS-01 research-source entry pattern; REDOS-02 citation pattern), each equivalence-verified with a fixed battery plus 20k fuzz inputs. Systemic recurrence is prevented by regex_safety_audit.py: a fail-closed CI gate (regex-safety job) that rejects any re.compile pattern carrying a ReDoS-prone shape (nested quantifier; the .+\\..+ unbounded-double-dot motif; dual tempered fill) unless it carries a reviewed `# redos-ok:` justification. Heuristic validated against 100 in-repo compiled patterns (only 6 flagged, all audit-cleared as linear-safe). New finding proposed for inclusion in the next quarterly snapshot.",
+      "finalized_by": "pending next quarterly threat-model exercise",
+      "residual_risk": "Shape-based heuristic: a novel non-shape ReDoS construction could evade the linter. Bounded by the repo convention of linear-by-construction patterns with explicit quantifier bounds, and by the `# redos-ok:` review requirement for any flagged pattern."
     }
   ]
 }

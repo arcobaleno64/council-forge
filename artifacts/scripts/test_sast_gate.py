@@ -316,3 +316,13 @@ def test_run_summary_file_unwritable_usage(tmp_path: Path, capsys):
 def test_run_stdin(monkeypatch):
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_sarif([]))))
     assert sast_gate.run(["--sarif", "-"]) == sast_gate.EXIT_OK
+
+
+# Mutation-kill: pin the exit-code contract and required CLI args (survived mutants).
+def test_exit_code_contract():
+    assert (sast_gate.EXIT_OK, sast_gate.EXIT_FAIL, sast_gate.EXIT_USAGE) == (0, 1, 2)
+
+
+def test_sarif_arg_is_required():
+    with pytest.raises(SystemExit):
+        sast_gate.parse_args([])

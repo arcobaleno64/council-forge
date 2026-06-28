@@ -281,15 +281,15 @@
     },
     {
       "path": ".github/workflows/security-scan.yml",
-      "sha256": "39ee7273b3fbf380509d6bade6832b4eda92f2fb02c70ccef267286c67637ada"
+      "sha256": "7b0b855e53c5fb92f559d8ba36d5d583dd519975b8620f3c2abf449318d9f12a"
     },
     {
       "path": ".github/workflows/weekly-council-audit.yml",
-      "sha256": "ee9d0612760fe28c7ea98622a46ba8de0bfbc4d15f4bf381be7797a905b8d26d"
+      "sha256": "67f864aabcd5c4449d685eac61be44b870b602f39017ae692e39e01204c8cb48"
     },
     {
       "path": ".github/workflows/workflow-guards.yml",
-      "sha256": "f844a27597cf15fe21b9ac1f4a5ec0f1114ad093743af2d4de10719753c974b0"
+      "sha256": "0618e57df4c909938f6d500d1952a7b29a3ef2ebceaaee490c002e5947a7a4b7"
     },
     {
       "path": ".gitignore",
@@ -980,5 +980,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "17a2c3435e48e97d71cd8f19cf4eb09dcf52bdf7d6382b9e945b3ddb2fe77263"
+  "root": "8c4e78e2711bfff7ae4cada098eea869892cefc1f1feba58f6dcf70fb21b36d6"
 }

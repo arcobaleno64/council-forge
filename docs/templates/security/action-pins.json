@@ -2,12 +2,12 @@
   "_comment": "Approved GitHub Actions for council-forge security workflows: identity (owner/repo) -> pinned version tag + resolved full commit SHA. test_downstream_security_template.py asserts every `uses:` in the security workflows (root + template security-scan.yml and docs/templates/security/downstream-security-scan.yml) matches an entry here by identity AND exact SHA. Bump periodically (see README.md); update both the workflow `uses:` and this manifest together.",
   "actions": {
     "actions/checkout": {
-      "version": "v6.0.2",
-      "sha": "de0fac2e4500dabe0009e67214ff5f5447ce83dd"
+      "version": "v7.0.0",
+      "sha": "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"
     },
     "actions/setup-python": {
-      "version": "v6.2.0",
-      "sha": "a309ff8b426b58ec0e2a45f0f869d46889d02405"
+      "version": "v6.3.0",
+      "sha": "ece7cb06caefa5fff74198d8649806c4678c61a1"
     }
   }
 }

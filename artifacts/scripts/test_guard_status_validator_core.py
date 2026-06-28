@@ -2925,3 +2925,58 @@ class TestGuardStatusValidatorCoverageCatchup:
     def test_improvement_profile_reads_declared_value(self):
         assert gsv.improvement_profile("- Improvement Profile: gate-e") == "gate-e"
         assert gsv.improvement_profile("- Improvement Profile: bogus\n- Trigger Type: failure") == "gate-e"
+
+
+class TestNoRedirectTokenLeak:
+    """F-01: the PR-files fetch must NOT follow redirects, so the Authorization
+    bearer token can never be forwarded to a redirect target (SSRF / token leak)."""
+
+    def test_redirect_handler_raises_instead_of_following(self):
+        handler = gsv._NoRedirectHandler()
+        req = urllib.request.Request("https://api.github.com/x")
+        with pytest.raises(urllib.error.HTTPError):
+            handler.redirect_request(req, MagicMock(), 302, "Found", {}, "http://169.254.169.254/")
+
+    def test_collect_pr_files_does_not_forward_token_on_redirect(self, monkeypatch):
+        import http.server
+        import threading
+
+        hits = {"files": 0, "leaked": 0, "leaked_auth": None}
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *a):  # silence access logging
+                pass
+
+            def do_GET(self):
+                if self.path.startswith("/leaked"):
+                    hits["leaked"] += 1
+                    hits["leaked_auth"] = self.headers.get("Authorization")
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"[]")
+                    return
+                hits["files"] += 1
+                # An allowlisted host redirecting to an "internal" target.
+                self.send_response(302)
+                self.send_header("Location", "/leaked/latest/meta-data")
+                self.end_headers()
+
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            monkeypatch.setenv(gsv.GITHUB_API_ALLOWED_HOSTS_ENV, "127.0.0.1")
+            monkeypatch.setenv("GITHUB_TOKEN", "ghp_sentinel_should_never_be_forwarded")
+            files, error = gsv.collect_github_pr_files(
+                "owner/repo", "1", f"http://127.0.0.1:{port}"
+            )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+
+        assert error is not None and "refusing to follow redirect" in error
+        assert files == set()
+        # The redirect target must never have been contacted (no token leak).
+        assert hits["leaked"] == 0, "redirect was followed — SSRF/token-leak path is open"
+        assert hits["leaked_auth"] is None

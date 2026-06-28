@@ -466,6 +466,35 @@ def load_archive_snapshot(repo_root: Path, code_path: Path, evidence: Dict[str, 
     return archive_files, archive_rel, None
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Refuse to auto-follow HTTP redirects (audit F-01).
+
+    Python's default ``HTTPRedirectHandler`` re-attaches every request header —
+    including ``Authorization: Bearer <token>`` — to the redirect target, and the
+    host allowlist is only checked on the *base* URL, never on the ``Location``.
+    An allowlisted (or compromised GHE) host returning ``302 Location:
+    http://169.254.169.254/...`` would therefore forward the token to an internal
+    endpoint (SSRF + credential leak). The GitHub PR-files API never legitimately
+    redirects, so we treat any 3xx as a hard error instead of following it.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D401
+        raise urllib.error.HTTPError(
+            req.full_url,
+            code,
+            f"refusing to follow redirect to {newurl!r}: redirects are not permitted "
+            f"for the GitHub PR files API (blocked to prevent Authorization-token "
+            f"forwarding / SSRF)",
+            headers,
+            fp,
+        )
+
+
+# Opener that never follows redirects; used for all outbound PR-files requests so
+# the bearer token can never be re-sent to a redirect target (audit F-01).
+_GITHUB_PR_OPENER = urllib.request.build_opener(_NoRedirectHandler)
+
+
 def collect_github_pr_files(repository: str, pull_number: str, api_base_url: str) -> Tuple[Set[str], Optional[str]]:
     owner, repo, repo_error = parse_repository_ref(repository)
     if repo_error or owner is None or repo is None:
@@ -491,7 +520,9 @@ def collect_github_pr_files(repository: str, pull_number: str, api_base_url: str
         )
         request = urllib.request.Request(url, headers=headers)
         try:
-            with urllib.request.urlopen(request, timeout=30) as response:
+            # F-01: use the no-redirect opener so a 3xx from an allowlisted host
+            # cannot forward the Authorization token to the redirect target.
+            with _GITHUB_PR_OPENER.open(request, timeout=30) as response:
                 response_body = response.read(MAX_DIFF_EVIDENCE_REPLAY_BYTES + 1)
         except urllib.error.HTTPError as exc:
             detail = summarize_remote_error_detail(exc.read(), exc.reason or "HTTP error")

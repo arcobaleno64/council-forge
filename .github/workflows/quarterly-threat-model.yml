@@ -42,7 +42,9 @@ jobs:
               '',
               '- [ ] Read `docs/red_team_runbook.md` for the exercise procedure.',
               '- [ ] Read `docs/red_team_scorecard.md` for the scoring matrix.',
-              '- [ ] Run the exercise and produce the artifact under `artifacts/red_team/` (path per runbook).',
+              '- [ ] Run the static workflow-integrity phase: `python artifacts/scripts/run_red_team_suite.py --phase static`.',
+              '- [ ] Run the generative discovery engine: invoke the `security-audit` skill (`.github/skills/security-audit/`) to hunt exploitable vulnerabilities; validate its `findings.json` with `python .github/skills/security-audit/scripts/validate_findings.py --findings <run>/findings.json`.',
+              '- [ ] Stage confirmed findings into `artifacts/governance/threat-findings-pending-update.*.json` per SKILL.md Phase 7 (do NOT edit the frozen inventory snapshot).',
               '- [ ] File any follow-up backlog items per `docs/red_team_backlog.md`.',
               '- [ ] Close this issue with a link to the produced artifact.',
               '',
@@ -56,6 +58,7 @@ jobs:
               '- Runbook: `docs/red_team_runbook.md`',
               '- Scorecard: `docs/red_team_scorecard.md`',
               '- Backlog: `docs/red_team_backlog.md`',
+              '- Discovery engine: `.github/skills/security-audit/SKILL.md` (adapted from cloudflare/security-audit-skill, MIT)',
               '',
               '---',
               '_If this issue was created in error or already addressed for this quarter, close it with a brief note._'

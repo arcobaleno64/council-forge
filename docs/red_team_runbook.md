@@ -150,6 +150,30 @@ python artifacts/scripts/prompt_regression_validator.py --root . --output artifa
 
 若你正在調查某個 red-team case 的 fixture 內容，可在任何 phase 命令後面加上 `--keep-temp`；未加時，repo 內不應留下新的 `.codex-red-team/RT-*` 目錄。
 
+### Phase 5: 生成式漏洞發掘（security-audit skill）
+
+Phase 1–4 驗的是**已知**的 workflow 完整性(固定案例 + 契約 guard)。Phase 5 補的是
+**未知、可被 exploit 的漏洞發掘**——由 `.github/skills/security-audit/`(改編自
+cloudflare/security-audit-skill, MIT)驅動的六階段 pipeline:recon → 多角度 hunt →
+對抗式 validate → report → `findings.json`(對齊 `report-schema.json`)→ 獨立核對。
+
+季度演練執行步驟:
+
+1. 啟動 `security-audit` skill,目標含 repo 與 `artifacts/scripts/`(guard/gate 控制面)。
+   高價值 lens:crafted artifact 是否能顛覆 guard、洗白 scope drift、污染 authority、
+   或 DoS validator(ReDoS)。先比對既有 FIND-18/23/24/35,不重報已緩解者。
+2. 驗證結構化輸出(fail-closed):
+
+   ```powershell
+   python .github/skills/security-audit/scripts/validate_findings.py --findings artifacts/red_team/audit/run-<N>/findings.json
+   ```
+
+3. 把 `confirmed` findings 依 SKILL.md Phase 7 的欄位對應,寫進
+   `artifacts/governance/threat-findings-pending-update.*.json` 的 `entries[]`(proposed
+   狀態),**不得**改動凍結的 inventory 快照;最終定案由本季度演練收斂為新快照。
+
+Phase 5 與確定性 CI gate 互補:gate 防「已知壞樣式復發」,本 phase 找「未知可 exploit 漏洞」。
+
 ## 5. 驗收方式
 
 - 靜態案例至少 8 案中 6 案由 guard 直接擋下。

@@ -212,6 +212,22 @@
       "sha256": "d812fe76dbbbdcf4373e919eaa480a501553eb94c391c934cac0e3251771c840"
     },
     {
+      "path": ".github/skills/security-audit/NOTICE",
+      "sha256": "7c36b8e96cf79eb0888f36b7405244e0d9bd743e305c1e7a3d53f3a1e2cb0f1c"
+    },
+    {
+      "path": ".github/skills/security-audit/SKILL.md",
+      "sha256": "d66ed69949f894e2acab254e57fad339626e76bb4c88abd0baf2bc5e1d34191a"
+    },
+    {
+      "path": ".github/skills/security-audit/report-schema.json",
+      "sha256": "2014b9947b35c31336d2f7d4fd28eb3bb1883bfdd108a9337419482266580e81"
+    },
+    {
+      "path": ".github/skills/security-audit/scripts/validate_findings.py",
+      "sha256": "af2c3aa6ebc0526492621dfe5199c85a3207e0f929b21955e37825b686cd37bc"
+    },
+    {
       "path": ".github/skills/security-review/SKILL.md",
       "sha256": "002392d88637b89e4cbc409a0531834970937f3b57c0b448a17e04b5ca6d356c"
     },
@@ -241,7 +257,7 @@
     },
     {
       "path": ".github/workflows/quarterly-threat-model.yml",
-      "sha256": "12d27e4037eee08207dc4f71f17b0a986e8ce7ef3f56e06f24240e3afa9ed357"
+      "sha256": "be2cd67295142ba769e9d1d58f1e8397bbc629d1e57d67a51b25233b159034cc"
     },
     {
       "path": ".github/workflows/security-scan.yml",
@@ -773,7 +789,7 @@
     },
     {
       "path": "docs/red_team_runbook.md",
-      "sha256": "d1d0853cab8f643a8c6b72c19fbe1ac827fbd1f096764b29186446b9a6a9e50d"
+      "sha256": "9a18825aa8163a4fba2552800a9209ae8e9c8208390113f76e05f9923d9e34d7"
     },
     {
       "path": "docs/red_team_scorecard.generated.md",
@@ -924,5 +940,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "4f78a3dd9911a502d64c3d358b27be19ff0f48b9595ffccdc93c0a558425f428"
+  "root": "06c9c06132e7574383db5fc1f2154ee7168bb86b1316c3d6c7ae44db3c15daf0"
 }

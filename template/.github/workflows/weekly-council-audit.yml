@@ -25,7 +25,11 @@ jobs:
 
       - name: Install Codex CLI
         run: |
-          npm install -g @openai/codex@latest
+          # CI-03: pin to an exact version instead of the floating @latest. This
+          # job runs the installed CLI with contents:write and OPENAI_API_KEY, so a
+          # malicious/compromised @latest publish would run with those privileges.
+          # Bump this pin deliberately after reviewing upstream release notes.
+          npm install -g @openai/codex@0.142.3
           CODEX_BIN="$(command -v codex)"
           if [ -z "$CODEX_BIN" ]; then
             echo "::error::codex binary not found on PATH after npm install"

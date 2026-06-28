@@ -489,7 +489,7 @@
     },
     {
       "path": "artifacts/scripts/guard_status_validator.py",
-      "sha256": "48ddcc518ac1080679bd9e0c416fc1c25b87be21139e2d2d59446a8ece5ecb8e"
+      "sha256": "aad6fb1ed8bf099b5776860825a3e79bbad672aa3f4e2604b3b50a9abd1bfc17"
     },
     {
       "path": "artifacts/scripts/legacy_verify_corpus.py",
@@ -597,7 +597,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_units.py",
-      "sha256": "d96120cb944cca52bc089bd6fb2348e6c71fb60ac991471467edf45c8a9a75ec"
+      "sha256": "487362ba8c7621b3acb9813d55b692d34f356b5187c7f4aa5e16740dab04735f"
     },
     {
       "path": "artifacts/scripts/test_invoke_codex_agent.py",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "5c4e7911a224aabc6a731a55c47679690136ed644153519a6a000ca8320aecc0"
+  "root": "3f9bc5bd6baf6304c2968db41df35aed94ad2cc1fdaa125ed525b0f0d7489619"
 }

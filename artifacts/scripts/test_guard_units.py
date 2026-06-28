@@ -89,14 +89,48 @@ class TestCitationPatternRelaxation:
             assert not p.search(sample), f"should NOT match prose: {sample!r}"
 
     def test_research_sources_entry_pattern_accepts_repo_path(self):
-        sp = _gsv.RESEARCH_SOURCES_ENTRY_PATTERN
         sample = '[1] council-forge. "spec." docs/schemas/artifact-spec-research.md (2026-05-08 retrieved)'
-        assert sp.match(sample), f"should accept repo-path source entry: {sample!r}"
+        assert _gsv.research_source_entry_matches(sample), f"should accept repo-path source entry: {sample!r}"
 
     def test_research_sources_entry_pattern_still_accepts_url(self):
-        sp = _gsv.RESEARCH_SOURCES_ENTRY_PATTERN
         sample = '[2] OWASP. "ReDoS." https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS (2026-05-08 retrieved)'
-        assert sp.match(sample), f"should still accept URL source entry: {sample!r}"
+        assert _gsv.research_source_entry_matches(sample), f"should still accept URL source entry: {sample!r}"
+
+    def test_research_sources_entry_pattern_accepts_bracketed_url(self):
+        # REDOS-01 regression guard: the original pattern abutted the source with
+        # no separator, so angle-bracket-wrapped URLs (real TASK-1060 sources)
+        # were accepted. The linear replacement must preserve this.
+        for sample in (
+            '[1] git-scm.com. "git-stash Documentation." <https://git-scm.com/docs/git-stash> (2026-05-07 retrieved)',
+            '[3] Microsoft Learn. "about_Quoting_Rules - PowerShell." <https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules> (2026-05-07 retrieved)',
+        ):
+            assert _gsv.research_source_entry_matches(sample), f"bracketed-URL entry must be accepted: {sample!r}"
+
+    def test_research_sources_entry_pattern_rejects_title_without_period(self):
+        # REDOS-01 fix preserves the prior `.+\..+` requirement that the title
+        # region carry a period (the URL's own dot does not satisfy it).
+        sample = '[1] Author "Title" https://example.com (2026-01-15 retrieved)'
+        assert not _gsv.research_source_entry_matches(sample), (
+            f"title without a period must be rejected: {sample!r}"
+        )
+
+    def test_research_sources_entry_pattern_rejects_non_entry_lines(self):
+        for sample in ("https://bare.com", "just plain text",
+                       "https://bare.com (2026-01 retrieved)"):
+            assert not _gsv.research_source_entry_matches(sample), (
+                f"non-entry line must be rejected: {sample!r}"
+            )
+
+    def test_research_sources_entry_pattern_is_linear_no_redos(self):
+        # REDOS-01: a ~40 KB pathological `## Sources` line previously hung for
+        # tens of seconds. The linear replacement must complete near-instantly.
+        import time as _time
+        payload = "[1] " + "a." * 20000 + " x"
+        start = _time.perf_counter()
+        result = _gsv.research_source_entry_matches(payload)
+        elapsed = _time.perf_counter() - start
+        assert result is False
+        assert elapsed < 1.0, f"ReDoS regression: match took {elapsed:.2f}s on {len(payload)}B line"
 
     def test_citation_pattern_dual_site_consistency(self):
         # R4 mitigation: guard_status_validator.py and guard_helpers/markers.py

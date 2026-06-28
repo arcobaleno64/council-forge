@@ -1610,13 +1610,13 @@ class TestGsvCollectGithubPrFiles:
         mock_resp.read.return_value = b"Not found"
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
             assert error is not None
 
     def test_url_error(self):
         from urllib.error import URLError
-        with patch("urllib.request.urlopen", side_effect=URLError("connection refused")):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", side_effect=URLError("connection refused")):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
             assert error is not None
 
@@ -1943,7 +1943,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         assert error is not None
 
     def test_custom_host_requires_allowlist(self):
-        with patch("urllib.request.urlopen") as mock_urlopen:
+        with patch.object(gsv._GITHUB_PR_OPENER, "open") as mock_urlopen:
             files, error = gsv.collect_github_pr_files("user/repo", "1", "https://github.example.com/api/v3")
         assert files == set()
         assert "not allowed" in error
@@ -1957,7 +1957,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = mock_body
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is None
         assert "src/main.py" in files
@@ -1968,7 +1968,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = b"not json"
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "invalid JSON" in error
@@ -1979,7 +1979,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = json.dumps(payload).encode("utf-8")
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert files == set()
         assert "exceeds replay byte cap" in error
@@ -1989,7 +1989,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = b'{"not": "a list"}'
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "non-list" in error
@@ -2000,7 +2000,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = json.dumps(payload).encode("utf-8")
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "non-object" in error
@@ -2011,7 +2011,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.read.return_value = json.dumps(payload).encode("utf-8")
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "without filename" in error
@@ -2019,14 +2019,14 @@ class TestGsvCollectGithubPrFilesDeeper:
     def test_http_error_with_detail(self):
         exc = urllib.error.HTTPError("http://example.com", 403, "Forbidden", {}, None)
         exc.read = lambda: b"rate limit exceeded"
-        with patch("urllib.request.urlopen", side_effect=exc):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", side_effect=exc):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "403" in error
 
     def test_url_error_detail(self):
         from urllib.error import URLError
-        with patch("urllib.request.urlopen", side_effect=URLError("connection refused")):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", side_effect=URLError("connection refused")):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "connection" in error
@@ -2041,7 +2041,7 @@ class TestGsvCollectGithubPrFilesDeeper:
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
         mock_resp.headers = {"Link": ""}
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             files, error = gsv.collect_github_pr_files("user/repo", "1", "")
         assert error is not None
         assert "invalid filename" in error
@@ -2452,7 +2452,7 @@ class TestGsvHistoricalDiffCommitRange:
         mock_resp.read.return_value = json.dumps(payload).encode("utf-8")
         mock_resp.__enter__ = lambda s: s
         mock_resp.__exit__ = lambda *a: None
-        with patch("urllib.request.urlopen", return_value=mock_resp):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", return_value=mock_resp):
             result = gsv.detect_historical_diff_scope_drift(None, plan, code)
         assert not result.errors
 
@@ -2474,7 +2474,7 @@ class TestGsvHistoricalDiffCommitRange:
         """)
         code.write_text(code_text, encoding="utf-8")
         exc = urllib.error.URLError("connection refused")
-        with patch("urllib.request.urlopen", side_effect=exc):
+        with patch.object(gsv._GITHUB_PR_OPENER, "open", side_effect=exc):
             result = gsv.detect_historical_diff_scope_drift(None, plan, code)
         assert any("failed" in e for e in result.errors)
 
@@ -2505,7 +2505,7 @@ class TestGsvInferStateFromArtifacts:
 
 class TestGsvCollectGithubPrFilesEdgeCases:
     """Cover lines 505, 507, 516 — pagination and edge cases."""
-    @unittest.mock.patch("artifacts.scripts.guard_status_validator.urllib.request.urlopen")
+    @unittest.mock.patch.object(gsv._GITHUB_PR_OPENER, "open")
     def test_exceeds_max_pages(self, mock_urlopen):
         """Cover line 507 — too many pages."""
         # Create a response with exactly 100 items to trigger next page
@@ -2524,7 +2524,7 @@ class TestGsvCollectGithubPrFilesEdgeCases:
         assert err is not None
         assert "exceeds" in err
 
-    @unittest.mock.patch("artifacts.scripts.guard_status_validator.urllib.request.urlopen")
+    @unittest.mock.patch.object(gsv._GITHUB_PR_OPENER, "open")
     def test_non_list_response(self, mock_urlopen):
         resp = unittest.mock.MagicMock()
         resp.read.return_value = json.dumps({"error": "not found"}).encode()
@@ -2535,7 +2535,7 @@ class TestGsvCollectGithubPrFilesEdgeCases:
         files, err = gsv.collect_github_pr_files("owner/repo", "1", "")
         assert err is not None
 
-    @unittest.mock.patch("artifacts.scripts.guard_status_validator.urllib.request.urlopen")
+    @unittest.mock.patch.object(gsv._GITHUB_PR_OPENER, "open")
     def test_missing_filename_key(self, mock_urlopen):
         resp = unittest.mock.MagicMock()
         resp.read.return_value = json.dumps([{"path": "a.py"}]).encode()
@@ -2726,7 +2726,7 @@ class TestGsvCollectGithubPrFilesWithToken:
     """Cover line 481 — Authorization header when GITHUB_TOKEN is set."""
     def test_token_header_included(self):
         with unittest.mock.patch.dict(os.environ, {"GITHUB_TOKEN": "test-token-abc"}, clear=False):
-            with unittest.mock.patch("urllib.request.urlopen") as mock_urlopen:
+            with unittest.mock.patch.object(gsv._GITHUB_PR_OPENER, "open") as mock_urlopen:
                 mock_resp = unittest.mock.MagicMock()
                 mock_resp.read.return_value = b"[]"
                 mock_resp.__enter__ = lambda s: s

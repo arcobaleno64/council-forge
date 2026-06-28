@@ -249,7 +249,7 @@
     },
     {
       "path": ".github/workflows/weekly-council-audit.yml",
-      "sha256": "ad07e5b7d0f7bc7ea0c1c1a0f25dc4266f3f45d32b7256f5048a86e338715360"
+      "sha256": "ee9d0612760fe28c7ea98622a46ba8de0bfbc4d15f4bf381be7797a905b8d26d"
     },
     {
       "path": ".github/workflows/workflow-guards.yml",
@@ -924,5 +924,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "835f527e917097bcd1e2ab47f4c29378ee1428b65e519e47cf7374a25d69a58f"
+  "root": "a7e5fe6132cf046000da56622f804d48b5657cccc696bfb831aba093b951ef8c"
 }

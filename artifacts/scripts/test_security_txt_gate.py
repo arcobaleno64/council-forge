@@ -300,3 +300,17 @@ def test_expires_one_day_over_max_validity_fails():
     # One day past the cap must FAIL (the other side of the `>` boundary).
     code, msg = _eval(_txt(expires="2027-06-09T00:00:00Z"), now=NOW, max_validity_days=365)
     assert code == gate.EXIT_FAIL and "max-validity-days" in msg
+
+
+# Mutation-kill: pin the exit-code contract, required arg, and the validity default.
+def test_exit_code_contract():
+    assert (gate.EXIT_OK, gate.EXIT_FAIL, gate.EXIT_USAGE) == (0, 1, 2)
+
+
+def test_file_arg_is_required():
+    with pytest.raises(SystemExit):
+        gate.parse_args([])
+
+
+def test_max_validity_days_default_is_365():
+    assert gate.parse_args(["--file", "x"]).max_validity_days == 365

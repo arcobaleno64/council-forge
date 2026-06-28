@@ -336,3 +336,22 @@ def test_run_summary_unwritable(tmp_path, capsys):
 def test_run_stdin(monkeypatch, capsys):
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(manifest())))
     assert rg.run(["--format", "checksums", "--file", "-"]) == rg.EXIT_OK
+
+
+# Mutation-kill: pin the exit-code contract, required CLI args, and min-entries default.
+def test_exit_code_contract():
+    assert (rg.EXIT_OK, rg.EXIT_FAIL, rg.EXIT_USAGE) == (0, 1, 2)
+
+
+def test_format_arg_is_required():
+    with pytest.raises(SystemExit):
+        rg.parse_args(["--file", "x"])
+
+
+def test_file_arg_is_required():
+    with pytest.raises(SystemExit):
+        rg.parse_args(["--format", "checksums"])
+
+
+def test_min_entries_default_is_1():
+    assert rg.parse_args(["--format", "checksums", "--file", "x"]).min_entries == 1

@@ -3014,3 +3014,39 @@ class TestGitRefArgInjection:
         monkeypatch.setattr(gsv.subprocess, "run", _boom)
         commit, error = gsv.resolve_git_revision_commit(Path("."), "--output=/x")
         assert commit is None and error is not None and "unsafe git ref" in error
+
+
+class TestSsrfTransportHardening:
+    """F-06: require https for non-loopback hosts. F-02: re-validate host per request."""
+
+    def test_normalize_rejects_http_for_non_loopback(self, monkeypatch):
+        monkeypatch.setenv(gsv.GITHUB_API_ALLOWED_HOSTS_ENV, "github.example.com")
+        url, err = gsv.normalize_api_base_url("http://github.example.com/api/v3")
+        assert url is None and err is not None and "https" in err
+
+    def test_normalize_allows_http_for_loopback(self, monkeypatch):
+        monkeypatch.setenv(gsv.GITHUB_API_ALLOWED_HOSTS_ENV, "127.0.0.1")
+        url, err = gsv.normalize_api_base_url("http://127.0.0.1:8080")
+        assert err is None and url == "http://127.0.0.1:8080"
+
+    def test_normalize_allows_https_for_non_loopback(self, monkeypatch):
+        monkeypatch.setenv(gsv.GITHUB_API_ALLOWED_HOSTS_ENV, "github.example.com")
+        url, err = gsv.normalize_api_base_url("https://github.example.com/api/v3")
+        assert err is None and url == "https://github.example.com/api/v3"
+
+    def test_collect_revalidates_host_per_request(self, monkeypatch):
+        # F-02: even if base-URL validation were bypassed/changed, the per-request
+        # check must refuse a non-allowlisted host before any network call.
+        monkeypatch.setenv(gsv.GITHUB_API_ALLOWED_HOSTS_ENV, "api.github.com")
+        monkeypatch.setattr(gsv, "normalize_api_base_url",
+                            lambda raw: ("https://evil.example.com", None))
+        called = {"open": False}
+
+        def _boom(*a, **k):
+            called["open"] = True
+            raise AssertionError("opener must not be called for a non-allowlisted host")
+
+        monkeypatch.setattr(gsv._GITHUB_PR_OPENER, "open", _boom)
+        files, error = gsv.collect_github_pr_files("owner/repo", "1", "https://evil.example.com")
+        assert files == set() and error is not None and "non-allowlisted host" in error
+        assert called["open"] is False

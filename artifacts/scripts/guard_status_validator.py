@@ -650,8 +650,31 @@ def collect_git_changed_files(repo_root: Path) -> Tuple[Set[str], List[str]]:
     return changed, warnings
 
 
+# ARG-INJ: Base/Head Ref come from a code artifact's ## Diff Evidence (attacker-
+# authorable) and flow into git argv. A ref like `--output=/x` or `--git-dir=/x`
+# would otherwise be parsed by git as an option. Reject option-like / unsafe refs
+# before they reach argv; the allowed set covers real refs (SHAs, branch names,
+# `HEAD~1`, `origin/main`, `^{commit}` suffixes) but excludes a leading dash,
+# whitespace, and shell/option metacharacters.
+_SAFE_GIT_REF = re.compile(r"^[A-Za-z0-9._/^~@{}-]+$")
+
+
+def validate_git_ref(ref: str) -> Optional[str]:
+    if not ref or ref.startswith("-"):
+        return f"unsafe git ref {ref!r}: must be non-empty and must not start with '-'"
+    if not _SAFE_GIT_REF.match(ref):
+        return f"unsafe git ref {ref!r}: contains disallowed characters"
+    return None
+
+
 def collect_git_diff_range_files(repo_root: Path, base_ref: str, head_ref: str) -> Tuple[Set[str], Optional[str]]:
-    command = ["git", "-C", str(repo_root), "diff", "--name-only", f"{base_ref}..{head_ref}"]
+    for ref in (base_ref, head_ref):
+        ref_error = validate_git_ref(ref)
+        if ref_error is not None:
+            return set(), ref_error
+    # --end-of-options guarantees the range token is never parsed as an option,
+    # even if the validation above is ever relaxed.
+    command = ["git", "-C", str(repo_root), "diff", "--name-only", "--end-of-options", f"{base_ref}..{head_ref}"]
     try:
         result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8")
     except FileNotFoundError:
@@ -668,6 +691,12 @@ def collect_git_diff_range_files(repo_root: Path, base_ref: str, head_ref: str) 
 
 
 def resolve_git_revision_commit(repo_root: Path, revision: str) -> Tuple[Optional[str], Optional[str]]:
+    # ARG-INJ: reject option-like / unsafe revisions before they reach git argv.
+    # (`git rev-parse --end-of-options` echoes the flag into its own output, so the
+    # validation — not --end-of-options — is the guard here.)
+    revision_error = validate_git_ref(revision)
+    if revision_error is not None:
+        return None, revision_error
     command = ["git", "-C", str(repo_root), "rev-parse", f"{revision}^{{commit}}"]
     try:
         result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8")

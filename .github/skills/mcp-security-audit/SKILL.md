@@ -251,6 +251,65 @@ if not results["summary"]["passed"]:
 
 ---
 
+## Audit Check 5: Approved-Server Allowlist
+
+Confirm every server in `.mcp.json` is on the project's vetted allowlist
+(`.github/mcp/approved-servers.json`) **and** pinned to an approved version. This is
+the governance gate: a new server is only trusted after a recorded decision (pinned
+version, secrets-via-env, rationale, source).
+
+```python
+def check_approved(server_name: str, server_config: dict, allowlist: dict) -> list[dict]:
+    """Check a server against .github/mcp/approved-servers.json."""
+    findings = []
+    entries = {e["name"]: e for e in allowlist.get("approved_servers", [])}
+    entry = entries.get(server_name)
+    if entry is None:
+        findings.append({
+            "severity": "HIGH",
+            "check": "unapproved-server",
+            "message": f"'{server_name}' is not on the approved-server allowlist",
+            "fix": "Add a vetted, pinned entry to .github/mcp/approved-servers.json, or remove the server",
+        })
+        return findings
+    pinned = str(entry.get("pinned_version", ""))
+    if pinned and pinned not in json.dumps(server_config):
+        findings.append({
+            "severity": "MEDIUM",
+            "check": "version-mismatch",
+            "message": f"'{server_name}' is not pinned to the approved version ({pinned})",
+            "fix": f"Pin {entry.get('package', server_name)} to {pinned}",
+        })
+    return findings
+```
+
+The allowlist format (`.github/mcp/approved-servers.json`):
+
+```json
+{
+  "schema": "council-forge/mcp-approved-servers@1",
+  "policy": { "pinned_versions_required": true, "secrets_via_env_only": true, "disallow_latest_tag": true },
+  "approved_servers": [
+    { "name": "tavily", "package": "tavily-mcp", "pinned_version": "0.2.9",
+      "secrets_via_env": ["TAVILY_API_KEY"], "risk_tier": "medium",
+      "rationale": "research web search", "source_url": "https://github.com/tavily-ai/tavily-mcp" }
+  ]
+}
+```
+
+### Headless runner (deterministic, CI-ready)
+
+All five checks are implemented as a stdlib script so they can run in CI or pre-commit:
+
+```
+python artifacts/scripts/mcp_config_audit.py --root . --config .mcp.json
+```
+
+Exit 0 = clean, 1 = findings, 2 = error (fail-closed). A vetted example config that
+passes all five checks lives at `.mcp.json.example`.
+
+---
+
 ## Output Format
 
 ```

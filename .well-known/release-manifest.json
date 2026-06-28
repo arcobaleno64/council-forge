@@ -44,6 +44,10 @@
       "sha256": "8f9dd06ab0bb9717cad5114acb97d870f1d987ac5625125adffbe367b7c6733a"
     },
     {
+      "path": ".github/mcp/approved-servers.json",
+      "sha256": "48229422a67b9289c5bd787e51b0ef18a98dabb176501103a69c8238236605b2"
+    },
+    {
       "path": ".github/memory-bank/README.md",
       "sha256": "737a56547385dacf7601e5fbc9c2ce33e4a51b516cc098a38673df319d62ea5c"
     },
@@ -173,7 +177,7 @@
     },
     {
       "path": ".github/skills/mcp-security-audit/SKILL.md",
-      "sha256": "2bbe95278d4ca17d1f836b8c66ec19189ffce7e939f53c400e7ab79e7490a1f7"
+      "sha256": "8174e3da3eac322674e2abb54bd36c1c5b5f245c2c7810909bf730506720223f"
     },
     {
       "path": ".github/skills/quality-playbook/LICENSE.txt",
@@ -274,6 +278,10 @@
     {
       "path": ".gitignore",
       "sha256": "1e7d63b846c4839c9b4d2438e118a1247e23714c78baf1fa53c441b79a66f18e"
+    },
+    {
+      "path": ".mcp.json.example",
+      "sha256": "4880bb0399cf5c6bc334c6f0e8a5b9322671a7b7998b290a4e1319965c158a60"
     },
     {
       "path": ".obsidian/appearance.json",
@@ -514,6 +522,10 @@
     {
       "path": "artifacts/scripts/load_env.ps1",
       "sha256": "3af8047cecf8ea56d7e9721e1d618495a7e765d6d0e78b9c19c173b05e0d6159"
+    },
+    {
+      "path": "artifacts/scripts/mcp_config_audit.py",
+      "sha256": "17ef6385247544c34ac1308416e26db3b2b9d69e1b6ed5093c6628970f9451c3"
     },
     {
       "path": "artifacts/scripts/migrate_artifact_schema.py",
@@ -940,5 +952,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "06c9c06132e7574383db5fc1f2154ee7168bb86b1316c3d6c7ae44db3c15daf0"
+  "root": "66099c5bbc64c02b28cb9fcbea9bcbc8fc23176cf1c67a84438521ab7d3d22a9"
 }

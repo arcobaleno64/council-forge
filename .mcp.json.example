@@ -1,0 +1,44 @@
+{
+  "_comment": "VETTED EXAMPLE — copy to .mcp.json and adjust. Every server here is on .github/mcp/approved-servers.json, pinned (no @latest), takes secrets only via ${ENV} references, and uses npx -y / non-interactive commands. Run the mcp-security-audit skill (or artifacts/scripts/mcp_config_audit.py) against your real .mcp.json before committing. Verify each pinned version against https://registry.modelcontextprotocol.io before use.",
+  "_secrets": "Provide GITHUB_PERSONAL_ACCESS_TOKEN and TAVILY_API_KEY via your environment, never inline. Grant least-privilege (read-only / fine-grained) tokens.",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.8.21", "${WORKSPACE_ROOT}"],
+      "_note": "Restrict the root to the repo path only — never home or system roots."
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["--from", "mcp-server-git==2025.7.1", "mcp-server-git", "--repository", "${WORKSPACE_ROOT}"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["--from", "mcp-server-fetch==2025.4.7", "mcp-server-fetch"],
+      "_note": "Fetched content is untrusted input — prompt-injection policy (TASK-1021 Rule-3/4) applies."
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory@2025.8.4"],
+      "_note": "Convenience cache only; artifacts remain the single source of truth."
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2025.7.1"]
+    },
+    "github": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server:v0.21.0"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "_note": "HIGH risk — use a least-privilege, fine-grained token; avoid write scopes unless a task needs them."
+    },
+    "tavily": {
+      "command": "npx",
+      "args": ["-y", "tavily-mcp@0.2.9"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
+    }
+  }
+}

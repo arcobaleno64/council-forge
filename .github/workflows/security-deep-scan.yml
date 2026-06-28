@@ -98,3 +98,24 @@ jobs:
             tail -c 60000 semgrep.txt || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+  regex-safety:
+    # Systemic ReDoS control: fail closed if any re.compile pattern has a
+    # ReDoS-prone shape without a reviewed `# redos-ok:` justification. Prevents
+    # a third catastrophic-backtracking regex from landing (root cause of
+    # REDOS-01 / REDOS-02). Pure stdlib — no install step.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Regex-safety audit (fail-closed)
+        run: python artifacts/scripts/regex_safety_audit.py --root .

@@ -144,7 +144,7 @@ CAVEAT = (
 
 # Horizontal-whitespace-only field matcher (NOT `\s*`, which would consume newlines and let a
 # blank field capture the NEXT line — an anti-forgery / completion-spoof bypass; impl-review).
-_LAST_UPDATED_RE = re.compile(
+_LAST_UPDATED_RE = re.compile(  # redos-ok: anchored ^...$; [^\S\r\n] fills are horizontal-WS-only (newline-bounded) around literal field delimiters — linear; intentional anti-spoof design
     r"^[-*]?[^\S\r\n]*Last Updated[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$",
     re.IGNORECASE | re.MULTILINE,
 )
@@ -508,10 +508,10 @@ class ReviewRecord:
 # consume the newline and capture the NEXT line as its value (D9 anti-forgery; impl-review).
 _REVIEW_FIELD_RES = {
     "reviewed_task": re.compile(r"^[-*]?[^\S\r\n]*Reviewed-Task[^\S\r\n]*:[^\S\r\n]*(TASK-\d+)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),
-    "bar": re.compile(r"^[-*]?[^\S\r\n]*Bar[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),
-    "reviewers": re.compile(r"^[-*]?[^\S\r\n]*Reviewers[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),
-    "codex_evidence": re.compile(r"^[-*]?[^\S\r\n]*Codex-Evidence[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),
-    "gemini_evidence": re.compile(r"^[-*]?[^\S\r\n]*Gemini-Evidence[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),
+    "bar": re.compile(r"^[-*]?[^\S\r\n]*Bar[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),  # redos-ok: anchored ^...$, horizontal-WS-only fills — linear (anti-spoof field matcher)
+    "reviewers": re.compile(r"^[-*]?[^\S\r\n]*Reviewers[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),  # redos-ok: anchored ^...$, horizontal-WS-only fills — linear
+    "codex_evidence": re.compile(r"^[-*]?[^\S\r\n]*Codex-Evidence[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),  # redos-ok: anchored ^...$, horizontal-WS-only fills — linear
+    "gemini_evidence": re.compile(r"^[-*]?[^\S\r\n]*Gemini-Evidence[^\S\r\n]*:[^\S\r\n]*([^\r\n]*?)[^\S\r\n]*$", re.IGNORECASE | re.MULTILINE),  # redos-ok: anchored ^...$, horizontal-WS-only fills — linear
 }
 
 

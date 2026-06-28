@@ -1,0 +1,89 @@
+{
+  "schema": "council-forge/mcp-approved-servers@1",
+  "description": "Governance allowlist of MCP servers vetted for use in this project. The `mcp-security-audit` skill (Check 5) flags any server in .mcp.json whose name is absent here or whose pinned version is not allowed. Adding a server here is a security decision: it must be pinned (never @latest), take secrets only via ${ENV} references, and have a recorded rationale + source.",
+  "policy": {
+    "pinned_versions_required": true,
+    "secrets_via_env_only": true,
+    "disallow_latest_tag": true,
+    "version_note": "pinned_version values below are EXAMPLE pins. Before adopting a server, verify the current release on the official MCP registry (https://registry.modelcontextprotocol.io) and update the pin to a verified version + digest where available."
+  },
+  "approved_servers": [
+    {
+      "name": "filesystem",
+      "package": "@modelcontextprotocol/server-filesystem",
+      "pinned_version": "2025.8.21",
+      "transport": "stdio",
+      "command": "npx",
+      "secrets_via_env": [],
+      "risk_tier": "medium",
+      "rationale": "Scoped file access for the orchestrator. MUST be restricted to explicit roots (repo path); never grant home or system roots.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    },
+    {
+      "name": "git",
+      "package": "mcp-server-git",
+      "pinned_version": "2025.7.1",
+      "transport": "stdio",
+      "command": "uvx",
+      "secrets_via_env": [],
+      "risk_tier": "medium",
+      "rationale": "Read/search git history for artifact-first evidence (commit-range replay, diff inspection). Read-mostly; do not expose destructive operations.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/git"
+    },
+    {
+      "name": "fetch",
+      "package": "mcp-server-fetch",
+      "pinned_version": "2025.4.7",
+      "transport": "stdio",
+      "command": "uvx",
+      "secrets_via_env": [],
+      "risk_tier": "medium",
+      "rationale": "HTTP content extraction for research. SSRF surface: keep loopback/internal-host fetches disabled; treat fetched content as untrusted input (subject to the prompt-injection policy, TASK-1021 Rule-3/4).",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch"
+    },
+    {
+      "name": "memory",
+      "package": "@modelcontextprotocol/server-memory",
+      "pinned_version": "2025.8.4",
+      "transport": "stdio",
+      "command": "npx",
+      "secrets_via_env": [],
+      "risk_tier": "low",
+      "rationale": "Knowledge-graph memory across sessions. NOTE: per the artifact-first principle, artifacts remain the single source of truth; memory is a convenience cache, not authoritative state (cf. FIND-24 memory-poisoning).",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+    },
+    {
+      "name": "sequential-thinking",
+      "package": "@modelcontextprotocol/server-sequential-thinking",
+      "pinned_version": "2025.7.1",
+      "transport": "stdio",
+      "command": "npx",
+      "secrets_via_env": [],
+      "risk_tier": "low",
+      "rationale": "Explicit step-by-step reasoning aid for complex governance/red-team decisions. No external side effects.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking"
+    },
+    {
+      "name": "github",
+      "package": "ghcr.io/github/github-mcp-server",
+      "pinned_version": "v0.21.0",
+      "transport": "stdio",
+      "command": "docker",
+      "secrets_via_env": ["GITHUB_PERSONAL_ACCESS_TOKEN"],
+      "risk_tier": "high",
+      "rationale": "Official GitHub MCP server for PR/issue/CI visibility and artifact evidence (github-pr replay). HIGH risk: grant least-privilege, read-only/fine-grained tokens; never write scopes unless a task requires it.",
+      "source_url": "https://github.com/github/github-mcp-server"
+    },
+    {
+      "name": "tavily",
+      "package": "tavily-mcp",
+      "pinned_version": "0.2.9",
+      "transport": "stdio",
+      "command": "npx",
+      "secrets_via_env": ["TAVILY_API_KEY"],
+      "risk_tier": "medium",
+      "rationale": "Web search/extract for the research phase (the project already uses Tavily via the Gemini wrapper). Results are untrusted external content (prompt-injection policy applies).",
+      "source_url": "https://github.com/tavily-ai/tavily-mcp"
+    }
+  ]
+}

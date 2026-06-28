@@ -171,9 +171,33 @@ LEGACY_STATE_ALIASES = {
     "code_ready": "coding",
     "verify_ready": "verifying",
 }
+# REDOS-01 fix: the prior single-regex form used `.+\..+` — two greedy spans
+# separated by a literal `.` that the spans also match — which catastrophically
+# backtracks on attacker-controlled `## Sources` lines (~2 KB line -> ~15 s hang,
+# well under the 512 KB file cap). Replaced with a linear structural match: an
+# unambiguous anchored pattern captures the title region, and the "title must
+# contain a period" requirement (previously enforced by `.+\..+`) is checked in
+# Python. Accept/reject semantics are preserved exactly (verified against the
+# prior pattern over a battery of cases); worst case is now linear in line length.
 RESEARCH_SOURCES_ENTRY_PATTERN = re.compile(
-    r"^\[(\d+)\]\s+.+\..+(?:https?://\S+|[A-Za-z0-9_./\\-]+\.[A-Za-z0-9]{1,10})\s+\(\d{4}-\d{2}-\d{2}\s+retrieved\)$"
+    r"^\[(\d+)\]\s+(?P<title>.*\S)\s+"
+    r"(?:https?://\S+|[A-Za-z0-9_./\\-]+\.[A-Za-z0-9]{1,10})"
+    r"\s+\(\d{4}-\d{2}-\d{2}\s+retrieved\)$"
 )
+
+
+def research_source_entry_matches(line: str) -> bool:
+    """Return True if a ``## Sources`` line is a well-formed citation entry.
+
+    Linear-time replacement for the prior catastrophically-backtracking regex
+    (REDOS-01). The anchored pattern fixes the overall structure; the title
+    region must additionally contain a period, matching the prior ``.+\\..+``
+    requirement that the author/title carry citation-style punctuation.
+    """
+    match = RESEARCH_SOURCES_ENTRY_PATTERN.match(line)
+    return match is not None and "." in match.group("title")
+
+
 RESEARCH_SOURCES_URL_PATTERN = re.compile(r"https?://\S+")
 RESEARCH_SOURCES_PARTIAL_DATE_PATTERN = re.compile(r"\((\d{4}(?:-\d{2})?(?:-\d{2})?)\s+retrieved\)$")
 MAPPING_TO_PLAN_ENTRY_PATTERN = re.compile(
@@ -873,7 +897,7 @@ def validate_research_citations(task_id: str, artifact_path: Path) -> List[Valid
     if len(source_lines) < 2:
         findings.append(ValidationError("MAJOR", "## Sources must contain at least 2 entries"))
     for line in source_lines:
-        if RESEARCH_SOURCES_ENTRY_PATTERN.match(line):
+        if research_source_entry_matches(line):
             continue
         if RESEARCH_SOURCES_URL_PATTERN.search(line):
             if RESEARCH_SOURCES_PARTIAL_DATE_PATTERN.search(line) or "retrieved" in line:

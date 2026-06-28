@@ -1,5 +1,28 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "_comment": "council-forge: inject the artifact-first contract as session context.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/session_start_context.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "_comment": "council-forge scope guard: warn on edits to template/, guard/gate scripts, or the release manifest. Non-blocking by default; set CF_HOOK_BLOCK=1 to hard-block (exit 2).",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/scope_guard.py"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "hooks": [
@@ -28,6 +51,15 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "_comment": "council-forge closure reminder: PROCESS_LEDGER + guards before done.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/stop_closure_reminder.py"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -38,6 +70,16 @@
           {
             "type": "command",
             "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; prettier --write \"$f\"; } 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "_comment": "council-forge: after an artifact .md write, surface the matching guard command (shift-left, advisory).",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/post_artifact_guard.py"
           }
         ]
       }

@@ -8,8 +8,24 @@
       "sha256": "e0db023a58a9b9634c3b70674ce5337e6782d85914d2709c1be9f19e21f4bc43"
     },
     {
+      "path": ".claude/hooks/post_artifact_guard.py",
+      "sha256": "735960f7df67c00f36280f529334e4003ae3e7223eb1b95398fa94790e2346bb"
+    },
+    {
+      "path": ".claude/hooks/scope_guard.py",
+      "sha256": "a4a6d15c40621cf428e7799b026a9d130fec43da5819a1d2d1397996f2fa9adf"
+    },
+    {
+      "path": ".claude/hooks/session_start_context.py",
+      "sha256": "fff719387de17ac43b77dc1038a4f2d497f6a49b5613940a13e9e3a34cfd65ed"
+    },
+    {
+      "path": ".claude/hooks/stop_closure_reminder.py",
+      "sha256": "94a1c077c488e6f8961582042a280545aedbc5c3fffd0f70da2a8048a9d39d21"
+    },
+    {
       "path": ".claude/settings.json.example",
-      "sha256": "3dad31323e27dfd32678b857103eb0ad84804ac0237a053b81b6d2b03102ea61"
+      "sha256": "dcabc4d84bbda9006dc392797ae3b63383d41b9bf313b98f89b9334250ee14f9"
     },
     {
       "path": ".coveragerc",
@@ -776,6 +792,10 @@
       "sha256": "fa59461bbab149ab892c58b85e19f520610bbb7ed1fb5e59d910c4bcbf3ac42d"
     },
     {
+      "path": "docs/hooks.md",
+      "sha256": "87dabbc459a953668381c85244686b97fe8040fd37b54cee3db72a890f313960"
+    },
+    {
       "path": "docs/lightweight_mode_rules.md",
       "sha256": "07f829f710ce9091f30c813da3ae688f7ba3bb46505cbc9dd5d88a119fb8988b"
     },
@@ -952,5 +972,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "66099c5bbc64c02b28cb9fcbea9bcbc8fc23176cf1c67a84438521ab7d3d22a9"
+  "root": "3c399c1b5c477c84d4618df82ce9f913ad225f4c11138e190b3732a4a09aa0f0"
 }

@@ -18,8 +18,11 @@ on:
         description: 'Red-Team Marathon 時長上限(分)'
         default: '45'
 
+# CI-02: least privilege by default. Only the experiments job is granted write,
+# and the checkout below does NOT persist the token, so the experiment steps run
+# without push credentials — the token is wired in only for the final push step.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: large-scale-experiments-${{ github.repository }}
@@ -32,11 +35,14 @@ jobs:
   experiments:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v5
@@ -76,9 +82,14 @@ jobs:
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push to rolling results branch
+        env:
+          # CI-02: the token is exposed only to this push step (checkout above used
+          # persist-credentials: false), not during experiment execution.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "claude-routine[bot]"
           git config user.email "claude-routine@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           # 切到（或建立）滾動 results 分支，累積每日趨勢快照。
           if git ls-remote --exit-code --heads origin "$RESULTS_BRANCH" >/dev/null 2>&1; then
             git fetch origin "$RESULTS_BRANCH"

@@ -300,6 +300,10 @@
       "sha256": "4880bb0399cf5c6bc334c6f0e8a5b9322671a7b7998b290a4e1319965c158a60"
     },
     {
+      "path": ".nojekyll",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
       "path": ".obsidian/appearance.json",
       "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
     },
@@ -980,5 +984,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "8c4e78e2711bfff7ae4cada098eea869892cefc1f1feba58f6dcf70fb21b36d6"
+  "root": "3e1f81d4b172a08f6545d24b27aa4562113a23b024b967f5f597a9b5e1c821b5"
 }

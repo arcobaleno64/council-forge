@@ -37,6 +37,13 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          # Self-heal: enable Pages and switch its build type to "GitHub Actions"
+          # if it isn't already. Without this, the step 404s ("Get Pages site
+          # failed") whenever the repo's Pages source is still "Deploy from a
+          # branch", which also leaves the classic Jekyll build running and
+          # failing on {{ }} in markdown across the repo.
+          enablement: true
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0

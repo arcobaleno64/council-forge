@@ -38,6 +38,8 @@ Fresh sub-agent（Gemini wrapper / Codex wrapper / 多數 named subagent_type）
 
 threshold 之未來調校（上下調或引入分段 threshold）屬另立 task 之決策範圍；任何調整須同步本文件 + `memory/feedback_dispatch_prompt_discipline.md` + PR-031 anchor。
 
+Claude Fable 5 / Mythos 5 之強指令遵循進一步印證此 threshold：模型用一條簡短指令即可引導行為，無需逐條列舉每種情況，故 ≤500 char 之短 prompt 不再犧牲行為精度。詳見 `.github/memory-bank/prompt-patterns.md` §「Claude Fable 5 / Mythos 5 提示調校」。
+
 ### 3.2 fabrication-prone 例外之 rationale
 
 Sub-agent（特別是 Gemini CLI）對引用 SHA / 版本號 / commit hash 之 fabrication 為已知行為（per `memory/feedback_wrapper_known_bugs.md` Bug-B1）。若採 path-reference 令 sub-agent 自行 Read，sub-agent 仍可能在生成 output 時產出 fabricated 字面。故 fabrication-prone 引用永遠 inline + `UNVERIFIED:` 標記，並要求 sub-agent 走 `gh api` / `grep` 直驗回報，不接受 sub-agent 之 verbal claim。
@@ -101,3 +103,4 @@ Wrapper-side enforcement（自 TASK-1067）：三 wrapper（`Invoke-CodexAgent` 
 - `artifacts/scripts/Invoke-CodexReview.ps1`：review wrapper；本規範不適用之反證。
 - `artifacts/scripts/drills/prompt_regression_cases.json` PR-031：本文件之 keyword pin anchor。
 - 三 agent 入口檔之 cross-reference：`CLAUDE.md` 派發段、`GEMINI.md` Write Scope Discipline 段、`CODEX.md` Write Scope Discipline 段。
+- `.github/memory-bank/prompt-patterns.md` §「Claude Fable 5 / Mythos 5 提示調校」：Fable 5 強指令遵循印證本規範之 ≤500 char 路由；effort 分層對應 dispatch 之 `Model / Effort` 欄。

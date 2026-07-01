@@ -1,7 +1,7 @@
 # Prompt Patterns — 本 Repo 的寫作範式
 
 **Reference**: AGENTS.md, BOOTSTRAP_PROMPT.md  
-**Last Updated**: 2026-04-24 +08:00
+**Last Updated**: 2026-07-01 +08:00
 
 ## Agent Dispatch Pattern
 
@@ -100,6 +100,41 @@ Option A: Revert bar.py / config.py
 Option B: Create decision artifact with Guard Exception
 Option C: Abort and refile as sub-task
 ```
+## Claude Fable 5 / Mythos 5 提示調校
+
+**Source**: platform.claude.com/docs `build-with-claude/prompt-engineering/prompting-claude-fable-5`（zh-TW，retrieved 2026-07-01）。以下把 Fable 5 特有行為映射到本 repo 的 orchestration 流程；升級模型（Opus 4.8 → Fable 5 / Mythos 5）時據此重估既有 dispatch prompt 與 skill。
+
+### Effort 分層（對應 dispatch 的 `Model / Effort` 欄）
+
+- 預設 `high`；能力最敏感者（架構決策、跨模組 verify、premortem R1-R4）用 `xhigh`；docs-only / 例行 lint 用 `medium`/`low`。Fable 5 低 effort 常已超越舊模型 `xhigh`。
+- 任務能完成但耗時過長，或想要更互動的風格 → 降 effort。
+- 高 effort 下 Fable 5 易過度收集 context 與做未要求的重構；dispatch 的 `範圍：【明確不做什麼】` 欄必須實填（呼應 single-writer 與 scope-drift guard）。
+
+### 強指令遵循 ⇄ Dispatch Prompt Discipline
+
+Fable 5 用一條簡短指令即可引導行為，無需逐條列舉每種情況。這與 `docs/dispatch_prompt_discipline.md` 的 ≤500 char 路由互為印證：短 prompt 不再犧牲行為精度，故不得在 dispatch 內鋪陳冗長行為清單。
+
+### 進度聲明須有據（同源於 Build Guarantee）
+
+長時間 dispatch 加一句：「報告前逐條 claim 對照本 session 的 tool result；未驗證就明說 UNVERIFIED」。此與本 repo「No evidence = not valid」/ Build Guarantee 同源；Anthropic 測試顯示此指令幾乎消除虛構狀態報告。
+
+### 不要指示 agent 複述其推理（reasoning_extraction 拒絕風險）
+
+凡要求 agent「回顯 / 謄寫 / 在回應文字中解釋內部推理」的 dispatch 或 skill，在 Fable 5 可能觸發 `reasoning_extraction` 拒絕、升高 fallback 至 Opus 4.8 的比例。遷移時稽核既有 skill 與 system prompt；需推理可見性時改讀 adaptive thinking 的結構化 `thinking` 區塊。注意本 repo 的 anti-fabrication 規則要求的是「直驗回報」（gh api / grep）而非「複述推理」，兩者不同——保留直驗要求即可。
+
+### 平行 subagent 與 send-to-user
+
+- Fable 5 更積極派 parallel subagent 且偏好 async 溝通勝於阻塞等待（呼應 Code artifact 的 Subagent Plan 分工）。
+- 長時間非同步 agent 若需把交付物 / 進度原樣傳給使用者，定義 `send_to_user` 類 client tool 並於 system prompt 明確引導；僅定義不引導時模型很少主動呼叫。
+
+### 明確界限（呼應 single-writer / 「Claude 預設不自行實作」）
+
+Fable 5 偶爾採取未被要求的行動（草擬 email、建防禦性 git 備份分支）。dispatch 須界定：使用者在描述問題 / 提問而非要求變更時，交付物是評估報告，report and stop，不自行 apply fix。
+
+### 更長的預設回合
+
+高 effort 下單一請求可能跑數分鐘、自主執行延續數小時。呼叫端須調整 client timeout / streaming / 進度指示；框架宜以排程工作非同步檢查狀態，勿阻塞等待每個 subagent 回傳。
+
 ## 禁止項
 
 - Artifact 不按 schema 寫 — see docs/artifact_schema.md §5

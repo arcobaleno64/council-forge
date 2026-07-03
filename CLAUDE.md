@@ -135,7 +135,7 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 若 task 標記 `lightweight: true` 或無 plan 且仍在 drafted/researched：
 
 ✅ 可跳完整 premortem（但需 basic plan with objectives）  
-✅ 可簡化 verify（可用 Environment constraint instead of Build Guarantee）  
+✅ 可簡化 verify（依 resolved policy 放寬，低風險 `POC + generic` 的 required fields 較少；`## Environment` 非 guard-enforced，不能取代 Build Guarantee）  
 ❌ 仍需 code artifact + Files Changed
 
 詳見 .github/memory-bank/workflow-gates.md

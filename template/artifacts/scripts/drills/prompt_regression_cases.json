@@ -852,5 +852,21 @@
         "note": "Gemini Architecture Synthesizer must stay emit-only (draft text, no repo-tracked writes incl the cache) with the N=10 / sprint-review trigger; mirrors the Memory Bank Curator draft-only contract (PR-021)."
       }
     ]
+  },
+  {
+    "id": "PR-034",
+    "title": "Lightweight Verify Routes Through Resolved Policy",
+    "description": "CLAUDE.md lightweight guidance must govern verify obligations via the resolved policy and must not present ## Environment as a guard-enforced substitute for Build Guarantee. (sync CHG-008)",
+    "assertions": [
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "resolved policy",
+          "非 guard-enforced",
+          "Build Guarantee"
+        ],
+        "note": "Lightweight verify relaxation is governed by the resolved policy; ## Environment is documented as non-guard-enforced and cannot replace Build Guarantee (CHG-008 撤除 Environment 無 enforcement 宣稱)."
+      }
+    ]
   }
 ]

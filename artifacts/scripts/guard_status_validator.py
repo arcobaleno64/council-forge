@@ -1669,6 +1669,20 @@ def task_is_high_risk(task_path: Optional[Path], plan_text: str) -> bool:
     return any(keyword in haystack for keyword in HIGH_RISK_KEYWORDS)
 
 
+def split_premortem_risk_blocks(risks_text: str) -> List[Tuple[str, str]]:
+    """Split a ## Risks section into (label, block_text) pairs delimited by line-anchored
+    R<n> markers; text before the first marker is dropped. Under-splitting (merging blocks)
+    is the safe failure mode for the banned-phrase escalation. Real plans open blocks in
+    three shapes — bare ``R1``, list ``- R1``, and heading ``### R1`` — all at line start."""
+    matches = list(re.finditer(r"(?m)^\s*(?:[-*>#]+\s*)?R(\d+)\b", risks_text))
+    blocks: List[Tuple[str, str]] = []
+    for idx, match in enumerate(matches):
+        start = match.start()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(risks_text)
+        blocks.append((f"R{match.group(1)}", risks_text[start:end]))
+    return blocks
+
+
 def validate_premortem(plan_path: Path, task_path: Optional[Path]) -> ValidationResult:
     errors: List[str] = []
     warnings: List[str] = []
@@ -1702,8 +1716,22 @@ def validate_premortem(plan_path: Path, task_path: Optional[Path]) -> Validation
         )
     elif policy.min_critical == 0 and blocking_count == 0 and task_is_high_risk(task_path, text):
         warnings.append(f"{plan_path.name}: high-risk signals detected but task_type='{policy.task_type}' does not require blocking risk")
+    # CHG-007: escalate banned phrases per R-block. A vague phrase inside a risk block
+    # that is missing any required field is an error (a stub dismissal); the same phrase
+    # in an otherwise-complete block stays a warning. Phrases outside any block warn.
+    risk_blocks = split_premortem_risk_blocks(risks_text)
     for phrase in PREMORTEM_BANNED_PHRASES:
-        if phrase in risks_text:
+        if phrase not in risks_text:
+            continue
+        escalated = False
+        for label, block_text in risk_blocks:
+            if phrase in block_text and any(field not in block_text for field in PREMORTEM_REQUIRED_FIELDS):
+                errors.append(
+                    f"{plan_path.name}: premortem {label} contains vague phrase '{phrase}' but is "
+                    f"missing required Risk/Trigger/Detection/Mitigation/Severity fields"
+                )
+                escalated = True
+        if not escalated:
             warnings.append(f"{plan_path.name}: premortem contains potentially vague phrase '{phrase}' — ensure it has concrete trigger/detection/mitigation")
     return ValidationResult(errors, warnings)
 

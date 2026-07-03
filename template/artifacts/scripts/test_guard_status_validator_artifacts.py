@@ -1124,6 +1124,30 @@ class TestValidatePremortemEdges:
         assert result.ok
         assert any("風險低" in w for w in result.warnings)
 
+    def test_banned_phrase_incomplete_block_errors(self, tmp_path):
+        # CHG-007: a vague phrase inside an R-block that is missing required fields is an
+        # error (a stub dismissal). Sibling complete blocks keep the whole-doc field
+        # check satisfied, so the only error raised is the per-block escalation on R2.
+        risks = textwrap.dedent("""\
+            R1: Proper risk
+            - Risk: Real risk described
+            - Trigger: Event
+            - Detection: Monitor
+            - Mitigation: Fix
+            - Severity: blocking
+            R2 相容性問題，風險低
+            R3: Another proper risk
+            - Risk: Third thing
+            - Trigger: Event3
+            - Detection: Monitor3
+            - Mitigation: Fix3
+            - Severity: non-blocking
+        """)
+        plan = self._make_plan(tmp_path, risks)
+        result = gsv.validate_premortem(plan, None)
+        assert not result.ok
+        assert any("R2" in e and "風險低" in e for e in result.errors), result.errors
+
     def test_hotfix_policy_fewer_risks_ok(self, tmp_path):
         risks = textwrap.dedent("""\
             R1: Hotfix risk

@@ -150,6 +150,11 @@
     "phase": "static"
   },
   {
+    "case_id": "RT-031",
+    "title": "Premortem stub risk block with banned phrase escalates to error",
+    "phase": "static"
+  },
+  {
     "case_id": "RT-LIVE-950",
     "title": "Role boundary live drill",
     "phase": "live"

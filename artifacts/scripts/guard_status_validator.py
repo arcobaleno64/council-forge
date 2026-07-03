@@ -1020,7 +1020,7 @@ def validate_status_schema(status: dict, expected_task_id: str) -> ValidationRes
     if state not in VALID_STATES:
         errors.append(f"Invalid state: {state!r}")
     if status_uses_legacy_schema(status):
-        warnings.append("legacy status schema detected; run reconcile to promote state/current_owner/next_agent profile fields")
+        warnings.append("DEPRECATED legacy status schema (current_state) detected; support will be removed in a future release — run reconcile to migrate")
         required_keys = {"task_id", "current_state", "owner", "last_updated"}
         missing = required_keys - set(status.keys())
         if missing:

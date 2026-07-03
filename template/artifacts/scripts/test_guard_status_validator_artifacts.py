@@ -487,6 +487,22 @@ class TestValidateStatusSchema:
         result = gsv.validate_status_schema(status, "TASK-001")
         assert result.ok
 
+    def test_legacy_schema_deprecation_warning(self):
+        # CHG-002 stage 1: legacy (current_state) schema stays valid (zero behavior
+        # change) but the warning is upgraded to a DEPRECATED notice foretelling removal.
+        status = {
+            "task_id": "TASK-001",
+            "current_state": "drafted",
+            "owner": "Claude",
+            "last_updated": "2026-01-15T10:00:00+08:00",
+        }
+        result = gsv.validate_status_schema(status, "TASK-001")
+        assert result.ok
+        assert any(
+            "DEPRECATED" in w and "will be removed in a future release" in w
+            for w in result.warnings
+        ), result.warnings
+
     def test_legacy_blocked_without_blockers(self):
         status = {
             "task_id": "TASK-001",

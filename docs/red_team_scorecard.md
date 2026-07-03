@@ -16,6 +16,8 @@ python artifacts/scripts/aggregate_red_team_scorecard.py --report artifacts/red_
 python artifacts/scripts/validate_scorecard_deltas.py --scorecard docs/red_team_scorecard.generated.md
 ```
 
+> `docs/red_team_scorecard.generated.md` 為 root-only generated artifact（由上列聚合腳本產生），不納入 EXACT_SYNC 雙寫，`template/` 不保留其快照副本。
+
 ## 2. 自動欄位與人工欄位
 
 - 自動欄位：Case、Phase、Expected、Outcome、Exit、Auto Baseline、Evidence。

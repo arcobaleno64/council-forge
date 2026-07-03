@@ -76,6 +76,7 @@ RACI 與 agent capability 矩陣已拆分至 [docs/raci-matrix.md](raci-matrix.m
 | Tester | Codex subagent | test | -- (Codex/Claude A) | code | -- | task, plan, code | test |
 | Verifier | Codex subagent 或 Claude 控制下代理 | verify | -- (Claude A) | code / test | -- | task, code, test | verify |
 | Reviewer | Codex subagent | review notes | -- (Claude A) | plan / code | -- | task, plan, code | review 摘要或 decision 建議 |
+| Codex Reviewer (Council) | Codex subagent (Council) | review notes (3 model votes) | Claude（triage） | plan / code / git diff | -- | git diff | `artifacts/reviews/<timestamp>-<model>.md` |
 
 註：若你想維持最小集合，可先不建立獨立 review artifact，而把 reviewer 結果納入 decision log 或 verify artifact 的 evidence 區段。
 

@@ -1,21 +1,10 @@
 # RACI Matrix
 
-> 本檔由 `docs/subagent_roles.md` §2 拆分而來；RACI 與 agent capability 矩陣集中於此。
+> 本檔之 §2 角色總表已回歸單一真源 [docs/subagent_roles.md](subagent_roles.md) §2；本檔僅保留下列 §2.1 TAO Trace 必要程度表（此檔獨有）。
 
 ## 2. 角色總表
 
-| 角色 | 類型 | R (主執行) | A (最終問責) | C (諮詢) | I (通知) | 主要輸入 | 主要輸出 |
-|---|---|---|---|---|---|---|---|
-| Claude Code | 主控代理 | task / plan / decision / status | task / plan / verify / decision / status / improvement | research / code / verify | -- | 全部合法 artifacts | task, plan, verify, decision, status |
-| Gemini CLI | 研究 + memory curator | research / Tavily Cache / Remember Capture draft | -- (Claude A) | task | closure events | task, 研究相關文件, memory-bank 讀取範圍 | research, Tavily Cache draft, Remember Capture draft |
-| Codex CLI | 實作主代理 | code | -- (Claude A) | plan / research | -- | task, research, plan | code |
-| Implementer | Codex subagent | code (實檔修改) | -- (Codex/Claude A) | plan | -- | task, plan, research | code |
-| Tester | Codex subagent | test | -- (Codex/Claude A) | code | -- | task, plan, code | test |
-| Verifier | Codex subagent 或 Claude 控制下代理 | verify | -- (Claude A) | code / test | -- | task, code, test | verify |
-| Reviewer | Codex subagent | review notes | -- (Claude A) | plan / code | -- | task, plan, code | review 摘要或 decision 建議 |
-| Codex Reviewer (Council) | Codex subagent (Council) | review notes (3 model votes) | Claude（triage） | plan / code / git diff | -- | git diff | `artifacts/reviews/<timestamp>-<model>.md` |
-
-註：若你想維持最小集合，可先不建立獨立 review artifact，而把 reviewer 結果納入 decision log 或 verify artifact 的 evidence 區段。
+RACI 與 agent capability 矩陣之單一真源為 [docs/subagent_roles.md](subagent_roles.md) §2「角色總表（索引）」（hybrid-sync guard 綁定該檔 ↔ `workflow_constants.RACI_MATRIX`）。本檔不再重複該表。
 
 ### 2.1 TAO Trace 必要程度（執行層）
 

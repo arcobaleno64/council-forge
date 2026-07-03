@@ -74,6 +74,7 @@ RACI_MATRIX = {
     "Tester": {"test"},
     "Verifier": {"verify"},
     "Reviewer": {"review notes"},
+    "Codex Reviewer (Council)": {"review notes (3 model votes)"},
 }
 
 VERIFICATION_ITEM_RESULTS = (

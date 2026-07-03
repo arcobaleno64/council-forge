@@ -406,6 +406,14 @@ class TestWorkflowConstants:
     def test_rule_tables_are_self_consistent(self):
         assert wc.validate_workflow_rule_tables() == []
 
+    def test_raci_matrix_includes_council_reviewer(self):
+        # CHG-004: Codex Reviewer (Council) merged into the single source (subagent_roles.md
+        # §2). Its R value is one artifact token with no '/', so the hybrid-sync parser (which
+        # splits the R column on '/') round-trips it as a single-element set.
+        entry = wc.RACI_MATRIX["Codex Reviewer (Council)"]
+        assert entry == {"review notes (3 model votes)"}
+        assert all("/" not in token for token in entry)
+
 
 # ─────────────────────────────────────────────
 # validate_context_stack

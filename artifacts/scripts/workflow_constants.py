@@ -649,7 +649,7 @@ def classify_path(path_str: str) -> str:
 RACI_MATRIX_V2: dict[str, frozenset[str]] = {
     "Claude Code": frozenset({"task", "plan", "decision", "status"}),
     "Gemini CLI":  frozenset({"research", "memory_bank"}),
-    "Codex CLI":   frozenset({"code"}),
+    "Codex CLI":   frozenset({"code", "workflow_contract_docs"}),
     "Implementer": frozenset({"code"}),
     "Tester":      frozenset({"test"}),
     "Verifier":    frozenset({"verify"}),

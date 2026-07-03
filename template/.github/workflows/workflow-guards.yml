@@ -84,3 +84,38 @@ jobs:
 
       - name: Repo Health Dashboard
         run: python artifacts/scripts/repo_health_dashboard.py --root .
+
+      - name: RACI Path Classification (aux, changed governance files)
+        # CHG-006 auxiliary layer (secondary to the dispatch-wrapper RACI guard, which is
+        # the primary enforcement). CI has no agent identity, so this only classifies
+        # changed files under the governance dirs and fails closed if any is UNKNOWN.
+        # classify_path is directory-based, so files correctly placed under these prefixes
+        # always resolve to a known category -- this step is therefore a fail-closed
+        # structural invariant / defense-in-depth, not a per-agent judgment.
+        # Diff base unavailable (shallow checkout) -> skip with a warning. NOTE: full
+        # history is provided by fetch-depth: 0 on the checkout above (added by CHG-012).
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "${BASE:-}" ] || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            echo "[RACI-CI] diff base unavailable (shallow checkout?); skipping aux scan (dispatch wrappers are authoritative)."
+            exit 0
+          fi
+          CHANGED="$(git diff --name-only "$BASE" HEAD -- artifacts/tasks/ artifacts/plans/ artifacts/decisions/ artifacts/status/ docs/ || true)"
+          CHANGED="$CHANGED" python - <<'PY'
+          import os, sys
+          sys.path.insert(0, "artifacts/scripts")
+          import workflow_constants as wc
+          paths = [p for p in os.environ.get("CHANGED", "").splitlines() if p.strip()]
+          unknown = [p for p in paths if wc.classify_path(p) == "unknown"]
+          if unknown:
+              print("[RACI-CI] changed governance files with UNKNOWN RACI category (fail-closed):")
+              for p in unknown:
+                  print(f"  - {p}")
+              sys.exit(1)
+          print(f"[RACI-CI] {len(paths)} changed governance file(s); all classify to a known category.")
+          PY

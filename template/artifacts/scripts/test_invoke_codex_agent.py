@@ -564,3 +564,66 @@ class TestCodexBoundsCheck:
         assert result.returncode == 0, result.combined_output
         assert "exceeds reject limit" not in result.combined_output
         assert "exceeds soft limit" not in result.combined_output
+
+
+class TestCodexRaciAudit:
+    """CHG-006: post-dispatch RACI category audit on sub-agent writes. Orthogonal to
+    AllowedPaths — a path can be allow-listed yet be the wrong artifact class for the
+    agent. RACI violations are reported and (in -AutoRestore mode) exit 2, but are
+    never restored/deleted."""
+
+    @staticmethod
+    def _build_writer_exe(directory: Path, rel_path: str, content: str) -> Path:
+        directory.mkdir(parents=True, exist_ok=True)
+        script_path = directory / "codex_writer.py"
+        script_path.write_text(
+            textwrap.dedent(f"""
+            from __future__ import annotations
+            from pathlib import Path
+            target = Path.cwd() / {rel_path!r}
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text({content!r}, encoding="utf-8")
+            """).strip(),
+            encoding="utf-8",
+        )
+        exe_path = directory / "codex.cmd"
+        exe_path.write_text(
+            f'@echo off\r\n"{sys.executable}" "{script_path}" %*\r\nexit /b %ERRORLEVEL%\r\n',
+            encoding="utf-8",
+        )
+        return exe_path
+
+    def test_raci_violation_within_allowedpaths_exits_2(self, tmp_path, tmp_repo, run_wrapper):
+        # Sub-agent writes a *task* artifact that IS within AllowedPaths (no path
+        # violation) but is the wrong RACI class for Codex CLI -> RACI audit exit 2,
+        # and the path-allowed write is NOT restored/deleted.
+        exe = self._build_writer_exe(tmp_path / "w", "artifacts/tasks/TASK-raci.task.md", "raci\n")
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hi",
+            "-Executable", str(exe),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "artifacts/tasks/TASK-raci.task.md",
+            "-AutoRestore",
+        )
+        assert result.returncode == 2, result.combined_output
+        assert "RACI" in result.combined_output
+        assert (tmp_repo / "artifacts" / "tasks" / "TASK-raci.task.md").exists(), (
+            "RACI (path-allowed) write must not be deleted/restored"
+        )
+
+    def test_raci_allowed_class_within_allowedpaths_passes(self, tmp_path, tmp_repo, run_wrapper):
+        # Sub-agent writes a *code* artifact within AllowedPaths -> Codex CLI is
+        # authorized for the code class -> no RACI violation, exit 0.
+        exe = self._build_writer_exe(tmp_path / "w", "artifacts/code/TASK-raci.code.md", "code\n")
+        result = run_wrapper(
+            WRAPPER,
+            "-Prompt", "hi",
+            "-Executable", str(exe),
+            "-MaxRetriesPerTier", "0",
+            "-BaseBackoffSeconds", "0",
+            "-AllowedPaths", "artifacts/code/TASK-raci.code.md",
+            "-AutoRestore",
+        )
+        assert result.returncode == 0, result.combined_output

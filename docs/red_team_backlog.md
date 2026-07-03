@@ -5,8 +5,10 @@
 ## BKL-001 歷史 diff 重建仍未完全自動化
 
 - 目前狀態：`guard_status_validator.py` 現在除了 dirty worktree 的 git-backed changed-files 比對外，也支援以 pinned `Base Commit` / `Head Commit`、`Changed Files Snapshot` 與 `Snapshot SHA256` 重放 clean task 的 `commit-range` historical diff；若 local git replay 失敗且附有合法 `Archive Path` / `Archive SHA256`，也可改走 archive fallback；若 task 記錄 `Evidence Type: github-pr`，則可透過 GitHub PR files API 重建 changed files。
+- 分流定案（2026-07-02）：Branch A 是 dirty-worktree guard；標準 clean CI 不觸發 Branch A 屬設計分流，不是 dead-path bug。證據鏈：`TASK-954` 明文將 commit-range / historical diff reconstruction 列為 Out of Scope；`TASK-955` Background 接續定義 clean worktree task 需依 code artifact 的 historical diff evidence；RT-013 / RT-014 分別覆蓋 dirty worktree 與 pinned historical diff；`guard_status_validator.py` 與 README / schema 文件皆以 dirty worktree versus clean-task replay 描述同一分流。
 - 殘餘風險：若 task 沒有記錄 diff evidence、沒有準備 archive file、需要 GitHub 以外的 provider、遭遇 provider auth / rate-limit 問題、或 PR files 超過 GitHub endpoint 上限，guard 仍可能無法自動重建歷史 changed files；目前 ref drift 也只會告警，不會直接阻斷。
-- 建議補強：下一輪可加入其他 provider（GitLab / Azure / Bitbucket）、provider response 的長期封存策略、或把特定 ref drift / provider precondition 提升為 policy-driven hard fail。
+- 待決問題：`TASK-955.decision.md` 只在 Implications 明寫 code artifact schema 需要新增「可選的 `## Diff Evidence` 契約」，但未直接說明為何選填，也未判定是否應對未來 clean-task / Branch B closure 強制提供 diff evidence。`TASK-956.plan.md` 另有相容性風險防線（只在 artifact 已選擇 `commit-range` evidence 時要求完整欄位；無 evidence 或 dirty-worktree path 維持相容），但這仍不是獨立的 policy decision。下一輪應先查引入者討論或補 decision：若選填是刻意例外，記錄適用任務類型與理由；若查無理由，將「提高或強制特定 clean task 的 `## Diff Evidence` 採用」列為 BKL-001 補強項。
+- 建議補強：下一輪可加入其他 provider（GitLab / Azure / Bitbucket）、provider response 的長期封存策略、把特定 ref drift / provider precondition 提升為 policy-driven hard fail，並完成上列 `## Diff Evidence` 選填 policy 判定。
 
 ## BKL-002 Contract guard 的 exact-sync 清單需人工維護
 

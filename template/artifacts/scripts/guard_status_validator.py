@@ -76,16 +76,6 @@ ARTIFACT_EXTENSIONS = {
     "improvement": ".improvement.md",
     "status": ".status.json",
 }
-STATE_REQUIRED_ARTIFACTS = {
-    "drafted": {"task", "status"},
-    "researched": {"task", "research", "status"},
-    "planned": {"task", "plan", "status"},
-    "coding": {"task", "plan", "code", "status"},
-    "testing": {"task", "plan", "code", "test", "status"},
-    "verifying": {"task", "code", "status"},
-    "done": {"task", "code", "verify", "status"},
-    "blocked": {"task", "status"},
-}
 MARKERS = {
     "task": (
         "# Task:",

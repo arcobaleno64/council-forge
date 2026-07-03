@@ -299,7 +299,7 @@
    - 資料結構以 `@dataclass` 定義，語義清楚。
 
 3. **常數集中管理**
-   - 狀態機規則（`LEGAL_TRANSITIONS`、`STATE_REQUIRED_ARTIFACTS`）、artifact marker（`MARKERS`）、premortem 規則等全部以常數表定義在檔案頂部，便於審查與維護。
+   - 狀態機規則（`LEGAL_TRANSITIONS`）、artifact marker（`MARKERS`）、premortem 規則等全部以常數表定義在檔案頂部，便於審查與維護。
 
 4. **錯誤處理一致**
    - 統一使用 `GuardError` exception 與 `ValidationResult(errors, warnings)` 模式。

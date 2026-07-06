@@ -1227,6 +1227,45 @@ def case_rt_031() -> CaseResult:
         shutil.rmtree(temp_root, ignore_errors=True)
 
 
+def case_rt_032() -> CaseResult:
+    temp_root = prepare_temp_root("RT-032")
+    try:
+        artifacts_root = copy_task_fixture(temp_root, "TASK-900", "TASK-963")
+        # CHG-012 (HC-1 A2): add a guard-sensitive file to both plan Files Likely Affected
+        # and code Files Changed (so no scope drift), with NO ## Diff Evidence. The
+        # verifying -> done write-transition must then fail closed.
+        sensitive = "- `artifacts/scripts/guard_status_validator.py`\n"
+        plan_path = artifacts_root / "plans" / "TASK-963.plan.md"
+        plan_path.write_text(
+            plan_path.read_text(encoding="utf-8").replace(
+                "## Files Likely Affected\n", "## Files Likely Affected\n" + sensitive, 1
+            ),
+            encoding="utf-8",
+        )
+        code_path = artifacts_root / "code" / "TASK-963.code.md"
+        code_path.write_text(
+            code_path.read_text(encoding="utf-8").replace(
+                "## Files Changed\n", "## Files Changed\n" + sensitive, 1
+            ),
+            encoding="utf-8",
+        )
+        status_path = artifacts_root / "status" / "TASK-963.status.json"
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        status["state"] = "verifying"
+        status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return run_status_case(
+            "TASK-963",
+            artifacts_root,
+            expected_exit_code=1,
+            expected_output_fragment="clean-task closure touches guard",
+            title="Guard-touching clean-task done closure without Diff Evidence is blocked",
+            case_id="RT-032",
+            extra_args=["--write-transition", "verifying", "done"],
+        )
+    finally:
+        shutil.rmtree(temp_root, ignore_errors=True)
+
+
 STATIC_CASES: List[CaseDefinition] = [
     CaseDefinition("RT-001", "static", "Research artifact contains Recommendation", "fail", 1, "must not contain ## Recommendation", case_rt_001),
     CaseDefinition("RT-002", "static", "Confirmed Facts missing citation", "fail", 1, "must include an inline citation", case_rt_002),
@@ -1259,6 +1298,7 @@ STATIC_CASES: List[CaseDefinition] = [
     CaseDefinition("RT-029", "static", "README source/downstream wording drift", "fail", 1, "template/README.md section 'Architecture Snapshot' contains forbidden phrase: template/ + .github/ + OBSIDIAN.md + external/", case_rt_029),
     CaseDefinition("RT-030", "static", "External legacy unparseable import stays fail-closed", "pass", 0, "fail-closed external legacy import confirmed", case_rt_030),
     CaseDefinition("RT-031", "static", "Premortem stub risk block with banned phrase escalates to error", "fail", 1, "contains vague phrase", case_rt_031),
+    CaseDefinition("RT-032", "static", "Guard-touching clean-task done closure without Diff Evidence is blocked", "fail", 1, "clean-task closure touches guard", case_rt_032),
 ]
 
 LIVE_CASES: List[CaseDefinition] = [

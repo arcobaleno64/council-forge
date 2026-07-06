@@ -155,6 +155,11 @@
     "phase": "static"
   },
   {
+    "case_id": "RT-032",
+    "title": "Guard-touching clean-task done closure without Diff Evidence is blocked",
+    "phase": "static"
+  },
+  {
     "case_id": "RT-LIVE-950",
     "title": "Role boundary live drill",
     "phase": "live"

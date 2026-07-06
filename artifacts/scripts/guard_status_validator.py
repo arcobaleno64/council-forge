@@ -2098,6 +2098,26 @@ def run_verify_floor_enforce(repo_root: Path) -> int:
     return 0
 
 
+def is_sensitive_guard_path(path: str) -> bool:
+    """True if ``path`` is in the guard / EXACT_SYNC "sensitive set" (CHG-012 / HC-1 A2):
+    a clean-task closure that touches any of these must carry replayable ## Diff Evidence.
+    EXACT_SYNC_FILES is read via a lazy import — guard_contract_validator imports THIS
+    module at its top, so a module-level import back would be circular; at call time both
+    modules are fully loaded, so the deferred import is safe and stays drift-free (it reads
+    gcv's live list rather than mirroring it)."""
+    p = path.replace("\\", "/").strip()
+    if p.startswith("./"):
+        p = p[2:]
+    if not p:
+        return False
+    from guard_contract_validator import EXACT_SYNC_FILES
+    if p in set(EXACT_SYNC_FILES):
+        return True
+    if p in ("artifacts/scripts/run_quality_gates.py", "artifacts/scripts/workflow_constants.py"):
+        return True
+    return bool(re.match(r"artifacts/scripts/guard_\w+\.py$", p))
+
+
 def validate_artifact_presence(
     artifacts_root: Path,
     task_id: str,
@@ -2105,6 +2125,7 @@ def validate_artifact_presence(
     status: dict,
     strict_scope: bool = False,
     validation_mode: str = AUTO_CLASSIFY_FULL,
+    enforce_clean_diff_evidence: bool = False,
 ) -> ValidationResult:
     errors: List[str] = []
     warnings: List[str] = []
@@ -2216,6 +2237,24 @@ def validate_artifact_presence(
                 else:
                     warnings.extend(history_scope_result.waiver_candidate_errors)
                 warnings.extend(history_scope_result.warnings)
+                # CHG-012 (HC-1 A2): a clean-task closure (transition into done) that touches
+                # the guard/EXACT_SYNC sensitive set must carry replayable ## Diff Evidence.
+                # Gated on enforce_clean_diff_evidence so it fires ONLY on the target_presence
+                # transition call (to_state == done) and NOT on re-validation of existing done
+                # tasks (validate_all / --task-id) -> forward-only, no retroactive impact.
+                if state == "done" and enforce_clean_diff_evidence:
+                    code_text = load_text(code_path)
+                    changed_files = extract_file_tokens(extract_section(code_text, "Files Changed"))
+                    sensitive_hits = sorted(p for p in changed_files if is_sensitive_guard_path(p))
+                    diff_evidence = (extract_section(code_text, "Diff Evidence") or "").strip()
+                    if sensitive_hits and diff_evidence.lower() in ("", "none", "n/a"):
+                        errors.append(
+                            f"{code_path.name}: clean-task closure touches guard/EXACT_SYNC-sensitive "
+                            f"files {sensitive_hits} but provides no ## Diff Evidence. HC-1 A2 requires a "
+                            f"replayable ## Diff Evidence block (Evidence Type: commit-range with Base "
+                            f"Commit, Head Commit, Diff Command, Changed Files Snapshot, and Snapshot "
+                            f"SHA256; or github-pr) so the closure's scope can be independently verified."
+                        )
             if not strict_scope and scope_drift_files:
                 waiver_result = validate_scope_drift_waiver(artifacts_root, task_id, scope_drift_files)
                 errors.extend(waiver_result.errors)
@@ -2463,6 +2502,7 @@ def write_transition(
         status,
         strict_scope=strict_scope,
         validation_mode=validation_mode,
+        enforce_clean_diff_evidence=(to_state == "done"),
     )
     if target_presence.errors:
         return ValidationResult([f"Target state '{to_state}' requirements are not yet satisfied.", *target_presence.errors], target_presence.warnings)

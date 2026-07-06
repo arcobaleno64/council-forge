@@ -26,6 +26,9 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+          # CHG-012 (HC-1 A2): full history so commit-range ## Diff Evidence replay and the
+          # RACI aux changed-files scan can resolve the diff base (shallow clone breaks both).
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0

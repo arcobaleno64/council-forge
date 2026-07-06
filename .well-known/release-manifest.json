@@ -289,7 +289,7 @@
     },
     {
       "path": ".github/workflows/workflow-guards.yml",
-      "sha256": "0618e57df4c909938f6d500d1952a7b29a3ef2ebceaaee490c002e5947a7a4b7"
+      "sha256": "abd5dcbd05f789d10b49f4af0ca7b46a880e2b3de6f1186020153022dcce6f13"
     },
     {
       "path": ".gitignore",
@@ -317,7 +317,7 @@
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "d9aeb97170debd568e086fc1be4620761520bc0990a8272ed50fa8b79682209b"
+      "sha256": "89ec954edb8547c207cb61ce53e50a188c5d4372ce8eb8b0536f2fcf8731704b"
     },
     {
       "path": "CODEX.md",
@@ -469,7 +469,7 @@
     },
     {
       "path": "artifacts/scripts/Invoke-CodexAgent.ps1",
-      "sha256": "5f3069cc334e59b7af5520abd5b67381ff9803a9a5a44e3258482df4d22c4a6b"
+      "sha256": "4838ee8ca6f3ad099954c58f9222881faa6cb19e4b96c221c6ee26c29e3b0d19"
     },
     {
       "path": "artifacts/scripts/Invoke-CodexReview.ps1",
@@ -477,7 +477,7 @@
     },
     {
       "path": "artifacts/scripts/Invoke-GeminiAgent.ps1",
-      "sha256": "2f84ef1a57ed434c200ab26b054101b1649c8bdad959c3eb04ab4938eb947974"
+      "sha256": "1f443c96e0b6225ed2b02b4d496078e8047e2e47f9ad8d887cb23e8b95dc6408"
     },
     {
       "path": "artifacts/scripts/agent_identity.py",
@@ -505,7 +505,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "158fb0f4a2327ea5c67c674e54b6983373b04a78fb37815de037e59d7e640ad6"
+      "sha256": "e3189a68a3ae84c981535b19eb839c1bb60457e6023d64ff410a25a6ac159772"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -513,7 +513,7 @@
     },
     {
       "path": "artifacts/scripts/guard_contract_validator.py",
-      "sha256": "d9d7d053cedb0aa2dc4b01e39cb75387e07909b5ea9925f0dca675f703b192a6"
+      "sha256": "e2a09b822652e7ccfdb3ce6f62d293a66740bef249f10db8fec531d6a5bd9950"
     },
     {
       "path": "artifacts/scripts/guard_helpers/__init__.py",
@@ -533,7 +533,7 @@
     },
     {
       "path": "artifacts/scripts/guard_status_validator.py",
-      "sha256": "eea3bb10258c8264259bd0210d68a5be925dadab7a918a562e4d556d50973599"
+      "sha256": "55b1c03e4c9a3eba3a7a8392edd4969e5cc9ae5f73a7298f01fdd0342fbe1c38"
     },
     {
       "path": "artifacts/scripts/legacy_verify_corpus.py",
@@ -569,11 +569,11 @@
     },
     {
       "path": "artifacts/scripts/red_team/case_builders.py",
-      "sha256": "6154f46c1b4c92cd555b24502013ef39972f6d50b1556819abee5da741fb7815"
+      "sha256": "012a8a2c27f6a590a2c2b73f273352481b9a22fcfe86ff1cd309d49cc09a9670"
     },
     {
       "path": "artifacts/scripts/red_team/cases_metadata.json",
-      "sha256": "0c27e58ba324f0b20f6e40edea22cb24754355ca2cf7613a19d1cedc01ee1a05"
+      "sha256": "f551121ebad81e452511ea438b8e967c192f9223a735f6a95d0122b90c92a071"
     },
     {
       "path": "artifacts/scripts/red_team/helpers.py",
@@ -633,7 +633,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_artifacts.py",
-      "sha256": "33665d1b2bea07689c734b0e2fe9260970bf2e0b7865826a40cf60fef309ce21"
+      "sha256": "66ed68906c02a35379a9f98a60015880028e8be9f885a60718bb70690596b13f"
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_core.py",
@@ -649,7 +649,7 @@
     },
     {
       "path": "artifacts/scripts/test_invoke_codex_agent.py",
-      "sha256": "73ace92690848f7b14b29095dc300330197147c9c33dd724e6bb426086b0307b"
+      "sha256": "f6ea1d2ec00e8eb0eef0d8963171ad922177a1354923f5ed906a1ff6aa680745"
     },
     {
       "path": "artifacts/scripts/test_invoke_codex_review.py",
@@ -657,7 +657,7 @@
     },
     {
       "path": "artifacts/scripts/test_invoke_gemini_agent.py",
-      "sha256": "20395a23762bc4bce8ba8032580bc42d1925dd5ac229b4f94c7bdc2597829fd3"
+      "sha256": "c125a606da07f1bdf05e1a73c15d15be8526bcac43b60b586a1b90779e2d9142"
     },
     {
       "path": "artifacts/scripts/test_prompt_regression_validator.py",
@@ -677,7 +677,7 @@
     },
     {
       "path": "artifacts/scripts/test_workflow_constants.py",
-      "sha256": "b7926225cbaee45a0e2d8dffac3a9a26490639fc7246f6436cda25bf2c748dd1"
+      "sha256": "9628ceabafa1353f11fdf1c22f3aa9cb257cf766659dc5755dfa32b6273e747b"
     },
     {
       "path": "artifacts/scripts/update_repository_profile.py",
@@ -693,7 +693,7 @@
     },
     {
       "path": "artifacts/scripts/workflow_constants.py",
-      "sha256": "44c66629bf8182e02113f4812f46484b308fb6a98af31a1cb71225278757701a"
+      "sha256": "9ea0051d7ac2625bc7707ca60e96224b33307e76ace6b36c1fd69ada5932e4ab"
     },
     {
       "path": "artifacts/status/.gitkeep",
@@ -813,7 +813,7 @@
     },
     {
       "path": "docs/orchestration-workflow.md",
-      "sha256": "ff4dd64b13b4f58a530cc0b9c71a3429cc39862d53d5aff75f89909e724726b3"
+      "sha256": "fb8a222152b56546613911b41882805ed5f7f5ed1b443cfbb878cdf97bc0a8ea"
     },
     {
       "path": "docs/orchestration.md",
@@ -825,27 +825,23 @@
     },
     {
       "path": "docs/raci-matrix.md",
-      "sha256": "63df4832f32cfe55815203141130f5d113f483577e63d78941797d563c85241a"
+      "sha256": "d5c0a030ca4ef891dc11ead16b1d8b147febd425805481432515387baa692fdb"
     },
     {
       "path": "docs/red_team_backlog.md",
-      "sha256": "ed4d4d131bcc4009093ec4c9abf2619cde1dc4ea80f3ed60665604c3df2f3672"
+      "sha256": "6352c11d7e95a497f56bf6fc9371d1d2f0833d338cc957031dd5673182f58123"
     },
     {
       "path": "docs/red_team_runbook.md",
-      "sha256": "9a18825aa8163a4fba2552800a9209ae8e9c8208390113f76e05f9923d9e34d7"
-    },
-    {
-      "path": "docs/red_team_scorecard.generated.md",
-      "sha256": "ca01a79b19208e6d66fa3be149db38fd93685fb9ee66bd72515a49e1e3e4fe19"
+      "sha256": "8e1fa20024270f958079c7701a59bc821e1cdb99de0535cdff85f4c098540015"
     },
     {
       "path": "docs/red_team_scorecard.md",
-      "sha256": "aa24ba40d1c77202e0324c422ecf64878ddf547cc709eeb6dae058171654135c"
+      "sha256": "d4b8bc756e6f5d67bbedb91c57b046a22f62d8300aaffd73eb47f099a14ef92e"
     },
     {
       "path": "docs/repo_structure_workflow_maturity_assessment.md",
-      "sha256": "3f8ac7cae22b9028ddeb535ffae818c7704535a03dacfc2f549320b83201a75f"
+      "sha256": "658f12f0d23ed8c330bf09c486d6964207dc329588be99cdc06b8d6174ad53cf"
     },
     {
       "path": "docs/schemas/artifact-gallery.md",
@@ -853,7 +849,7 @@
     },
     {
       "path": "docs/schemas/artifact-spec-code.md",
-      "sha256": "841e7db91d39efa3e2b19552a431c7e5ec5b940cc8178ae3da1c1531b18a71fa"
+      "sha256": "873b9a8a6f6999270654c7db1e1c96ed9166180bf41109cbf98b80d9016c10c8"
     },
     {
       "path": "docs/schemas/artifact-spec-decision.md",
@@ -889,7 +885,7 @@
     },
     {
       "path": "docs/security_cadence.md",
-      "sha256": "39f1be613bdeb21d8f97d4035bbed97e2647870e28e64d9cba5149763c79188b"
+      "sha256": "1f0ed71cfc41dec778b293cc6182390657286dca3abc5f638b699804455d2df8"
     },
     {
       "path": "docs/sop/dispatch_implementation.md",
@@ -909,27 +905,35 @@
     },
     {
       "path": "docs/subagent_roles.md",
-      "sha256": "d95c9ec6216672b5df704a5277f97867a2932328fdcdcf31264d5fd37813026d"
+      "sha256": "3dc52256e0cf0fcf65ac687e70ba5325c2becbc406fa38c0c1a8343e1b384935"
     },
     {
       "path": "docs/subagent_task_templates.md",
-      "sha256": "9eebcd3f12dbd862e02db1d473bbfcff157693a21109883c3b97624df5cad96d"
-    },
-    {
-      "path": "docs/templates/adr/TEMPLATE.md",
-      "sha256": "e4bef5b0d3ddccd9330d2d68419e379914cb7979b6e0795a789b8166d0e87d68"
+      "sha256": "a244a0108de399d3bc91a863cd14b5fa91747205e2e4db195da3d2d7c72c13b2"
     },
     {
       "path": "docs/templates/architecture-synthesizer/TEMPLATE.md",
       "sha256": "9e435c73b3cf9d365247cbb92edb86d008f18dd5893dd21dd12bb095d322762d"
     },
     {
-      "path": "docs/templates/blocking/TEMPLATE.md",
-      "sha256": "f1e4f5e332800dec043138e0f44ea5f3b332f01588881064641268417e3d013b"
+      "path": "docs/templates/archive/adr/TEMPLATE.md",
+      "sha256": "e4bef5b0d3ddccd9330d2d68419e379914cb7979b6e0795a789b8166d0e87d68"
     },
     {
-      "path": "docs/templates/debug/TEMPLATE.md",
+      "path": "docs/templates/archive/debug/TEMPLATE.md",
       "sha256": "d1abb2b074779d151ab44184568fe3983d0d6bebfd369e6586487f4e00f2c393"
+    },
+    {
+      "path": "docs/templates/archive/rtm/TEMPLATE.md",
+      "sha256": "b8f4b153632af6c3e16e0c2593f699e228e3dd2dda07aa02841584aa737daef8"
+    },
+    {
+      "path": "docs/templates/archive/srs/TEMPLATE.md",
+      "sha256": "f39339a21ba9dbde08ee37e3704102f0d42cf3fdae954f5e936a958e4c1cc46a"
+    },
+    {
+      "path": "docs/templates/blocking/TEMPLATE.md",
+      "sha256": "f1e4f5e332800dec043138e0f44ea5f3b332f01588881064641268417e3d013b"
     },
     {
       "path": "docs/templates/implementer/TEMPLATE.md",
@@ -952,14 +956,6 @@
       "sha256": "12c4b1872d6ab039dd09e7671854ea05f82c7129ebbaac2a788e621211a4a4d8"
     },
     {
-      "path": "docs/templates/rtm/TEMPLATE.md",
-      "sha256": "b8f4b153632af6c3e16e0c2593f699e228e3dd2dda07aa02841584aa737daef8"
-    },
-    {
-      "path": "docs/templates/srs/TEMPLATE.md",
-      "sha256": "f39339a21ba9dbde08ee37e3704102f0d42cf3fdae954f5e936a958e4c1cc46a"
-    },
-    {
       "path": "docs/templates/tester/TEMPLATE.md",
       "sha256": "c30b5f8e9acc51517153431f8b42a8f1875ac5652dd1be08ca2dd35b8ac2a531"
     },
@@ -969,7 +965,7 @@
     },
     {
       "path": "docs/workflow_state_machine.md",
-      "sha256": "10050e484b68d9d85440b6eba7d7c6a610a1d63b342ad26c3e226f50bc265f3a"
+      "sha256": "6eae0cd5f04ec0ca9d41e93670ece93949efe330f7e8ecda9fc499ddf2c861b2"
     },
     {
       "path": "pytest.ini",
@@ -984,5 +980,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "3e1f81d4b172a08f6545d24b27aa4562113a23b024b967f5f597a9b5e1c821b5"
+  "root": "452c9551b25b577c7da338196dfe207336bf96abec3bdb3088c8d586828ff8e7"
 }

@@ -868,5 +868,35 @@
         "note": "Lightweight verify relaxation is governed by the resolved policy; ## Environment is documented as non-guard-enforced and cannot replace Build Guarantee (CHG-008 撤除 Environment 無 enforcement 宣稱)."
       }
     ]
+  },
+  {
+    "id": "PR-035",
+    "title": "Dispatch AutoRestore Enforcement Is Conditional, Not Absolute (TASK-1102)",
+    "description": "CLAUDE.md must state that passing -AutoRestore to Invoke-CodexAgent.ps1 / Invoke-GeminiAgent.ps1 is the orchestrator's (Claude's) explicit decision, and that the flag defaults to $false (detect-only, exit 0). GEMINI.md's write-scope violation clause must be conditional on whether -AutoRestore was explicitly passed, and must not re-endorse the pre-TASK-1059 blanket `git checkout HEAD --` restore language.",
+    "assertions": [
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "Dispatch Write-Scope 執行",
+          "-AutoRestore",
+          "預設 `$false`",
+          "detect-only",
+          "顯式傳遞"
+        ],
+        "note": "Orchestrator must explicitly opt in via -AutoRestore for wrapper enforcement; default is detect-only (exit 0), not automatic blocking (TASK-1102)."
+      },
+      {
+        "file": "GEMINI.md",
+        "must_contain_all": [
+          "是否已於偵測當下被 wrapper 自動擋下",
+          "stash-based restore",
+          "取決於下列 `-AutoRestore` 是否顯式傳遞"
+        ],
+        "must_not_contain_any": [
+          "dispatch 視為失敗；Claude 將以 `git checkout HEAD --`"
+        ],
+        "note": "GEMINI.md's violation clause must be conditional on explicit -AutoRestore, not an absolute claim, and must not re-endorse the pre-TASK-1059 blanket git-checkout restore (TASK-1102)."
+      }
+    ]
   }
 ]

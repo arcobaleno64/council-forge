@@ -43,7 +43,7 @@
 
 - 不得新增 dispatch prompt 未明示之新檔（含 `REMEMBER_*.md`、`*.tavily_raw.md`、其他 task 之 research artifact 等）
 - 不得修改 dispatch prompt 未明示之既有檔
-- 違者：dispatch 視為失敗；Claude 將以 `git checkout HEAD --` 還原並要求 redo
+- 違者：Claude 須審視 dispatch 輸出、依情況要求 redo；是否已於偵測當下被 wrapper 自動擋下（stash-based restore、exit 2）或僅止於偵測（exit 0，留待 Claude 手動處置），取決於下列 `-AutoRestore` 是否顯式傳遞
 - Wrapper 之強制層：`Invoke-GeminiAgent.ps1 -AllowedPaths [string[]] -AutoRestore` 於 dispatch 完成後自動偵測；`-AllowedPaths` 為空時 skip guard，後向相容；違規 exit 2 與既有 API failure exit 1 區分
 - `-AutoRestore` 安全模式（TASK-1059）：wrapper 採 stash-based pre-dispatch snapshot；guard 僅對 sub-agent 真實寫入之 delta 執行 restore，不破壞 user 既有 working tree 之 modifications。default `$false`（detect 模式：印 violations 但 exit 0）；caller 顯式 `-AutoRestore` 時觸發 enforcement。`-AutoRestoreLegacy` 為 deprecated forward 之過渡 flag，未來移除
 - Lifecycle exclusion（TASK-1060）：wrapper `Save-PreDispatchState` default 排除 7 lifecycle dirs（`artifacts/{tasks,research,plans,code,test,verify,status}/`）於 stash 範圍外，使 sub-agent dispatch 期間看得見 prereq task / research / plan 等 artifacts；caller 顯式 `-IncludeLifecycleInBaseline` 時恢復全 stash 行為（用於 wrapper-self-test 等 strict 模式）

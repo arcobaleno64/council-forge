@@ -317,7 +317,7 @@
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "89ec954edb8547c207cb61ce53e50a188c5d4372ce8eb8b0536f2fcf8731704b"
+      "sha256": "971f55cc5669966337e109e7c6d176afdf2376d4a2413416a6a1be3d84321734"
     },
     {
       "path": "CODEX.md",
@@ -325,7 +325,7 @@
     },
     {
       "path": "GEMINI.md",
-      "sha256": "0f717a6e80f455008bad518fde76b3f36fd95a94d08701c06875bb251b034e02"
+      "sha256": "943128e08d59ce5ce06657d39dd54dcd42b2ac88b7e9f71e9c774666b1e70711"
     },
     {
       "path": "LICENSE",
@@ -505,7 +505,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "e3189a68a3ae84c981535b19eb839c1bb60457e6023d64ff410a25a6ac159772"
+      "sha256": "e23a8e2a3ddf071df24641b8237cf1b244ad3cf349b5b55a3b793f78220aacc8"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -821,7 +821,7 @@
     },
     {
       "path": "docs/premortem_rules.md",
-      "sha256": "99c72627cb2cb55c8be534d10ebbc6ec8831044281abdf63a84d82fca44ce0dc"
+      "sha256": "df58e69cced9a10b83eb9fc633bc35ccb48369660445db7c2f32577e4f18ea58"
     },
     {
       "path": "docs/raci-matrix.md",
@@ -980,5 +980,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "452c9551b25b577c7da338196dfe207336bf96abec3bdb3088c8d586828ff8e7"
+  "root": "f71168ed504e94126ab8a08814a39ab63e3f3a91daf7061a47cdc75008ffdb48"
 }

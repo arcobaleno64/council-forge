@@ -124,6 +124,14 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 
 > 詳見 `docs/sop/dispatch_implementation.md`。Dispatch prompt token-cost 慣例見 `docs/dispatch_prompt_discipline.md`。
 
+### Dispatch Write-Scope 執行（`-AutoRestore`）
+
+是否讓 write-scope 違規在 dispatch 當下就被真正擋下，由協調者（Claude）決定，不是 Codex / Gemini 自己能決定：
+
+- `Invoke-CodexAgent.ps1` / `Invoke-GeminiAgent.ps1` 的 `-AutoRestore` 預設 `$false`：wrapper 僅偵測 write-scope 違規並印出，dispatch 仍以 exit 0 結束（detect-only，不會自動還原）。
+- 若需要違規被真正擋下（stash-based restore、exit 2），Claude 呼叫 wrapper 時必須顯式傳遞 `-AutoRestore`。
+- 未顯式傳遞時，CODEX.md / GEMINI.md 中「write scope 違規」的處置敘述僅止於偵測與事後記錄（decision artifact、人工 review），不代表該次 dispatch 已被自動擋下。
+
 ### 完成任務
 
 > 詳見 `docs/sop/task_completion.md`：執行 review → 驗證 schema → 確認 verification evidence 到位 → 呼叫 task_complete 工具。

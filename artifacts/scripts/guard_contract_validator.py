@@ -71,6 +71,7 @@ EXACT_SYNC_FILES = [
     "docs/sop/dispatch_implementation.md",
     "docs/sop/dispatch_memory_curator.md",
     "docs/sop/dispatch_research.md",
+    "docs/sop/rule_lifecycle_audit.md",
     "docs/sop/task_completion.md",
     "docs/subagent_roles.md",
     "docs/subagent_task_templates.md",

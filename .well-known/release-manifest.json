@@ -309,7 +309,7 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "e0bcf9d182bd88f58353b16c41d3468a33979909c6e816b3560be2f2827f1dfa"
+      "sha256": "1a191542d0ac3ac5cf7b7b840fcd08bc6adcc3d09e0e170479c7e174457a1d4d"
     },
     {
       "path": "BOOTSTRAP_PROMPT.md",
@@ -397,7 +397,11 @@
     },
     {
       "path": "artifacts/improvement/PROCESS_LEDGER.md",
-      "sha256": "9f5eefc2a115f4a16da418ae68f126c8ca0e2689884fcedd44b3fb4184511a32"
+      "sha256": "024b1fd0cc8f384099d38138c7ca5aea0e006c99379df2e90dc4365caa26924e"
+    },
+    {
+      "path": "artifacts/improvement/RELAXATION_LOG.md",
+      "sha256": "f2e91f10899c22417fc212399afc0f3e375df77ae8a0d4d65854b75c4e27b78a"
     },
     {
       "path": "artifacts/improvement/TASK-902.improvement.md",
@@ -505,7 +509,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "05e2e40793248e074f68ce4c45af7aad879932f16a4f14a33206e5bc06f6c432"
+      "sha256": "f0bd0981541e750a7bcaeea96fd39fedcb0836cd91e339080dc9280fd54f4dfd"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -513,7 +517,7 @@
     },
     {
       "path": "artifacts/scripts/guard_contract_validator.py",
-      "sha256": "e2a09b822652e7ccfdb3ce6f62d293a66740bef249f10db8fec531d6a5bd9950"
+      "sha256": "4854432720b2d714e34b21cec8532d57e739284e57c326d31b1cac8726547e9d"
     },
     {
       "path": "artifacts/scripts/guard_helpers/__init__.py",
@@ -900,6 +904,10 @@
       "sha256": "2660c70863977b02ec6eca4b27b9193a99187c4d7deb8d491b0893e204b7010e"
     },
     {
+      "path": "docs/sop/rule_lifecycle_audit.md",
+      "sha256": "90ee4eca0e74b3fe557d64290da56ca9e54f8325a645de170cdc5550da1c217d"
+    },
+    {
       "path": "docs/sop/task_completion.md",
       "sha256": "3c187a83b294d784faeb7e547ebb5078e18c23e1ab840bc551b45faf6ef629a0"
     },
@@ -913,7 +921,7 @@
     },
     {
       "path": "docs/templates/architecture-synthesizer/TEMPLATE.md",
-      "sha256": "9e435c73b3cf9d365247cbb92edb86d008f18dd5893dd21dd12bb095d322762d"
+      "sha256": "65425b4d7e273d2b1b1691b37e79ede8d76a5cec82573d24ddc24ba61b797283"
     },
     {
       "path": "docs/templates/archive/adr/TEMPLATE.md",
@@ -980,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "accb252144e2f241a40bcf3d831ac8bcc730d58dd694f4ec8ff2e5e151917022"
+  "root": "75bc90d2aa889d3b590f378dea10def31c7d5e2ffaafe493d2bb648a896acc50"
 }

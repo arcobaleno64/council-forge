@@ -921,5 +921,24 @@
         "note": "CLAUDE.md STOP triggers must reference the independent premortem challenge requirement (TASK-1103)."
       }
     ]
+  },
+  {
+    "id": "PR-037",
+    "title": "Rule Lifecycle Audit Verdict Contract (TASK-1104)",
+    "description": "The new SOP must pin the four audit verdicts and the fail-closed OPEN rule when provenance is missing.",
+    "assertions": [
+      {
+        "file": "docs/sop/rule_lifecycle_audit.md",
+        "must_contain_all": [
+          "`retire`",
+          "`relax`",
+          "`keep`",
+          "`open`",
+          "查無 provenance",
+          "不拆也不加碼"
+        ],
+        "note": "The rule lifecycle audit SOP must keep the four-way verdict vocabulary and the provenance-missing OPEN clause pinned."
+      }
+    ]
   }
 ]

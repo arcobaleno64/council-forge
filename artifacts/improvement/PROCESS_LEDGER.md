@@ -13,7 +13,7 @@
 - 每個 task 只寫一行。
 - 不貼 raw log，只寫結論與短證據方向。
 - `Applied?` 表示對應修正是否已落地為文件、prompt、guard 或 template 變更。
-- **何時必記**：凡於 closure 產出 improvement artifact（Gate E 或 retrospective）之 task，必記一條；純 lightweight／docs 小任務（無 improvement artifact）可免。此與 improvement artifact 產生連動，確保 architecture-synthesizer 之 N=10 觸發能真實累積（否則 ledger 停更會使該觸發永不達標）。
+- **何時必記**：凡於 closure 產出 improvement artifact（Gate E 或 retrospective）之 task，必記一條；純 lightweight／docs 小任務（無 improvement artifact）可免。此與 improvement artifact 產生連動，確保 architecture-synthesizer 之 N=10 觸發能真實累積（否則 ledger 停更會使該觸發永不達標）；條目達 N=10 倍數時，需同批執行 [rule lifecycle audit](../../docs/sop/rule_lifecycle_audit.md)。
 
 | Date | Task | Outcome | Top Waste | Top Risk | Fix Candidate | Applied? |
 |---|---|---|---|---|---|---|

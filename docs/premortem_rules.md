@@ -198,3 +198,46 @@ Premortem 的目的不是讓人安心，而是讓錯誤提前發生在紙上，�
 premortem 的價值不在於悲觀，而在於把失敗變成可命名、可偵測、可止血的對象。
 
 如果一條風險不能讓下一位代理知道「怎麼發現、怎麼處理」，那它就不算合格。
+
+## 12. 獨立 Premortem 質疑（高風險 plan）
+
+### 背景
+
+§1-§11 的 premortem 規則由撰寫 plan 的同一個 agent 自行填寫、自行判斷是否合格；`guard_status_validator.py` 依 §4 的 P1-P8 只檢查風險條目的格式與用語是否具體，不檢查風險判斷本身是否站得住腳。這代表撰寫者的盲點，在 R1-R4 本身完全沒有被獨立檢查過。
+
+### 適用範圍
+
+以下任一條件命中時，於 `planned → coding` 前必須完成一次獨立質疑：
+
+- 涉及安全性修補（security fix）
+- 涉及 upstream PR
+- 涉及多模組或跨 repo 修改
+- 涉及不熟悉框架、版本或環境
+
+（刻意不納入 §1 的「無法 100% 確認變更影響範圍」——該條件過於主觀，套用在此處會讓幾乎所有任務都命中，稀釋這道 gate 的訊號。）
+
+### 獨立性要求
+
+- 執行質疑者不得與撰寫 R1-R4 的 agent 共用同一個對話 context/session；撰寫 plan 的 agent 不可在同一輪回應內自問自答完成本項質疑。
+- 可透過 Agent tool 開新 subagent，或派給另一個 CLI（Gemini / Codex），只要是脫離原 plan 撰寫 context 的獨立呼叫即可。
+- 若任務規模過小、找不到可用的獨立 agent，必須在 plan 的 `## Risks` 中明記原因並回報 blocked，不得逕自略過。
+
+### 質疑內容（最小集合）
+
+- 逐條檢查既有 R1-R4：Detection 描述的偵測方式，在實際情境下是否真的會被觸發？
+- 是否有被漏掉的失敗模式（既有 R1-R4 都沒有覆蓋到的風險）？
+- 若發現遺漏或 Detection 不成立，必須具體指出並建議新增或修正的風險條目，沿用本文件 §3-§4 的欄位與品質規則；§9 禁止語句清單同樣適用於本項輸出，不可用空話回覆。
+
+### 輸出位置
+
+- 附掛在 plan artifact 的 `## Risks` 區段下，新增 `### Independent Premortem Challenge` 子區段，逐條回覆對應 R 編號的判斷（每條至少一句具體理由）。
+- 若質疑結果導致風險判斷需要重大修改（例如新增 blocking risk 或推翻既有 mitigation），改寫 decision artifact 說明分歧與最終裁決。
+
+### 與既有機制的分工邊界
+
+- 本項質疑作用在 **plan 階段**（尚無 code diff）；Council Reviewer（`/codex-review`，見 `docs/subagent_roles.md` §5.1.3）作用在 **code diff 已產出之後**。兩者觸發時機不重疊，不互相取代。
+- 本項質疑是逐 task 觸發（符合條件即做一次）；RACI Auditor / Architecture Synthesizer 是週期性（每 10 個 PROCESS_LEDGER 或 Sprint Review）批次審查，兩者頻率與粒度不同。
+
+### 現況
+
+本節僅定義慣例與最低要求，不由 `guard_status_validator.py` 自動強制（無新增 automated guard）。是否日後加上自動化檢查（例如偵測 plan 是否缺少 `### Independent Premortem Challenge` 子區段），留待後續視實際執行成本再評估，避免尚未有使用資料就過早鎖死強制規則。

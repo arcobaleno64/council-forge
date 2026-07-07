@@ -33,7 +33,7 @@ Claude Code 預設優先使用 CLI。只有當使用者明確在 VS Code / Copil
 - ❌ Task / research / plan / code artifact 缺失
 - ❌ Metadata 不完整（無 Task ID、status、timestamp+08:00）
 - ❌ Status transition 違反 workflow state machine（見 docs/workflow_state_machine.md）
-- ❌ Premortem 缺失或 R1-R4 不完整（見 docs/premortem_rules.md）
+- ❌ Premortem 缺失或 R1-R4 不完整，或高風險 plan 未完成獨立質疑（見 docs/premortem_rules.md，含 §12）
 - ❌ Verify artifact 無 Build Guarantee
 - ❌ Guard validator 報 scope-drift 且無 decision.## Guard Exception
 - ❌ Artifact 不符 schema（見 docs/artifact_schema.md）

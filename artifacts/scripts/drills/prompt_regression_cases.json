@@ -898,5 +898,28 @@
         "note": "GEMINI.md's violation clause must be conditional on explicit -AutoRestore, not an absolute claim, and must not re-endorse the pre-TASK-1059 blanket git-checkout restore (TASK-1102)."
       }
     ]
+  },
+  {
+    "id": "PR-036",
+    "title": "Independent Premortem Challenge Required For High-Risk Plans (TASK-1103)",
+    "description": "docs/premortem_rules.md must define an independent premortem challenge for high-risk plans (security fix / upstream PR / cross-module or cross-repo / unfamiliar framework), requiring a reviewer who does not share the same conversation context/session as the plan author. CLAUDE.md's STOP triggers must reference this requirement.",
+    "assertions": [
+      {
+        "file": "docs/premortem_rules.md",
+        "must_contain_all": [
+          "獨立 Premortem 質疑",
+          "不得與撰寫 R1-R4 的 agent 共用同一個對話 context/session",
+          "Independent Premortem Challenge"
+        ],
+        "note": "Premortem rules must define the independent-challenge convention for high-risk plans, including the non-negotiable independence requirement (TASK-1103)."
+      },
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "高風險 plan 未完成獨立質疑"
+        ],
+        "note": "CLAUDE.md STOP triggers must reference the independent premortem challenge requirement (TASK-1103)."
+      }
+    ]
   }
 ]

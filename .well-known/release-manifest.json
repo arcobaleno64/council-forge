@@ -317,7 +317,7 @@
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "971f55cc5669966337e109e7c6d176afdf2376d4a2413416a6a1be3d84321734"
+      "sha256": "bc92b08cfd9e5ccf868eea282b706705549bbc7bad941c0e931cb094500c729d"
     },
     {
       "path": "CODEX.md",
@@ -505,7 +505,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "e23a8e2a3ddf071df24641b8237cf1b244ad3cf349b5b55a3b793f78220aacc8"
+      "sha256": "05e2e40793248e074f68ce4c45af7aad879932f16a4f14a33206e5bc06f6c432"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -980,5 +980,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "f71168ed504e94126ab8a08814a39ab63e3f3a91daf7061a47cdc75008ffdb48"
+  "root": "accb252144e2f241a40bcf3d831ac8bcc730d58dd694f4ec8ff2e5e151917022"
 }

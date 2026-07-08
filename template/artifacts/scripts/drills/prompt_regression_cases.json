@@ -940,5 +940,29 @@
         "note": "The rule lifecycle audit SOP must keep the four-way verdict vocabulary and the provenance-missing OPEN clause pinned."
       }
     ]
+  },
+  {
+    "id": "PR-038",
+    "title": "Governance Lenses Additions (TASK-1106)",
+    "description": "The three evidence-backed governance lenses and the Campbell's Law rejection must stay pinned in the orchestration doc; the deviance forcing clause must stay in the rule lifecycle audit SOP.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Goodhart's Law",
+          "Normalization of Deviance",
+          "Swiss Cheese Model",
+          "明確不採 Campbell's Law"
+        ],
+        "note": "Governance Lenses table rows and the Campbell rejection clause (TASK-1106) must not silently regress."
+      },
+      {
+        "file": "docs/sop/rule_lifecycle_audit.md",
+        "must_contain_all": [
+          "不得停留於 detect-and-accept"
+        ],
+        "note": "The Normalization-of-Deviance forcing clause (accept 3 times consecutively -> relax or enforce) must stay pinned."
+      }
+    ]
   }
 ]

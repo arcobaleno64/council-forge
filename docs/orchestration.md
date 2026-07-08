@@ -158,6 +158,9 @@ Routing matrix：
 | **TAO/ReAct**（單步推理） | 任務內 subagent 之想 / 做 / 觀 | TASK-1000 執行層 + agentic_execution_layer.md | [docs/agentic_execution_layer.md](agentic_execution_layer.md) |
 | **Double-Loop Learning**（Argyris 1977） | 失敗後改規則（非僅改 code） | improvement artifact §5.9 之 Why Not Prevented + System-Level Preventive Action | [docs/schemas/artifact-spec-improvement.md](schemas/artifact-spec-improvement.md) |
 | **SECI**（Nonaka 1994） | 碎片經驗 → 系統指引 | Memory Bank Curator + Architecture Synthesizer（每 N=10 任務觸發） | [GEMINI.md](../GEMINI.md)、[`.github/prompts/remember-capture.prompt.md`](../.github/prompts/remember-capture.prompt.md) |
+| **Goodhart's Law**（Goodhart 1975，TASK-1106 顯式化） | 指標成為優化目標即失真（validator schema-pleasing） | RELAXATION_LOG 累積 ≥ 3 案例 → architect review | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md) |
+| **Normalization of Deviance**（Vaughan 1996，TASK-1106 顯式化） | 偏差被反覆接受而例行化（detect-and-accept 無限延續） | rule lifecycle audit 之同型違規連續接受 3 次強制裁決條款 | [docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md) |
+| **Swiss Cheese Model**（Reason 1990，TASK-1106 顯式化） | 單一事故穿透多層防禦之路徑分析 | guard 疊層 + improvement artifact `Why Not Prevented` 之逐層穿透敘述 | [.github/memory-bank/workflow-gates.md](../.github/memory-bank/workflow-gates.md) |
 
 **明確拒絕：OODA**
 
@@ -170,6 +173,10 @@ OODA（Boyd, Observe-Orient-Decide-Act）與 TAO/ReAct（Yao 2022, Thought-Actio
 | Act | Action Step | 同 |
 
 二者並存將造成 schema 重複、辭彙負擔、與 ReAct 之 LLM agent 文獻主流脫鉤。本框架**已採 TAO/ReAct，明確不採 OODA**；任何後續 task 不得引此決策為 routing override 範本，亦不得試圖以 OODA 取代 TAO（兩者不可並存於本框架）。
+
+**明確拒絕：Campbell's Law**
+
+Campbell's Law（Campbell 1979）與 Goodhart's Law 同構——同為「量化指標被用於治理即遭腐化」，僅為社會科學與經濟學之不同表述。依 OODA 先例（同構名詞不並存）：本框架**已採 Goodhart's Law，明確不採 Campbell's Law**；任何後續 task 不得引此決策為 routing override 範本。
 
 ## 3. Workflow 與 Gate 細節索引
 

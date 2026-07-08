@@ -509,7 +509,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "f0bd0981541e750a7bcaeea96fd39fedcb0836cd91e339080dc9280fd54f4dfd"
+      "sha256": "19bfa20bd1552aa0cb85a5bee43ac9d7c55f8093855209ec5199241b5f44dd53"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -821,7 +821,7 @@
     },
     {
       "path": "docs/orchestration.md",
-      "sha256": "2ce51c28ebd2794456bf7a33efc9dee37e27eab425c58cfcef100038d42547e4"
+      "sha256": "a13c52ce83ecc211d73162de083295c86e13bc3036c9673babee99f5edfd4357"
     },
     {
       "path": "docs/premortem_rules.md",
@@ -893,7 +893,7 @@
     },
     {
       "path": "docs/sop/dispatch_implementation.md",
-      "sha256": "c8e3019de69ba69ddd53f6892a4887de5119429707dcdee8baf3cd070c23a262"
+      "sha256": "9706c863a695507e3ebb4b60fb8eaf74d33bb37fa1363043854ecb942222a826"
     },
     {
       "path": "docs/sop/dispatch_memory_curator.md",
@@ -905,7 +905,7 @@
     },
     {
       "path": "docs/sop/rule_lifecycle_audit.md",
-      "sha256": "90ee4eca0e74b3fe557d64290da56ca9e54f8325a645de170cdc5550da1c217d"
+      "sha256": "7d21ebf0de28f70b3dd9f094a45be43fd667c36fd34be9419f9859d21afb639c"
     },
     {
       "path": "docs/sop/task_completion.md",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "4cb7d89e84f29b0c76c6b459ac9b3c5512eb65ead3df96bb7f7b20ee6cb803a5"
+  "root": "18c32a6ba3ba061b9696b654a1b53c93ece7866e6232a0357c6103d8267aeff7"
 }

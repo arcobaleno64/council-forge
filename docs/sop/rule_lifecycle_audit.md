@@ -18,6 +18,7 @@
 - 先讀：`artifacts/improvement/RELAXATION_LOG.md`、`artifacts/improvement/PROCESS_LEDGER.md`、`docs/templates/archive/README.md`、`docs/red_team_backlog.md`，以及最近的 Guard Exception / warning 證據。
 - 把候選規則列入待查，只接受可見訊號：長期零使用、重複放寬、長期未動工、前提已消失、或同一例外反覆出現。
 - 此步只找候選，不做裁決；沒有資料就不猜。
+- 使用數據只產生候選，不產生裁決——零使用不等於零價值（保險機制平時即零觸發）；裁決一律過 Step 2 之 provenance 檢查。
 
 ## Step 2: Chesterton Gate
 
@@ -30,6 +31,7 @@
 
 - `open` 是 fail-closed 的盤點裁決：先停在記錄，不用推測補洞；scope-drift guard Layer-1（2026-07-02）為先例。
 - `retire` 若對象是 template，復活路徑預設記 `git mv docs/templates/archive/<name> docs/templates/<name>`；不適用時寫 `N/A`。
+- 同型 detect-only 違規（如 dispatch write-scope / RACI 警告）連續被人工接受達 3 次：當輪必須裁 `relax`（承認規則過嚴、修規則字面）或轉強制（如 dispatch 顯式傳 `-AutoRestore`），不得停留於 detect-and-accept（Normalization of Deviance 防範）。
 
 ## Step 3: Record
 

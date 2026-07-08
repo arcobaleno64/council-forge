@@ -18,3 +18,7 @@
 ```
 
 > Prompt token-cost 慣例（inline vs path-reference vs temp file vs fabrication-prone）：詳見 `docs/dispatch_prompt_discipline.md`。
+
+### Fallback tier 產出之驗收紀律（TASK-1106）
+
+wrapper 之 fallback tier（後位模型，如 `gpt-5.4-mini`）產出**預設不可信**：驗收必須逐 tier 讀 dispatch log 分辨各 attempt 實際行為，關鍵宣稱（驗證結果、sources、Files Changed）以命令直驗，不採信口頭回報；credits 中斷後接手之 tier 尤然。出處：TASK-1105 Bug-B3——mini 於 shell 封鎖下未驗證覆寫 code artifact 並引用 fabricated sources（見 `artifacts/code/TASK-1105.code.md` §Post-Dispatch Amendment）。

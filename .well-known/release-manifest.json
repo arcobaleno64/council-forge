@@ -77,7 +77,7 @@
     },
     {
       "path": ".github/memory-bank/project-facts.md",
-      "sha256": "3d2ea193d1b9081af4c228057cba8e195f15f363e4215ff0a3a0467d720202be"
+      "sha256": "9857fbd6700126daedb47f368c234fee7069be90106c3a93f438462db2ed65c9"
     },
     {
       "path": ".github/memory-bank/prompt-patterns.md",
@@ -497,7 +497,7 @@
     },
     {
       "path": "artifacts/scripts/conftest.py",
-      "sha256": "f060db3d3e7ba8f77a42d58ed689019202cfdb8d5bc058c5e6fc1aa2beb4ea57"
+      "sha256": "62c71d3b338a224ce7c1e52694359b7681096bb85f0533e8600bef4a7b758f15"
     },
     {
       "path": "artifacts/scripts/discover_templates.py",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "75bc90d2aa889d3b590f378dea10def31c7d5e2ffaafe493d2bb648a896acc50"
+  "root": "4cb7d89e84f29b0c76c6b459ac9b3c5512eb65ead3df96bb7f7b20ee6cb803a5"
 }

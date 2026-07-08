@@ -49,11 +49,16 @@ Protected: 禁止本地特性分支進入此目錄
 | 變數 | 用途 | 示例 | 必需 |
 |---|---|---|---|
 | GITHUB_TOKEN | 驗證 GitHub API | ghp_xxx... | 否（fallback 為唯讀） |
-| PYTHONPATH | Import artifacts/scripts | C:\...\CLI | 用於 guard scripts |
+| PYTHONPATH | Import artifacts/scripts | C:\\...\\CLI | 用於 guard scripts |
 
 ## 執行環境
 
 Python 3.11 venv（`.venv/`）：在執行 guard scripts 前必須啟動。
+
+## pytest 語境慣例
+
+- 以 repo root 執行 `python -m pytest artifacts/scripts -q` 作為 wrapper / guard / regression 的標準測試入口。
+- `artifacts/scripts/conftest.py` 的 fake exe fixtures 以 raw stdin bytes 驗證 stdin pipe，不做字串容錯。
 
 ## 構建和部署
 
@@ -66,7 +71,7 @@ python -m pip install -r requirements-dev.txt
 git submodule update --init --recursive
 
 本地測試：
-python -m pytest artifacts/scripts/test_guard_units.py artifacts/scripts/test_security_scans.py -q
+python -m pytest artifacts/scripts -q
 
 執行 guard：
 python artifacts/scripts/guard_status_validator.py --task-id TASK-900

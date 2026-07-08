@@ -91,12 +91,12 @@ behavior_path = Path({str(behavior_path)!r})
 existing = [line for line in log_path.read_text(encoding='utf-8').splitlines() if line.strip()] if log_path.exists() else []
 call_index = len(existing)
 behavior = json.loads(behavior_path.read_text(encoding='utf-8'))
-# TASK-1062: capture stdin (non-blocking via isatty check on Windows is
-# unreliable; just read whatever is on stdin -- pytest pipes always pipe).
+# TASK-1105: capture raw stdin bytes and decode as UTF-8 so wrapper pipe
+# tests observe the exact payload emitted by PowerShell.
 stdin_data = ''
 try:
     if not sys.stdin.isatty():
-        stdin_data = sys.stdin.read()
+        stdin_data = sys.stdin.buffer.read().decode('utf-8')
 except Exception:
     stdin_data = ''
 record = {{

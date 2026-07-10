@@ -984,5 +984,29 @@
         "note": "Governance Lenses table rows and the Policy Engine rejection clause (TASK-1108) must not silently regress."
       }
     ]
+  },
+  {
+    "id": "PR-040",
+    "title": "Lucas Critique Addition And Campbell's Law Fold-In (TASK-1109)",
+    "description": "The Lucas Critique lens and the Campbell's Law operationalization note (folded into Goodhart's Law, not a separate lens) must stay pinned in the orchestration doc; the Metrics Policy and Policy Regime optional decision sections must stay pinned in the decision schema.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Lucas Critique",
+          "Campbell's Law 1979 之經濟學同構表述",
+          "明確不採 Campbell's Law"
+        ],
+        "note": "Lucas Critique row and the Campbell's Law fold-in note (TASK-1109) must not silently regress; the original Campbell rejection literal (TASK-1106) must remain intact."
+      },
+      {
+        "file": "docs/schemas/artifact-spec-decision.md",
+        "must_contain_all": [
+          "## Metrics Policy",
+          "## Policy Regime"
+        ],
+        "note": "The optional Metrics Policy and Policy Regime decision sections (TASK-1109) must not silently regress."
+      }
+    ]
   }
 ]

@@ -158,7 +158,7 @@ Routing matrix：
 | **TAO/ReAct**（單步推理） | 任務內 subagent 之想 / 做 / 觀 | TASK-1000 執行層 + agentic_execution_layer.md | [docs/agentic_execution_layer.md](agentic_execution_layer.md) |
 | **Double-Loop Learning**（Argyris 1977） | 失敗後改規則（非僅改 code） | improvement artifact §5.9 之 Why Not Prevented + System-Level Preventive Action | [docs/schemas/artifact-spec-improvement.md](schemas/artifact-spec-improvement.md) |
 | **SECI**（Nonaka 1994） | 碎片經驗 → 系統指引 | Memory Bank Curator + Architecture Synthesizer（每 N=10 任務觸發） | [GEMINI.md](../GEMINI.md)、[`.github/prompts/remember-capture.prompt.md`](../.github/prompts/remember-capture.prompt.md) |
-| **Goodhart's Law**（Goodhart 1975，TASK-1106 顯式化） | 指標成為優化目標即失真（validator schema-pleasing） | RELAXATION_LOG 累積 ≥ 3 案例 → architect review | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md) |
+| **Goodhart's Law**（Goodhart 1975，TASK-1106 顯式化；亦涵蓋 Campbell's Law 1979 之經濟學同構表述，TASK-1109 併入） | 指標成為優化目標即失真（validator schema-pleasing）；高風險指標（firing_count、block_count、pass_rate、coverage 等）不得作為安全/價值/品質之直接證明 | RELAXATION_LOG 累積 ≥ 3 案例 → architect review；決策涉及高風險指標時，decision schema 之條件式可選 `## Metrics Policy` 區段記錄 campbell_risk/gaming_vectors | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md)、[docs/schemas/artifact-spec-decision.md](schemas/artifact-spec-decision.md) |
 | **Normalization of Deviance**（Vaughan 1996，TASK-1106 顯式化） | 偏差被反覆接受而例行化（detect-and-accept 無限延續） | rule lifecycle audit 之同型違規連續接受 3 次強制裁決條款 | [docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md) |
 | **Swiss Cheese Model**（Reason 1990，TASK-1106 顯式化） | 單一事故穿透多層防禦之路徑分析 | guard 疊層 + improvement artifact `Why Not Prevented` 之逐層穿透敘述 | [.github/memory-bank/workflow-gates.md](../.github/memory-bank/workflow-gates.md) |
 | **Hyrum's Law**（Hyrum Wright，相容性視角，TASK-1108 顯式化） | 已發布之可觀察行為（檔名、路徑、欄位順序、報告標題、exit code、預設值、log/警告/錯誤文字）一旦被使用即成隱性依賴，即使未正式承諾；unknown consumer ≠ no consumer | AGENTS.md 精確字串條款（不得更動 agent/validator/腳本依賴之精確字串）+ `prompt_regression_cases.json` 之 PR-* 字面 pin + `guard_contract_validator.py` 之 EXACT_SYNC byte-identical 校驗 | [AGENTS.md](../AGENTS.md)、[artifacts/scripts/drills/prompt_regression_cases.json](../artifacts/scripts/drills/prompt_regression_cases.json) |
@@ -167,6 +167,7 @@ Routing matrix：
 | **Least Privilege**（Saltzer & Schroeder 1975，TASK-1108 顯式化） | tools/scripts/CI jobs/AI agent 應被限制在完成任務所需之最小權限；破壞性操作需顯式升級 | `docs/subagent_roles.md` 之 agent 讀寫權限範圍（Claude 不自寫 code、Gemini read-only research、Codex 限 implementation scope）+ wrapper write-scope 偵測（`scope_guard.py`）+ decision artifact `Override_Reason`（`guard_status_validator.py --override --override-approver`） | [docs/subagent_roles.md §1.3](subagent_roles.md)、[docs/schemas/artifact-spec-decision.md](schemas/artifact-spec-decision.md) |
 | **Gall's Law**（John Gall 1975，TASK-1108 顯式化） | 複雜可行系統必由簡單可行系統演化而來；避免 v0 過早長出 policy engine 等重機制 | Governance Lenses 表自身之表頭紀律「不另立分層、不另建 schema、不另設階段」+ rule lifecycle audit 之 Occam Pass | 本章（表頭紀律）、[docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md) |
 | **Modernized Postel's Law**（Postel 1980，經 Hyrum's Law 修正之版本，TASK-1108 顯式化） | 對外輸出應穩定/保守/可預期；legacy input 容忍須顯性、有警告、有 deprecation 追蹤；內部 schema 應嚴格 | EXACT_SYNC_FILES byte-identical 輸出穩定機制 + RELAXATION_LOG 之顯性放寬紀錄（含 before/after/trigger task/provenance，而非靜默改變）+ artifact schema 必填欄位之嚴格性 | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md)、[docs/artifact_schema.md](artifact_schema.md) |
+| **Lucas Critique**（Lucas 1976，政策回饋／建制變動視角，TASK-1109 顯式化） | 治理規則變更後（CI gate、guard 定義、telemetry schema、model 角色、escalation 規則、pass/fail 門檻、report 格式、prompt 政策），行為會調適，舊 baseline 不可跨建制直接比較 | RELAXATION_LOG 之 Before/After/Trigger Task 記錄格式 + rule lifecycle audit 之 `relax`/`retire` 裁決 + decision artifact 條件式可選 `## Policy Regime` 區段（本次新增） | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md)、[docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md)、[docs/schemas/artifact-spec-decision.md](schemas/artifact-spec-decision.md) |
 
 **明確拒絕：OODA**
 
@@ -183,6 +184,8 @@ OODA（Boyd, Observe-Orient-Decide-Act）與 TAO/ReAct（Yao 2022, Thought-Actio
 **明確拒絕：Campbell's Law**
 
 Campbell's Law（Campbell 1979）與 Goodhart's Law 同構——同為「量化指標被用於治理即遭腐化」，僅為社會科學與經濟學之不同表述。依 OODA 先例（同構名詞不並存）：本框架**已採 Goodhart's Law，明確不採 Campbell's Law**；任何後續 task 不得引此決策為 routing override 範本。
+
+**Campbell's Law 操作化附註（TASK-1109）**：上述拒絕僅拒絕「另立一個與 Goodhart's Law 重複之獨立視角」，不推翻此拒絕宣告，亦不拒絕吸收 Campbell's Law 文獻中對「高風險指標」的具體操作規則。這些規則已併入 Goodhart's Law 列（見上表）：不得以原始指標值（如 firing_count、pass_rate、coverage）直接證明安全/價值/品質；高風險指標須標記 campbell_risk；須記錄 plausible gaming vectors；不得獎勵人為製造之 guard 觸發、警告壓制、淺層測試覆蓋或僅改善指標之變更。可選 metadata（campbell_risk / high_stakes_metric / gaming_vectors / metric_interpretation）之 schema 見 `docs/schemas/artifact-spec-decision.md` 之 `## Metrics Policy` 條件式可選區段。
 
 **明確拒絕：獨立 Policy Engine（OPA / Rego / CEL / 資料庫式規則引擎）**
 

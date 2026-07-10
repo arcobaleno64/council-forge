@@ -196,7 +196,7 @@ Closure
 
 **Layer Boundary Notes**：本框架刻意保留兩層而非四層。策略層內容（Why / 跨 task 願景）散見於 `README.md`、`OBSIDIAN.md`、`BOOTSTRAP_PROMPT.md` 與 `.github/memory-bank/project-facts.md`；task artifact 之 `## Background` 為單任務之策略層入口。作業層內容（How / 單步推理）即 TAO 之同義語，不另設名。
 
-兩層之上另有一組 **governance lenses（治理視角）**——具名觀察切面（Boundary Objects、RACI、PDCA、TAO/ReAct、Double-Loop Learning、SECI、Goodhart's Law、Normalization of Deviance、Swiss Cheese Model、Hyrum's Law、Reversibility & Blast Radius、Separation of Duties、Least Privilege、Gall's Law、Modernized Postel's Law），以不同角度觀察兩層，不新增分層、schema 或 gate。
+兩層之上另有一組 **governance lenses（治理視角）**——具名觀察切面（Boundary Objects、RACI、PDCA、TAO/ReAct、Double-Loop Learning、SECI、Goodhart's Law、Normalization of Deviance、Swiss Cheese Model、Hyrum's Law、Reversibility & Blast Radius、Separation of Duties、Least Privilege、Gall's Law、Modernized Postel's Law、Lucas Critique），以不同角度觀察兩層，不新增分層、schema 或 gate。
 
 完整 schema 與必填門檻：[`docs/orchestration.md` §2.8](docs/orchestration.md)、[`docs/agentic_execution_layer.md`](docs/agentic_execution_layer.md)。
 

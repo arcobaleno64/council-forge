@@ -20,6 +20,7 @@
 - 此步只找候選，不做裁決；沒有資料就不猜。
 - 使用數據只產生候選，不產生裁決——零使用不等於零價值（保險機制平時即零觸發）；裁決一律過 Step 2 之 provenance 檢查。
 - 候選訊號亦包含（TASK-1108）：高 blast-radius 變更缺 rollback/migration notes、僅以單一指標作為移除唯一理由、guard 被刪除卻無替代機制或 decision 記錄、欄位查無消費者（unknown consumer——unknown consumer ≠ no consumer，不得逕以此視為安全）。
+- 評估候選訊號時（TASK-1109，Campbell's Law）：不得以原始指標值（如 firing_count、pass_rate、coverage）直接作為安全/價值/品質之證明；不得獎勵人為製造之 guard 觸發、警告壓制、淺層測試覆蓋，或僅改善指標而未降低實際風險之變更。
 
 ## Step 2: Chesterton Gate
 

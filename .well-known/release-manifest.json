@@ -337,11 +337,11 @@
     },
     {
       "path": "README.md",
-      "sha256": "1f4d635dc4c32f9c3d3347d74195504f1df7009e38a2f5322dacecf04e77511b"
+      "sha256": "62a40148abf5aed56af3a252317906988d3fae80e7c3c5cfae964d9e9c234b3c"
     },
     {
       "path": "README.zh-TW.md",
-      "sha256": "197859b6ff60153241862d3476fe5ac01df35ef543a3a2cbadc2d12288def2df"
+      "sha256": "dac0578966100a14422eda4c4aab6682efda14cb2ececd88f717278d7014b781"
     },
     {
       "path": "START_HERE.md",
@@ -401,7 +401,7 @@
     },
     {
       "path": "artifacts/improvement/RELAXATION_LOG.md",
-      "sha256": "3749e9b5fd6d5affc67afcb88ba1805c46501d044dc9810e09f002074cf428c8"
+      "sha256": "b592ea66c1ca31600e7ca1458bbae89c0c9818d32a857b74b5f741c073475e17"
     },
     {
       "path": "artifacts/improvement/TASK-902.improvement.md",
@@ -509,7 +509,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "a9471a0aa41080e25746d081d900c55ca3186318f6b084eadc51c5479d2485ae"
+      "sha256": "bcfb7e4381864ba21e60018d8a6d382b9262058b6c09f6f489e11da42de492a4"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -821,7 +821,7 @@
     },
     {
       "path": "docs/orchestration.md",
-      "sha256": "6c6768bea54629968acd32195737c90fc33938b4152fa1add92ac237bfce4bad"
+      "sha256": "92bd110f94fd6d12cd4570b73d53be96dce0cfa6711261a2100392922b66b6a7"
     },
     {
       "path": "docs/premortem_rules.md",
@@ -857,7 +857,7 @@
     },
     {
       "path": "docs/schemas/artifact-spec-decision.md",
-      "sha256": "62812d2e2c0ec14ac87aabcb89f97bc247d6329f276ea0b8efe5dbb7c843f4f1"
+      "sha256": "ac19d3083938dfb183963a96fedeb60b51cffd374b3833144bba7d9648877bf1"
     },
     {
       "path": "docs/schemas/artifact-spec-improvement.md",
@@ -905,7 +905,7 @@
     },
     {
       "path": "docs/sop/rule_lifecycle_audit.md",
-      "sha256": "a6402ed11d073f88414ff5ae3dca16da17531c3ec2ed933fa68528ba6d4e0d21"
+      "sha256": "e8ef37799ae8e41ad2f6f8b04538d9502e7a7023019efb03855d6061fb6363ce"
     },
     {
       "path": "docs/sop/task_completion.md",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "c5ca7a4087ff7198969834d36c2f3e4cb0a52cacd4aec89f45248004fadd203e"
+  "root": "12d3ada8368e65633cabda1786f6383eb303990e5776ddc4e0d57e10132a27a9"
 }

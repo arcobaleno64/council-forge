@@ -964,5 +964,25 @@
         "note": "The Normalization-of-Deviance forcing clause (accept 3 times consecutively -> relax or enforce) must stay pinned."
       }
     ]
+  },
+  {
+    "id": "PR-039",
+    "title": "Governance Lenses Additions (TASK-1108)",
+    "description": "The six new governance lenses (Hyrum's Law, Reversibility & Blast Radius, Separation of Duties, Least Privilege, Gall's Law, Modernized Postel's Law) and the Policy Engine rejection must stay pinned in the orchestration doc.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Hyrum's Law",
+          "Reversibility & Blast Radius",
+          "Separation of Duties",
+          "Least Privilege",
+          "Gall's Law",
+          "Modernized Postel's Law",
+          "明確拒絕：獨立 Policy Engine"
+        ],
+        "note": "Governance Lenses table rows and the Policy Engine rejection clause (TASK-1108) must not silently regress."
+      }
+    ]
   }
 ]

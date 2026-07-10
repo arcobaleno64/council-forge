@@ -161,6 +161,12 @@ Routing matrix：
 | **Goodhart's Law**（Goodhart 1975，TASK-1106 顯式化） | 指標成為優化目標即失真（validator schema-pleasing） | RELAXATION_LOG 累積 ≥ 3 案例 → architect review | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md) |
 | **Normalization of Deviance**（Vaughan 1996，TASK-1106 顯式化） | 偏差被反覆接受而例行化（detect-and-accept 無限延續） | rule lifecycle audit 之同型違規連續接受 3 次強制裁決條款 | [docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md) |
 | **Swiss Cheese Model**（Reason 1990，TASK-1106 顯式化） | 單一事故穿透多層防禦之路徑分析 | guard 疊層 + improvement artifact `Why Not Prevented` 之逐層穿透敘述 | [.github/memory-bank/workflow-gates.md](../.github/memory-bank/workflow-gates.md) |
+| **Hyrum's Law**（Hyrum Wright，相容性視角，TASK-1108 顯式化） | 已發布之可觀察行為（檔名、路徑、欄位順序、報告標題、exit code、預設值、log/警告/錯誤文字）一旦被使用即成隱性依賴，即使未正式承諾；unknown consumer ≠ no consumer | AGENTS.md 精確字串條款（不得更動 agent/validator/腳本依賴之精確字串）+ `prompt_regression_cases.json` 之 PR-* 字面 pin + `guard_contract_validator.py` 之 EXACT_SYNC byte-identical 校驗 | [AGENTS.md](../AGENTS.md)、[artifacts/scripts/drills/prompt_regression_cases.json](../artifacts/scripts/drills/prompt_regression_cases.json) |
+| **Reversibility & Blast Radius**（風險工程慣例，TASK-1108 顯式化） | 修改 guard/schema/report/CI gate/預設值/可觀察輸出前，須先分類變更之可逆性與影響半徑 | decision artifact 之條件式可選 `## Reversibility & Blast Radius` 區段（比照既有 `## Guard Exception` 之條件式可選 block 慣例） | [docs/schemas/artifact-spec-decision.md](schemas/artifact-spec-decision.md) |
+| **Separation of Duties**（治理慣例，TASK-1108 顯式化；TASK-1106 曾裁「隱性覆蓋不掛牌」，因具體規則落地需求而推翻） | 高風險/AI 產生之變更（涉及 guard、schema、CI gate、相容契約）之 author 不得為唯一審查者 | `docs/subagent_roles.md` §1.3 single-writer 規則 + Council Reviewer（3 個獨立 Codex model 產出獨立 review notes）+ premortem §12 獨立質疑（撰寫 plan 者不得自問自答） | [docs/subagent_roles.md §1.3](subagent_roles.md)、[docs/premortem_rules.md §12](premortem_rules.md) |
+| **Least Privilege**（Saltzer & Schroeder 1975，TASK-1108 顯式化） | tools/scripts/CI jobs/AI agent 應被限制在完成任務所需之最小權限；破壞性操作需顯式升級 | `docs/subagent_roles.md` 之 agent 讀寫權限範圍（Claude 不自寫 code、Gemini read-only research、Codex 限 implementation scope）+ wrapper write-scope 偵測（`scope_guard.py`）+ decision artifact `Override_Reason`（`guard_status_validator.py --override --override-approver`） | [docs/subagent_roles.md §1.3](subagent_roles.md)、[docs/schemas/artifact-spec-decision.md](schemas/artifact-spec-decision.md) |
+| **Gall's Law**（John Gall 1975，TASK-1108 顯式化） | 複雜可行系統必由簡單可行系統演化而來；避免 v0 過早長出 policy engine 等重機制 | Governance Lenses 表自身之表頭紀律「不另立分層、不另建 schema、不另設階段」+ rule lifecycle audit 之 Occam Pass | 本章（表頭紀律）、[docs/sop/rule_lifecycle_audit.md](sop/rule_lifecycle_audit.md) |
+| **Modernized Postel's Law**（Postel 1980，經 Hyrum's Law 修正之版本，TASK-1108 顯式化） | 對外輸出應穩定/保守/可預期；legacy input 容忍須顯性、有警告、有 deprecation 追蹤；內部 schema 應嚴格 | EXACT_SYNC_FILES byte-identical 輸出穩定機制 + RELAXATION_LOG 之顯性放寬紀錄（含 before/after/trigger task/provenance，而非靜默改變）+ artifact schema 必填欄位之嚴格性 | [artifacts/improvement/RELAXATION_LOG.md](../artifacts/improvement/RELAXATION_LOG.md)、[docs/artifact_schema.md](artifact_schema.md) |
 
 **明確拒絕：OODA**
 
@@ -177,6 +183,10 @@ OODA（Boyd, Observe-Orient-Decide-Act）與 TAO/ReAct（Yao 2022, Thought-Actio
 **明確拒絕：Campbell's Law**
 
 Campbell's Law（Campbell 1979）與 Goodhart's Law 同構——同為「量化指標被用於治理即遭腐化」，僅為社會科學與經濟學之不同表述。依 OODA 先例（同構名詞不並存）：本框架**已採 Goodhart's Law，明確不採 Campbell's Law**；任何後續 task 不得引此決策為 routing override 範本。
+
+**明確拒絕：獨立 Policy Engine（OPA / Rego / CEL / 資料庫式規則引擎）**
+
+Gall's Law 之直接應用：本框架尚無可觀察之真實需求證明需要獨立 policy engine——guard 邏輯現以 Python validator 直接表達已足夠，且無使用資料顯示現有機制不足。在無使用資料前引入獨立 policy engine 即為過早複雜化，本框架**明確不採**，除非既有 repo 已依賴此類工具（現況：無）；任何後續 task 不得引此決策為 routing override 範本。
 
 ## 3. Workflow 與 Gate 細節索引
 

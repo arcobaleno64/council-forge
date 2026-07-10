@@ -337,11 +337,11 @@
     },
     {
       "path": "README.md",
-      "sha256": "fb586e068b2052923b128f6bac03c96a04c512d0c2f56588cac2a76931394bb9"
+      "sha256": "1f4d635dc4c32f9c3d3347d74195504f1df7009e38a2f5322dacecf04e77511b"
     },
     {
       "path": "README.zh-TW.md",
-      "sha256": "6027af7fdc911c49c0e6f51376d9a558619f8a3ca35ccc6068989893a36976e8"
+      "sha256": "197859b6ff60153241862d3476fe5ac01df35ef543a3a2cbadc2d12288def2df"
     },
     {
       "path": "START_HERE.md",
@@ -401,7 +401,7 @@
     },
     {
       "path": "artifacts/improvement/RELAXATION_LOG.md",
-      "sha256": "f2e91f10899c22417fc212399afc0f3e375df77ae8a0d4d65854b75c4e27b78a"
+      "sha256": "3749e9b5fd6d5affc67afcb88ba1805c46501d044dc9810e09f002074cf428c8"
     },
     {
       "path": "artifacts/improvement/TASK-902.improvement.md",
@@ -509,7 +509,7 @@
     },
     {
       "path": "artifacts/scripts/drills/prompt_regression_cases.json",
-      "sha256": "19bfa20bd1552aa0cb85a5bee43ac9d7c55f8093855209ec5199241b5f44dd53"
+      "sha256": "a9471a0aa41080e25746d081d900c55ca3186318f6b084eadc51c5479d2485ae"
     },
     {
       "path": "artifacts/scripts/github_publish_common.ps1",
@@ -821,7 +821,7 @@
     },
     {
       "path": "docs/orchestration.md",
-      "sha256": "a13c52ce83ecc211d73162de083295c86e13bc3036c9673babee99f5edfd4357"
+      "sha256": "6c6768bea54629968acd32195737c90fc33938b4152fa1add92ac237bfce4bad"
     },
     {
       "path": "docs/premortem_rules.md",
@@ -857,7 +857,7 @@
     },
     {
       "path": "docs/schemas/artifact-spec-decision.md",
-      "sha256": "2ee24c7397ea42b2beca5f9a41e8bb04b676291aee206add9c6763a95300baf0"
+      "sha256": "62812d2e2c0ec14ac87aabcb89f97bc247d6329f276ea0b8efe5dbb7c843f4f1"
     },
     {
       "path": "docs/schemas/artifact-spec-improvement.md",
@@ -905,7 +905,7 @@
     },
     {
       "path": "docs/sop/rule_lifecycle_audit.md",
-      "sha256": "7d21ebf0de28f70b3dd9f094a45be43fd667c36fd34be9419f9859d21afb639c"
+      "sha256": "a6402ed11d073f88414ff5ae3dca16da17531c3ec2ed933fa68528ba6d4e0d21"
     },
     {
       "path": "docs/sop/task_completion.md",
@@ -913,7 +913,7 @@
     },
     {
       "path": "docs/subagent_roles.md",
-      "sha256": "3dc52256e0cf0fcf65ac687e70ba5325c2becbc406fa38c0c1a8343e1b384935"
+      "sha256": "d1a846a24d58afc050a58934448fac9688ae64ebdf8a88f69f7559ceda667978"
     },
     {
       "path": "docs/subagent_task_templates.md",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "18c32a6ba3ba061b9696b654a1b53c93ece7866e6232a0357c6103d8267aeff7"
+  "root": "c5ca7a4087ff7198969834d36c2f3e4cb0a52cacd4aec89f45248004fadd203e"
 }

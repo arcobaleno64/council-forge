@@ -19,6 +19,7 @@
 - 把候選規則列入待查，只接受可見訊號：長期零使用、重複放寬、長期未動工、前提已消失、或同一例外反覆出現。
 - 此步只找候選，不做裁決；沒有資料就不猜。
 - 使用數據只產生候選，不產生裁決——零使用不等於零價值（保險機制平時即零觸發）；裁決一律過 Step 2 之 provenance 檢查。
+- 候選訊號亦包含（TASK-1108）：高 blast-radius 變更缺 rollback/migration notes、僅以單一指標作為移除唯一理由、guard 被刪除卻無替代機制或 decision 記錄、欄位查無消費者（unknown consumer——unknown consumer ≠ no consumer，不得逕以此視為安全）。
 
 ## Step 2: Chesterton Gate
 

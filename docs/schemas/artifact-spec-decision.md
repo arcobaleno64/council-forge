@@ -55,6 +55,19 @@
 - Override_Reason:
 ```
 
+若 decision 涉及高風險或外部可見之變更（guard/schema/report/CI gate/預設值/可觀察輸出），建議額外提供（TASK-1108，Reversibility & Blast Radius / Separation of Duties / Least Privilege 三個治理視角之落點）：
+
+```md
+## Reversibility & Blast Radius
+- Reversibility: reversible | partially_reversible | irreversible | unknown
+- Blast Radius: local | module | repo | external_consumers | unknown
+- Rollback Plan:
+- Reviewer Independence:
+- Least Privilege Notes:
+```
+
+`## Reversibility & Blast Radius` 規則：本區段為**可選**，無自動 validator 強制；`Reversibility` 與 `Blast Radius` 之 `unknown` 值視為「尚待查明」，不得等同安全、低風險或零風險，選填 `unknown` 時須於 `Reasoning` 補充查明計畫。本區段唯一既有消費者為後續審查者與週期性 architect review（見 `docs/sop/rule_lifecycle_audit.md`）；未來若有自動化強制需求，須依實際使用資料另立 task 評估（Occam's Razor + Gall's Law：無消費者不強制、無使用資料不預先重機制化）。
+
 何時必須建立 decision artifact：
 
 - 研究結果互相衝突

@@ -39,6 +39,8 @@
 - 測試、驗證、review 類工作優先採 read-heavy 模式（避免 R 衝突）。
 - 多個 subagents 可平行讀取，但不可平行修改相同檔案（R 不可分割）。
 - A 始終由 Claude 承擔最終驗收責任，即使 R 為其他代理。
+- 高風險變更（涉及 guard、schema、CI gate 或相容契約）之 author 不得為唯一審查者，須有 Council Reviewer（見 §5.1.3）或獨立 agent session 之 review 記錄（Separation of Duties，TASK-1108）。
+- 破壞性操作（guard 刪除、CI 放寬、secret 變更、schema-breaking 變更）需經 `guard_status_validator.py --override --override-approver` 或使用者明確核准方可執行（Least Privilege，TASK-1108）。
 
 ### 1.4 有疑義先阻塞
 

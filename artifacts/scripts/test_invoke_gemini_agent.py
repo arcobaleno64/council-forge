@@ -29,6 +29,7 @@ def _build_lifecycle_inspector_exe(tmp_path: Path, command_name: str) -> tuple[P
             f"plan_visible={{int(plan_path.exists())}}",
         ]
         marker.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+        print("__OK__")
         sys.exit(0)
         """).strip(),
         encoding="utf-8",
@@ -60,11 +61,15 @@ def _models_from_calls(calls: list[dict]) -> list[str]:
     models = []
     for call in calls:
         args = call["args"]
-        models.append(args[args.index("-m") + 1])
+        models.append(args[args.index("--model") + 1])
     return models
 
 
-def test_default_model_is_flash_lite(fake_gemini_exe, run_wrapper):
+def _normalize_powershell_stdin(text: str) -> str:
+    return text.lstrip("\ufeff\u569c\u7bdb").rstrip("\n")
+
+
+def test_default_model_is_agy_flash_medium(fake_gemini_exe, run_wrapper):
     fake_gemini_exe.configure(stdout="__OK__", exit_code=0)
     result = run_wrapper(
         WRAPPER,
@@ -78,17 +83,24 @@ def test_default_model_is_flash_lite(fake_gemini_exe, run_wrapper):
         "0",
     )
     assert result.returncode == 0, result.combined_output
-    assert _models_from_calls(fake_gemini_exe.calls()) == ["gemini-3.1-flash-lite-preview"]
+    calls = fake_gemini_exe.calls()
+    assert _models_from_calls(calls) == ["Gemini 3.5 Flash (Medium)"]
+    assert "--dangerously-skip-permissions" in calls[0]["args"]
+    assert "--add-dir" in calls[0]["args"]
+    assert "--mode" in calls[0]["args"]
+    assert calls[0]["args"][calls[0]["args"].index("--mode") + 1] == "accept-edits"
+    assert "-m" not in calls[0]["args"]
+    assert "--approval-mode" not in calls[0]["args"]
 
 
-def test_flash_lite_capacity_failure_falls_back_to_flash_preview(fake_gemini_exe, run_wrapper):
+def test_flash_medium_failure_falls_back_to_flash_high(fake_gemini_exe, run_wrapper):
     fake_gemini_exe.configure(
         stdout="__OK__",
         exit_code=0,
         sequence=[
-            {"stdout": "429 MODEL_CAPACITY_EXHAUSTED", "exit_code": 1},
-            {"stdout": "429 MODEL_CAPACITY_EXHAUSTED", "exit_code": 1},
-            {"stdout": "429 MODEL_CAPACITY_EXHAUSTED", "exit_code": 1},
+            {"stderr": "model overloaded", "exit_code": 1},
+            {"stderr": "model overloaded", "exit_code": 1},
+            {"stderr": "model overloaded", "exit_code": 1},
         ],
     )
     result = run_wrapper(
@@ -104,16 +116,17 @@ def test_flash_lite_capacity_failure_falls_back_to_flash_preview(fake_gemini_exe
     )
     assert result.returncode == 0, result.combined_output
     models = _models_from_calls(fake_gemini_exe.calls())
-    assert models[:3] == ["gemini-3.1-flash-lite-preview"] * 3
-    assert models[3] == "gemini-3-flash-preview"
+    assert models[:3] == ["Gemini 3.5 Flash (Medium)"] * 3
+    assert models[3] == "Gemini 3.5 Flash (High)"
 
 
 def test_auto_fallback_models_array_includes_pro(fake_gemini_exe, run_wrapper):
     text = WRAPPER.read_text(encoding="utf-8")
-    models_block = text.split("$Models = @(", 1)[1].split(")", 1)[0]
-    assert "gemini-3.1-pro-preview" in models_block
+    assert "Gemini 3.5 Flash (Medium)" in text
+    assert "Gemini 3.5 Flash (High)" in text
+    assert "Gemini 3.1 Pro (High)" in text
 
-    fake_gemini_exe.configure(stdout="429 MODEL_CAPACITY_EXHAUSTED", exit_code=1)
+    fake_gemini_exe.configure(stderr="model overloaded", exit_code=1)
     result = run_wrapper(
         WRAPPER,
         "-Prompt",
@@ -126,7 +139,49 @@ def test_auto_fallback_models_array_includes_pro(fake_gemini_exe, run_wrapper):
         "0",
     )
     assert result.returncode == 1
-    assert "gemini-3.1-pro-preview" in _models_from_calls(fake_gemini_exe.calls())
+    assert "Gemini 3.1 Pro (High)" in _models_from_calls(fake_gemini_exe.calls())
+
+
+def test_success_stdout_containing_429_is_not_retry_error(fake_gemini_exe, run_wrapper):
+    fake_gemini_exe.configure(stdout="The answer mentions 429 as plain text.", exit_code=0)
+    result = run_wrapper(
+        WRAPPER,
+        "-Prompt",
+        "hello",
+        "-Executable",
+        fake_gemini_exe.path,
+        "-MaxRetriesPerTier",
+        "0",
+        "-BaseBackoffSeconds",
+        "0",
+    )
+    assert result.returncode == 0, result.combined_output
+    assert len(fake_gemini_exe.calls()) == 1
+    assert "The answer mentions 429 as plain text." in result.stdout
+
+
+def test_empty_stdout_exit_zero_retries(fake_gemini_exe, run_wrapper):
+    fake_gemini_exe.configure(
+        stdout="__OK__",
+        exit_code=0,
+        sequence=[
+            {"stdout": "", "exit_code": 0},
+        ],
+    )
+    result = run_wrapper(
+        WRAPPER,
+        "-Prompt",
+        "hello",
+        "-Executable",
+        fake_gemini_exe.path,
+        "-MaxRetriesPerTier",
+        "1",
+        "-BaseBackoffSeconds",
+        "0",
+    )
+    assert result.returncode == 0, result.combined_output
+    assert len(fake_gemini_exe.calls()) == 2
+    assert "Empty stdout from AGY with exit code 0" in result.combined_output
 
 
 # region TASK-1060: lifecycle exclusion in pre-dispatch stash baseline
@@ -135,7 +190,7 @@ def test_auto_fallback_models_array_includes_pro(fake_gemini_exe, run_wrapper):
 class TestGeminiLifecycleExclusion:
     def test_default_exclude_keeps_lifecycle_visible_during_dispatch(self, tmp_path, tmp_repo, run_wrapper):
         _seed_lifecycle_artifacts(tmp_repo)
-        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "gemini")
+        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "agy")
         result = run_wrapper(
             WRAPPER,
             "-Prompt", "hello",
@@ -154,7 +209,7 @@ class TestGeminiLifecycleExclusion:
 
     def test_opt_in_include_stashes_lifecycle_during_dispatch(self, tmp_path, tmp_repo, run_wrapper):
         _seed_lifecycle_artifacts(tmp_repo)
-        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "gemini")
+        exe_path, marker_name = _build_lifecycle_inspector_exe(tmp_path, "agy")
         result = run_wrapper(
             WRAPPER,
             "-Prompt", "hello",
@@ -202,8 +257,8 @@ class TestGeminiLifecycleExclusion:
 # region TASK-1062: Bug A (lifecycle untracked classification) + Bug B (stdin always)
 # AC-3 dual-wrapper parity completed in TASK-1062 reopen pass; Option A scope
 # shrinkage in artifacts/decisions/TASK-1062.decision.md superseded after the
-# new gemini.cmd stdin-without-`-p` smoke test confirmed pure-stdin pipe is
-# viable (gemini CLI reads stdin as the prompt; help-text "Defaults to
+# new AGY stdin-without-`-p` smoke test confirmed pure-stdin pipe is
+# viable (AGY reads stdin as the prompt; help-text "Defaults to
 # interactive mode" reflects an empty-stdin default, not a hard requirement).
 
 
@@ -247,9 +302,9 @@ class TestGeminiBugAClassification:
         original_content = task_path.read_text(encoding="utf-8")
 
         # Build an inspector exe that mutates the lifecycle file during dispatch.
-        directory = tmp_path / "mutator-gemini"
+        directory = tmp_path / "mutator-agy"
         directory.mkdir()
-        script_path = directory / "gemini_mutator.py"
+        script_path = directory / "agy_mutator.py"
         script_path.write_text(
             textwrap.dedent("""
             from __future__ import annotations
@@ -258,18 +313,19 @@ class TestGeminiBugAClassification:
             cwd = Path.cwd()
             target = cwd / "artifacts" / "tasks" / "TASK-fake.task.md"
             target.write_text("MUTATED BY SUB-AGENT\\n", encoding="utf-8")
+            print("__OK__")
             sys.exit(0)
             """).strip(),
             encoding="utf-8",
         )
         if os.name == "nt":
-            exe_path = directory / "gemini.cmd"
+            exe_path = directory / "agy.cmd"
             exe_path.write_text(
                 f'@echo off\r\n"{sys.executable}" "{script_path}" %*\r\nexit /b %ERRORLEVEL%\r\n',
                 encoding="utf-8",
             )
         else:
-            exe_path = directory / "gemini"
+            exe_path = directory / "agy"
             exe_path.write_text(
                 f'#!/usr/bin/env sh\nexec "{sys.executable}" "{script_path}" "$@"\n',
                 encoding="utf-8",
@@ -295,9 +351,9 @@ class TestGeminiBugAClassification:
 
 
 class TestGeminiBugBStdinAlways:
-    """TASK-1062 Bug B (Gemini side, completing AC-3 dual-wrapper parity):
+    """TASK-1062 Bug B (Gemini/AGY side, completing AC-3 dual-wrapper parity):
     wrapper always pipes prompt via stdin to avoid Windows cmd.exe batch-parser
-    truncating multiline prompts at the first LF/CR. gemini CLI reads stdin as
+    truncating multiline prompts at the first LF/CR. AGY reads stdin as
     the prompt when no `-p` flag is present."""
 
     def test_multiline_prompt_under_threshold_is_piped_via_stdin(self, fake_gemini_exe, run_wrapper):
@@ -328,7 +384,7 @@ class TestGeminiBugBStdinAlways:
         # Prompt must NOT appear as an argv element (no -p $Prompt path).
         assert prompt not in last["args"], "prompt leaked into argv (cmdline truncation risk)"
         # Prompt MUST arrive via stdin, in full, with newlines intact.
-        stdin_seen = last.get("stdin", "")
+        stdin_seen = _normalize_powershell_stdin(last.get("stdin", ""))
         assert prompt.rstrip("\n") in stdin_seen, (
             f"prompt not present in fake exe stdin (got {len(stdin_seen)} chars)"
         )
@@ -352,7 +408,7 @@ class TestGeminiBugBStdinAlways:
         assert "(stdin_pipe=True, prompt_size=100)" in result.combined_output
         last = fake_gemini_exe.calls()[-1]
         assert prompt not in last["args"], "prompt leaked into argv"
-        stdin_seen = last.get("stdin", "")
+        stdin_seen = _normalize_powershell_stdin(last.get("stdin", ""))
         assert prompt in stdin_seen, "prompt missing from stdin"
 
 

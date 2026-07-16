@@ -265,17 +265,17 @@ Codex CLI 不得：
 3. 執行 `python artifacts/scripts/guard_contract_validator.py`；此模式只檢查 root / Obsidian / repository profile 與 Gemini model policy。
 4. 若修改 `CLAUDE.md`、`GEMINI.md`、`CODEX.md` 等 prompt 入口，仍必須同步更新 `artifacts/scripts/drills/prompt_regression_cases.json`。
 
-### 9.4 Gemini Model Policy
+### 9.4 Gemini / AGY Model Policy
 
-active workflow files 中只允許以下 Gemini allowlist：
+Gemini research agent 的底層執行檔為 `agy`。active workflow files 中只允許以下 AGY model allowlist：
 
-- `gemini-3.1-flash-lite-preview`
-- `gemini-3-flash-preview`
-- `gemini-3.1-pro-preview`
+- `Gemini 3.5 Flash (Medium)`
+- `Gemini 3.5 Flash (High)`
+- `Gemini 3.1 Pro (High)`
 
-auto-fallback 僅限前兩個 flash tiers；`gemini-3.1-pro-preview` 保留為 allowlist 內的 ad-hoc dispatch。
+auto-fallback 依序使用 `Gemini 3.5 Flash (Medium)`、`Gemini 3.5 Flash (High)`、`Gemini 3.1 Pro (High)`。呼叫形式使用 `agy --model "<tier>" --mode accept-edits --dangerously-skip-permissions --add-dir "<cwd>"`，prompt 由 wrapper 以 stdin 傳入；手動單次查詢可使用 `agy -p "<prompt>" --model "<tier>" --add-dir "<cwd>"`。
 
-`guard_contract_validator.py` 會掃描 `CLAUDE.md`、`BOOTSTRAP_PROMPT.md`、`docs/subagent_roles.md`、`Invoke-GeminiAgent.ps1` 及其 template 對應檔。任何 `2.x` 或未列入 allowlist 的型號都視為 contract violation。
+`guard_contract_validator.py` 會掃描 `CLAUDE.md`、`BOOTSTRAP_PROMPT.md`、`docs/subagent_roles.md`、`Invoke-GeminiAgent.ps1` 及其 template 對應檔。任何 `2.x`、legacy `gemini-*` ID 或未列入 allowlist 的型號都視為 contract violation。
 
 ### 9.5 責任歸屬
 

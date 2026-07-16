@@ -1076,18 +1076,27 @@ class TestValidateAllowedGeminiModels:
         errors = gcv.validate_allowed_gemini_models(tmp_path)
         assert errors == []
 
-    def test_disallowed_model_token_fails(self, tmp_path):
+    def test_all_agy_display_models_are_allowed(self, tmp_path):
         path = tmp_path / "BOOTSTRAP_PROMPT.md"
-        path.write_text("gemini-2.5-flash gemini-3.1-flash-lite-preview", encoding="utf-8")
+        path.write_text(
+            "`Gemini 3.5 Flash (Medium)` `Gemini 3.5 Flash (High)` `Gemini 3.1 Pro (High)`",
+            encoding="utf-8",
+        )
+        errors = gcv.validate_allowed_gemini_models(tmp_path)
+        assert errors == []
+
+    def test_disallowed_agy_display_model_fails(self, tmp_path):
+        path = tmp_path / "BOOTSTRAP_PROMPT.md"
+        path.write_text("Gemini 1.0 Flash (Medium)", encoding="utf-8")
         errors = gcv.validate_allowed_gemini_models(tmp_path)
         assert any("unsupported Gemini model reference" in e for e in errors)
 
-    def test_disallowed_model_fragment_fails(self, tmp_path):
+    def test_legacy_model_token_fails(self, tmp_path):
         path = tmp_path / "docs" / "subagent_roles.md"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("Gemini 2.0 flash is forbidden here.", encoding="utf-8")
+        path.write_text("gemini-2.5-flash gemini-3.1-flash-lite-preview", encoding="utf-8")
         errors = gcv.validate_allowed_gemini_models(tmp_path)
-        assert any("disallowed Gemini model fragment" in e for e in errors)
+        assert any("unsupported Gemini model reference" in e for e in errors)
 
 
 # ─────────────────────────────────────────────
@@ -1342,4 +1351,3 @@ class TestRaciAuditor:
         # Test code (實檔修改) mapped to 'code'
         vs = gcv.detect_raci_violations(Path("src/main.py"), "AgentB", matrix)
         assert len(vs) == 0
-

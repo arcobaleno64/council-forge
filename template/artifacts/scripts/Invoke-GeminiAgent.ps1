@@ -3,10 +3,9 @@
 Resilient wrapper for the Gemini CLI providing multi-tier fallback for API errors.
 
 .DESCRIPTION
-Wraps the gemini CLI to catch 429 MODEL_CAPACITY_EXHAUSTED, 400 Bad Request, and 5xx server errors.
+Wraps the AGY CLI to catch retryable stderr failures and generic execution errors.
 Executes standard Exponential Backoff.
 If failures persist, dynamically steps up through fallback models (flash -> pro).
-If models are exhausted, it switches to a Fallback API key and starts from the bottom model again.
 Returns standard output on success or throws a fatal block if all options are exhausted.
 #>
 
@@ -16,12 +15,12 @@ param (
     [string]$Prompt,
 
     [string]$Profile = $null,
-    [string]$ApprovalMode = "yolo",
+    [string]$ApprovalMode = "accept-edits",
     
     [int]$MaxRetriesPerTier = 2,
     [int]$BaseBackoffSeconds = 2,
 
-    [string]$Executable = "gemini.cmd",
+    [string]$Executable = "agy",
 
     # Layer A of TASK-1057 sub-agent write scope guard.
     # Empty array (default) = guard skipped, backward compatible.
@@ -54,11 +53,14 @@ if (-not $SuppressSizeWarn) {
     }
 }
 
-# Core Error Patterns to Catch
+# Core stderr error patterns to catch. Non-zero exits still retry even when no
+# pattern matches; these strings only classify known retryable AGY failures.
 $RetryPatterns = @(
+    "rate limit",
+    "quota",
+    "capacity",
+    "overloaded",
     "429",
-    "MODEL_CAPACITY_EXHAUSTED",
-    "400 Bad Request",
     "500 Internal Server",
     "502 Bad Gateway",
     "503 Service Unavailable",
@@ -282,11 +284,10 @@ if ($AutoRestoreLegacy) {
 
 # Models Progression
 # Tier 1 (breadth) -> Tier 2 (depth) -> Tier 3 (pro).
-# Pro re-enabled after user subscribed to Gemini AI Pro (2026-05-25).
 $Models = @(
-    "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview",
-    "gemini-3.1-pro-preview"
+    "Gemini 3.5 Flash (Medium)",
+    "Gemini 3.5 Flash (High)",
+    "Gemini 3.1 Pro (High)"
 )
 
 $IsSuccess = $false
@@ -314,10 +315,16 @@ foreach ($model in $Models) {
 
     for ($attempt = 0; $attempt -le $MaxRetriesPerTier; $attempt++) {
         
-        # Construct args
-        $processArgs = @("-m", $model, "--approval-mode", $ApprovalMode)
+        # Construct args. AGY has no Gemini CLI approval flag; use its
+        # non-interactive accept-edits mode and explicit permission bypass.
+        $processArgs = @(
+            "--model", $model,
+            "--mode", $ApprovalMode,
+            "--dangerously-skip-permissions",
+            "--add-dir", (Get-Location).Path
+        )
         if (![string]::IsNullOrWhiteSpace($Profile)) {
-            $processArgs += "--profile", $Profile
+            Write-Host "    [!] -Profile is ignored for AGY dispatch; AGY has no --profile flag." -ForegroundColor Yellow
         }
 
         # TASK-1062 Bug B fix (Gemini side, completing AC-3 dual-wrapper parity):
@@ -336,35 +343,59 @@ foreach ($model in $Models) {
         $lastExitCode = 1
 
         try {
-            if ($useStdinPipe) {
-                $procOutput = $Prompt | & $Executable $processArgs 2>&1
-            } else {
-                $procOutput = $null | & $Executable $processArgs 2>&1
-            }
-            
-            $stdOutLines = @()
-            $stdErrLines = @()
-            foreach ($line in $procOutput) {
-                if ($line -is [System.Management.Automation.ErrorRecord]) {
-                    $stdErrLines += $line.Exception.Message
+            $stdinPath = [System.IO.Path]::GetTempFileName()
+            $stdoutPath = [System.IO.Path]::GetTempFileName()
+            $stderrPath = [System.IO.Path]::GetTempFileName()
+            try {
+                $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+                if ($useStdinPipe) {
+                    [System.IO.File]::WriteAllText($stdinPath, $Prompt, $utf8NoBom)
                 } else {
-                    $stdOutLines += $line
+                    [System.IO.File]::WriteAllText($stdinPath, "", $utf8NoBom)
+                }
+
+                $quotedProcessArgs = @(
+                    foreach ($arg in $processArgs) {
+                        $argText = [string]$arg
+                        if ($argText -match '[\s()]') {
+                            '"' + ($argText -replace '"', '\"') + '"'
+                        } else {
+                            $argText
+                        }
+                    }
+                )
+
+                $proc = Start-Process -FilePath $Executable `
+                    -ArgumentList $quotedProcessArgs `
+                    -RedirectStandardInput $stdinPath `
+                    -RedirectStandardOutput $stdoutPath `
+                    -RedirectStandardError $stderrPath `
+                    -NoNewWindow -Wait -PassThru
+
+                $outText = [System.IO.File]::ReadAllText($stdoutPath)
+                $errText = [System.IO.File]::ReadAllText($stderrPath)
+                $lastExitCode = $proc.ExitCode
+            } finally {
+                foreach ($tempPath in @($stdinPath, $stdoutPath, $stderrPath)) {
+                    if ($tempPath -and (Test-Path $tempPath)) {
+                        Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue
+                    }
                 }
             }
-            
-            $outText = $stdOutLines -join "`n"
-            $errText = $stdErrLines -join "`n"
-            $lastExitCode = $LASTEXITCODE
 
             $combinedText = "$outText`n$errText"
+            $emptyOutput = [string]::IsNullOrWhiteSpace($outText)
             
             # Check outcome
-            if ($lastExitCode -eq 0 -and -not ($combinedText -match $RegexPattern)) {
+            if ($lastExitCode -eq 0 -and -not $emptyOutput -and -not ($errText -match $RegexPattern)) {
                 $IsSuccess = $true
                 $FinalOutput = $outText
                 break
             } else {
                 Write-Host "    [!] Intercepted API/Execution Error (ExitCode: $lastExitCode)" -ForegroundColor Yellow
+                if ($lastExitCode -eq 0 -and $emptyOutput) {
+                    Write-Host "    [!] Empty stdout from AGY with exit code 0; treating as retryable failure." -ForegroundColor Yellow
+                }
                 # TASK-1053 Layer 2: dump last 30 lines of combined stdout/stderr so the
                 # underlying CLI error is visible before retry/escalation.
                 if (![string]::IsNullOrWhiteSpace($combinedText)) {
@@ -382,7 +413,7 @@ foreach ($model in $Models) {
         # Calculate backoff if not last attempt
         if ($attempt -lt $MaxRetriesPerTier) {
             # Check if it was one of our specific retry patterns
-            if ($combinedText -match $RegexPattern) {
+            if ($errText -match $RegexPattern) {
                 $sleepTime = [Math]::Pow(2, $attempt) * $BaseBackoffSeconds
                 Write-Host "    [Backoff] Target error string matched. Sleeping for $sleepTime seconds..." -ForegroundColor DarkYellow
                 Start-Sleep -Seconds $sleepTime
@@ -478,6 +509,6 @@ if ($IsSuccess) {
     Write-Output $FinalOutput
     exit 0
 } else {
-    Write-Error "__FATAL:[Blocked] All fallback models exhausted for Gemini CLI.__`nReview terminal logs or quota statuses."
+    Write-Error "__FATAL:[Blocked] All fallback models exhausted for AGY-backed Gemini CLI.__`nReview terminal logs or quota statuses."
     exit 1
 }

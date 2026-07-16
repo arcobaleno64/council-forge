@@ -149,9 +149,10 @@ Claude Code 的成功不是「自己做完」，而是：
 
 ## 4. Gemini CLI
 
-預設模型：`gemini-3.1-flash-lite-preview`（低成本、快速）。有問題時依序升級至 `gemini-3-flash-preview`、`gemini-3.1-pro-preview`（auto-fallback tier 3）。不得降回 `2.x` 或其他未列入 allowlist 的舊模型。
-認證方式：授權登入不依賴 `GEMINI_API_KEY` 環境變數，由 CLI 內部 OAuth 處理（若未登入請先執行 `gemini auth` 類似指令）。
-呼叫方式：`gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"`
+底層執行檔：`agy`（Antigravity CLI）。
+預設模型：`Gemini 3.5 Flash (Medium)`（低成本、快速）。有問題時依序升級至 `Gemini 3.5 Flash (High)`、`Gemini 3.1 Pro (High)`（auto-fallback tier 3）。不得降回 `2.x`、legacy `gemini-*` ID 或其他未列入 allowlist 的模型。
+認證方式：agy 使用獨立 consumerOAuth 驗證流程，與 `~/.gemini/oauth_creds.json` 完全脫鉤，不依賴 `GEMINI_API_KEY` 環境變數。
+呼叫方式：wrapper 以 stdin 傳入 prompt，並呼叫 `agy --model "Gemini 3.5 Flash (Medium)" --mode accept-edits --dangerously-skip-permissions --add-dir "<cwd>"`；手動單次查詢可用 `agy -p "<prompt>" --model "<tier>" --add-dir "<cwd>"`。
 
 ### 4.1 職責
 
@@ -575,4 +576,3 @@ Reviewer 是風險與品質代理，負責從可維護性、回歸風險、架�
 
 代理可以換，模型可以換，CLI 可以換。
 真正不能亂的是責任邊界、artifact contract、state transition。
-

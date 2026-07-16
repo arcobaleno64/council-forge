@@ -156,19 +156,10 @@ ACTIVE_GEMINI_POLICY_FILES = (
 )
 
 ALLOWED_GEMINI_MODELS = {
-    "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview",
-    "gemini-3.1-pro-preview",
+    "Gemini 3.5 Flash (Medium)",
+    "Gemini 3.5 Flash (High)",
+    "Gemini 3.1 Pro (High)",
 }
-
-DISALLOWED_GEMINI_FRAGMENTS = (
-    "gemini-2.0",
-    "gemini-2.5",
-    "gemini 2.0",
-    "gemini 2.5",
-    "2.0-flash",
-    "2.5-flash",
-)
 
 README_HEADERS_EN = [
     "Start Here",
@@ -735,20 +726,25 @@ def validate_readme_structure(root: Path) -> List[str]:
 
 def validate_allowed_gemini_models(root: Path) -> List[str]:
     errors: List[str] = []
-    model_pattern = re.compile(r"\bgemini-[a-z0-9.\-]+\b", re.IGNORECASE)
+    legacy_model_pattern = re.compile(r"\bgemini-[a-z0-9.\-]+\b", re.IGNORECASE)
+    agy_model_pattern = re.compile(
+        r"\bGemini\s+\d+(?:\.\d+)?\s+(?:Flash|Pro)\s+\((?:Low|Medium|High)\)",
+        re.IGNORECASE,
+    )
+    allowed_normalized = {model.lower() for model in ALLOWED_GEMINI_MODELS}
 
     for relative in ACTIVE_GEMINI_POLICY_FILES:
         path = root / relative
         if not path.exists():
             continue
         text = load_text(path)
-        lowered = text.lower()
-        for fragment in DISALLOWED_GEMINI_FRAGMENTS:
-            if fragment in lowered:
-                errors.append(f"{relative} contains disallowed Gemini model fragment: {fragment}")
-        referenced_models = {match.group(0).lower() for match in model_pattern.finditer(text)}
+        referenced_models = {
+            match.group(0)
+            for pattern in (agy_model_pattern, legacy_model_pattern)
+            for match in pattern.finditer(text)
+        }
         for model in sorted(referenced_models):
-            if model not in ALLOWED_GEMINI_MODELS:
+            if model.lower() not in allowed_normalized:
                 errors.append(f"{relative} contains unsupported Gemini model reference: {model}")
 
     return errors

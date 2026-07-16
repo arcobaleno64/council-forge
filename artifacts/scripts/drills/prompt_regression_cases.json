@@ -274,7 +274,7 @@
   {
     "id": "PR-010",
     "title": "Research Blocked Preconditions And Gemini Allowlist",
-    "description": "Gemini prompt must block bad research inputs, and active workflow files must only reference the 3-step Gemini allowlist.",
+    "description": "Gemini prompt must block bad research inputs, and active workflow files must only reference the 3-step AGY-backed Gemini allowlist.",
     "assertions": [
       {
         "file": "GEMINI.md",
@@ -290,28 +290,38 @@
       {
         "file": "docs/subagent_roles.md",
         "must_contain_all": [
-          "gemini-3.1-flash-lite-preview",
-          "gemini-3-flash-preview",
-          "gemini-3.1-pro-preview"
+          "Gemini 3.5 Flash (Medium)",
+          "Gemini 3.5 Flash (High)",
+          "Gemini 3.1 Pro (High)",
+          "agy 使用獨立 consumerOAuth",
+          "--mode accept-edits",
+          "--dangerously-skip-permissions",
+          "--add-dir"
         ],
         "must_not_contain_any": [
           "gemini-2.0",
-          "gemini-2.5"
+          "gemini-2.5",
+          "--approval-mode=yolo"
         ],
-        "note": "Workflow docs must only describe the allowlisted Gemini models."
+        "note": "Workflow docs must only describe the allowlisted AGY-backed Gemini models and non-interactive AGY flags."
       },
       {
         "file": "artifacts/scripts/Invoke-GeminiAgent.ps1",
         "must_contain_all": [
-          "gemini-3.1-flash-lite-preview",
-          "gemini-3-flash-preview",
-          "gemini-3.1-pro-preview"
+          "Gemini 3.5 Flash (Medium)",
+          "Gemini 3.5 Flash (High)",
+          "Gemini 3.1 Pro (High)",
+          "--model",
+          "--mode",
+          "--dangerously-skip-permissions",
+          "--add-dir"
         ],
         "must_not_contain_any": [
           "gemini-2.0",
-          "gemini-2.5"
+          "gemini-2.5",
+          "--approval-mode"
         ],
-        "note": "Gemini wrapper auto-fallback ladder: Tier 1 breadth (flash-lite) -> Tier 2 depth (flash-preview) -> Tier 3 (pro). All three tiers are in ALLOWED_GEMINI_MODELS; pro re-enabled as auto-fallback Tier 3. (Assertion pins the full 3-tier ladder so a ladder change cannot pass unnoticed.)"
+        "note": "Gemini wrapper auto-fallback ladder now routes through AGY display-name models: Tier 1 Flash Medium -> Tier 2 Flash High -> Tier 3 Pro High. Assertion pins the full 3-tier ladder and AGY non-interactive flags so a ladder or approval-mode regression cannot pass unnoticed."
       }
     ]
   },

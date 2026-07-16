@@ -48,10 +48,11 @@ Workflow template 位於：【填入 artifact-harness repo clone 路徑，或直
 
 - Orchestrator：Claude Code（你；CLI-first，預設負責 orchestration、決策、驗收與最後整合）
 - Research / Memory Curator agent：Gemini CLI
-  - 模型：`gemini-3.1-flash-lite-preview`（預設），有問題時依序升級至 `gemini-3-flash-preview`、`gemini-3.1-pro-preview`（auto-fallback tier 3）
-  - 只允許上述 allowlist，不得降回 2.x 或其他更舊模型
-  - 認證方式：由 CLI 內部 OAuth 處理，不依賴 `GEMINI_API_KEY` 環境變數（若未登入請先執行 `gemini auth`）
-  - 呼叫方式：gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "<prompt>"
+  - 底層執行檔：`agy`（Antigravity CLI）
+  - 模型：`Gemini 3.5 Flash (Medium)`（預設），有問題時依序升級至 `Gemini 3.5 Flash (High)`、`Gemini 3.1 Pro (High)`（auto-fallback tier 3）
+  - 只允許上述 allowlist，不得降回 2.x、legacy `gemini-*` ID 或其他未列入 allowlist 的模型
+  - 認證方式：agy 使用獨立 consumerOAuth 驗證流程，與 `~/.gemini/oauth_creds.json` 完全脫鉤，不依賴 `GEMINI_API_KEY` 環境變數
+  - 呼叫方式：agy --model "Gemini 3.5 Flash (Medium)" --mode accept-edits --dangerously-skip-permissions --add-dir "<cwd>"（prompt 由 wrapper 以 stdin 傳入；手動單次查詢可用 `agy -p "<prompt>" --model "<tier>" --add-dir "<cwd>"`）
   - 入口檔：GEMINI.md（品質硬規則與 Memory Bank Curator draft-only 邊界已內嵌，不需額外載入）
 - Tavily-assisted research：只有 dispatch 明確允許時才能由 Gemini 間接使用本機 Tavily CLI；需先確認 CLI 可用並記錄 command、query、retrieved date、URLs；不可用時標記 blocked / UNVERIFIED
 - Implementation agent：Codex CLI（已規劃實作、測試補強、跨檔 workflow docs 預設交給 Codex）
@@ -126,6 +127,6 @@ TASK-001：【任務目標】
 ### 注意事項
 
 1. **範本路徑**：若 template 已搬移到其他位置，更新路徑即可。
-2. **Gemini 認證**：Gemini CLI 使用 OAuth 登入，不需要 API Key。若未登入請先執行 `gemini auth`。
+2. **Gemini / AGY 認證**：Gemini research agent 由 `agy` 執行；agy 使用獨立 consumerOAuth，不使用 `~/.gemini/oauth_creds.json` 或 `GEMINI_API_KEY`。
 3. **第一個任務**：建議從一個小任務開始（例如 TASK-001: 確認 build 正常），驗證整個流程跑得通後再做大任務。
 4. **Lightweight mode**：極小型任務可搭配 `guard_status_validator.py --auto-classify` 自動判定 lightweight / full gate。

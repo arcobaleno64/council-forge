@@ -1,23 +1,25 @@
 {
   "task_id": "TASK-1110",
-  "state": "researched",
+  "state": "planned",
   "current_owner": "Claude",
-  "next_agent": "Claude",
+  "next_agent": "Codex",
   "required_artifacts": [
     "task",
     "research",
+    "plan",
     "status"
   ],
   "available_artifacts": [
     "task",
     "research",
+    "plan",
     "status"
   ],
   "missing_artifacts": [],
   "assurance_level": "mvp",
-  "project_adapter": "docs-spec",
+  "project_adapter": "generic",
   "open_verification_debts": [],
   "blocked_reason": "",
-  "last_updated": "2026-07-16T10:30:00+08:00",
+  "last_updated": "2026-07-16T11:45:00+08:00",
   "verification_readiness": "mvp"
 }

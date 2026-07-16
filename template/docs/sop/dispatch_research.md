@@ -9,7 +9,7 @@
    - 問題敘述
    - GEMINI.md 的規則條文
    - 預期輸出格式（見 docs/schemas/artifact-spec-research.md §5.2）
-2. 執行 `gemini -m gemini-3.1-flash-lite-preview --approval-mode=yolo -p "..."` 或 `artifacts/scripts/Invoke-GeminiAgent.ps1`
+2. 執行 `agy -p "..." --model "Gemini 3.5 Flash (Medium)" --mode accept-edits --dangerously-skip-permissions --add-dir "<cwd>"` 或 `artifacts/scripts/Invoke-GeminiAgent.ps1`
 3. 接收 research artifact，驗證 `## Sources` 有 >=2 條 + URL
 ```
 

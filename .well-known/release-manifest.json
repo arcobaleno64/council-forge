@@ -797,7 +797,7 @@
     },
     {
       "path": "docs/dispatch_prompt_discipline.md",
-      "sha256": "fa59461bbab149ab892c58b85e19f520610bbb7ed1fb5e59d910c4bcbf3ac42d"
+      "sha256": "b5ee94133c4308ea761db23682bebbfb7a57ddc3780c41a954949ec1c74edfae"
     },
     {
       "path": "docs/ecosystem/mcp-skills-hooks-catalog.md",
@@ -893,7 +893,7 @@
     },
     {
       "path": "docs/sop/dispatch_implementation.md",
-      "sha256": "9706c863a695507e3ebb4b60fb8eaf74d33bb37fa1363043854ecb942222a826"
+      "sha256": "e9786310649f306ec01b0b815b9fe0a0a9aedfe06de469408a6f9b7f1abae340"
     },
     {
       "path": "docs/sop/dispatch_memory_curator.md",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "a31a4f0efcabf1a84708c4d1015982525dc89b273e2ebdc311df286e56688925"
+  "root": "1bd602d27db08447aca335e59de22fd9ae4dc0cc56fcdfaea3de518659b9e0c3"
 }

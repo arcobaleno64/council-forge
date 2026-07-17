@@ -4,7 +4,7 @@
 
 ## 2. 角色總表
 
-RACI 與 agent capability 矩陣之單一真源為 [docs/subagent_roles.md](subagent_roles.md) §2「角色總表（索引）」（hybrid-sync guard 綁定該檔 ↔ `workflow_constants.RACI_MATRIX`）。本檔不再重複該表。
+RACI 與 agent capability 矩陣之單一真源為 [docs/subagent_roles.md](subagent_roles.md) §2「角色總表」（hybrid-sync guard 綁定該檔 ↔ `workflow_constants.RACI_MATRIX`）。本檔不再重複該表。
 
 ### 2.1 TAO Trace 必要程度（執行層）
 

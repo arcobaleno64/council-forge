@@ -53,9 +53,9 @@
 
 必須回報 blocked，不得自行腦補補完。
 
-## 2. 角色總表（索引）
+## 2. 角色總表
 
-RACI 與 agent capability 矩陣已拆分至 [docs/raci-matrix.md](raci-matrix.md)（原 `docs/subagent_roles.md` §2）。
+RACI 與 agent capability 矩陣之單一真源為本檔 §2；[docs/raci-matrix.md](raci-matrix.md) 僅保留 §2.1 TAO Trace 必要程度表（此檔獨有）。
 
 | 角色 |
 |---|
@@ -578,4 +578,3 @@ Reviewer 是風險與品質代理，負責從可維護性、回歸風險、架�
 
 代理可以換，模型可以換，CLI 可以換。
 真正不能亂的是責任邊界、artifact contract、state transition。
-

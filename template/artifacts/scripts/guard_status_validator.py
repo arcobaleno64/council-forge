@@ -2246,8 +2246,9 @@ def validate_artifact_presence(
                     code_text = load_text(code_path)
                     changed_files = extract_file_tokens(extract_section(code_text, "Files Changed"))
                     sensitive_hits = sorted(p for p in changed_files if is_sensitive_guard_path(p))
-                    diff_evidence = (extract_section(code_text, "Diff Evidence") or "").strip()
-                    if sensitive_hits and diff_evidence.lower() in ("", "none", "n/a"):
+                    evidence = parse_diff_evidence(code_text)
+                    evidence_type = (evidence or {}).get("evidence type", "").strip().lower()
+                    if sensitive_hits and evidence_type not in DIFF_EVIDENCE_SUPPORTED_TYPES:
                         errors.append(
                             f"{code_path.name}: clean-task closure touches guard/EXACT_SYNC-sensitive "
                             f"files {sensitive_hits} but provides no ## Diff Evidence. HC-1 A2 requires a "

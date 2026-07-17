@@ -1,0 +1,25 @@
+{
+  "task_id": "TASK-1107",
+  "state": "blocked",
+  "current_owner": "Claude",
+  "next_agent": "User",
+  "required_artifacts": [
+    "status",
+    "task"
+  ],
+  "available_artifacts": [
+    "code",
+    "plan",
+    "research",
+    "status",
+    "task",
+    "test"
+  ],
+  "missing_artifacts": [],
+  "assurance_level": "mvp",
+  "project_adapter": "generic",
+  "open_verification_debts": [],
+  "blocked_reason": "Scoped CHG-012 / RACI fixes are complete and verified, but repo-wide pytest still has 8 unrelated failures outside Files Likely Affected (.well-known release-manifest drift, prompt-injection hidden Unicode in artifacts/plans/TASK-1107.plan.md, and existing git-root assumptions in artifacts/scripts/test_guard_status_validator_state.py).",
+  "last_updated": "2026-07-17T10:49:24+08:00",
+  "verification_readiness": "mvp"
+}

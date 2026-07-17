@@ -2922,6 +2922,26 @@ class TestCleanTaskDiffEvidenceCHG012:
         status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"], diff_evidence=de)
         assert not self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
 
+    def test_sensitive_none_with_reason_evidence_fails(self, tmp_path):
+        for diff_evidence in (
+            "None (this task was completed via alternate verification)",
+            "None（this task was completed via alternate verification）",
+        ):
+            status = self._tree(
+                tmp_path,
+                "TASK-001",
+                ["artifacts/scripts/guard_status_validator.py"],
+                diff_evidence=diff_evidence,
+            )
+            errs = self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+            assert errs, f"expected CHG-012 error for placeholder Diff Evidence: {diff_evidence}"
+
+    def test_sensitive_unstructured_evidence_type_text_fails(self, tmp_path):
+        de = "No Evidence Type: applicable -- verified via manual code review instead of diff replay."
+        status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"], diff_evidence=de)
+        errs = self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+        assert errs, "expected CHG-012 error for unstructured free text containing Evidence Type"
+
     def test_non_sensitive_transition_unchanged(self, tmp_path):
         status = self._tree(tmp_path, "TASK-001", ["src/main.py"])
         assert not self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
@@ -2937,4 +2957,3 @@ class TestCleanTaskDiffEvidenceCHG012:
         assert gsv.is_sensitive_guard_path("docs/orchestration.md")  # in EXACT_SYNC
         assert not gsv.is_sensitive_guard_path("src/main.py")
         assert not gsv.is_sensitive_guard_path("artifacts/scripts/discover_templates.py")
-

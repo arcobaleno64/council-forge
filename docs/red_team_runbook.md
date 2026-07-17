@@ -75,6 +75,8 @@ python artifacts/scripts/run_red_team_suite.py --phase static --keep-temp
 | `RT-027` | `commit-range` archive fallback 超過 replay byte cap | `guard_status_validator.py` | validation fail 並回報 replay byte cap |
 | `RT-028` | `github-pr` provider response 超過 replay byte cap | `guard_status_validator.py` | validation fail 並回報 replay byte cap |
 | `RT-030` | external legacy unparseable verify fragment 匯入 | `migrate_artifact_schema.py` | import 維持 fail-closed：`deferred` + `MANUAL_CHECK_DEFERRED` + open verification debt |
+| `RT-031` | premortem R-block 含 banned phrase 但缺五欄位（stub dismissal） | `guard_status_validator.py` | coding state 下 validation fail 並回報 contains vague phrase |
+| `RT-032` | 觸及 guard/EXACT_SYNC 敏感集之 clean-task done 轉移缺 `## Diff Evidence` | `guard_status_validator.py` | write-transition verifying→done fail 並回報 clean-task closure touches guard（HC-1 A2） |
 
 ### Phase 2: Live workflow 演練
 

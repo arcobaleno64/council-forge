@@ -1,7 +1,7 @@
 # Workflow Gates — Guard Validator 觸發條件
 
 **Reference**: artifacts/scripts/guard_status_validator.py  
-**Last Verified**: 2026-04-25 +08:00
+**Last Verified**: 2026-07-03 +08:00
 
 ## Intake 自 Research 轉換
 
@@ -13,7 +13,7 @@
 
 - Research artifact 必須包含 `## Sources`（至少 2 條來源）
 - 每個源必須附 URL 或 internal reference
-- 若只有摘述，缺少原始連結，guard 會警告但不擋
+- 缺少 `## Sources` 段或來源少於 2 條會 hard fail（CRITICAL，直接擋，見 gsv `validate_research`）；個別來源的 citation 格式問題依放寬後的 CITATION_PATTERN 才可能僅警告
 
 ## Planning 自 Coding 轉換
 
@@ -28,6 +28,8 @@ ELSE:
         BLOCK with "incomplete_premortem"
     ELSE IF any risk lacks Trigger/Detection/Mitigation:
         WARN but allow (can fix in code phase)
+    # CHG-007: 若某 R-block 同時含 banned/vague phrase 且缺任一必填欄位，
+    # 在 coding state 升級為 ERROR（stub-dismissal escalation），非僅警告
 ```
 
 ## Pre-Coding Context Review（可選）
@@ -46,12 +48,12 @@ ELSE:
 
 - Code artifact 存在且包含 Files Changed
 - Plan 的 Files Likely Affected 包含 Code 的 Files Changed
-- 若 code 改了未計劃的檔案，設 status = scope-drift-detected
-- 可用 decision 的 Guard Exception override
+- 若 code 改了未列於 plan Files Likely Affected 的檔案，git-backed scope check 會 hard fail（validation error）
+- 可用帶 `## Guard Exception` 的 decision artifact 搭配 `--allow-scope-drift` waiver override
 
 ## Review 自 Verification 轉換
 
-- Verify artifact 必須包含 `## Environment` 和 `## Build Guarantee`
+- Verify artifact 必須包含 `## Build Guarantee`（guard-enforced，見 gsv `validate_verify`）；`## Environment` 為建議欄位，非 guard enforced
 - Build Guarantee 至少 1 條：commit hash、CI log URL、binary checkpoint
 
 ## Blocked 自 Recovery 轉換（Gate E — PDCA Act → Plan 回灌）
@@ -77,7 +79,7 @@ ELSE:
 - 不要求 premortem（完整門檻見 docs/premortem_rules.md §7 之 min_risks 表）
 - 需要 basic plan with objectives
 - 需要 code artifact with Files Changed
-- 需要 verify with Environment
+- 需要 verify artifact（依 resolved policy；`## Environment` 為建議欄位，非 guard enforced，低風險時 required fields 較少）
 
 重量級標準（預設）：
 - 需要完整 premortem（numbered risks，min_risks 依 task_type，見 docs/premortem_rules.md §7）

@@ -92,6 +92,12 @@ grep -rE "prompt_size=[0-9]+|prompt[^a-z]*= ?[0-9]+ chars" artifacts/
 
 Wrapper-side enforcement（自 TASK-1067）：三 wrapper（`Invoke-CodexAgent` / `Invoke-GeminiAgent` / `Invoke-CodexReview`）於 prompt size 超過閾值時自動 warn 或 reject（dispatch wrapper warn @ 500 / reject @ 5000 chars，exit 4；review wrapper warn @ 100000 / reject @ 200000 chars，diff-driven 故較寬鬆）；caller 可傳 `-SuppressSizeWarn` 暫時繞過。PR-032 anchor 守 wrapper 字面之 bounds 設定。
 
+## Dispatch Wrapper Log 重導向路徑紀律（TASK-1112）
+
+Caller（Claude）若需要將 `Invoke-CodexAgent.ps1` / `Invoke-GeminiAgent.ps1` 之 stdout/stderr 重導向到檔案以供背景監看（例如 `run_in_background: true` 之 dispatch），目的路徑**必須在 repo 工作樹之外**（session scratchpad 目錄或 `%TEMP%`），**不得寫入 repo 目錄內**。
+
+原因：wrapper 之 post-dispatch write-scope guard（`-AutoRestore` 啟用時）以 `git status` 掃描 dispatch 期間新增的檔案並判定是否為 sub-agent 越界寫入；若 caller 自己把重導向 log 檔放在 repo 目錄內，該檔會被同一套掃描誤判為 sub-agent 寫入，觸發不必要的 restore／`git stash pop` 衝突。出處：TASK-1107——Claude 以 PowerShell `*>` 將 wrapper 輸出導到 repo 根目錄下的 `.codex-dispatch-TASK-1107.log`，遭 guard 誤刪並引發 stash pop 衝突，wrapper `[FATAL]` exit 3（見 `artifacts/improvement/TASK-1107.improvement.md`）。
+
 ## 6. Cross-references
 
 - `memory/feedback_dispatch_prompt_discipline.md`：本規範之 origin memory；4 條 how-to-apply 細則之原文出處。

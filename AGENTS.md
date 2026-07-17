@@ -37,6 +37,7 @@
 | `docs/templates/<role>/TEMPLATE.md` | 各角色 prompt 範本（含 YAML frontmatter） | 每個 ~150 | 派發對應 subagent 時 |
 | `artifacts/scripts/discover_templates.py` | Template auto-discovery CLI | 200 | 派發 subagent 前 |
 | `docs/lightweight_mode_rules.md` | 小任務精簡流程規則 | 350 | lightweight mode 任務時 |
+| `docs/sop/rule_lifecycle_audit.md` | 規則盤點循環（Occam pass / Chesterton gate / 記錄） | 700 | Closure / 盤點觸發時 |
 
 ## Markdown 書寫語言規範
 

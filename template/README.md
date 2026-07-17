@@ -196,6 +196,8 @@ The two layers operate at different granularities and are complementary, not com
 
 **Layer Boundary Notes**: this framework deliberately keeps two layers, not four. Strategic content (the Why / portfolio vision) lives in `README.md`, `OBSIDIAN.md`, `BOOTSTRAP_PROMPT.md`, and `.github/memory-bank/project-facts.md`; the task artifact's `## Background` is the per-task strategic entry point. Operational content (the How / single-step reasoning) is the same as the TAO layer — no duplicate naming.
 
+Above both layers sits a small set of **governance lenses** — named viewpoints (Boundary Objects, RACI, PDCA, TAO/ReAct, Double-Loop Learning, SECI, Goodhart's Law, Normalization of Deviance, Swiss Cheese Model, Hyrum's Law, Reversibility & Blast Radius, Separation of Duties, Least Privilege, Gall's Law, Modernized Postel's Law, Lucas Critique) that observe the two layers from different angles without adding new layers, schemas, or gates.
+
 Full schema and triggering thresholds: [`docs/orchestration.md` §2.8](docs/orchestration.md), [`docs/agentic_execution_layer.md`](docs/agentic_execution_layer.md).
 
 ---

@@ -39,6 +39,8 @@
 - 測試、驗證、review 類工作優先採 read-heavy 模式（避免 R 衝突）。
 - 多個 subagents 可平行讀取，但不可平行修改相同檔案（R 不可分割）。
 - A 始終由 Claude 承擔最終驗收責任，即使 R 為其他代理。
+- 高風險變更（涉及 guard、schema、CI gate 或相容契約）之 author 不得為唯一審查者，須有 Council Reviewer（見 §5.1.3）或獨立 agent session 之 review 記錄（Separation of Duties，TASK-1108）。
+- 破壞性操作（guard 刪除、CI 放寬、secret 變更、schema-breaking 變更）需經 `guard_status_validator.py --override --override-approver` 或使用者明確核准方可執行（Least Privilege，TASK-1108）。
 
 ### 1.4 有疑義先阻塞
 
@@ -51,9 +53,9 @@
 
 必須回報 blocked，不得自行腦補補完。
 
-## 2. 角色總表（索引）
+## 2. 角色總表
 
-RACI 與 agent capability 矩陣已拆分至 [docs/raci-matrix.md](raci-matrix.md)（原 `docs/subagent_roles.md` §2）。
+RACI 與 agent capability 矩陣之單一真源為本檔 §2；[docs/raci-matrix.md](raci-matrix.md) 僅保留 §2.1 TAO Trace 必要程度表（此檔獨有）。
 
 | 角色 |
 |---|
@@ -76,6 +78,7 @@ RACI 與 agent capability 矩陣已拆分至 [docs/raci-matrix.md](raci-matrix.m
 | Tester | Codex subagent | test | -- (Codex/Claude A) | code | -- | task, plan, code | test |
 | Verifier | Codex subagent 或 Claude 控制下代理 | verify | -- (Claude A) | code / test | -- | task, code, test | verify |
 | Reviewer | Codex subagent | review notes | -- (Claude A) | plan / code | -- | task, plan, code | review 摘要或 decision 建議 |
+| Codex Reviewer (Council) | Codex subagent (Council) | review notes (3 model votes) | Claude（triage） | plan / code / git diff | -- | git diff | `artifacts/reviews/<timestamp>-<model>.md` |
 
 註：若你想維持最小集合，可先不建立獨立 review artifact，而把 reviewer 結果納入 decision log 或 verify artifact 的 evidence 區段。
 
@@ -575,4 +578,3 @@ Reviewer 是風險與品質代理，負責從可維護性、回歸風險、架�
 
 代理可以換，模型可以換，CLI 可以換。
 真正不能亂的是責任邊界、artifact contract、state transition。
-

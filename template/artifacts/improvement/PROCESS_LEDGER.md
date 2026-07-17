@@ -13,6 +13,7 @@
 - 每個 task 只寫一行。
 - 不貼 raw log，只寫結論與短證據方向。
 - `Applied?` 表示對應修正是否已落地為文件、prompt、guard 或 template 變更。
+- 條目達 N=10 倍數時，需同批執行 [rule lifecycle audit](../../docs/sop/rule_lifecycle_audit.md)。
 
 | Date | Task | Outcome | Top Waste | Top Risk | Fix Candidate | Applied? |
 |---|---|---|---|---|---|---|

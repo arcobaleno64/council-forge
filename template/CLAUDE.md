@@ -33,7 +33,7 @@ Claude Code 預設優先使用 CLI。只有當使用者明確在 VS Code / Copil
 - ❌ Task / research / plan / code artifact 缺失
 - ❌ Metadata 不完整（無 Task ID、status、timestamp+08:00）
 - ❌ Status transition 違反 workflow state machine（見 docs/workflow_state_machine.md）
-- ❌ Premortem 缺失或 R1-R4 不完整（見 docs/premortem_rules.md）
+- ❌ Premortem 缺失或 R1-R4 不完整，或高風險 plan 未完成獨立質疑（見 docs/premortem_rules.md，含 §12）
 - ❌ Verify artifact 無 Build Guarantee
 - ❌ Guard validator 報 scope-drift 且無 decision.## Guard Exception
 - ❌ Artifact 不符 schema（見 docs/artifact_schema.md）
@@ -124,6 +124,14 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 
 > 詳見 `docs/sop/dispatch_implementation.md`。Dispatch prompt token-cost 慣例見 `docs/dispatch_prompt_discipline.md`。
 
+### Dispatch Write-Scope 執行（`-AutoRestore`）
+
+是否讓 write-scope 違規在 dispatch 當下就被真正擋下，由協調者（Claude）決定，不是 Codex / Gemini 自己能決定：
+
+- `Invoke-CodexAgent.ps1` / `Invoke-GeminiAgent.ps1` 的 `-AutoRestore` 預設 `$false`：wrapper 僅偵測 write-scope 違規並印出，dispatch 仍以 exit 0 結束（detect-only，不會自動還原）。
+- 若需要違規被真正擋下（stash-based restore、exit 2），Claude 呼叫 wrapper 時必須顯式傳遞 `-AutoRestore`。
+- 未顯式傳遞時，CODEX.md / GEMINI.md 中「write scope 違規」的處置敘述僅止於偵測與事後記錄（decision artifact、人工 review），不代表該次 dispatch 已被自動擋下。
+
 ### 完成任務
 
 > 詳見 `docs/sop/task_completion.md`：執行 review → 驗證 schema → 確認 verification evidence 到位 → 呼叫 task_complete 工具。
@@ -135,7 +143,7 @@ Claude 若覆寫 routing，必須在 plan / decision / final summary 中記錄�
 若 task 標記 `lightweight: true` 或無 plan 且仍在 drafted/researched：
 
 ✅ 可跳完整 premortem（但需 basic plan with objectives）  
-✅ 可簡化 verify（可用 Environment constraint instead of Build Guarantee）  
+✅ 可簡化 verify（依 resolved policy 放寬，低風險 `POC + generic` 的 required fields 較少；`## Environment` 非 guard-enforced，不能取代 Build Guarantee）  
 ❌ 仍需 code artifact + Files Changed
 
 詳見 .github/memory-bank/workflow-gates.md

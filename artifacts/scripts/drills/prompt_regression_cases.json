@@ -852,5 +852,161 @@
         "note": "Gemini Architecture Synthesizer must stay emit-only (draft text, no repo-tracked writes incl the cache) with the N=10 / sprint-review trigger; mirrors the Memory Bank Curator draft-only contract (PR-021)."
       }
     ]
+  },
+  {
+    "id": "PR-034",
+    "title": "Lightweight Verify Routes Through Resolved Policy",
+    "description": "CLAUDE.md lightweight guidance must govern verify obligations via the resolved policy and must not present ## Environment as a guard-enforced substitute for Build Guarantee. (sync CHG-008)",
+    "assertions": [
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "resolved policy",
+          "非 guard-enforced",
+          "Build Guarantee"
+        ],
+        "note": "Lightweight verify relaxation is governed by the resolved policy; ## Environment is documented as non-guard-enforced and cannot replace Build Guarantee (CHG-008 撤除 Environment 無 enforcement 宣稱)."
+      }
+    ]
+  },
+  {
+    "id": "PR-035",
+    "title": "Dispatch AutoRestore Enforcement Is Conditional, Not Absolute (TASK-1102)",
+    "description": "CLAUDE.md must state that passing -AutoRestore to Invoke-CodexAgent.ps1 / Invoke-GeminiAgent.ps1 is the orchestrator's (Claude's) explicit decision, and that the flag defaults to $false (detect-only, exit 0). GEMINI.md's write-scope violation clause must be conditional on whether -AutoRestore was explicitly passed, and must not re-endorse the pre-TASK-1059 blanket `git checkout HEAD --` restore language.",
+    "assertions": [
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "Dispatch Write-Scope 執行",
+          "-AutoRestore",
+          "預設 `$false`",
+          "detect-only",
+          "顯式傳遞"
+        ],
+        "note": "Orchestrator must explicitly opt in via -AutoRestore for wrapper enforcement; default is detect-only (exit 0), not automatic blocking (TASK-1102)."
+      },
+      {
+        "file": "GEMINI.md",
+        "must_contain_all": [
+          "是否已於偵測當下被 wrapper 自動擋下",
+          "stash-based restore",
+          "取決於下列 `-AutoRestore` 是否顯式傳遞"
+        ],
+        "must_not_contain_any": [
+          "dispatch 視為失敗；Claude 將以 `git checkout HEAD --`"
+        ],
+        "note": "GEMINI.md's violation clause must be conditional on explicit -AutoRestore, not an absolute claim, and must not re-endorse the pre-TASK-1059 blanket git-checkout restore (TASK-1102)."
+      }
+    ]
+  },
+  {
+    "id": "PR-036",
+    "title": "Independent Premortem Challenge Required For High-Risk Plans (TASK-1103)",
+    "description": "docs/premortem_rules.md must define an independent premortem challenge for high-risk plans (security fix / upstream PR / cross-module or cross-repo / unfamiliar framework), requiring a reviewer who does not share the same conversation context/session as the plan author. CLAUDE.md's STOP triggers must reference this requirement.",
+    "assertions": [
+      {
+        "file": "docs/premortem_rules.md",
+        "must_contain_all": [
+          "獨立 Premortem 質疑",
+          "不得與撰寫 R1-R4 的 agent 共用同一個對話 context/session",
+          "Independent Premortem Challenge"
+        ],
+        "note": "Premortem rules must define the independent-challenge convention for high-risk plans, including the non-negotiable independence requirement (TASK-1103)."
+      },
+      {
+        "file": "CLAUDE.md",
+        "must_contain_all": [
+          "高風險 plan 未完成獨立質疑"
+        ],
+        "note": "CLAUDE.md STOP triggers must reference the independent premortem challenge requirement (TASK-1103)."
+      }
+    ]
+  },
+  {
+    "id": "PR-037",
+    "title": "Rule Lifecycle Audit Verdict Contract (TASK-1104)",
+    "description": "The new SOP must pin the four audit verdicts and the fail-closed OPEN rule when provenance is missing.",
+    "assertions": [
+      {
+        "file": "docs/sop/rule_lifecycle_audit.md",
+        "must_contain_all": [
+          "`retire`",
+          "`relax`",
+          "`keep`",
+          "`open`",
+          "查無 provenance",
+          "不拆也不加碼"
+        ],
+        "note": "The rule lifecycle audit SOP must keep the four-way verdict vocabulary and the provenance-missing OPEN clause pinned."
+      }
+    ]
+  },
+  {
+    "id": "PR-038",
+    "title": "Governance Lenses Additions (TASK-1106)",
+    "description": "The three evidence-backed governance lenses and the Campbell's Law rejection must stay pinned in the orchestration doc; the deviance forcing clause must stay in the rule lifecycle audit SOP.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Goodhart's Law",
+          "Normalization of Deviance",
+          "Swiss Cheese Model",
+          "明確不採 Campbell's Law"
+        ],
+        "note": "Governance Lenses table rows and the Campbell rejection clause (TASK-1106) must not silently regress."
+      },
+      {
+        "file": "docs/sop/rule_lifecycle_audit.md",
+        "must_contain_all": [
+          "不得停留於 detect-and-accept"
+        ],
+        "note": "The Normalization-of-Deviance forcing clause (accept 3 times consecutively -> relax or enforce) must stay pinned."
+      }
+    ]
+  },
+  {
+    "id": "PR-039",
+    "title": "Governance Lenses Additions (TASK-1108)",
+    "description": "The six new governance lenses (Hyrum's Law, Reversibility & Blast Radius, Separation of Duties, Least Privilege, Gall's Law, Modernized Postel's Law) and the Policy Engine rejection must stay pinned in the orchestration doc.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Hyrum's Law",
+          "Reversibility & Blast Radius",
+          "Separation of Duties",
+          "Least Privilege",
+          "Gall's Law",
+          "Modernized Postel's Law",
+          "明確拒絕：獨立 Policy Engine"
+        ],
+        "note": "Governance Lenses table rows and the Policy Engine rejection clause (TASK-1108) must not silently regress."
+      }
+    ]
+  },
+  {
+    "id": "PR-040",
+    "title": "Lucas Critique Addition And Campbell's Law Fold-In (TASK-1109)",
+    "description": "The Lucas Critique lens and the Campbell's Law operationalization note (folded into Goodhart's Law, not a separate lens) must stay pinned in the orchestration doc; the Metrics Policy and Policy Regime optional decision sections must stay pinned in the decision schema.",
+    "assertions": [
+      {
+        "file": "docs/orchestration.md",
+        "must_contain_all": [
+          "Lucas Critique",
+          "Campbell's Law 1979 之經濟學同構表述",
+          "明確不採 Campbell's Law"
+        ],
+        "note": "Lucas Critique row and the Campbell's Law fold-in note (TASK-1109) must not silently regress; the original Campbell rejection literal (TASK-1106) must remain intact."
+      },
+      {
+        "file": "docs/schemas/artifact-spec-decision.md",
+        "must_contain_all": [
+          "## Metrics Policy",
+          "## Policy Regime"
+        ],
+        "note": "The optional Metrics Policy and Policy Regime decision sections (TASK-1109) must not silently regress."
+      }
+    ]
   }
 ]

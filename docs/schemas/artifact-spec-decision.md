@@ -55,6 +55,42 @@
 - Override_Reason:
 ```
 
+若 decision 涉及高風險或外部可見之變更（guard/schema/report/CI gate/預設值/可觀察輸出），建議額外提供（TASK-1108，Reversibility & Blast Radius / Separation of Duties / Least Privilege 三個治理視角之落點）：
+
+```md
+## Reversibility & Blast Radius
+- Reversibility: reversible | partially_reversible | irreversible | unknown
+- Blast Radius: local | module | repo | external_consumers | unknown
+- Rollback Plan:
+- Reviewer Independence:
+- Least Privilege Notes:
+```
+
+`## Reversibility & Blast Radius` 規則：本區段為**可選**，無自動 validator 強制；`Reversibility` 與 `Blast Radius` 之 `unknown` 值視為「尚待查明」，不得等同安全、低風險或零風險，選填 `unknown` 時須於 `Reasoning` 補充查明計畫。本區段唯一既有消費者為後續審查者與週期性 architect review（見 `docs/sop/rule_lifecycle_audit.md`）；未來若有自動化強制需求，須依實際使用資料另立 task 評估（Occam's Razor + Gall's Law：無消費者不強制、無使用資料不預先重機制化）。
+
+若 decision 部分依據治理指標（firing_count/block_count/warning_count/pass_rate/coverage/evaluation_count/intervention_count 等）作成，或決策本身構成治理規則之建制變動，建議額外提供（TASK-1109，Campbell's Law / Lucas Critique 兩個治理視角之落點）：
+
+```md
+## Metrics Policy
+- Campbell Risk: low | medium | high | unknown
+- High Stakes Metric: true | false
+- Gaming Vectors:
+  - <plausible gaming vector>
+- Metric Interpretation:
+
+## Policy Regime
+- Regime ID:
+- Changed At:
+- Changed By:
+- Comparable To Previous: true | false
+- Baseline Reset Required: true | false
+- Adaptation Expected:
+  - <expected behavior adaptation>
+- Notes:
+```
+
+`## Metrics Policy` 規則：本區段為**可選**，適用於決策部分依據治理指標作成之情境；`Campbell Risk` 之 `unknown` 值視為「尚待查明」，不得等同 `low` 或安全，選填 `unknown` 時須於 `Reasoning` 補充查明計畫（與 `## Reversibility & Blast Radius` 之 `unknown` 語意一致）；`Metric Interpretation` 必須寫明「指標為證據而非自動核准依據」之語意，不得留空；指標值本身不構成裁決之充分理由，不得單獨用以獎勵人為製造之 guard 觸發、警告壓制或淺層測試覆蓋。`## Policy Regime` 規則：本區段為**可選**，適用於決策本身構成治理規則之建制變動（CI gate、guard 定義、telemetry schema、model 角色、escalation 規則、pass/fail 門檻、report 格式或 prompt 政策之變更）；`Comparable To Previous: false` 為預設安全假設，用以防止「新政策降低可見失敗即視為指標改善」之誤判，不代表該案例不重要。兩區段皆無自動 validator 強制，唯一既有消費者為後續審查者與週期性 architect review；未來若有自動化強制需求，須依實際使用資料另立 task 評估（Occam's Razor + Gall's Law）。
+
 何時必須建立 decision artifact：
 
 - 研究結果互相衝突

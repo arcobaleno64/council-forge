@@ -476,6 +476,7 @@ foreach ($model in $Models) {
 # writes. Empty AllowedPaths = skip (backward compatible).
 $violationsFound = $false
 $violationCount = 0
+$raciViolations = @()
 if ($AllowedPaths.Count -eq 0) {
     Write-Host "[GUARD] skipped (no AllowedPaths configured)" -ForegroundColor DarkGray
 } else {
@@ -531,6 +532,32 @@ if ($AllowedPaths.Count -eq 0) {
     } else {
         Write-Host "[GUARD] Post-dispatch check OK; all changes within allowed paths." -ForegroundColor Green
     }
+
+    # CHG-006: RACI category audit on sub-agent writes. Orthogonal to AllowedPaths --
+    # a path can be allow-listed yet be the wrong artifact CLASS for this agent. Tracked
+    # in a SEPARATE list: RACI violations are reported (and in enforcement mode drive
+    # exit 2) but are NEVER restored/deleted -- they are legitimately path-allowed writes.
+    foreach ($p in $changedPaths) {
+        # Skip user pre-existing lifecycle untracked (unchanged hash) -- not a sub-agent write.
+        if ($lifecycleSnapshot -and $lifecycleSnapshot.ContainsKey($p) -and (Test-Path $p)) {
+            $ph = & git hash-object -- $p 2>$null
+            if ($LASTEXITCODE -eq 0) {
+                if ($ph -is [array]) { $ph = $ph[0] }
+                if (([string]$ph).Trim() -eq $lifecycleSnapshot[$p]) { continue }
+            }
+        }
+        & python (Join-Path $PSScriptRoot 'guard_contract_validator.py') --audit-raci $p 'Codex CLI' --dry-run 2>&1 | Out-Null
+        $auditExit = $LASTEXITCODE
+        if ($auditExit -eq 1) {
+            $raciViolations += $p
+        } elseif ($auditExit -ne 0) {
+            Write-Host "  [GUARD][RACI] audit inconclusive (exit $auditExit), treating as non-violation: $p" -ForegroundColor DarkYellow
+        }
+    }
+    if ($raciViolations.Count -gt 0) {
+        Write-Host "[GUARD][RACI] Sub-agent wrote files outside Codex CLI's RACI artifact class:" -ForegroundColor Red
+        foreach ($v in $raciViolations) { Write-Host "  - $v" -ForegroundColor Red }
+    }
 }
 
 # TASK-1059: restore user pre-dispatch state. Conflict -> exit 3 fail-safe.
@@ -541,6 +568,14 @@ if ($popExit -eq 3) { exit 3 }
 # the violation outcome (not the dispatch outcome).
 if ($violationsFound -and $AutoRestore) {
     Write-Error "__GUARD_VIOLATION:[TASK-1057] Sub-agent wrote $violationCount files outside AllowedPaths.__"
+    exit 2
+}
+
+# CHG-006: RACI category violations follow the same enforcement gate ($AutoRestore).
+# Detect mode prints only (no exit 2); enforcement mode fails closed. RACI violations
+# are NEVER restored (not fed to Restore-PostDispatchDelta) -- report-and-exit only.
+if ($raciViolations.Count -gt 0 -and $AutoRestore) {
+    Write-Error "__GUARD_VIOLATION:[CHG-006] Sub-agent wrote $($raciViolations.Count) files outside Codex CLI RACI class.__"
     exit 2
 }
 

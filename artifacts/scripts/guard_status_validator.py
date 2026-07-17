@@ -76,16 +76,6 @@ ARTIFACT_EXTENSIONS = {
     "improvement": ".improvement.md",
     "status": ".status.json",
 }
-STATE_REQUIRED_ARTIFACTS = {
-    "drafted": {"task", "status"},
-    "researched": {"task", "research", "status"},
-    "planned": {"task", "plan", "status"},
-    "coding": {"task", "plan", "code", "status"},
-    "testing": {"task", "plan", "code", "test", "status"},
-    "verifying": {"task", "code", "status"},
-    "done": {"task", "code", "verify", "status"},
-    "blocked": {"task", "status"},
-}
 MARKERS = {
     "task": (
         "# Task:",
@@ -1030,7 +1020,7 @@ def validate_status_schema(status: dict, expected_task_id: str) -> ValidationRes
     if state not in VALID_STATES:
         errors.append(f"Invalid state: {state!r}")
     if status_uses_legacy_schema(status):
-        warnings.append("legacy status schema detected; run reconcile to promote state/current_owner/next_agent profile fields")
+        warnings.append("DEPRECATED legacy status schema (current_state) detected; support will be removed in a future release — run reconcile to migrate")
         required_keys = {"task_id", "current_state", "owner", "last_updated"}
         missing = required_keys - set(status.keys())
         if missing:
@@ -1679,6 +1669,20 @@ def task_is_high_risk(task_path: Optional[Path], plan_text: str) -> bool:
     return any(keyword in haystack for keyword in HIGH_RISK_KEYWORDS)
 
 
+def split_premortem_risk_blocks(risks_text: str) -> List[Tuple[str, str]]:
+    """Split a ## Risks section into (label, block_text) pairs delimited by line-anchored
+    R<n> markers; text before the first marker is dropped. Under-splitting (merging blocks)
+    is the safe failure mode for the banned-phrase escalation. Real plans open blocks in
+    three shapes — bare ``R1``, list ``- R1``, and heading ``### R1`` — all at line start."""
+    matches = list(re.finditer(r"(?m)^\s*(?:[-*>#]+\s*)?R(\d+)\b", risks_text))
+    blocks: List[Tuple[str, str]] = []
+    for idx, match in enumerate(matches):
+        start = match.start()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(risks_text)
+        blocks.append((f"R{match.group(1)}", risks_text[start:end]))
+    return blocks
+
+
 def validate_premortem(plan_path: Path, task_path: Optional[Path]) -> ValidationResult:
     errors: List[str] = []
     warnings: List[str] = []
@@ -1712,8 +1716,22 @@ def validate_premortem(plan_path: Path, task_path: Optional[Path]) -> Validation
         )
     elif policy.min_critical == 0 and blocking_count == 0 and task_is_high_risk(task_path, text):
         warnings.append(f"{plan_path.name}: high-risk signals detected but task_type='{policy.task_type}' does not require blocking risk")
+    # CHG-007: escalate banned phrases per R-block. A vague phrase inside a risk block
+    # that is missing any required field is an error (a stub dismissal); the same phrase
+    # in an otherwise-complete block stays a warning. Phrases outside any block warn.
+    risk_blocks = split_premortem_risk_blocks(risks_text)
     for phrase in PREMORTEM_BANNED_PHRASES:
-        if phrase in risks_text:
+        if phrase not in risks_text:
+            continue
+        escalated = False
+        for label, block_text in risk_blocks:
+            if phrase in block_text and any(field not in block_text for field in PREMORTEM_REQUIRED_FIELDS):
+                errors.append(
+                    f"{plan_path.name}: premortem {label} contains vague phrase '{phrase}' but is "
+                    f"missing required Risk/Trigger/Detection/Mitigation/Severity fields"
+                )
+                escalated = True
+        if not escalated:
             warnings.append(f"{plan_path.name}: premortem contains potentially vague phrase '{phrase}' — ensure it has concrete trigger/detection/mitigation")
     return ValidationResult(errors, warnings)
 
@@ -2080,6 +2098,26 @@ def run_verify_floor_enforce(repo_root: Path) -> int:
     return 0
 
 
+def is_sensitive_guard_path(path: str) -> bool:
+    """True if ``path`` is in the guard / EXACT_SYNC "sensitive set" (CHG-012 / HC-1 A2):
+    a clean-task closure that touches any of these must carry replayable ## Diff Evidence.
+    EXACT_SYNC_FILES is read via a lazy import — guard_contract_validator imports THIS
+    module at its top, so a module-level import back would be circular; at call time both
+    modules are fully loaded, so the deferred import is safe and stays drift-free (it reads
+    gcv's live list rather than mirroring it)."""
+    p = path.replace("\\", "/").strip()
+    if p.startswith("./"):
+        p = p[2:]
+    if not p:
+        return False
+    from guard_contract_validator import EXACT_SYNC_FILES
+    if p in set(EXACT_SYNC_FILES):
+        return True
+    if p in ("artifacts/scripts/run_quality_gates.py", "artifacts/scripts/workflow_constants.py"):
+        return True
+    return bool(re.match(r"artifacts/scripts/guard_\w+\.py$", p))
+
+
 def validate_artifact_presence(
     artifacts_root: Path,
     task_id: str,
@@ -2087,6 +2125,7 @@ def validate_artifact_presence(
     status: dict,
     strict_scope: bool = False,
     validation_mode: str = AUTO_CLASSIFY_FULL,
+    enforce_clean_diff_evidence: bool = False,
 ) -> ValidationResult:
     errors: List[str] = []
     warnings: List[str] = []
@@ -2198,6 +2237,25 @@ def validate_artifact_presence(
                 else:
                     warnings.extend(history_scope_result.waiver_candidate_errors)
                 warnings.extend(history_scope_result.warnings)
+                # CHG-012 (HC-1 A2): a clean-task closure (transition into done) that touches
+                # the guard/EXACT_SYNC sensitive set must carry replayable ## Diff Evidence.
+                # Gated on enforce_clean_diff_evidence so it fires ONLY on the target_presence
+                # transition call (to_state == done) and NOT on re-validation of existing done
+                # tasks (validate_all / --task-id) -> forward-only, no retroactive impact.
+                if state == "done" and enforce_clean_diff_evidence:
+                    code_text = load_text(code_path)
+                    changed_files = extract_file_tokens(extract_section(code_text, "Files Changed"))
+                    sensitive_hits = sorted(p for p in changed_files if is_sensitive_guard_path(p))
+                    evidence = parse_diff_evidence(code_text)
+                    evidence_type = (evidence or {}).get("evidence type", "").strip().lower()
+                    if sensitive_hits and evidence_type not in DIFF_EVIDENCE_SUPPORTED_TYPES:
+                        errors.append(
+                            f"{code_path.name}: clean-task closure touches guard/EXACT_SYNC-sensitive "
+                            f"files {sensitive_hits} but provides no ## Diff Evidence. HC-1 A2 requires a "
+                            f"replayable ## Diff Evidence block (Evidence Type: commit-range with Base "
+                            f"Commit, Head Commit, Diff Command, Changed Files Snapshot, and Snapshot "
+                            f"SHA256; or github-pr) so the closure's scope can be independently verified."
+                        )
             if not strict_scope and scope_drift_files:
                 waiver_result = validate_scope_drift_waiver(artifacts_root, task_id, scope_drift_files)
                 errors.extend(waiver_result.errors)
@@ -2445,6 +2503,7 @@ def write_transition(
         status,
         strict_scope=strict_scope,
         validation_mode=validation_mode,
+        enforce_clean_diff_evidence=(to_state == "done"),
     )
     if target_presence.errors:
         return ValidationResult([f"Target state '{to_state}' requirements are not yet satisfied.", *target_presence.errors], target_presence.warnings)

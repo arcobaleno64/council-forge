@@ -135,6 +135,16 @@ blocked
 
 > 例：TASK-1001（v3.4 多階段任務）之 canonical AC 經 TASK-1011 reconcile、AC-5b 經 TASK-1095 resolved，全 AC 有 evidence 而自身無 plan/code → 處置為 superseded-via-reconciliation terminal（見 `artifacts/decisions/TASK-1001.decision.md` §Closing Amendment）。
 
+**(c) abandoned-via-ruling terminal（棄置終態）**：任務標的已消失或經 commander／human ruling 裁定**不再 resume**，本身無工作可續且**無 successor 承載其 obligation**（與 (b) 之關鍵區隔），為一經裁定之**永久棄置終態**（非待解、非 superseded）。識別條件（**三者全須**滿足）：
+
+1. 對應 decision artifact（Decision Class = `risk-acceptance` 或同級）明載 ruling 與**不 resume 理由**；
+2. status.json `blocked_reason` 以 `ABANDONED` 起首並含 ruling 日期；
+3. **無** `superseded_by`／successor 承載義務（與 (b) 之關鍵區隔）。
+
+此別語義同 (b)：**不發生任何 exit/resume 轉移**，state **維 `blocked` 作為 terminal disposition**，**Gate-E 對其 N/A（非「繞過」）**。**限縮**：僅 commander／human ruling ＋ decision artifact 方可適用；一般 stuck 任務（無 ruling）**不得**藉此別繞 Gate-E。
+
+> 例：TASK-901（標的 `external/Wino-Mail/` 自 workspace 移除）經主公 2026-06-13 裁 abandon → status `blocked_reason` 標 `ABANDONED (commander ruling 2026-06-13)`、無 successor（見 `artifacts/decisions/TASK-901.decision.md` §Amendment (2026-06-13)）。
+
 ## 6. 強制規則
 
 1. 每次狀態變更必須更新 status.json

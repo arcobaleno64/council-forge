@@ -406,6 +406,24 @@ class TestWorkflowConstants:
     def test_rule_tables_are_self_consistent(self):
         assert wc.validate_workflow_rule_tables() == []
 
+    def test_raci_matrix_includes_council_reviewer(self):
+        # CHG-004: Codex Reviewer (Council) merged into the single source (subagent_roles.md
+        # §2). Its R value is one artifact token with no '/', so the hybrid-sync parser (which
+        # splits the R column on '/') round-trips it as a single-element set.
+        entry = wc.RACI_MATRIX["Codex Reviewer (Council)"]
+        assert entry == {"review notes (3 model votes)"}
+        assert all("/" not in token for token in entry)
+
+    def test_raci_matrix_v2_codex_owns_workflow_contract_docs(self):
+        # CHG-005: reconcile routing↔RACI — Codex CLI legitimately authors workflow
+        # contract docs (per plan Files Likely Affected), so RACI_MATRIX_V2 grants the
+        # workflow_contract_docs category (root cause of 2 historical violations). Other
+        # categories (e.g. task) still fail-closed.
+        codex = wc.RACI_MATRIX_V2["Codex CLI"]
+        assert "workflow_contract_docs" in codex
+        assert "code" in codex
+        assert "task" not in codex
+
 
 # ─────────────────────────────────────────────
 # validate_context_stack

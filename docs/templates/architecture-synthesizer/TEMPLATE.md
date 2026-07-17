@@ -137,4 +137,5 @@ emit（Gemini 吐出 draft 文字；經 Claude / Codex 審核後寫入 `.github/
 ## Trigger
 
 - 自動：[artifacts/improvement/PROCESS_LEDGER.md](../../../artifacts/improvement/PROCESS_LEDGER.md) 條目達 N=10 倍數時，由 Claude 或 ledger 計數腳本主動 dispatch。
+- 同批：[rule lifecycle audit](../../../docs/sop/rule_lifecycle_audit.md) 於同次 N=10 盤點執行；該 SOP 只盤點規則增刪與放寬，不重複定義本 Trigger。
 - 手動：使用者於任意時刻請 Claude 執行（如 sprint review、季度復盤）。

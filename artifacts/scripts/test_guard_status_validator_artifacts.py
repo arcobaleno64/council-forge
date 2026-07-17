@@ -487,6 +487,22 @@ class TestValidateStatusSchema:
         result = gsv.validate_status_schema(status, "TASK-001")
         assert result.ok
 
+    def test_legacy_schema_deprecation_warning(self):
+        # CHG-002 stage 1: legacy (current_state) schema stays valid (zero behavior
+        # change) but the warning is upgraded to a DEPRECATED notice foretelling removal.
+        status = {
+            "task_id": "TASK-001",
+            "current_state": "drafted",
+            "owner": "Claude",
+            "last_updated": "2026-01-15T10:00:00+08:00",
+        }
+        result = gsv.validate_status_schema(status, "TASK-001")
+        assert result.ok
+        assert any(
+            "DEPRECATED" in w and "will be removed in a future release" in w
+            for w in result.warnings
+        ), result.warnings
+
     def test_legacy_blocked_without_blockers(self):
         status = {
             "task_id": "TASK-001",
@@ -1107,6 +1123,30 @@ class TestValidatePremortemEdges:
         result = gsv.validate_premortem(plan, None)
         assert result.ok
         assert any("風險低" in w for w in result.warnings)
+
+    def test_banned_phrase_incomplete_block_errors(self, tmp_path):
+        # CHG-007: a vague phrase inside an R-block that is missing required fields is an
+        # error (a stub dismissal). Sibling complete blocks keep the whole-doc field
+        # check satisfied, so the only error raised is the per-block escalation on R2.
+        risks = textwrap.dedent("""\
+            R1: Proper risk
+            - Risk: Real risk described
+            - Trigger: Event
+            - Detection: Monitor
+            - Mitigation: Fix
+            - Severity: blocking
+            R2 相容性問題，風險低
+            R3: Another proper risk
+            - Risk: Third thing
+            - Trigger: Event3
+            - Detection: Monitor3
+            - Mitigation: Fix3
+            - Severity: non-blocking
+        """)
+        plan = self._make_plan(tmp_path, risks)
+        result = gsv.validate_premortem(plan, None)
+        assert not result.ok
+        assert any("R2" in e and "風險低" in e for e in result.errors), result.errors
 
     def test_hotfix_policy_fewer_risks_ok(self, tmp_path):
         risks = textwrap.dedent("""\
@@ -2796,3 +2836,124 @@ def _make_diff_evidence_code(tmp_path, evidence_type, snapshot_files, extra_fiel
     code_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return code_path
 
+
+class TestCleanTaskDiffEvidenceCHG012:
+    """CHG-012 (HC-1 A2): a clean-task closure (transition into done) touching the
+    guard/EXACT_SYNC sensitive set must carry ## Diff Evidence. Enforced only via
+    enforce_clean_diff_evidence (set by write_transition's target_presence call for
+    to_state==done), NOT on validate_all / --task-id re-validation -> forward-only."""
+
+    def _tree(self, tmp_path, task_id, files_changed, diff_evidence=None):
+        # Minimal task+plan+code+status tree; plan Files Likely Affected == code Files
+        # Changed so no scope drift, isolating the CHG-012 check.
+        _build_task_artifact(tmp_path, task_id)
+        (tmp_path / "plans").mkdir(parents=True, exist_ok=True)
+        listed = "\n".join(f"- `{f}`" for f in files_changed)
+        (tmp_path / "plans" / f"{task_id}.plan.md").write_text(textwrap.dedent(f"""\
+            # Plan: {task_id}
+            ## Metadata
+            - Artifact Type: plan
+            - Task ID: {task_id}
+            - Owner: Claude
+            - Status: approved
+            - Last Updated: {_ts()}
+            ## Scope
+            s
+            ## Files Likely Affected
+            {listed}
+            ## Proposed Changes
+            c
+            ## Validation Strategy
+            v
+            ## Risks
+            R1: r
+            - Risk: x
+            - Trigger: x
+            - Detection: x
+            - Mitigation: x
+            - Severity: blocking
+            ## Ready For Coding
+            yes
+        """), encoding="utf-8")
+        (tmp_path / "code").mkdir(parents=True, exist_ok=True)
+        code = textwrap.dedent(f"""\
+            # Code Result: {task_id}
+            ## Metadata
+            - Artifact Type: code
+            - Task ID: {task_id}
+            - Owner: Claude
+            - Status: ready
+            - Last Updated: {_ts()}
+            ## Files Changed
+            {listed}
+            ## Summary Of Changes
+            s
+            ## Mapping To Plan
+            - plan_item: 1.1, status: done, evidence: "x"
+        """)
+        if diff_evidence is not None:
+            code += f"\n## Diff Evidence\n{diff_evidence}\n"
+        (tmp_path / "code" / f"{task_id}.code.md").write_text(code, encoding="utf-8")
+        status = _make_full_status(task_id, "done")
+        _write_status(tmp_path, task_id, status)
+        return status
+
+    def _chg012_errors(self, tmp_path, task_id, status, flag):
+        res = gsv.validate_artifact_presence(
+            tmp_path, task_id, "done", status, enforce_clean_diff_evidence=flag
+        )
+        return [e for e in res.errors if "clean-task closure touches guard" in e]
+
+    def test_sensitive_no_evidence_transition_fails(self, tmp_path):
+        status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"])
+        errs = self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+        assert errs, "expected CHG-012 error for guard-touching clean closure without Diff Evidence"
+        assert "Diff Evidence" in errs[0]
+
+    def test_sensitive_with_commit_range_evidence_passes(self, tmp_path):
+        de = (
+            "- Evidence Type: commit-range\n"
+            f"- Base Commit: {'a' * 40}\n"
+            f"- Head Commit: {'b' * 40}\n"
+            "- Diff Command: git diff\n"
+            "- Changed Files Snapshot: artifacts/scripts/guard_status_validator.py\n"
+            "- Snapshot SHA256: deadbeef"
+        )
+        status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"], diff_evidence=de)
+        assert not self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+
+    def test_sensitive_none_with_reason_evidence_fails(self, tmp_path):
+        for diff_evidence in (
+            "None (this task was completed via alternate verification)",
+            "None（this task was completed via alternate verification）",
+        ):
+            status = self._tree(
+                tmp_path,
+                "TASK-001",
+                ["artifacts/scripts/guard_status_validator.py"],
+                diff_evidence=diff_evidence,
+            )
+            errs = self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+            assert errs, f"expected CHG-012 error for placeholder Diff Evidence: {diff_evidence}"
+
+    def test_sensitive_unstructured_evidence_type_text_fails(self, tmp_path):
+        de = "No Evidence Type: applicable -- verified via manual code review instead of diff replay."
+        status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"], diff_evidence=de)
+        errs = self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+        assert errs, "expected CHG-012 error for unstructured free text containing Evidence Type"
+
+    def test_non_sensitive_transition_unchanged(self, tmp_path):
+        status = self._tree(tmp_path, "TASK-001", ["src/main.py"])
+        assert not self._chg012_errors(tmp_path, "TASK-001", status, flag=True)
+
+    def test_sensitive_no_evidence_revalidation_flag_false_passes(self, tmp_path):
+        # validate_all / --task-id path passes flag=False -> existing done tasks stay [OK].
+        status = self._tree(tmp_path, "TASK-001", ["artifacts/scripts/guard_status_validator.py"])
+        assert not self._chg012_errors(tmp_path, "TASK-001", status, flag=False)
+
+    def test_is_sensitive_guard_path(self):
+        assert gsv.is_sensitive_guard_path("artifacts/scripts/guard_status_validator.py")
+        assert gsv.is_sensitive_guard_path("artifacts/scripts/run_quality_gates.py")
+        assert gsv.is_sensitive_guard_path("docs/orchestration.md")  # in EXACT_SYNC
+        assert not gsv.is_sensitive_guard_path("src/main.py")
+        assert not gsv.is_sensitive_guard_path("artifacts/scripts/discover_templates.py")

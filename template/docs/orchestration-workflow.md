@@ -123,7 +123,7 @@ Codex CLI 不得：
    - 若該任務曾經 `blocked`，仍須保留 Gate E / PDCA 所需欄位
 4. 若有長期可重用 lesson，Claude 可派 Gemini 以 Memory Bank Curator 模式產生 `Remember Capture` draft；Gemini 只做 read-only 分類、查重與來源驗證。
 5. 若 draft 需要寫入 `.github/memory-bank/`，由 Claude/Codex 在明確 write scope 下修改，並由 Claude 最終驗收。
-6. 更新 `artifacts/improvement/PROCESS_LEDGER.md`，每個 task 只寫一行摘要，作為冷啟動入口。
+6. 更新 `artifacts/improvement/PROCESS_LEDGER.md`，每個 task 只寫一行摘要，作為冷啟動入口。**凡於 closure 產出 improvement artifact（Gate E 或 retrospective）之 task 必記一條**（見該檔頭部維護規則）；純 lightweight／docs 小任務可免。
 7. 明確標記：
    - 已完成
    - 未完成

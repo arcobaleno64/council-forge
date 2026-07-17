@@ -1,25 +1,27 @@
 {
   "task_id": "TASK-1112",
-  "state": "planned",
+  "state": "done",
   "current_owner": "Claude",
   "next_agent": "Claude",
   "required_artifacts": [
     "plan",
-    "research",
     "status",
-    "task"
+    "task",
+    "verify"
   ],
   "available_artifacts": [
     "code",
     "plan",
     "research",
     "status",
-    "task"
+    "task",
+    "verify"
   ],
   "missing_artifacts": [],
   "assurance_level": "mvp",
   "project_adapter": "docs-spec",
   "open_verification_debts": [],
   "blocked_reason": "",
-  "last_updated": "2026-07-17T12:00:00+08:00"
+  "last_updated": "2026-07-17T12:00:00+08:00",
+  "verification_readiness": "mvp"
 }

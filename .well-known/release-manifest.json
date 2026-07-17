@@ -537,7 +537,7 @@
     },
     {
       "path": "artifacts/scripts/guard_status_validator.py",
-      "sha256": "55b1c03e4c9a3eba3a7a8392edd4969e5cc9ae5f73a7298f01fdd0342fbe1c38"
+      "sha256": "3f2d1acefc53d7ad7761c7574ce1e01cd019a5f42bbf099a27c44804aa3b8e22"
     },
     {
       "path": "artifacts/scripts/legacy_verify_corpus.py",
@@ -637,7 +637,7 @@
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_artifacts.py",
-      "sha256": "66ed68906c02a35379a9f98a60015880028e8be9f885a60718bb70690596b13f"
+      "sha256": "937a63ce1a7c237690988a87633d308ac04eb8e337d76ac2d21e64fe4202f3d9"
     },
     {
       "path": "artifacts/scripts/test_guard_status_validator_core.py",
@@ -829,7 +829,7 @@
     },
     {
       "path": "docs/raci-matrix.md",
-      "sha256": "d5c0a030ca4ef891dc11ead16b1d8b147febd425805481432515387baa692fdb"
+      "sha256": "950ec62f3266b9058980b0b8ce8238ba445577b197fa8544ba6d5f1462781cf5"
     },
     {
       "path": "docs/red_team_backlog.md",
@@ -913,7 +913,7 @@
     },
     {
       "path": "docs/subagent_roles.md",
-      "sha256": "d1a846a24d58afc050a58934448fac9688ae64ebdf8a88f69f7559ceda667978"
+      "sha256": "88c8285c4ca8be1644a084deed500746a13f564b5478ea4597dce66607ce6125"
     },
     {
       "path": "docs/subagent_task_templates.md",
@@ -988,5 +988,5 @@
       "sha256": "273b2a6f1e6fea77e85cdd90cb28541034575a2e148a45941a84710e869e3221"
     }
   ],
-  "root": "12d3ada8368e65633cabda1786f6383eb303990e5776ddc4e0d57e10132a27a9"
+  "root": "a31a4f0efcabf1a84708c4d1015982525dc89b273e2ebdc311df286e56688925"
 }
